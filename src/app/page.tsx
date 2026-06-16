@@ -67,8 +67,8 @@ async function seedSafeSections() {
   try {
      const now = new Date().toISOString();
      const seeds = [
-       ['row1', '📖 Must Read E-Books', 'EBOOK', 10, 1, now],
        { id: 'row1', title: '📖 Must Read E-Books', category: 'EBOOK', order: 10, active: 1 },
+
        { id: 'row2', title: '🌟 Evergreen Epics & Puranas', category: 'Evergreen Epics &amp; Puranas', order: 20, active: 1 },
        { id: 'row3', title: '🎙️ Featured Podcasts', category: 'Devotional', order: 30, active: 1 },
        { id: 'row4', title: '📽️ Popular Videos', category: 'Bhakti Bhava Lahari', order: 40, active: 1 },
