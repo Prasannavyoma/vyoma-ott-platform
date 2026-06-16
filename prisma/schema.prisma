@@ -1,0 +1,472 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/client"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  role      String   @default("USER") // USER, ADMIN
+  plan      String   @default("FREE") // FREE, GOLD, PLATINUM
+  password  String?
+  forcePasswordChange Boolean @default(false)
+  // Subscription metadata
+  razorpayCustomerId      String?
+  razorpaySubscriptionId  String?
+  planInterval            String?  // MONTHLY, YEARLY
+  planStartedAt           DateTime? // Used for explicit cycle calculations
+  planExpiresAt           DateTime? // Accurate WordPress subscription expiration date
+  
+  // Communication
+  phone                   String?  // For WhatsApp Integration
+  
+  // Billing Profile for Invoices
+  address                 String?
+  city                    String?
+  state                   String?  // Used as "Place of Supply"
+  zipCode                 String?
+  country                 String   @default("IN")
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  coins               Int      @default(0) // Gamification wallet
+  totalWatchSeconds   Int      @default(0) // Total curriculum interaction telemetry
+  nameRewardGiven     Boolean  @default(false)
+  profileRewardGiven  Boolean  @default(false)
+  
+  // Demographics & Advanced Profile
+  avatarUrl String?
+  gender    String?  // MALE, FEMALE, OTHER
+  age       Int?
+  interests String?  // Comma-separated or JSON
+  
+  progress  Progress[]
+  purchases Purchase[]
+  quizResults QuizResult[]
+  certificates Certificate[]
+  notes     UserNote[]
+  reviews   Review[]
+  bundlePurchases BundlePurchase[]
+  flashcards      Flashcard[]
+  studyRoomMessages StudyRoomMessage[]
+}
+
+model Course {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  thumbnailUrl String?
+  category    String?
+  contentType String   @default("VIDEO") // VIDEO, AUDIOBOOK, PODCAST, GAME, EBOOK, PROGRAM
+  accessLevel String   @default("FREE") // FREE, GOLD_MONTHLY, GOLD_YEARLY, PLATINUM_MONTHLY, PLATINUM_YEARLY, PAID
+  price       Float?   // Price for individual purchase (INR)
+  priceUSD    Float?   // Price for individual purchase (USD)
+  
+  // Intelligence & Marketing Attributes
+  featuredInSlider Boolean @default(false)
+  showRibbon       Boolean @default(true) // Toggle for 'Newly Added' ribbon
+  trailerUrl       String? // Link to cinematic video trailer
+  hasFreeTrial     Boolean @default(false) // Toggle to show 'Free Trial' button/badge
+  views            Int     @default(0)
+  roadmapOrder     Int     @default(0) // Manual ordering for Skill Constellation Map
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // SEO & Marketing Metadata
+  seoKeywords     String?
+  metaTitle       String?
+  metaDescription String?
+  imageAlt        String?
+  
+  episodes     Episode[]
+  purchases    Purchase[]
+  quizzes      Quiz[]
+  certificates Certificate[]
+  notes        UserNote[]
+  reviews      Review[]
+  bundles      Bundle[]
+}
+
+model Episode {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  order       Int      @default(0)
+  courseId    String
+  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  
+  accessLevel String   @default("FREE") // GRANULAR: FREE, GOLD_MONTHLY, GOLD_YEARLY, PLATINUM_MONTHLY, PLATINUM_YEARLY
+  thumbnailUrl String?  // Individual module visual
+  videoUrl    String?
+  audioUrl    String?
+  duration    Int?     // in seconds
+  subtitleUrl String?
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  progress    Progress[]
+}
+
+model Progress {
+  id        String   @id @default(cuid())
+  userId    String
+  episodeId String
+  completed Boolean  @default(false)
+  position  Int      @default(0) // seconds watched/listened
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  episode   Episode  @relation(fields: [episodeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, episodeId])
+}
+
+model Purchase {
+  id        String   @id @default(cuid())
+  userId    String
+  courseId  String
+  amount           Float?
+  razorpayOrderId  String?
+  razorpayPaymentId String?
+  
+  // Captured fields at moment of purchase for static Invoice integrity
+  hsnCode          String   @default("998439")
+  placeOfSupply    String?  // Captured snapshot from User State
+  billingAddress   String?
+  
+  createdAt        DateTime @default(now())
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, courseId])
+}
+
+model Plan {
+  id        String   @id @default(cuid())
+  name      String   // e.g., "GOLD", "PLATINUM"
+  interval  String   // "MONTHLY", "YEARLY"
+  priceINR  Float
+  priceUSD  Float
+  updatedAt DateTime @updatedAt
+}
+
+model SystemSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
+model HomepageSection {
+  id        String   @id @default(cuid())
+  title     String
+  category  String
+  order     Int      @default(0)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+model NavigationMenu {
+  id        String   @id @default(cuid())
+  label     String
+  url       String?
+  order     Int      @default(0)
+  parentId  String?
+  parent    NavigationMenu? @relation("SubMenu", fields: [parentId], references: [id], onDelete: Cascade)
+  children  NavigationMenu[] @relation("SubMenu")
+  isFooter  Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model Category {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  slug        String?  @unique
+  createdAt   DateTime @default(now())
+}
+
+model CustomPage {
+  id        String   @id @default(cuid())
+  title     String
+  slug      String   @unique
+  content   String   // Markdown or HTML content
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SubscriptionVoucher {
+  id          String   @id @default(cuid())
+  code        String   @unique
+  plan        String   // GOLD, PLATINUM
+  months      Int      @default(12)
+  isUsed      Boolean  @default(false)
+  usedById    String?
+  sponsoredBy String?  // Entity name sponsoring the voucher
+  createdAt   DateTime @default(now())
+}
+
+model Quiz {
+  id            String   @id @default(cuid())
+  title         String
+  description   String?
+  courseId      String
+  course        Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  minPassScore  Int      @default(50) // percentage
+  
+  createdAt     DateTime @default(now())
+  questions     Question[]
+  results       QuizResult[]
+}
+
+model Question {
+  id            String   @id @default(cuid())
+  quizId        String
+  quiz          Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  text          String
+  options       String   // JSON stringified array of options
+  correctAnswer String
+  
+  createdAt     DateTime @default(now())
+}
+
+model QuizResult {
+  id        String   @id @default(cuid())
+  userId    String
+  quizId    String
+  score     Int      // earned score %
+  passed    Boolean
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  quiz      Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+}
+
+model Certificate {
+  id        String   @id @default(cuid())
+  userId    String
+  courseId  String
+  code      String   @unique // Unique serial
+  issuedAt  DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+}
+
+model UserNote {
+  id        String   @id @default(cuid())
+  userId    String
+  courseId  String
+  content   String   // Rich sticky note text
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, courseId])
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  userId    String
+  courseId  String
+  rating    Int      @default(5)
+  comment   String?
+  approved  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+}
+
+model Referral {
+  id             String   @id @default(cuid())
+  referrerId     String   // User ID who shared their referral link
+  referredEmail  String   @unique // Registered email of the referred friend
+  createdAt      DateTime @default(now())
+}
+
+model ReferralReward {
+  id             String   @id @default(cuid())
+  userId         String   // Referrer User ID who completed a tier reward
+  rewardName     String   // "Vyoma Diaries", "200rs Voucher", "Vyoma T-Shirt"
+  referralCount  Int      // 50, 100, 150
+  status         String   @default("PENDING") // PENDING, DELIVERED
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Bundle {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  price       Float
+  validityDays Int?    // If null, lifetime access. Otherwise, validity in days.
+  thumbnailUrl String?
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  courses     Course[] // Implicit m:n relation
+  purchases   BundlePurchase[]
+}
+
+model BundlePurchase {
+  id        String   @id @default(cuid())
+  userId    String
+  bundleId  String
+  amount           Float?
+  razorpayOrderId  String?
+  razorpayPaymentId String?
+  
+  // Validation tracking
+  expiresAt        DateTime? 
+  
+  createdAt        DateTime @default(now())
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bundle    Bundle   @relation(fields: [bundleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, bundleId])
+}
+
+model Sponsor {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  logoUrl     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([createdAt])
+}
+
+model WatchlistItem {
+  userId    String
+  courseId  String
+  createdAt DateTime @default(now())
+
+  @@id([userId, courseId])
+}
+
+model CourseLike {
+  userId    String
+  courseId  String
+  isLike    Int      @default(1)
+  createdAt DateTime @default(now())
+
+  @@id([userId, courseId])
+}
+
+model ReferralTier {
+  id                String   @id @default(cuid())
+  referralsRequired Int      @unique
+  rewardName        String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model HomepageChannel {
+  id    String @id @default(cuid())
+  name  String
+  url   String
+  icon  String
+  order Int    @default(0)
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  message   String
+  type      String   @default("INFO")
+  read      Boolean  @default(false)
+  linkUrl   String?
+  createdAt DateTime @default(now())
+}
+
+model VideoMarker {
+  id        String   @id @default(cuid())
+  episodeId String
+  timestamp Int      // Time in seconds when this marker triggers
+  type      String   // XRAY_GLOSSARY, QUIZ_PROMPT, RESOURCE_LINK
+  payload   String   // JSON string containing marker data (e.g., question text, glossary definition)
+  createdAt DateTime @default(now())
+}
+
+model Flashcard {
+  id           String   @id @default(cuid())
+  userId       String
+  word         String
+  definition   String
+  box          Int      @default(1) // Leitner box (1 to 5)
+  nextReviewAt DateTime @default(now())
+  createdAt    DateTime @default(now())
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model StudyRoom {
+  id           String   @id @default(cuid())
+  hostId       String
+  courseId     String
+  episodeId    String
+  isPlaying    Boolean  @default(false)
+  position     Int      @default(0)
+  lastUpdateAt DateTime @default(now())
+  createdAt    DateTime @default(now())
+  messages     StudyRoomMessage[]
+}
+
+model StudyRoomMessage {
+  id        String   @id @default(cuid())
+  roomId    String
+  userId    String
+  userName  String
+  text      String
+  createdAt DateTime @default(now())
+  room      StudyRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model AiFaq {
+  id        String   @id @default(cuid())
+  question  String
+  answer    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Subhashita {
+  id              String   @id @default(cuid())
+  sanskrit        String
+  transliteration String
+  translation     String
+  source          String   @default("Unknown")
+  wordsJson       String
+  createdAt       DateTime @default(now())
+}
+
+model TelemetryEvent {
+  id        String   @id @default(cuid())
+  eventType String   // PAGE_VIEW, PRODUCT_VIEW, BANNER_CLICK, HOTLINK_CLICK
+  sourceId  String   // ID or slug of the entity
+  userId    String?
+  metadata  String?
+  createdAt DateTime @default(now())
+
+  @@index([eventType, sourceId])
+  @@index([createdAt])
+}
