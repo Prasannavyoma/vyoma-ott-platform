@@ -110,14 +110,14 @@ export default async function HomePage() {
   ] = await Promise.all([
     getFeaturedSlider(),
     getTrendingNow(),
-    prisma.course.findMany({ orderBy: { createdAt: 'desc' }, take: 100 }),
+    (async () => { try { return await prisma.course.findMany({ orderBy: { createdAt: 'desc' }, take: 100 }); } catch (e) { console.error('course err:', e); return []; } })(),
     getSafeHomepageSections(),
     getSafeHomepageChannels(),
     getContinueWatching(),
     getUserWatchlist(),
     getAIRecommendedCourses(),
-    prisma.sponsor.findMany({ orderBy: { createdAt: 'desc' } }),
-    prisma.systemSetting.findUnique({ where: { key: 'HIDE_DUMMY_SPONSORS' } }).catch(() => null),
+    (async () => { try { return await prisma.sponsor.findMany({ orderBy: { createdAt: 'desc' } }); } catch (e) { console.error('sponsor err:', e); return []; } })(),
+    (async () => { try { return await prisma.systemSetting.findUnique({ where: { key: 'HIDE_DUMMY_SPONSORS' } }); } catch (e) { return null; } })(),
     (async () => {
       try {
         let menus = await prisma.navigationMenu.findMany({
