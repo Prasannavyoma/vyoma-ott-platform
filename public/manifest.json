@@ -1,0 +1,16 @@
+{
+  "name": "Vyoma OTT",
+  "short_name": "Vyoma",
+  "description": "World's First Sanskrit Educational OTT with Offline Downloads",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#f26422",
+  "icons": [
+    {
+      "src": "https://floralwhite-marten-419677.hostingersite.com/wp-content/uploads/2023/02/logo-200-x-70-px.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}

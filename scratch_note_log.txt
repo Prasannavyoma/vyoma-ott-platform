@@ -1,0 +1,12 @@
+
+--- [2026-05-20T12:50:41.157Z] NOTE ATTEMPT ---
+Payload: CourseID=amarakosha_e_book, ContentLen=0
+AuthSuccess: UserID=cmp6ksxke0002v5t031ge906o, Email=admin@digitalsanskrit.com
+UPSERT_SUCCESS: SavedRecordID=cmpe28akz000bv55kjgj24bzo
+REVALIDATE_TRIGGERED: /watch/amarakosha_e_book
+
+--- [2026-05-22T05:51:56.130Z] NOTE ATTEMPT ---
+Payload: CourseID=cmpb0qa8a000yv5zc3dyl4ndt, ContentLen=0
+AuthSuccess: UserID=cmp6ksxke0002v5t031ge906o, Email=admin@digitalsanskrit.com
+UPSERT_SUCCESS: SavedRecordID=cmpgi5hbg000sv5okmmstjrlb
+REVALIDATE_TRIGGERED: /watch/cmpb0qa8a000yv5zc3dyl4ndt
