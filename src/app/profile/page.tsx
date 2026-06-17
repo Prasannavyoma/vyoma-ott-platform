@@ -29,11 +29,17 @@ export default async function ProfilePage() {
   // 2. Subscription Lifetime Tracker
   function getDaysRemaining() {
     if (!user || user.plan === 'FREE') return 'N/A (Free Tier)';
-    const referenceDate = user.planStartedAt || user.createdAt;
-    const start = new Date(referenceDate);
-    const totalDays = user.planInterval === 'YEARLY' ? 365 : 30;
-    const end = new Date(start);
-    end.setDate(end.getDate() + totalDays);
+    
+    let end: Date;
+    if (user.planExpiresAt) {
+      end = new Date(user.planExpiresAt);
+    } else {
+      const referenceDate = user.planStartedAt || user.createdAt;
+      const start = new Date(referenceDate);
+      const totalDays = user.planInterval === 'YEARLY' ? 365 : 30;
+      end = new Date(start.getTime() + totalDays * 24 * 60 * 60 * 1000);
+    }
+    
     const now = new Date();
     const diffTime = end.getTime() - now.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -535,8 +541,8 @@ export default async function ProfilePage() {
                      </select>
                   </div>
                   <div>
-                     <label style={labelStyle}>Current Age</label>
-                     <input type="number" name="age" defaultValue={user.age || ''} min="1" max="120" style={inputStyle} />
+                     <label style={labelStyle}>Current Age <span style={{color: '#f26422'}}>*</span></label>
+                     <input required type="number" name="age" defaultValue={user.age || ''} min="1" max="120" style={inputStyle} />
                   </div>
                   <div style={{ gridColumn: 'span 2' }}>
                      <label style={labelStyle}>Personal Interests / Focus Areas</label>

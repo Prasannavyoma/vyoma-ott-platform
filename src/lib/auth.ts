@@ -10,13 +10,45 @@ export async function getCurrentUser() {
   }
 
   try {
-    const user = await prisma.user.findUnique({
+    let user = await prisma.user.findUnique({
       where: { email: emailCookie },
       include: {
         certificates: { include: { course: true } },
         purchases: { include: { course: true }, orderBy: { createdAt: 'desc' } }
       }
     });
+
+    if (!user) return null;
+
+    // ACTIVE SUBSCRIPTION ENFORCEMENT
+    if (user.plan !== 'FREE') {
+      let end: Date;
+      if (user.planExpiresAt) {
+        end = new Date(user.planExpiresAt);
+      } else {
+        const referenceDate = user.planStartedAt || user.createdAt;
+        const start = new Date(referenceDate);
+        const totalDays = user.planInterval === 'YEARLY' ? 365 : 30;
+        end = new Date(start.getTime() + totalDays * 24 * 60 * 60 * 1000);
+      }
+
+      if (Date.now() > end.getTime()) {
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { 
+            plan: 'FREE',
+            planInterval: null,
+            planStartedAt: null,
+            planExpiresAt: null
+          }
+        });
+        user.plan = 'FREE';
+        user.planInterval = null;
+        user.planStartedAt = null;
+        user.planExpiresAt = null;
+      }
+    }
+
     return user;
   } catch (e) {
     return null;
