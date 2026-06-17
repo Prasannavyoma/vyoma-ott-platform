@@ -3,11 +3,13 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import SearchBar from './SearchBar';
 import NotificationBell from './NotificationBell';
+import { checkAuthStatus } from '@/app/actions/auth';
 
 export default function NavBar() {
   const [scrolled, setScrolled] = useState(false);
   const [menus, setMenus] = useState<any[]>([]);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   
   // 📱 Mobile responsive state managers
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -19,6 +21,8 @@ export default function NavBar() {
       .then(data => setMenus(data))
       .catch(e => console.error("Failed to fetch dynamic menu system."));
       
+    checkAuthStatus().then(res => setIsLoggedIn(res.isLoggedIn));
+
     const handleScroll = () => setScrolled(window.scrollY > 50);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
@@ -111,12 +115,15 @@ export default function NavBar() {
              <span className="icon-emoji" style={{fontSize: '1.2rem'}}>📈</span> <span className="progress-text">Progress</span>
           </Link>
 
-          <Link href="/profile" title="Profile" className="profile-link desktop-only nav-icon-link">
-             <span className="icon-emoji" style={{fontSize: '1.2rem'}}>👤</span> <span className="profile-text">Profile</span>
-          </Link>
-          <Link href="/register" className="btn btn-primary join-btn desktop-only" style={{ padding: '8px 16px', fontSize: '0.9rem', fontWeight: 800 }}>
-            Join Free
-          </Link>
+          {isLoggedIn ? (
+            <Link href="/profile" title="Profile" className="profile-link desktop-only nav-icon-link">
+               <span className="icon-emoji" style={{fontSize: '1.2rem'}}>👤</span> <span className="profile-text">Profile</span>
+            </Link>
+          ) : (
+            <Link href="/login" className="btn btn-primary join-btn desktop-only" style={{ padding: '8px 16px', fontSize: '0.9rem', fontWeight: 800 }}>
+              Login / Register
+            </Link>
+          )}
 
           {/* 📱 Mobile Hamburger Menu Toggle */}
           <button 
@@ -150,13 +157,23 @@ export default function NavBar() {
             >
               📈 Progress
             </Link>
-            <Link 
-              href="/profile" 
-              onClick={() => setMobileMenuOpen(false)}
-              style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', background: 'rgba(255,255,255,0.04)', padding: '10px', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 700, border: '1px solid rgba(255,255,255,0.08)', color: '#fff', textDecoration: 'none' }}
-            >
-              👤 Profile
-            </Link>
+            {isLoggedIn ? (
+              <Link 
+                href="/profile" 
+                onClick={() => setMobileMenuOpen(false)}
+                style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', background: 'rgba(255,255,255,0.04)', padding: '10px', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 700, border: '1px solid rgba(255,255,255,0.08)', color: '#fff', textDecoration: 'none' }}
+              >
+                👤 Profile
+              </Link>
+            ) : (
+              <Link 
+                href="/login" 
+                onClick={() => setMobileMenuOpen(false)}
+                style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', background: 'rgba(255,255,255,0.04)', padding: '10px', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 700, border: '1px solid rgba(255,255,255,0.08)', color: '#fff', textDecoration: 'none' }}
+              >
+                Login
+              </Link>
+            )}
           </div>
 
           {/* Dynamic dynamic navigation links list */}
@@ -211,14 +228,16 @@ export default function NavBar() {
           })}
 
           {/* Primary Join Free target */}
-          <Link 
-            href="/register" 
-            onClick={() => setMobileMenuOpen(false)}
-            className="btn btn-primary" 
-            style={{ width: '100%', display: 'flex', justifyContent: 'center', padding: '14px', fontSize: '0.95rem', fontWeight: 800, marginTop: '10px' }}
-          >
-            Join Free
-          </Link>
+          {!isLoggedIn && (
+            <Link 
+              href="/register" 
+              onClick={() => setMobileMenuOpen(false)}
+              className="btn btn-primary" 
+              style={{ width: '100%', display: 'flex', justifyContent: 'center', padding: '14px', fontSize: '0.95rem', fontWeight: 800, marginTop: '10px' }}
+            >
+              Join Free
+            </Link>
+          )}
         </div>
       </div>
     </>

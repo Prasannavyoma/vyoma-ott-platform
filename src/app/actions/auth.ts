@@ -285,3 +285,12 @@ export async function loginWithGoogleAction(idToken: string, referrerId?: string
     return { error: 'Authentication failed: ' + e.message };
   }
 }
+
+export async function checkAuthStatus() {
+  try {
+    const user = await getCurrentUser();
+    return { isLoggedIn: !!user };
+  } catch (e) {
+    return { isLoggedIn: false };
+  }
+}
