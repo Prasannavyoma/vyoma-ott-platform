@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import SearchBar from './SearchBar';
 import NotificationBell from './NotificationBell';
-import { checkAuthStatus } from '@/app/actions/auth';
 
 export default function NavBar() {
   const [scrolled, setScrolled] = useState(false);
@@ -21,7 +20,10 @@ export default function NavBar() {
       .then(data => setMenus(data))
       .catch(e => console.error("Failed to fetch dynamic menu system."));
       
-    checkAuthStatus().then(res => setIsLoggedIn(res.isLoggedIn));
+    fetch('/api/auth/status')
+      .then(res => res.json())
+      .then(data => setIsLoggedIn(data.isLoggedIn))
+      .catch(e => console.error("Failed to fetch auth status."));
 
     const handleScroll = () => setScrolled(window.scrollY > 50);
     window.addEventListener('scroll', handleScroll);
