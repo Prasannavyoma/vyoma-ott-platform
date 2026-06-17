@@ -207,19 +207,23 @@ export default async function HomePage() {
   let searchMatchedCourses: any[] = [];
   if (lastSearchQuery) {
     const queryWithAmp = lastSearchQuery.replace(/&/g, '&amp;');
-    searchMatchedCourses = await prisma.course.findMany({
-      where: {
-        OR: [
-          { title: { contains: lastSearchQuery } },
-          { title: { contains: queryWithAmp } },
-          { category: { contains: lastSearchQuery } },
-          { category: { contains: queryWithAmp } },
-          { description: { contains: lastSearchQuery } },
-          { description: { contains: queryWithAmp } }
-        ]
-      },
-      take: 8
-    });
+    try {
+      searchMatchedCourses = await prisma.course.findMany({
+        where: {
+          OR: [
+            { title: { contains: lastSearchQuery } },
+            { title: { contains: queryWithAmp } },
+            { category: { contains: lastSearchQuery } },
+            { category: { contains: queryWithAmp } },
+            { description: { contains: lastSearchQuery } },
+            { description: { contains: queryWithAmp } }
+          ]
+        },
+        take: 8
+      });
+    } catch (e: any) {
+      dbErrorStr = e.message;
+    }
   }
 
   if (dynamicSections.length === 0) {
@@ -355,14 +359,6 @@ export default async function HomePage() {
             />
           </div>
         )}
-
-        {/* DATABASE DIAGNOSTIC BLOCK - TO BE REMOVED AFTER FIX */}
-        <div style={{ padding: '20px', background: 'red', color: 'white', zIndex: 9999, position: 'relative' }}>
-          <h2>SYSTEM DIAGNOSTIC:</h2>
-          <p>DB URL exists in process.env: {process.env.DATABASE_URL ? "YES" : "NO"}</p>
-          <p>DB URL prefix: {process.env.DATABASE_URL?.substring(0, 15) || "N/A"}</p>
-          <p>DB Error Log: {dbErrorStr || "No error"}</p>
-        </div>
 
         {dynamicSections.map((section: any) => {
           const matching = allCourses.filter(c => {
