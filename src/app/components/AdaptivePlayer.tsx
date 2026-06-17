@@ -260,9 +260,13 @@ export default function AdaptivePlayer({
         };
       } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
         video.src = finalUrl;
+        video.load();
+        video.play().catch(() => {});
       }
     } else {
       video.src = finalUrl;
+      video.load();
+      video.play().catch(() => {});
     }
   }, [url, isHtml, isPdf, isAudio, episodeId]);
 
@@ -687,6 +691,8 @@ export default function AdaptivePlayer({
         <>
           <video
             ref={videoRef}
+            autoPlay
+            playsInline
             onPlay={() => setIsPlaying(true)}
             onPause={handlePause}
             onLoadedMetadata={handleLoadedMetadata}
