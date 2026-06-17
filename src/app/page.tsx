@@ -94,6 +94,7 @@ async function seedSafeSections() {
 export default async function HomePage() {
   const cookieStore = await cookies();
   const lastSearchQuery = cookieStore.get('last_search_query')?.value || '';
+  let dbErrorStr: string | null = null;
 
   const [
     featuredCourses,
@@ -110,13 +111,13 @@ export default async function HomePage() {
   ] = await Promise.all([
     getFeaturedSlider(),
     getTrendingNow(),
-    (async () => { try { return await prisma.course.findMany({ orderBy: { createdAt: 'desc' }, take: 100 }); } catch (e) { console.error('course err:', e); return []; } })(),
+    (async () => { try { return await prisma.course.findMany({ orderBy: { createdAt: 'desc' }, take: 100 }); } catch (e: any) { dbErrorStr = e.message; return []; } })(),
     getSafeHomepageSections(),
     getSafeHomepageChannels(),
     getContinueWatching(),
     getUserWatchlist(),
     getAIRecommendedCourses(),
-    (async () => { try { return await prisma.sponsor.findMany({ orderBy: { createdAt: 'desc' } }); } catch (e) { console.error('sponsor err:', e); return []; } })(),
+    (async () => { try { return await prisma.sponsor.findMany({ orderBy: { createdAt: 'desc' } }); } catch (e: any) { dbErrorStr = e.message; return []; } })(),
     (async () => { try { return await prisma.systemSetting.findUnique({ where: { key: 'HIDE_DUMMY_SPONSORS' } }); } catch (e) { return null; } })(),
     (async () => {
       try {
