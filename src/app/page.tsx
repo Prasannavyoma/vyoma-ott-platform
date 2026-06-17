@@ -355,6 +355,14 @@ export default async function HomePage() {
           </div>
         )}
 
+        {/* DATABASE DIAGNOSTIC BLOCK - TO BE REMOVED AFTER FIX */}
+        <div style={{ padding: '20px', background: 'red', color: 'white', zIndex: 9999, position: 'relative' }}>
+          <h2>SYSTEM DIAGNOSTIC:</h2>
+          <p>DB URL exists in process.env: {process.env.DATABASE_URL ? "YES" : "NO"}</p>
+          <p>DB URL prefix: {process.env.DATABASE_URL?.substring(0, 15) || "N/A"}</p>
+          <p>DB Error Log: {dbErrorStr || "No error"}</p>
+        </div>
+
         {dynamicSections.map((section: any) => {
           const matching = allCourses.filter(c => {
             // Clean Category comparison
