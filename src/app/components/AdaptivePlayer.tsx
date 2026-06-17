@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Hls from 'hls.js';
 import { useRouter } from 'next/navigation';
+import ReactPlayer from 'react-player';
 
 function getYouTubeEmbedUrl(url: string): string {
   if (url.includes('youtube.com/embed/')) return url;
@@ -99,6 +100,9 @@ export default function AdaptivePlayer({
   const lastUpdateRef = useRef<number>(0);
   const router = useRouter();
 
+  const reactPlayerRef = useRef<any>(null);
+  const ReactPlayerComponent = ReactPlayer as any;
+
   // Multi-Format Content Detection
   const lowerUrl = url.toLowerCase();
   const isHtml = lowerUrl.endsWith('.html') || lowerUrl.endsWith('.htm') || lowerUrl.includes('index.html');
@@ -107,7 +111,10 @@ export default function AdaptivePlayer({
   const isYouTube = lowerUrl.includes('youtube.com') || lowerUrl.includes('youtu.be');
   const isVimeo = lowerUrl.includes('vimeo.com');
   const isEmbedVideo = isYouTube || isVimeo;
-  const isNonVideoFormat = isHtml || isPdf || isAudio || isEmbedVideo;
+  
+  const isThirdParty = isYouTube || isVimeo || lowerUrl.includes('soundcloud.com') || lowerUrl.includes('twitch.tv') || lowerUrl.includes('dailymotion.com') || lowerUrl.includes('facebook.com') || lowerUrl.includes('fb.watch') || lowerUrl.includes('wistia.com') || lowerUrl.includes('mixcloud.com');
+  
+  const isNonVideoFormat = isHtml || isPdf || isAudio || isThirdParty;
 
   // Custom Control State
   const [isPlaying, setIsPlaying] = useState(false);
@@ -449,30 +456,38 @@ export default function AdaptivePlayer({
 
   // --- CORE FUNCTIONAL TRIGGERS ---
   const togglePlay = () => {
-    if (!videoRef.current) return;
-    if (isPlaying) {
-      videoRef.current.pause();
-    } else {
-      videoRef.current.play().catch(() => {});
+    if (isThirdParty && reactPlayerRef.current) {
+      setIsPlaying(!isPlaying);
+    } else if (videoRef.current) {
+      if (isPlaying) {
+        videoRef.current.pause();
+      } else {
+        videoRef.current.play().catch(() => {});
+      }
+      setIsPlaying(!isPlaying);
     }
-    setIsPlaying(!isPlaying);
     resetControlsTimeout();
   };
 
   const skip = (seconds: number) => {
-    if (!videoRef.current) return;
-    videoRef.current.currentTime = Math.min(
-      Math.max(0, videoRef.current.currentTime + seconds), 
-      duration
-    );
-    setCurrentTime(videoRef.current.currentTime);
+    const nextTime = Math.max(0, Math.min(currentTime + seconds, duration || 100));
+    if (isThirdParty && reactPlayerRef.current) {
+      reactPlayerRef.current.seekTo(nextTime, 'seconds');
+      setCurrentTime(nextTime);
+    } else if (videoRef.current) {
+      videoRef.current.currentTime = nextTime;
+      setCurrentTime(nextTime);
+    }
     resetControlsTimeout();
   };
 
   const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!videoRef.current) return;
     const newTime = parseFloat(e.target.value);
-    videoRef.current.currentTime = newTime;
+    if (isThirdParty && reactPlayerRef.current) {
+      reactPlayerRef.current.seekTo(newTime, 'seconds');
+    } else if (videoRef.current) {
+      videoRef.current.currentTime = newTime;
+    }
     setCurrentTime(newTime);
   };
 
@@ -498,31 +513,36 @@ export default function AdaptivePlayer({
   };
 
   const toggleMute = () => {
-    if (!videoRef.current) return;
     const nextMute = !isMuted;
-    videoRef.current.muted = nextMute;
-    setIsMuted(nextMute);
+    if (isThirdParty && reactPlayerRef.current) {
+      setIsMuted(nextMute);
+    } else if (videoRef.current) {
+      videoRef.current.muted = nextMute;
+      setIsMuted(nextMute);
+    }
     resetControlsTimeout();
   };
 
   const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!videoRef.current) return;
     const nextVolume = parseFloat(e.target.value);
-    videoRef.current.volume = nextVolume;
     setVolume(nextVolume);
     if (nextVolume > 0 && isMuted) {
-      videoRef.current.muted = false;
       setIsMuted(false);
+      if (videoRef.current) videoRef.current.muted = false;
     } else if (nextVolume === 0 && !isMuted) {
-      videoRef.current.muted = true;
       setIsMuted(true);
+      if (videoRef.current) videoRef.current.muted = true;
+    }
+    if (videoRef.current && !isThirdParty) {
+      videoRef.current.volume = nextVolume;
     }
   };
 
   const handleSpeedChange = (speed: number) => {
-    if (!videoRef.current) return;
-    videoRef.current.playbackRate = speed;
     setPlaybackRate(speed);
+    if (videoRef.current && !isThirdParty) {
+      videoRef.current.playbackRate = speed;
+    }
     setShowSpeedMenu(false);
     resetControlsTimeout();
   };
@@ -673,9 +693,39 @@ export default function AdaptivePlayer({
         </div>
       )}
       {/* CORE MEDIA CONTAINER */}
-      {isHtml || isPdf || isEmbedVideo ? (
+      {isThirdParty ? (
+        <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 1, pointerEvents: 'none' }}>
+          {/* @ts-ignore */}
+          <ReactPlayerComponent
+            ref={reactPlayerRef}
+            url={url}
+            width="100%"
+            height="100%"
+            playing={isPlaying}
+            volume={volume}
+            muted={isMuted}
+            playbackRate={playbackRate}
+            onProgress={(state: any) => {
+              setCurrentTime(state.playedSeconds);
+            }}
+            onDuration={(dur: any) => setDuration(dur)}
+            onPlay={() => setIsPlaying(true)}
+            onPause={() => setIsPlaying(false)}
+            onEnded={handleVideoEnd}
+            onError={(e: any) => {
+              console.error("ReactPlayer error", e);
+              setHasError(true);
+              setErrorMessage("Failed to load stream. Ensure the link is valid and public.");
+            }}
+            config={{
+              youtube: { playerVars: { showinfo: 0, controls: 0, rel: 0 } },
+              vimeo: { playerOptions: { controls: false, title: false, byline: false } }
+            } as any}
+          />
+        </div>
+      ) : isHtml || isPdf ? (
         <iframe
-          src={isEmbedVideo ? (isYouTube ? getYouTubeEmbedUrl(url) : getVimeoEmbedUrl(url)) : url}
+          src={url}
           style={{
             position: 'absolute',
             top: 0, left: 0,
