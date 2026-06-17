@@ -167,7 +167,7 @@ export async function getAIRecommendedCourses() {
 
   } catch (error) {
     console.error("ML Recommendation Matrix Error:", error);
-    // Absolute fallback safety
-    return (await prisma.course.findMany({ take: 8 }));
+    // Absolute fallback safety without hitting database again
+    return [];
   }
 }
