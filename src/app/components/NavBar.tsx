@@ -122,9 +122,14 @@ export default function NavBar() {
                <span className="icon-emoji" style={{fontSize: '1.2rem'}}>👤</span> <span className="profile-text">Profile</span>
             </Link>
           ) : (
-            <Link href="/login" className="btn btn-primary join-btn desktop-only" style={{ padding: '8px 16px', fontSize: '0.9rem', fontWeight: 800 }}>
-              Login / Register
-            </Link>
+            <div className="desktop-only" style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+              <Link href="/login" style={{ padding: '8px 16px', fontSize: '0.9rem', fontWeight: 800, color: '#fff', textDecoration: 'none' }}>
+                Login
+              </Link>
+              <Link href="/register" className="btn btn-primary join-btn" style={{ padding: '8px 16px', fontSize: '0.9rem', fontWeight: 800 }}>
+                Register
+              </Link>
+            </div>
           )}
 
           {/* 📱 Mobile Hamburger Menu Toggle */}
