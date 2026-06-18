@@ -198,7 +198,7 @@ export default function LoginFormClient({ allowPassword, allowGoogle, googleClie
             
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: '#b3b3b3' }}>
               <label style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                <input type="checkbox" defaultChecked /> Remember me
+                <input type="checkbox" name="rememberMe" defaultChecked /> Remember me
               </label>
               <a href="#" style={{ color: '#b3b3b3', textDecoration: 'none' }}>Need help?</a>
             </div>

@@ -55,16 +55,22 @@ export async function getCurrentUser() {
   }
 }
 
-export async function setSessionUser(email: string) {
+export async function setSessionUser(email: string, rememberMe: boolean = false) {
   const cookieStore = await cookies();
-  cookieStore.set({
+  
+  const cookieOptions: any = {
     name: 'user_email',
     value: email,
     httpOnly: true,
     path: '/',
     secure: process.env.NODE_ENV === 'production',
-    maxAge: 60 * 60 * 24 * 7 // 7 Days
-  });
+  };
+
+  if (rememberMe) {
+    cookieOptions.maxAge = 60 * 60 * 24 * 30; // 30 Days if Remember Me
+  }
+
+  cookieStore.set(cookieOptions);
 }
 
 export async function clearSession() {

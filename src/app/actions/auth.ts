@@ -90,15 +90,20 @@ export async function registerUser(formData: FormData) {
       }
     }
 
+    let rememberMe = false;
+    if (formData.get('rememberMe') === 'on' || formData.get('rememberMe') === 'true') {
+      rememberMe = true;
+    }
+
     // 🔑 Set session cookie to log the user in instantly
-    await setSessionUser(email);
+    await setSessionUser(email, rememberMe);
 
     // Trigger fire-and-forget welcome email execution pipeline
     sendWelcomeEmail(email, name || email.split('@')[0]).catch(e => {});
     return { success: true };
-  } catch (error) {
+  } catch (error: any) {
     console.error("Registration error:", error);
-    return { error: 'Registration failed' };
+    return { error: `Registration failed: ${error?.message || String(error)}` };
   }
 }
 
@@ -149,7 +154,12 @@ export async function loginUser(formData: FormData) {
       }
     }
 
-    await setSessionUser(email);
+    let rememberMe = false;
+    if (formData.get('rememberMe') === 'on' || formData.get('rememberMe') === 'true') {
+      rememberMe = true;
+    }
+
+    await setSessionUser(email, rememberMe);
     return { 
       success: true, 
       forcePasswordChange: user.forcePasswordChange 

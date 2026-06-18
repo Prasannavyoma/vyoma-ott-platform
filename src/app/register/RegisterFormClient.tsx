@@ -250,12 +250,18 @@ export default function RegisterFormClient({ allowPassword, allowGoogle, googleC
                 justifyContent: 'center', 
                 fontSize: '1.1rem', 
                 fontWeight: 700,
-                cursor: isPending || (password !== '' && !strength.isValid) ? 'not-allowed' : 'pointer',
-                opacity: isPending || (password !== '' && !strength.isValid) ? 0.6 : 1
+                cursor: (isPending || (password !== '' && !strength.isValid)) ? 'not-allowed' : 'pointer',
+                opacity: (isPending || (password !== '' && !strength.isValid)) ? 0.7 : 1
               }}
             >
-              {isPending ? 'Creating Account...' : 'Create Account'}
+              {isPending ? 'Registering...' : 'Complete Registration'}
             </button>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: '#b3b3b3' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <input type="checkbox" name="rememberMe" defaultChecked /> Remember me
+              </label>
+            </div>
           </form>
         ) : (
           <div style={{ textAlign: 'center', padding: '20px 0', color: '#aaa', fontSize: '0.95rem' }}>
