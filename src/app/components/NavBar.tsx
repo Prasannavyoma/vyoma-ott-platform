@@ -33,7 +33,7 @@ export default function NavBar() {
   return (
     <>
       <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
-        <div className="nav-left-group" style={{ display: 'flex', alignItems: 'center', gap: '40px' }}>
+        <div className="nav-left-group" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
           <div className="nav-brand">
             <Link href="/">
               <img 
@@ -127,7 +127,7 @@ export default function NavBar() {
                 Login
               </Link>
               <Link href="/register" className="btn btn-primary join-btn" style={{ padding: '8px 16px', fontSize: '0.9rem', fontWeight: 800 }}>
-                Register
+                Free Register
               </Link>
             </div>
           )}
@@ -242,7 +242,7 @@ export default function NavBar() {
               className="btn btn-primary" 
               style={{ width: '100%', display: 'flex', justifyContent: 'center', padding: '14px', fontSize: '0.95rem', fontWeight: 800, marginTop: '10px' }}
             >
-              Join Free
+              Free Register
             </Link>
           )}
         </div>
