@@ -24,11 +24,18 @@ export default function DownloadButton({ videoUrl, courseTitle }: { videoUrl: st
     try {
       const cache = await caches.open('vyoma-offline-video-v1');
       
-      // Start official background fetch or simple cache injection
-      const response = await fetch(videoUrl);
-      if (!response.ok) throw new Error('Network failed');
+      // Determine if we need to bypass CORS using our secure edge proxy
+      let fetchUrl = videoUrl;
+      if (videoUrl.startsWith('http://') || videoUrl.startsWith('https://')) {
+        fetchUrl = `/api/offline-proxy?url=${encodeURIComponent(videoUrl)}`;
+      }
       
-      // Cache is a standard KV storage, key is URL, value is the Response stream cloned
+      // Start official background fetch through proxy
+      const response = await fetch(fetchUrl);
+      if (!response.ok) throw new Error('Network failed or proxy rejected');
+      
+      // Cache is a standard KV storage. 
+      // CRITICAL: We must store it under the original `videoUrl` key so the player can find it offline!
       await cache.put(videoUrl, response.clone());
       
       setStatus('CACHED');
