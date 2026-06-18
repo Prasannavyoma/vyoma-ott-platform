@@ -86,7 +86,7 @@ export default function AdminLogin() {
             <input 
               name="email"
               type="email" 
-              defaultValue="admin@digitalsanskrit.com" 
+              placeholder="Admin Email"
               required 
               disabled={loading}
               style={{
@@ -100,7 +100,7 @@ export default function AdminLogin() {
             <input 
               name="password"
               type="password" 
-              defaultValue="vyoma-secure-123" 
+              placeholder="Master Password"
               required 
               disabled={loading}
               style={{
