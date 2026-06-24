@@ -59,9 +59,8 @@ export default async function RootLayout({
   };
 
   try {
-    /*
-    const res = await prisma.$queryRawUnsafe(`SELECT value FROM SystemSetting WHERE key = 'ONESIGNAL_APP_ID' LIMIT 1`) as any[];
-    oneSignalAppId = res?.[0]?.value || "";
+    const res = await prisma.systemSetting.findUnique({ where: { key: 'ONESIGNAL_APP_ID' } });
+    oneSignalAppId = res?.value || "";
 
     const cbSetting = await prisma.systemSetting.findUnique({
       where: { key: 'CHATBOT_ENABLED' }
@@ -120,7 +119,6 @@ export default async function RootLayout({
     if (settingsMap.has('CONTACT_EMAIL_ADDRESS')) {
       contactSettings.emailAddress = settingsMap.get('CONTACT_EMAIL_ADDRESS') || "support@vyomasanskrit.in";
     }
-    */
   } catch(e) {}
 
   return (
