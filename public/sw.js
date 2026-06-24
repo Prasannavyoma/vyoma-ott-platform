@@ -1,4 +1,4 @@
-const CACHE_NAME = 'vyoma-offline-v1';
+const CACHE_NAME = 'vyoma-offline-v2';
 const VIDEO_CACHE = 'vyoma-offline-video-v1';
 
 // The install handler takes care of precaching basic framework assets
@@ -16,6 +16,18 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.map((cacheName) => {
+          if (cacheName !== CACHE_NAME && cacheName !== VIDEO_CACHE) {
+            console.log('[ServiceWorker] Deleting old cache:', cacheName);
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    })
+  );
   event.waitUntil(self.clients.claim());
 });
 
@@ -43,12 +55,26 @@ self.addEventListener('fetch', (event) => {
      return; // Exit listener early for special video pipeline
   }
 
-  // Standard dynamic pipeline for non-video elements
+  // Standard dynamic pipeline for non-video elements: Network-First strategy
   event.respondWith(
-    caches.match(request).then((response) => {
-      if (response) return response;
-      return fetch(request);
-    })
+    fetch(request)
+      .then((networkResponse) => {
+        // Cache the new response for future offline use if it is a successful GET request
+        if (request.method === 'GET' && networkResponse.ok) {
+          const responseClone = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(request, responseClone);
+          });
+        }
+        return networkResponse;
+      })
+      .catch(() => {
+        // Fallback to cache if network fails
+        return caches.match(request).then((cachedResponse) => {
+          if (cachedResponse) return cachedResponse;
+          return new Response('Offline content unavailable.', { status: 503 });
+        });
+      })
   );
 });
 
