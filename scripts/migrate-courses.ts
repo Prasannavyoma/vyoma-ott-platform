@@ -45,6 +45,10 @@ async function migrateCourses() {
       }
 
       const thumb = typeof wpCourse.thumbnail_url === 'string' ? wpCourse.thumbnail_url : null;
+      let mappedCategory = wpCourse.post_type === 'sfwd-courses' ? 'LearnDash' : 'WooCommerce';
+      if (wpCourse.categories && Array.isArray(wpCourse.categories) && wpCourse.categories.length > 0) {
+        mappedCategory = wpCourse.categories.join(', ');
+      }
 
       if (!existing) {
         await prisma.course.create({
@@ -55,7 +59,7 @@ async function migrateCourses() {
             createdAt: new Date(wpCourse.post_date),
             price: price,
             accessLevel: accessLevel,
-            category: wpCourse.post_type === 'sfwd-courses' ? 'LearnDash' : 'WooCommerce'
+            category: mappedCategory
           }
         });
       } else {
@@ -65,7 +69,8 @@ async function migrateCourses() {
             description: wpCourse.post_content,
             thumbnailUrl: thumb,
             price: price,
-            accessLevel: accessLevel
+            accessLevel: accessLevel,
+            category: mappedCategory
           }
         });
       }
