@@ -67,12 +67,12 @@ async function seedSafeSections() {
   try {
      const now = new Date().toISOString();
      const seeds = [
-       { id: 'row1', title: '📖 Must Read E-Books', category: 'EBOOK', order: 10, active: 1 },
+       { id: 'row1', title: '📖 Must Read E-Books', category: 'E-books', order: 10, active: 1 },
 
-       { id: 'row2', title: '🌟 Evergreen Epics & Puranas', category: 'Evergreen Epics &amp; Puranas', order: 20, active: 1 },
+       { id: 'row2', title: '🌟 Evergreen Epics & Puranas', category: 'Evergreen Epics & Puranas', order: 20, active: 1 },
        { id: 'row3', title: '🎙️ Featured Podcasts', category: 'Devotional', order: 30, active: 1 },
        { id: 'row4', title: '📽️ Popular Videos', category: 'Bhakti Bhava Lahari', order: 40, active: 1 },
-       { id: 'row5', title: '🎮 Interactive Games', category: 'Games &amp; Activities', order: 50, active: 1 },
+       { id: 'row5', title: '🎮 Interactive Games', category: 'Games & Activities', order: 50, active: 1 },
        { id: 'row6', title: '👶 Sanskrit Kids Academy', category: 'Kids', order: 60, active: 1 }
      ];
      for(const section of seeds) {
