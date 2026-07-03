@@ -62,7 +62,11 @@ export default function LoginFormClient({ allowPassword, allowGoogle, googleClie
     startTransition(async () => {
       const res = await loginUser(formData);
       if (res && res.error) {
-        setError(res.error);
+        if (res.error === 'force_password_change') {
+          setError('Welcome to Vyoma 2.0! We have migrated your account. For security, please click "Forgot Password" below to set a new password.');
+        } else {
+          setError(res.error);
+        }
       } else if (res && res.success) {
         if (res.forcePasswordChange) {
           router.push('/change-password');

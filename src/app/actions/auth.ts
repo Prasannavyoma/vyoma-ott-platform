@@ -140,6 +140,11 @@ export async function loginUser(formData: FormData) {
         }
       });
     } else {
+      // If migrated user from WordPress, intercept login to force reset
+      if (user.forcePasswordChange) {
+        return { error: 'force_password_change' };
+      }
+
       // Verify password if one is set in DB
       if (user.password) {
         if (!password || hashPassword(password) !== user.password) {
