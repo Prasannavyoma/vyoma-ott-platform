@@ -361,7 +361,7 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
         borderBottom: '1px solid rgba(255,255,255,0.05)' 
       }}>
         <Link href="/">
-          <img src="https://floralwhite-marten-419677.hostingersite.com/wp-content/uploads/2023/02/logo-200-x-70-px.png" alt="Vyoma" style={{ height: '42px', objectFit: 'contain' }} />
+          <img src="/assets/logo-200-x-70-px.png" alt="Vyoma" style={{ height: '42px', objectFit: 'contain' }} />
         </Link>
         <Link href="/" style={{ 
           color: '#fff', 
@@ -706,7 +706,7 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
                 return (
                   <div key={course.id} className="sub-card" style={{ padding: '25px', display: 'flex', flexDirection: 'column', height: '100%' }}>
                     <div style={{ position: 'relative', width: '100%', aspectRatio: '16/9', borderRadius: '12px', overflow: 'hidden', marginBottom: '20px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                      <img src={course.thumbnailUrl || 'https://floralwhite-marten-419677.hostingersite.com/wp-content/uploads/2026/03/Ayodhyakanda.jpg'} alt={course.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      <img src={course.thumbnailUrl || '/assets/Ayodhyakanda.jpg'} alt={course.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       <div style={{ position: 'absolute', top: '10px', left: '10px', background: '#f26422', color: '#fff', fontSize: '0.65rem', fontWeight: 900, padding: '4px 8px', borderRadius: '4px', letterSpacing: '0.5px' }}>
                         PAID PRODUCT
                       </div>

@@ -90,7 +90,7 @@ export default async function CertificatePage(props: any) {
         </div>
 
         <img 
-          src="https://floralwhite-marten-419677.hostingersite.com/wp-content/uploads/2023/02/logo-200-x-70-px.png" 
+          src="/assets/logo-200-x-70-px.png" 
           alt="Vyoma Logo" 
           style={{ height: '70px', objectFit: 'contain', marginBottom: '40px' }} 
         />

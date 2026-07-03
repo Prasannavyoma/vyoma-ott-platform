@@ -44,7 +44,7 @@ export default function RazorpayCheckoutButton(props: CheckoutProps) {
       currency: props.currency,
       name: props.name,
       description: props.description,
-      image: 'https://floralwhite-marten-419677.hostingersite.com/wp-content/uploads/2023/02/logo-200-x-70-px.png',
+      image: '/assets/logo-200-x-70-px.png',
       handler: function (response: any) {
         props.onSuccess(response);
       },

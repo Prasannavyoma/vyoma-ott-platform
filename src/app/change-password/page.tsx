@@ -65,7 +65,7 @@ export default function ChangePasswordPage() {
   return (
     <div style={{ 
       minHeight: '100vh', 
-      background: `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.95)), url('https://floralwhite-marten-419677.hostingersite.com/wp-content/uploads/2026/03/Ayodhyakanda.jpg') center/cover no-repeat`,
+      background: `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.95)), url('/assets/Ayodhyakanda.jpg') center/cover no-repeat`,
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
@@ -86,7 +86,7 @@ export default function ChangePasswordPage() {
       }}>
         
         <div style={{ textAlign: 'center', marginBottom: '35px' }}>
-          <img src="https://floralwhite-marten-419677.hostingersite.com/wp-content/uploads/2023/02/logo-200-x-70-px.png" alt="Vyoma" style={{ height: '40px', marginBottom: '20px' }} />
+          <img src="/assets/logo-200-x-70-px.png" alt="Vyoma" style={{ height: '40px', marginBottom: '20px' }} />
           <h1 style={{ fontSize: '1.8rem', fontWeight: 800, color: '#fff', letterSpacing: '-0.5px' }}>Setup New Password</h1>
           <p style={{ color: '#aaa', fontSize: '0.9rem', marginTop: '8px' }}>This is your first login. To secure your account, please configure a new personal password.</p>
         </div>

@@ -80,7 +80,7 @@ export default async function CheckoutPage(props: { params: Promise<{ id: string
              
              <div style={{ marginTop: '40px', background: '#000', borderRadius: '16px', padding: '25px', border: '1px solid #222' }}>
                 <div style={{ display: 'flex', gap: '15px' }}>
-                   <img src={course.thumbnailUrl || 'https://floralwhite-marten-419677.hostingersite.com/wp-content/uploads/2026/03/Ayodhyakanda.jpg'} style={{ width: '100px', height: '60px', borderRadius: '8px', objectFit: 'cover' }} />
+                   <img src={course.thumbnailUrl || '/assets/Ayodhyakanda.jpg'} style={{ width: '100px', height: '60px', borderRadius: '8px', objectFit: 'cover' }} />
                    <div>
                       <div style={{ fontSize: '1rem', fontWeight: 'bold' }}>{course.title}</div>
                       <div style={{ fontSize: '0.75rem', color: 'var(--primary)', marginTop: '4px', fontWeight: 'bold' }}>INDIVIDUAL LIFETIME ACCESS</div>

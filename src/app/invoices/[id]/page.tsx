@@ -118,7 +118,7 @@ export default async function PublicInvoicePage({ params }: { params: Promise<{ 
         <div className="flex-row" style={{ marginBottom: '35px', alignItems: 'flex-start' }}>
           <div>
             <img 
-              src="https://floralwhite-marten-419677.hostingersite.com/wp-content/uploads/2023/02/logo-200-x-70-px.png" 
+              src="/assets/logo-200-x-70-px.png" 
               alt="Vyoma" 
               style={{ height: '55px', objectFit: 'contain', marginBottom: '10px' }}
             />

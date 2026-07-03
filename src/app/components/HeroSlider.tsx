@@ -26,7 +26,7 @@ export default function HeroSlider({ items }: { items: SliderItem[] }) {
 
   if (!items || items.length === 0) {
     return (
-      <section className="hero" style={{ backgroundImage: `url('https://floralwhite-marten-419677.hostingersite.com/wp-content/uploads/2026/03/Bala-new.jpg')` }}>
+      <section className="hero" style={{ backgroundImage: `url('/assets/Bala-new.jpg')` }}>
         <div className="hero-content">
           <h1 className="hero-title">Srimad Valmiki Ramayana</h1>
           <p className="hero-desc">Embark on the eternal epic narrative of standard values and righteous living.</p>
@@ -39,7 +39,7 @@ export default function HeroSlider({ items }: { items: SliderItem[] }) {
     <div className="hero-slider-wrapper" style={{ position: 'relative', width: '100%', overflow: 'hidden', background: '#000' }}>
       {items.map((item, i) => {
         const isActive = i === index;
-        const bgImg = item.thumbnailUrl || 'https://floralwhite-marten-419677.hostingersite.com/wp-content/uploads/2026/03/Bala-new.jpg';
+        const bgImg = item.thumbnailUrl || '/assets/Bala-new.jpg';
         const cleanDesc = (item.description || '').replace(/<[^>]*>/g, ''); // Strip HTML if any
         const displayDesc = cleanDesc.length > 180 ? cleanDesc.substring(0, 180) + "..." : cleanDesc;
 

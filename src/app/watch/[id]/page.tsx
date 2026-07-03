@@ -53,7 +53,7 @@ export async function generateMetadata(props: { params: Promise<{ id: string }> 
       description,
       images: [
         {
-          url: course.thumbnailUrl || 'https://floralwhite-marten-419677.hostingersite.com/wp-content/uploads/2026/03/Balakanda.jpg',
+          url: course.thumbnailUrl || '/assets/Balakanda.jpg',
           alt: (course as any).imageAlt || course.title || 'Course banner'
         }
       ]
@@ -202,7 +202,7 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
   const isLocked = isCourseLocked || isEpisodeLocked;
 
   // Determine active thumbnail to display (Episode priority if it has distinct art, satisfying USER requirement 3)
-  const activePosterUrl = activeEpisode?.thumbnailUrl || course.thumbnailUrl || 'https://floralwhite-marten-419677.hostingersite.com/wp-content/uploads/2026/03/Ayodhyakanda.jpg';
+  const activePosterUrl = activeEpisode?.thumbnailUrl || course.thumbnailUrl || '/assets/Ayodhyakanda.jpg';
   
   // Determine textual lock label (Prioritizes episode restriction context)
   const displayRequiredLevel = isEpisodeLocked ? activeEpisode?.accessLevel : course.accessLevel;

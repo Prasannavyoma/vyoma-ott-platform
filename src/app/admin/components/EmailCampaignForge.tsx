@@ -6,7 +6,7 @@ import { useState } from 'react';
 const CAMPAIGN_TEMPLATES = {
   FESTIVAL_VASANTO: {
     subject: "🌸 Vasantotsava Blessings: Resurge Your Sanskrit Path (Special 40% Off)",
-    bannerUrl: "https://floralwhite-marten-419677.hostingersite.com/wp-content/uploads/2026/03/Balakanda.jpg",
+    bannerUrl: "/assets/Balakanda.jpg",
     body: `<p>Vasantotsava (the festival of spring) represents the resurgence of learning, growth, and divine wisdom.</p>
 <p>To celebrate this auspicious cycle, we have provisioned a customized Vasantotsava tier upgrade. Expand your horizons with deep audio chants, grammar simplifications, and epic puranic storytelling streams.</p>
 <p><strong>Spring Privilege:</strong> Upgrade to our Gold or Platinum Annual tier today to secure your deep 40% spring discount!</p>`,
@@ -15,7 +15,7 @@ const CAMPAIGN_TEMPLATES = {
   },
   NEW_STREAM_LAUNCH: {
     subject: "🚀 Hot Release: Extensive 'Grammar Simplified' Curricular Stream is Now Live!",
-    bannerUrl: "https://floralwhite-marten-419677.hostingersite.com/wp-content/uploads/2026/03/Balakanda.jpg",
+    bannerUrl: "/assets/Balakanda.jpg",
     body: `<p>We are delighted to release our newest curated stream: <strong>Grammar Simplified</strong>.</p>
 <p>Designed specifically for deep seekers, this course guides learners through Panini's structural keys, fundamental sandhi rules, and rich verb conjugates via high-definition video walkthroughs and interactive quizzes.</p>
 <p>Activate your course hub today to experience Sanskrit learning like never before!</p>`,
@@ -24,7 +24,7 @@ const CAMPAIGN_TEMPLATES = {
   },
   WEEKEND_SPRINT: {
     subject: "⚡ Seeker's Challenge: Unlock Your Free Learning Sprint This Weekend!",
-    bannerUrl: "https://floralwhite-marten-419677.hostingersite.com/wp-content/uploads/2026/03/Balakanda.jpg",
+    bannerUrl: "/assets/Balakanda.jpg",
     body: `<p>Make this weekend count. We are hosting a 48-hour global seeker challenge across all Sanskrit chanting and audio streams.</p>
 <p>Spend 60 minutes streaming your selected chanting playlist or completing grammar exercises to unlock exclusive vouchers, rewards, and free study detours.</p>
 <p>Enter the portal now to register your weekend target!</p>`,

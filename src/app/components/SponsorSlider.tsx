@@ -14,7 +14,7 @@ const FALLBACK_SPONSORS: Sponsor[] = [
     id: 'f1',
     name: 'Vyoma Linguistic Labs',
     description: 'Pioneering multimedia Sanskrit education globally.',
-    logoUrl: 'https://floralwhite-marten-419677.hostingersite.com/wp-content/uploads/2023/02/logo-200-x-70-px.png'
+    logoUrl: '/assets/logo-200-x-70-px.png'
   },
   {
     id: 'f2',

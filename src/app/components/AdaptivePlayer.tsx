@@ -809,7 +809,7 @@ export default function AdaptivePlayer({
             <div style={{
               position: 'absolute',
               top: 0, left: 0, right: 0, bottom: 0,
-              background: `linear-gradient(rgba(3, 11, 23, 0.9), rgba(3, 11, 23, 0.95)), url('${poster || 'https://floralwhite-marten-419677.hostingersite.com/wp-content/uploads/2026/03/Balakanda.jpg'}') center/cover no-repeat`,
+              background: `linear-gradient(rgba(3, 11, 23, 0.9), rgba(3, 11, 23, 0.95)), url('${poster || '/assets/Balakanda.jpg'}') center/cover no-repeat`,
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
@@ -840,7 +840,7 @@ export default function AdaptivePlayer({
                 animation: isPlaying ? 'rotateChakra 20s linear infinite' : 'none'
               }}>
                 <img 
-                  src={poster || 'https://floralwhite-marten-419677.hostingersite.com/wp-content/uploads/2026/03/Balakanda.jpg'} 
+                  src={poster || '/assets/Balakanda.jpg'} 
                   alt="" 
                   style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} 
                 />

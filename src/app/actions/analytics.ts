@@ -189,24 +189,34 @@ export async function searchContent(query: string) {
 }
 
 export async function getTrendingNow() {
-  return prisma.course.findMany({
-    orderBy: { views: 'desc' },
-    take: 10
-  });
+  try {
+    return await prisma.course.findMany({
+      orderBy: { views: 'desc' },
+      take: 10
+    });
+  } catch (error) {
+    console.error("Database connection error in getTrendingNow:", error);
+    return [];
+  }
 }
 
 export async function getFeaturedSlider() {
-  const featured = await prisma.course.findMany({
-    where: { featuredInSlider: true },
-    orderBy: { createdAt: 'desc' },
-    take: 8
-  });
-  
-  if (featured.length > 0) return featured;
-  
-  // Resilient fallback if no explicit flags set yet
-  return prisma.course.findMany({
-    orderBy: { views: 'desc' },
-    take: 5
-  });
+  try {
+    const featured = await prisma.course.findMany({
+      where: { featuredInSlider: true },
+      orderBy: { createdAt: 'desc' },
+      take: 8
+    });
+    
+    if (featured.length > 0) return featured;
+    
+    // Resilient fallback if no explicit flags set yet
+    return await prisma.course.findMany({
+      orderBy: { views: 'desc' },
+      take: 5
+    });
+  } catch (error) {
+    console.error("Database connection error in getFeaturedSlider:", error);
+    return [];
+  }
 }

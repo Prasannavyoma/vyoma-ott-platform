@@ -41,7 +41,7 @@ export default function EpisodeListExpander({ episodes, courseId, courseThumbnai
       {/* Episodes rendering grid */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
         {visibleEpisodes.map((ep) => {
-          const epThumb = ep.thumbnailUrl || courseThumbnail || 'https://floralwhite-marten-419677.hostingersite.com/wp-content/uploads/2026/03/Ayodhyakanda.jpg';
+          const epThumb = ep.thumbnailUrl || courseThumbnail || '/assets/Ayodhyakanda.jpg';
 
           return (
             <Link 

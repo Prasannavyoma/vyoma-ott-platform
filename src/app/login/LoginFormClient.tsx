@@ -84,7 +84,7 @@ export default function LoginFormClient({ allowPassword, allowGoogle, googleClie
   return (
     <div style={{ 
       minHeight: '100vh', 
-      background: `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.9)), url('https://floralwhite-marten-419677.hostingersite.com/wp-content/uploads/2026/03/Ayodhyakanda.jpg') center/cover no-repeat`,
+      background: `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.9)), url('/assets/Ayodhyakanda.jpg') center/cover no-repeat`,
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
@@ -99,7 +99,7 @@ export default function LoginFormClient({ allowPassword, allowGoogle, googleClie
       )}
 
       <div style={{ position: 'absolute', top: '30px', left: '5%' }}>
-         <Link href="/"><img src="https://floralwhite-marten-419677.hostingersite.com/wp-content/uploads/2023/02/logo-200-x-70-px.png" alt="Vyoma" style={{ height: '45px' }} /></Link>
+         <Link href="/"><img src="/assets/logo-200-x-70-px.png" alt="Vyoma" style={{ height: '45px' }} /></Link>
       </div>
       
       <div style={{ 

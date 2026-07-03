@@ -319,7 +319,7 @@ export default function ExploreClient({ initialCourses }: { initialCourses: any[
                   }}
                 >
                   <img 
-                    src={course.thumbnailUrl || 'https://floralwhite-marten-419677.hostingersite.com/wp-content/uploads/2026/03/Balakanda.jpg'} 
+                    src={course.thumbnailUrl || '/assets/Balakanda.jpg'} 
                     alt={course.imageAlt || (course.title ? course.title.replace(/&amp;/g, '&') : '')} 
                     className="explore-poster-img"
                     style={{ 

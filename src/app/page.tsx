@@ -390,8 +390,8 @@ export default async function HomePage() {
               key={section.id}
               title={section.title}
               courses={[
-                { id: 'p1', title: 'Curriculum Track 1', image: 'https://floralwhite-marten-419677.hostingersite.com/wp-content/uploads/2026/03/Bala-new.jpg', match: '99%', tag: 'PLATINUM' },
-                { id: 'p2', title: 'Curriculum Track 2', image: 'https://floralwhite-marten-419677.hostingersite.com/wp-content/uploads/2026/04/May-Images-2.jpg', match: '97%', tag: 'GOLD' }
+                { id: 'p1', title: 'Curriculum Track 1', image: '/assets/Bala-new.jpg', match: '99%', tag: 'PLATINUM' },
+                { id: 'p2', title: 'Curriculum Track 2', image: '/assets/May-Images-2.jpg', match: '97%', tag: 'GOLD' }
               ]}
             />
           );
@@ -419,7 +419,7 @@ export default async function HomePage() {
             {/* Branding Column */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
               <img 
-                src="https://floralwhite-marten-419677.hostingersite.com/wp-content/uploads/2023/02/logo-200-x-70-px.png" 
+                src="/assets/logo-200-x-70-px.png" 
                 alt="Vyoma Logo" 
                 style={{ height: '45px', width: 'fit-content', objectFit: 'contain', filter: 'drop-shadow(0 0 10px rgba(242, 100, 34, 0.15))' }} 
               />

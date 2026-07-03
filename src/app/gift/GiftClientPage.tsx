@@ -138,7 +138,7 @@ export default function GiftClientPage({ initialPlans }: { initialPlans: RealPla
         currency: orderPayload.currency,
         name: "Vyoma Academy",
         description: `Gifting ${quantity}x ${activePkg.name} Access Bundle`,
-        image: "https://floralwhite-marten-419677.hostingersite.com/wp-content/uploads/2023/02/logo-200-x-70-px.png",
+        image: "/assets/logo-200-x-70-px.png",
         order_id: orderPayload.orderId,
         handler: async function (response: any) {
           console.log("💳 Payment Captured Successfully!", response.razorpay_payment_id);
@@ -337,7 +337,7 @@ export default function GiftClientPage({ initialPlans }: { initialPlans: RealPla
                <div className="ecard-preview">
                   <div style={{ position: 'absolute', top: '-50px', right: '-50px', width: '150px', height: '150px', borderRadius: '50%', border: '1px solid rgba(255,215,0,0.04)' }}></div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '30px' }}>
-                     <img src="https://floralwhite-marten-419677.hostingersite.com/wp-content/uploads/2023/02/logo-200-x-70-px.png" alt="Logo" style={{ height: '30px', filter: 'brightness(0) invert(1)' }} />
+                     <img src="/assets/logo-200-x-70-px.png" alt="Logo" style={{ height: '30px', filter: 'brightness(0) invert(1)' }} />
                      <div style={{ background: 'rgba(255,215,0,0.1)', color: '#ffd700', fontSize: '0.65rem', fontWeight: 900, padding: '4px 10px', borderRadius: '20px', letterSpacing: '1px' }}>WISDOM E-CARD</div>
                   </div>
                   <div style={{ minHeight: '120px' }}>
@@ -466,7 +466,7 @@ export default function GiftClientPage({ initialPlans }: { initialPlans: RealPla
                 }}>
                   <div style={{ position: 'absolute', top: '-50px', right: '-50px', width: '150px', height: '150px', borderRadius: '50%', border: '1px solid rgba(255,215,0,0.03)' }}></div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '30px' }}>
-                     <img src="https://floralwhite-marten-419677.hostingersite.com/wp-content/uploads/2023/02/logo-200-x-70-px.png" alt="Logo" style={{ height: '32px', filter: 'brightness(0) invert(1)' }} />
+                     <img src="/assets/logo-200-x-70-px.png" alt="Logo" style={{ height: '32px', filter: 'brightness(0) invert(1)' }} />
                      <div style={{ background: 'rgba(255,215,0,0.1)', color: '#ffd700', fontSize: '0.65rem', fontWeight: 900, padding: '4px 10px', borderRadius: '20px', letterSpacing: '1px' }}>WISDOM E-CARD</div>
                   </div>
                   <div style={{ minHeight: '120px' }}>

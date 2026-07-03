@@ -62,7 +62,7 @@ export default async function GenreShowcase({ contentType, title, description }:
                          {/* BANNER */}
                          <div style={{ position: 'relative', paddingTop: '56.25%', background: '#1a1a1a' }}>
                             <img 
-                               src={course.thumbnailUrl || 'https://floralwhite-marten-419677.hostingersite.com/wp-content/uploads/2026/03/Ayodhyakanda.jpg'} 
+                               src={course.thumbnailUrl || '/assets/Ayodhyakanda.jpg'} 
                                alt={course.title}
                                style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }}
                             />
