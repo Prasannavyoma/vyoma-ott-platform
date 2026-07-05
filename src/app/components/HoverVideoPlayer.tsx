@@ -37,6 +37,7 @@ export default function HoverVideoPlayer({ posterUrl, videoUrl, altText }: Hover
       <img 
         src={posterUrl} 
         alt={altText} 
+        loading="lazy"
         style={{ 
           width: '100%', 
           height: '100%', 

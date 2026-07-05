@@ -321,6 +321,7 @@ export default function ExploreClient({ initialCourses }: { initialCourses: any[
                   <img 
                     src={course.thumbnailUrl || '/assets/Balakanda.jpg'} 
                     alt={course.imageAlt || (course.title ? course.title.replace(/&amp;/g, '&') : '')} 
+                    loading="lazy"
                     className="explore-poster-img"
                     style={{ 
                       width: '100%', 
