@@ -10,17 +10,15 @@ export async function GET() {
       return NextResponse.json({ notifications: [], unreadCount: 0 });
     }
 
-    const notifications = await prisma.$queryRawUnsafe(
-      'SELECT * FROM Notification WHERE userId=? ORDER BY createdAt DESC LIMIT 20',
-      user.id
-    );
+    const notifications = await prisma.notification.findMany({
+      where: { userId: user.id },
+      orderBy: { createdAt: 'desc' },
+      take: 20
+    });
 
-    const countResult: any[] = await prisma.$queryRawUnsafe(
-      'SELECT COUNT(*) as count FROM Notification WHERE userId=? AND `read`=0',
-      user.id
-    );
-
-    const unreadCount = Number(countResult[0]?.count ?? 0);
+    const unreadCount = await prisma.notification.count({
+      where: { userId: user.id, read: false }
+    });
 
     return NextResponse.json({ notifications, unreadCount });
   } catch (e: any) {
@@ -42,10 +40,10 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
 
     if (body.action === 'markAllRead') {
-      await prisma.$executeRawUnsafe(
-        'UPDATE Notification SET `read`=1 WHERE userId=? AND `read`=0',
-        user.id
-      );
+      await prisma.notification.updateMany({
+        where: { userId: user.id, read: false },
+        data: { read: true }
+      });
 
       return NextResponse.json({ success: true });
     }
