@@ -2,7 +2,7 @@ import prisma from '@/lib/prisma';
 import NavBar from '../components/NavBar';
 import ExploreClient from './ExploreClient';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 3600; // Cache this page for 1 hour (ISR)
 
 export default async function ExplorePage() {
   // Use raw SQL to bypass strict Prisma Client validation which crashes 
