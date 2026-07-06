@@ -17,6 +17,14 @@ const nextConfig: NextConfig = {
   } as any,
   turbopack: {
     root: process.cwd(),
+  },
+  experimental: {
+    outputFileTracingExcludes: {
+      '*': [
+        'public/uploads/**/*',
+        'public/assets/**/*'
+      ],
+    },
   }
 };
 
