@@ -40,7 +40,7 @@ export default function AdminSidebar({ userRole }: { userRole: string }) {
           <>
             <div className="sidebar-category-label">Content Matrix</div>
             <Link href="/admin/courses" className={pathname.includes('/admin/courses') && !pathname.includes('/import') && !pathname.includes('/bundles') ? 'active' : ''}>🎥 Manage Courses</Link>
-            <Link href="/admin/courses/import-wp" className={`${pathname.includes('/import-wp') ? 'active' : ''} sublink`}>🌐 Import WP Courses</Link>
+
             <Link href="/admin/comments" className={`${pathname.includes('/admin/comments') ? 'active' : ''} sublink`}>💬 Comment Moderation</Link>
             <Link href="/admin/episodes" className={`${pathname.includes('/episodes') ? 'active' : ''} sublink`}>📺 Curriculum Units</Link>
             <Link href="/admin/bundles" className={pathname.includes('/admin/bundles') ? 'active' : ''}>📦 Course Bundling</Link>
