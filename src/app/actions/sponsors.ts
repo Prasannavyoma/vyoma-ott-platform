@@ -2,8 +2,7 @@
 
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
-import { writeFile, mkdir } from 'fs/promises';
-import path from 'path';
+
 
 /**
  * Server Action: Save a sponsor with local file logo upload
@@ -18,27 +17,9 @@ export async function saveSponsor(fd: FormData) {
 
     let finalLogoUrl = fallbackLogoUrl || '';
 
-    // If a physical file is uploaded, save it to public/uploads
+    // Vercel has a read-only filesystem, so we cannot save physical files to public/uploads.
     if (logoFile && logoFile.size > 0 && logoFile.name) {
-      // Optimize upload size: reject if file is > 2MB to preserve server bandwidth and performance
-      if (logoFile.size > 2 * 1024 * 1024) {
-        return { success: false, error: "Physical file size exceeds the 2MB optimization threshold. Please optimize the image." };
-      }
-      const bytes = await logoFile.arrayBuffer();
-      const buffer = Buffer.from(bytes);
-
-      const pub = 'public';
-      const up = 'uploads';
-      const uploadsDir = path.join(process.cwd(), pub, up, 'sponsors');
-      try {
-        await mkdir(uploadsDir, { recursive: true });
-      } catch (e) {}
-
-      const safeFilename = `${Date.now()}-${logoFile.name.replace(/\s+/g, '-')}`;
-      const absoluteFilePath = path.join(uploadsDir, safeFilename);
-
-      await writeFile(absoluteFilePath, buffer);
-      finalLogoUrl = `/uploads/sponsors/${safeFilename}`;
+      return { success: false, error: "Physical file uploads are disabled on Vercel. Please upload the image to an external host (like S3 or Imgur) and paste the URL instead." };
     }
 
     if (!finalLogoUrl) {
