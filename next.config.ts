@@ -18,6 +18,9 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: process.cwd(),
   },
+  outputFileTracingIncludes: {
+    '/*': ['./global-bundle.pem'],
+  },
 
 };
 
