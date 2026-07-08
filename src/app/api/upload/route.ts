@@ -14,8 +14,10 @@ export async function POST(request: NextRequest) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // Define physical storage target
-    const uploadsDir = path.join(process.cwd(), 'public/uploads');
+    // Define physical storage target (obfuscated to trick Vercel NFT into NOT bundling 745 images)
+    const pub = 'public';
+    const up = 'uploads';
+    const uploadsDir = path.join(process.cwd(), pub, up);
     
     // Ensure dir exists safely
     try {

@@ -27,7 +27,9 @@ export async function saveSponsor(fd: FormData) {
       const bytes = await logoFile.arrayBuffer();
       const buffer = Buffer.from(bytes);
 
-      const uploadsDir = path.join(process.cwd(), 'public/uploads/sponsors');
+      const pub = 'public';
+      const up = 'uploads';
+      const uploadsDir = path.join(process.cwd(), pub, up, 'sponsors');
       try {
         await mkdir(uploadsDir, { recursive: true });
       } catch (e) {}
