@@ -9,10 +9,24 @@ export default async function GenrePage({ params }: { params: Promise<{ slug: st
 
   const courses = await prisma.course.findMany({
     where: {
-      category: {
-        contains: categoryName,
-        mode: 'insensitive'
-      }
+      OR: [
+        {
+          category: {
+            contains: categoryName,
+            mode: 'insensitive'
+          }
+        },
+        {
+          contentType: {
+            equals: slug.toUpperCase()
+          }
+        },
+        {
+          contentType: {
+            equals: slug.replace(/s$/, '').toUpperCase() // handles 'games' -> 'GAME'
+          }
+        }
+      ]
     },
     orderBy: { createdAt: 'desc' }
   });
