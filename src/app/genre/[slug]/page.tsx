@@ -7,6 +7,15 @@ export default async function GenrePage({ params }: { params: Promise<{ slug: st
     ? slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
     : 'Category';
 
+  const slugUpper = slug.toUpperCase();
+  const slugSingular = slug.replace(/s$/, '').toUpperCase();
+  
+  const contentTypesToSearch = [slugUpper, slugSingular];
+  // Map WordPress 'audio' post types (migrated as PODCAST) to also appear under Audiobooks
+  if (slugUpper.includes('AUDIOBOOK')) {
+    contentTypesToSearch.push('PODCAST');
+  }
+
   const courses = await prisma.course.findMany({
     where: {
       OR: [
@@ -18,12 +27,7 @@ export default async function GenrePage({ params }: { params: Promise<{ slug: st
         },
         {
           contentType: {
-            equals: slug.toUpperCase()
-          }
-        },
-        {
-          contentType: {
-            equals: slug.replace(/s$/, '').toUpperCase() // handles 'games' -> 'GAME'
+            in: contentTypesToSearch
           }
         }
       ]
