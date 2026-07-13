@@ -11,20 +11,29 @@ export default async function GenrePage({ params }: { params: Promise<{ slug: st
   const slugSingular = slug.replace(/s$/, '').toUpperCase();
   
   const contentTypesToSearch = [slugUpper, slugSingular];
+  
   // Map WordPress 'audio' post types (migrated as PODCAST) to also appear under Audiobooks
-  if (slugUpper.includes('AUDIOBOOK')) {
-    contentTypesToSearch.push('PODCAST');
-  }
+  if (slugUpper.includes('AUDIOBOOK')) contentTypesToSearch.push('PODCAST');
+  // Map "learning-program" slug to PROGRAM content type
+  if (slugUpper.includes('LEARNING-PROGRAM')) contentTypesToSearch.push('PROGRAM');
+  // Map "e-books" slug to EBOOK content type
+  if (slugUpper.includes('E-BOOK')) contentTypesToSearch.push('EBOOK');
+
+  // Map slugs with missing ampersands to their HTML-encoded WordPress database equivalents
+  const categoriesToSearch = [categoryName];
+  if (slugUpper.includes('EPICS')) categoriesToSearch.push('Evergreen Epics &amp; Puranas');
+  if (slugUpper.includes('GAMES-ACTIVITIES')) categoriesToSearch.push('Games &amp; Activities');
+  if (slugUpper.includes('STORIES-SUBHASHITAS')) categoriesToSearch.push('Stories &amp; Subhashitas');
 
   const courses = await prisma.course.findMany({
     where: {
       OR: [
-        {
+        ...categoriesToSearch.map(cat => ({
           category: {
-            contains: categoryName,
-            mode: 'insensitive'
+            contains: cat,
+            mode: 'insensitive' as const
           }
-        },
+        })),
         {
           contentType: {
             in: contentTypesToSearch
