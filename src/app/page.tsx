@@ -234,6 +234,25 @@ export default async function HomePage() {
   return (
     <main>
       <NavBar />
+      
+      {/* 📣 Highly Visible Welcome Banner for New Portal Migration */}
+      <div style={{
+        background: 'linear-gradient(90deg, #1a1c29, #ffd70033)',
+        padding: '12px 20px',
+        textAlign: 'center',
+        borderBottom: '1px solid rgba(255,215,0,0.2)',
+        marginTop: '70px', /* Push down below fixed navbar */
+        position: 'relative',
+        zIndex: 50
+      }}>
+        <p style={{ margin: 0, fontSize: '0.95rem', color: '#fff', fontWeight: 500 }}>
+          🎉 Welcome to the new Vyoma OTT 2.0! Migrating from the old portal? 
+          <Link href="/faq" style={{ color: '#ffd700', marginLeft: '10px', fontWeight: 'bold', textDecoration: 'underline' }}>
+            Click here for the User Guide
+          </Link>
+        </p>
+      </div>
+
       <HeroSlider items={personalizedFeatured} />
 
 

@@ -97,6 +97,22 @@ export default function NavBar() {
             <NotificationBell />
           </div>
 
+          {/* ❓ High-Visibility Help/FAQ Entry */}
+          <Link 
+            href="/faq" 
+            className="desktop-only nav-icon-link"
+            title="Help / FAQ"
+            style={{ 
+              color: '#00d2ff', 
+              background: 'rgba(0, 210, 255, 0.1)', 
+              border: '1px solid rgba(0, 210, 255, 0.3)',
+              padding: '6px 12px',
+              borderRadius: '20px'
+            }}
+          >
+             <span className="icon-emoji" style={{fontSize: '1.1rem'}}>❓</span> <span className="faq-text">Help / FAQ</span>
+          </Link>
+
           {/* 🎁 High-Discovery Gifting Gateway Entry */}
           <Link 
             href="/gift" 
