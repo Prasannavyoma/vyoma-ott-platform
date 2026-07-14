@@ -2,18 +2,20 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { updateChannel, addSection, deleteSection, updateSection } from '@/app/actions/layout-settings';
+import { updateChannel, addSection, deleteSection, updateSection, toggleKnowledgeRoadmap } from '@/app/actions/layout-settings';
 
 interface LayoutSettingsClientProps {
   sections: any[];
   channels: any[];
   availableCategories: string[];
+  roadmapEnabled?: boolean;
 }
 
-export default function LayoutSettingsClient({ sections, channels, availableCategories }: LayoutSettingsClientProps) {
+export default function LayoutSettingsClient({ sections, channels, availableCategories, roadmapEnabled = true }: LayoutSettingsClientProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [editingSectionId, setEditingSectionId] = useState<string | null>(null);
+  const [isRoadmapEnabled, setIsRoadmapEnabled] = useState(roadmapEnabled);
 
   return (
     <div style={{ maxWidth: '1000px' }}>
@@ -32,6 +34,51 @@ export default function LayoutSettingsClient({ sections, channels, availableCate
           background: #d55318;
         }
       `}</style>
+      
+      {/* 0. FEATURE TOGGLES */}
+      <div style={{ marginBottom: '50px' }}>
+        <div className="admin-header" style={{ marginBottom: '25px' }}>
+          <h1 style={{ fontSize: '2rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '10px' }}>
+             ⚙️ Global Feature Toggles
+          </h1>
+          <p style={{ color: '#aaa', marginTop: '5px' }}>Enable or disable experimental or major UI features platform-wide.</p>
+        </div>
+        <div style={{ 
+          background: 'linear-gradient(to right, #0f1624, #070b14)', 
+          border: '1px solid rgba(255,255,255,0.06)',
+          padding: '20px', 
+          borderRadius: '12px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}>
+          <div>
+            <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>🌌 Knowledge Roadmap (Constellation)</h3>
+            <p style={{ color: '#aaa', fontSize: '0.9rem', marginTop: '5px' }}>Shows the interactive 2D constellation roadmap on user profiles.</p>
+          </div>
+          <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '10px' }}>
+            <div style={{
+              width: '50px', height: '26px', background: isRoadmapEnabled ? '#28a745' : '#444', 
+              borderRadius: '26px', position: 'relative', transition: 'all 0.3s'
+            }}>
+              <div style={{
+                width: '22px', height: '22px', background: 'white', borderRadius: '50%',
+                position: 'absolute', top: '2px', left: isRoadmapEnabled ? '26px' : '2px', transition: 'all 0.3s'
+              }} />
+            </div>
+            <input 
+              type="checkbox" 
+              checked={isRoadmapEnabled} 
+              style={{ display: 'none' }}
+              onChange={async (e) => {
+                const newVal = e.target.checked;
+                setIsRoadmapEnabled(newVal);
+                await toggleKnowledgeRoadmap(newVal);
+              }} 
+            />
+          </label>
+        </div>
+      </div>
       
       {/* 1. SLEEK CHANNELS DASHBOARD MANAGER */}
       <div style={{ marginBottom: '50px' }}>

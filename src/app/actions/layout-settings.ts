@@ -62,3 +62,12 @@ export async function updateSection(formData: FormData) {
   revalidatePath('/');
 }
 
+export async function toggleKnowledgeRoadmap(enabled: boolean) {
+  await prisma.systemSetting.upsert({
+    where: { key: 'FEATURE_KNOWLEDGE_ROADMAP' },
+    update: { value: enabled ? 'true' : 'false' },
+    create: { key: 'FEATURE_KNOWLEDGE_ROADMAP', value: enabled ? 'true' : 'false' }
+  });
+  revalidatePath('/admin/layout-settings');
+  revalidatePath('/profile');
+}

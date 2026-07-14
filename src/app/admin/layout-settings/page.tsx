@@ -59,11 +59,15 @@ export default async function LayoutSettingsPage() {
   const rawCats = courses.map((c: any) => c.category).filter(Boolean) as string[];
   const availableCategories = Array.from(new Set(rawCats));
 
+  const roadmapSetting = await prisma.systemSetting.findUnique({ where: { key: 'FEATURE_KNOWLEDGE_ROADMAP' } });
+  const roadmapEnabled = roadmapSetting ? roadmapSetting.value === 'true' : true; // Default true
+
   return (
     <LayoutSettingsClient 
       sections={sections} 
       channels={channels} 
       availableCategories={availableCategories} 
+      roadmapEnabled={roadmapEnabled}
     />
   );
 }

@@ -18,12 +18,16 @@ export default async function ProfilePage() {
   // Fetch gamification configurations for UI
   let uiCoinsNameReward = 1;
   let uiCoinsProfileReward = 10;
+  let roadmapEnabled = true; // Default true
   try {
     const nSetting = await prisma.systemSetting.findUnique({ where: { key: 'COINS_NAME_REWARD' } });
     if (nSetting) uiCoinsNameReward = parseInt(nSetting.value) || 0;
 
     const pSetting = await prisma.systemSetting.findUnique({ where: { key: 'COINS_PROFILE_REWARD' } });
     if (pSetting) uiCoinsProfileReward = parseInt(pSetting.value) || 0;
+
+    const rSetting = await prisma.systemSetting.findUnique({ where: { key: 'FEATURE_KNOWLEDGE_ROADMAP' } });
+    if (rSetting) roadmapEnabled = rSetting.value === 'true';
   } catch (e) {}
 
   // 2. Subscription Lifetime Tracker
@@ -414,8 +418,10 @@ export default async function ProfilePage() {
                </div>
             </div>
 
-            {/* NEW: Constellation Profile (WOW Feature) */}
-            <SkillConstellation syllabi={activeSyllabi} />
+            {/* Constellation Profile (WOW Feature) - Toggleable from backend */}
+            {roadmapEnabled && (
+              <SkillConstellation syllabi={activeSyllabi} />
+            )}
 
             {/* 3. CINEMATIC "CONTINUE WATCHING & STUDYING" SHELF */}
             <div style={{ background: '#0d0d0d', border: '1px solid #1a1a1a', borderRadius: '24px', padding: '30px' }}>
