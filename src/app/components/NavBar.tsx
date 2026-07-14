@@ -113,6 +113,23 @@ export default function NavBar() {
              <span className="icon-emoji" style={{fontSize: '1.1rem'}}>❓</span> <span className="faq-text">Help / FAQ</span>
           </Link>
 
+          {/* 📱 Shorts / Reels Gateway */}
+          <Link 
+            href="/shorts" 
+            className="nav-icon-link"
+            title="Shorts"
+            style={{ 
+              color: '#ff4d4d', 
+              background: 'rgba(255, 77, 77, 0.1)', 
+              border: '1px solid rgba(255, 77, 77, 0.3)',
+              padding: '6px 12px',
+              borderRadius: '20px',
+              marginRight: '10px'
+            }}
+          >
+             <span className="icon-emoji" style={{fontSize: '1.2rem'}}>📱</span> <span className="gift-text">Shorts</span>
+          </Link>
+
           {/* 🎁 High-Discovery Gifting Gateway Entry */}
           <Link 
             href="/gift" 
