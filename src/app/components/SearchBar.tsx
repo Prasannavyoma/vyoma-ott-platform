@@ -87,136 +87,145 @@ export default function SearchBar() {
           left: 0,
           width: '100vw',
           height: '100vh',
-          background: '#0a0d14', // Very dark navy/black matching OTT 1.0
+          background: 'rgba(6, 8, 12, 0.95)', // Deep OTT 2.0 background with slight transparency
+          backdropFilter: 'blur(20px)',
           zIndex: 99999,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          padding: '40px 20px',
+          padding: '60px 40px',
           overflowY: 'auto'
         }}>
           {/* CLOSE BUTTON */}
           <button 
             onClick={() => setIsOpen(false)}
             style={{
-              position: 'absolute',
-              top: '20px',
-              right: '30px',
-              background: 'none',
+              position: 'fixed',
+              top: '40px',
+              right: '60px',
+              background: 'rgba(255,255,255,0.1)',
               border: 'none',
+              borderRadius: '50%',
+              width: '50px',
+              height: '50px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
               color: '#fff',
               cursor: 'pointer',
-              padding: '10px'
+              transition: 'all 0.3s',
+              zIndex: 10
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = '#f26422';
+              e.currentTarget.style.transform = 'scale(1.1)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
+              e.currentTarget.style.transform = 'scale(1)';
             }}
           >
-            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <line x1="18" y1="6" x2="6" y2="18"></line>
               <line x1="6" y1="6" x2="18" y2="18"></line>
             </svg>
           </button>
 
-          <div style={{ width: '100%', maxWidth: '900px' }}>
+          <div style={{ width: '100%', maxWidth: '1200px', display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '4vh' }}>
             
-            {/* SEARCH INPUT GROUP */}
-            <div style={{
-              display: 'flex',
-              background: '#1a1f2e',
-              border: '1px solid rgba(255,255,255,0.05)',
-              borderRadius: '6px',
-              overflow: 'hidden'
-            }}>
-              {/* CATEGORY SELECTOR */}
-              <div style={{ position: 'relative' }}>
-                <select 
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                  style={{
-                    appearance: 'none',
-                    background: '#1f2436',
-                    color: '#fff',
-                    border: 'none',
-                    borderRight: '1px solid rgba(255,255,255,0.1)',
-                    padding: '15px 35px 15px 20px',
-                    fontSize: '1rem',
-                    cursor: 'pointer',
-                    outline: 'none',
-                    height: '100%'
-                  }}
-                >
-                  {categories.map(c => (
-                    <option key={c} value={c}>{c}</option>
-                  ))}
-                </select>
-                <div style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: '#888' }}>
-                  <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7"></path></svg>
-                </div>
-              </div>
-
-              {/* TEXT INPUT */}
+            {/* HERO SEARCH INPUT */}
+            <div style={{ width: '100%', maxWidth: '800px', position: 'relative', marginBottom: '40px' }}>
               <input 
                 ref={inputRef}
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Titles, genres..."
+                placeholder="What are you looking for?"
                 style={{
-                  flex: 1,
+                  width: '100%',
                   background: 'none',
                   border: 'none',
+                  borderBottom: '2px solid rgba(255,255,255,0.2)',
                   color: '#fff',
-                  padding: '15px 20px',
-                  fontSize: '1.1rem',
-                  outline: 'none'
+                  padding: '20px 0',
+                  fontSize: '3rem',
+                  fontWeight: 800,
+                  outline: 'none',
+                  transition: 'border-color 0.3s',
+                  textAlign: 'center'
                 }}
+                onFocus={(e) => e.currentTarget.style.borderBottomColor = '#f26422'}
+                onBlur={(e) => e.currentTarget.style.borderBottomColor = 'rgba(255,255,255,0.2)'}
               />
+              {isSearching && (
+                 <div style={{ position: 'absolute', right: '0', top: '50%', transform: 'translateY(-50%)', width: '30px', height: '30px', border: '3px solid rgba(242, 100, 34, 0.2)', borderTopColor: '#f26422', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+              )}
+            </div>
 
-              {/* SEARCH ICON */}
-              <div style={{ padding: '15px 20px', color: '#aaa', display: 'flex', alignItems: 'center' }}>
-                {isSearching ? (
-                   <div style={{ width: '20px', height: '20px', border: '2px solid rgba(255,255,255,0.2)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
-                ) : (
-                  <svg style={{ width: '20px', height: '20px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                  </svg>
-                )}
-              </div>
+            {/* PILL FILTERS (Replaces Dropdown) */}
+            <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '30px' }}>
+              {categories.map(c => (
+                <button
+                  key={c}
+                  onClick={() => setCategory(c)}
+                  style={{
+                    background: category === c ? 'linear-gradient(135deg, #f26422 0%, #ff8c00 100%)' : 'rgba(255,255,255,0.05)',
+                    color: category === c ? '#fff' : '#aaa',
+                    border: '1px solid',
+                    borderColor: category === c ? 'transparent' : 'rgba(255,255,255,0.1)',
+                    padding: '10px 24px',
+                    borderRadius: '30px',
+                    fontSize: '0.9rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    transition: 'all 0.3s',
+                    boxShadow: category === c ? '0 10px 20px rgba(242, 100, 34, 0.3)' : 'none'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (category !== c) {
+                      e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
+                      e.currentTarget.style.color = '#fff';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (category !== c) {
+                      e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+                      e.currentTarget.style.color = '#aaa';
+                    }
+                  }}
+                >
+                  {c}
+                </button>
+              ))}
             </div>
 
             {/* OPTIONS BAR */}
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'flex-end', 
-              alignItems: 'center',
-              marginTop: '15px',
-              fontSize: '0.85rem',
-              color: '#ddd'
-            }}>
-              <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '8px' }}>
-                <span>To search inside book &rarr;</span>
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '40px' }}>
+              <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '10px', color: contentSearch ? '#fff' : '#888', transition: 'color 0.3s' }}>
                 <input 
                   type="checkbox" 
                   checked={contentSearch}
                   onChange={(e) => setContentSearch(e.target.checked)}
-                  style={{ cursor: 'pointer', width: '16px', height: '16px' }}
+                  style={{ cursor: 'pointer', width: '18px', height: '18px', accentColor: '#f26422' }}
                 />
-                <span style={{ fontWeight: 600 }}>Content Search</span>
+                <span style={{ fontSize: '0.95rem', fontWeight: contentSearch ? 700 : 500 }}>Deep Content Search (Inside Books & Courses)</span>
               </label>
             </div>
 
             {/* RESULTS METADATA */}
-            {query.length > 1 && (
-              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px', marginBottom: '15px', color: '#fff', fontWeight: 600, fontSize: '0.95rem' }}>
-                {results.length} results found
+            {query.length > 1 && !isSearching && (
+              <div style={{ width: '100%', textAlign: 'left', color: '#888', fontSize: '1rem', marginBottom: '20px', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '10px' }}>
+                Found <strong style={{ color: '#fff' }}>{results.length}</strong> results for "{query}"
               </div>
             )}
 
             {/* RESULTS GRID */}
             {results.length > 0 && (
               <div style={{ 
+                width: '100%',
                 display: 'grid', 
-                gridTemplateColumns: 'repeat(auto-fill, minmax(380px, 1fr))', 
-                gap: '24px',
-                marginTop: '15px'
+                gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', 
+                gap: '30px'
               }}>
                 {results.map((item: any) => (
                   <Link 
@@ -226,77 +235,75 @@ export default function SearchBar() {
                     style={{ textDecoration: 'none' }}
                   >
                     <div style={{
-                      background: 'rgba(255, 255, 255, 0.03)',
-                      backdropFilter: 'blur(12px)',
-                      border: '1px solid rgba(255,255,255,0.06)',
+                      background: 'rgba(255, 255, 255, 0.02)',
+                      border: '1px solid rgba(255,255,255,0.04)',
                       borderRadius: '16px',
-                      height: '310px',
+                      height: '340px',
                       display: 'flex',
                       flexDirection: 'column',
                       transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
                       cursor: 'pointer',
-                      overflow: 'hidden',
-                      boxShadow: '0 4px 20px rgba(0,0,0,0.2)'
+                      overflow: 'hidden'
                     }}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.borderColor = 'rgba(242, 100, 34, 0.5)';
                       e.currentTarget.style.background = 'rgba(242, 100, 34, 0.05)';
-                      e.currentTarget.style.transform = 'translateY(-6px) scale(1.02)';
-                      e.currentTarget.style.boxShadow = '0 20px 40px rgba(242, 100, 34, 0.15)';
+                      e.currentTarget.style.transform = 'translateY(-8px)';
+                      e.currentTarget.style.boxShadow = '0 20px 40px rgba(0,0,0,0.6), 0 0 20px rgba(242, 100, 34, 0.1)';
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)';
-                      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.03)';
-                      e.currentTarget.style.transform = 'translateY(0) scale(1)';
-                      e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.2)';
+                      e.currentTarget.style.borderColor = 'rgba(255,255,255,0.04)';
+                      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.02)';
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.boxShadow = 'none';
                     }}
                     >
                       {/* CARD HEADER WITH THUMBNAIL & BADGE */}
-                      <div style={{ position: 'relative', height: '120px', flexShrink: 0, overflow: 'hidden' }}>
+                      <div style={{ position: 'relative', height: '160px', flexShrink: 0, overflow: 'hidden' }}>
                         <img 
                           src={item.thumbnail || 'https://placehold.co/400x150/1a1f2e/ffffff?text=Vyoma'} 
                           alt={item.title}
-                          style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s', transform: 'scale(1.05)' }}
+                          style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s', transform: 'scale(1.02)' }}
                           onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
-                          onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                          onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
                         />
                         <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'linear-gradient(to bottom, rgba(0,0,0,0), #06080c)' }} />
                         
                         <div style={{
                           position: 'absolute',
-                          top: '12px',
-                          left: '12px',
-                          background: 'linear-gradient(135deg, #f26422 0%, #ff8c00 100%)',
+                          bottom: '15px',
+                          left: '20px',
+                          background: 'rgba(242, 100, 34, 0.9)',
+                          backdropFilter: 'blur(5px)',
                           color: '#fff',
-                          fontSize: '0.6rem',
+                          fontSize: '0.65rem',
                           fontWeight: 800,
-                          padding: '4px 10px',
+                          padding: '4px 12px',
                           borderRadius: '20px',
-                          letterSpacing: '0.5px',
-                          boxShadow: '0 4px 12px rgba(242, 100, 34, 0.4)'
+                          letterSpacing: '1px'
                         }}>
                           {item.badge}
                         </div>
                       </div>
 
                       {/* CARD CONTENT */}
-                      <div style={{ padding: '5px 20px 20px 20px', flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', zIndex: 2 }}>
+                      <div style={{ padding: '20px', flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', zIndex: 2 }}>
                         {/* TITLE WITH HIGHLIGHTS */}
                         <h3 
-                          style={{ fontSize: '1.1rem', color: '#fff', fontWeight: 700, marginBottom: '8px', lineHeight: '1.4' }}
+                          style={{ fontSize: '1.2rem', color: '#fff', fontWeight: 700, marginBottom: '10px', lineHeight: '1.3' }}
                           dangerouslySetInnerHTML={{ __html: item.title }}
                         />
 
-                        {/* DESCRIPTION WITH CUSTOM SCROLLBAR & HIGHLIGHTS */}
+                        {/* DESCRIPTION WITH HIGHLIGHTS */}
                         <div 
                           className="search-desc-scroll"
                           style={{ 
                             flex: 1, 
                             overflowY: 'auto', 
-                            fontSize: '0.85rem', 
+                            fontSize: '0.9rem', 
                             lineHeight: '1.6', 
                             color: '#a0a5b5',
-                            paddingRight: '12px'
+                            paddingRight: '10px'
                           }}
                           dangerouslySetInnerHTML={{ __html: item.description || 'No description available for this content.' }}
                         />
@@ -311,34 +318,24 @@ export default function SearchBar() {
         </div>
       )}
 
-      {/* GLOBAL CSS FOR HIGHLIGHTS AND CUSTOM SCROLLBAR */}
+      {/* GLOBAL CSS FOR HIGHLIGHTS */}
       <style dangerouslySetInnerHTML={{__html: `
         mark {
-          background-color: rgba(255, 215, 0, 0.3) !important;
-          color: #ffd700 !important;
-          padding: 2px 4px;
-          border-radius: 4px;
-          font-weight: 800;
-          box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
+          background-color: transparent !important;
+          color: #f26422 !important;
+          font-weight: 900;
+          text-decoration: underline;
+          text-decoration-color: rgba(242, 100, 34, 0.4);
+          text-decoration-thickness: 3px;
+          text-underline-offset: 3px;
         }
         
         .search-desc-scroll::-webkit-scrollbar {
-          width: 6px;
-        }
-        .search-desc-scroll::-webkit-scrollbar-track {
-          background: rgba(255,255,255,0.02); 
-          border-radius: 8px;
-        }
-        .search-desc-scroll::-webkit-scrollbar-thumb {
-          background: rgba(255,255,255,0.2); 
-          border-radius: 8px;
-        }
-        .search-desc-scroll::-webkit-scrollbar-thumb:hover {
-          background: rgba(255,255,255,0.4); 
+          width: 0px; /* Hidden scrollbar for sleek look */
         }
         
         @keyframes spin {
-          to { transform: rotate(360deg); }
+          to { transform: translateY(-50%) rotate(360deg); }
         }
       `}} />
     </>
