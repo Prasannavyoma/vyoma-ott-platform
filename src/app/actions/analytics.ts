@@ -66,7 +66,7 @@ export async function searchContent(query: string) {
         });
 
         if (searchResult.hits && searchResult.hits.length > 0) {
-          return searchResult.hits.map((hit: any) => {
+          const hits = searchResult.hits.map((hit: any) => {
             const isEpisode = hit.type === 'episode';
             if (isEpisode) {
               const isAudio = !!hit.audioUrl;
@@ -98,6 +98,7 @@ export async function searchContent(query: string) {
               };
             }
           });
+          return { hits, engine: 'meilisearch' };
         }
       } catch (meiliError) {
         console.error("Meilisearch Search Failure, falling back to database query:", meiliError);
@@ -172,7 +173,7 @@ export async function searchContent(query: string) {
       return {
         id: e.id,
         title: e.title,
-        subTitle: `In: ${e.course.title}`,
+        subTitle: `In: ${e.course?.title || 'Course'}`,
         thumbnail: e.thumbnailUrl || 'https://placehold.co/60x35',
         url: `/watch/${e.courseId}?ep=${e.id}`,
         badge: badge,
@@ -180,11 +181,11 @@ export async function searchContent(query: string) {
       };
     });
 
-    return [...normalizedCourses, ...normalizedEpisodes];
+    return { hits: [...normalizedCourses, ...normalizedEpisodes], engine: 'postgres' };
 
   } catch (error) {
     console.error("Deep Search Action Error:", error);
-    return [];
+    return { hits: [], engine: 'postgres' };
   }
 }
 

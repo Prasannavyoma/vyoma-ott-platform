@@ -10,11 +10,14 @@ export default function SearchBar() {
   const [isOpen, setIsOpen] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
 
+  const [engine, setEngine] = useState('');
+
   useEffect(() => {
     const delayDebounce = setTimeout(async () => {
       if (query.trim().length > 1) {
         const res = await searchContent(query);
-        setResults(res);
+        setResults(res.hits || []);
+        setEngine(res.engine || 'postgres');
         setIsOpen(true);
       } else {
         setResults([]);
@@ -130,6 +133,12 @@ export default function SearchBar() {
               </Link>
             ))}
           </div>
+
+          {engine === 'meilisearch' && (
+            <div style={{ background: 'rgba(0,0,0,0.4)', padding: '6px 12px', textAlign: 'right', borderTop: '1px solid rgba(255,255,255,0.05)', fontSize: '0.65rem', color: '#888' }}>
+              ⚡ Powered by <span style={{ color: '#ff4c9f', fontWeight: 800 }}>Meilisearch</span>
+            </div>
+          )}
         </div>
       )}
     </div>
