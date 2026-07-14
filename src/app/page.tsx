@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import CourseRow from './components/CourseRow';
 import NavBar from './components/NavBar';
+import SearchBar from './components/SearchBar';
 import HeroSlider from './components/HeroSlider';
 import { getFeaturedSlider, getTrendingNow } from './actions/analytics';
 import { getContinueWatching, getUserWatchlist } from './actions/ott';
@@ -251,6 +252,20 @@ export default async function HomePage() {
             Click here for the User Guide
           </Link>
         </p>
+      </div>
+
+      {/* 🔍 Prominent Search Hub - Moved out of NavBar for cleaner design */}
+      <div style={{ 
+        padding: '20px 5%', 
+        background: 'linear-gradient(180deg, #111, transparent)',
+        display: 'flex', 
+        justifyContent: 'center', 
+        position: 'relative', 
+        zIndex: 40 
+      }}>
+        <div style={{ width: '100%', maxWidth: '600px', transform: 'scale(1.1)', transformOrigin: 'center top' }}>
+          <SearchBar />
+        </div>
       </div>
 
       <HeroSlider items={personalizedFeatured} />

@@ -1,10 +1,12 @@
 "use client";
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import SearchBar from './SearchBar';
 import NotificationBell from './NotificationBell';
 
 export default function NavBar() {
+  const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [menus, setMenus] = useState<any[]>([]);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
@@ -88,10 +90,12 @@ export default function NavBar() {
         </div>
         
         <div className="nav-actions" style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-          {/* Dynamic Search Bar Core */}
-          <div className="desktop-only">
-            <SearchBar />
-          </div>
+          {/* Dynamic Search Bar Core - Hidden on homepage to declutter */}
+          {pathname !== '/' && (
+            <div className="desktop-only">
+              <SearchBar />
+            </div>
+          )}
 
           <div className="desktop-only" title="Notifications">
             <NotificationBell />
