@@ -164,10 +164,25 @@ a {
   100% { opacity: 1; transform: translate(0, 0); }
 }
 
+@keyframes dropdownEntranceLeft {
+  0% { opacity: 0; transform: translate(0, -15px); }
+  100% { opacity: 1; transform: translate(0, 0); }
+}
+
 .dropdown:hover .dropdown-content,
 .dropdown.active-dropdown .dropdown-content {
   display: block;
   animation: dropdownEntrance 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+/* Prevent out-of-box overflow on left-side menus (like Genre) */
+.nav-links > .dropdown:first-child .dropdown-content {
+  left: -20px; /* Slight offset to align nicely with text */
+  transform: none;
+}
+.nav-links > .dropdown:first-child:hover .dropdown-content,
+.nav-links > .dropdown:first-child.active-dropdown .dropdown-content {
+  animation: dropdownEntranceLeft 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
 
 /* Prevent out-of-box overflow on right-side menus */
