@@ -214,9 +214,9 @@ export default function SearchBar() {
             {results.length > 0 && (
               <div style={{ 
                 display: 'grid', 
-                gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))', 
-                gap: '20px',
-                marginTop: '10px'
+                gridTemplateColumns: 'repeat(auto-fill, minmax(380px, 1fr))', 
+                gap: '24px',
+                marginTop: '15px'
               }}>
                 {results.map((item: any) => (
                   <Link 
@@ -226,61 +226,81 @@ export default function SearchBar() {
                     style={{ textDecoration: 'none' }}
                   >
                     <div style={{
-                      background: 'none',
-                      border: '1px solid rgba(255,255,255,0.15)',
-                      borderRadius: '8px',
-                      padding: '20px',
-                      height: '280px',
+                      background: 'rgba(20, 25, 38, 0.6)',
+                      backdropFilter: 'blur(10px)',
+                      border: '1px solid rgba(255,255,255,0.08)',
+                      borderRadius: '12px',
+                      height: '300px',
                       display: 'flex',
                       flexDirection: 'column',
-                      transition: 'border-color 0.2s, background 0.2s',
-                      cursor: 'pointer'
+                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                      cursor: 'pointer',
+                      overflow: 'hidden',
+                      boxShadow: '0 10px 30px rgba(0,0,0,0.4)'
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.borderColor = '#0055a5';
-                      e.currentTarget.style.background = 'rgba(0, 85, 165, 0.05)';
+                      e.currentTarget.style.borderColor = '#007aff';
+                      e.currentTarget.style.background = 'rgba(0, 122, 255, 0.08)';
+                      e.currentTarget.style.transform = 'translateY(-4px)';
+                      e.currentTarget.style.boxShadow = '0 15px 40px rgba(0, 122, 255, 0.15)';
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)';
-                      e.currentTarget.style.background = 'none';
+                      e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)';
+                      e.currentTarget.style.background = 'rgba(20, 25, 38, 0.6)';
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.boxShadow = '0 10px 30px rgba(0,0,0,0.4)';
                     }}
                     >
-                      {/* BADGE */}
-                      <div style={{
-                        background: '#0055a5',
-                        color: '#fff',
-                        fontSize: '0.65rem',
-                        fontWeight: 700,
-                        padding: '4px 8px',
-                        borderRadius: '4px',
-                        display: 'inline-block',
-                        marginBottom: '15px',
-                        alignSelf: 'flex-start'
-                      }}>
-                        {item.badge}
+                      {/* CARD HEADER WITH THUMBNAIL & BADGE */}
+                      <div style={{ position: 'relative', height: '100px', flexShrink: 0, overflow: 'hidden' }}>
+                        <img 
+                          src={item.thumbnail || 'https://placehold.co/400x150/1a1f2e/ffffff?text=Course'} 
+                          alt={item.title}
+                          style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.6, transition: 'opacity 0.3s' }}
+                        />
+                        <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(20,25,38,1))' }} />
+                        
+                        <div style={{
+                          position: 'absolute',
+                          top: '15px',
+                          left: '15px',
+                          background: 'linear-gradient(135deg, #0055a5 0%, #007aff 100%)',
+                          color: '#fff',
+                          fontSize: '0.65rem',
+                          fontWeight: 800,
+                          padding: '6px 10px',
+                          borderRadius: '4px',
+                          letterSpacing: '1px',
+                          boxShadow: '0 4px 15px rgba(0, 85, 165, 0.5)'
+                        }}>
+                          {item.badge}
+                        </div>
                       </div>
 
-                      {/* TITLE WITH HIGHLIGHTS */}
-                      <h3 
-                        style={{ fontSize: '1.2rem', color: '#fff', fontWeight: 700, marginBottom: '15px', lineHeight: '1.4' }}
-                        dangerouslySetInnerHTML={{ __html: item.title }}
-                      />
+                      {/* CARD CONTENT */}
+                      <div style={{ padding: '0 20px 20px 20px', flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                        {/* TITLE WITH HIGHLIGHTS */}
+                        <h3 
+                          style={{ fontSize: '1.15rem', color: '#fff', fontWeight: 700, marginBottom: '12px', lineHeight: '1.4' }}
+                          dangerouslySetInnerHTML={{ __html: item.title }}
+                        />
 
-                      <div style={{ height: '1px', background: 'rgba(255,255,255,0.1)', marginBottom: '15px' }} />
-
-                      {/* DESCRIPTION WITH CUSTOM SCROLLBAR & HIGHLIGHTS */}
-                      <div 
-                        className="search-desc-scroll"
-                        style={{ 
-                          flex: 1, 
-                          overflowY: 'auto', 
-                          fontSize: '0.9rem', 
-                          lineHeight: '1.6', 
-                          color: '#ccc',
-                          paddingRight: '15px'
-                        }}
-                        dangerouslySetInnerHTML={{ __html: item.description || 'No description available.' }}
-                      />
+                        {/* DESCRIPTION WITH CUSTOM SCROLLBAR & HIGHLIGHTS */}
+                        <div 
+                          className="search-desc-scroll"
+                          style={{ 
+                            flex: 1, 
+                            overflowY: 'auto', 
+                            fontSize: '0.9rem', 
+                            lineHeight: '1.6', 
+                            color: '#aaa',
+                            paddingRight: '15px',
+                            borderTop: '1px solid rgba(255,255,255,0.05)',
+                            paddingTop: '12px'
+                          }}
+                          dangerouslySetInnerHTML={{ __html: item.description || 'No description available for this content.' }}
+                        />
+                      </div>
                     </div>
                   </Link>
                 ))}
@@ -294,26 +314,27 @@ export default function SearchBar() {
       {/* GLOBAL CSS FOR HIGHLIGHTS AND CUSTOM SCROLLBAR */}
       <style dangerouslySetInnerHTML={{__html: `
         mark {
-          background-color: #ffd700 !important;
-          color: #000 !important;
-          padding: 0 2px;
-          border-radius: 2px;
-          font-weight: bold;
+          background-color: rgba(255, 215, 0, 0.3) !important;
+          color: #ffd700 !important;
+          padding: 2px 4px;
+          border-radius: 4px;
+          font-weight: 800;
+          box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
         }
         
         .search-desc-scroll::-webkit-scrollbar {
-          width: 4px;
+          width: 6px;
         }
         .search-desc-scroll::-webkit-scrollbar-track {
-          background: rgba(255,255,255,0.05); 
-          border-radius: 4px;
+          background: rgba(255,255,255,0.02); 
+          border-radius: 8px;
         }
         .search-desc-scroll::-webkit-scrollbar-thumb {
-          background: rgba(255,255,255,0.3); 
-          border-radius: 4px;
+          background: rgba(255,255,255,0.2); 
+          border-radius: 8px;
         }
         .search-desc-scroll::-webkit-scrollbar-thumb:hover {
-          background: rgba(255,255,255,0.5); 
+          background: rgba(255,255,255,0.4); 
         }
         
         @keyframes spin {
