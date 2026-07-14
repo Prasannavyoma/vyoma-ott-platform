@@ -37,8 +37,18 @@ export default function SearchBar() {
 
   return (
     <div ref={searchRef} style={{ position: 'relative' }}>
-      <div className="search-container" style={{ display: 'flex', alignItems: 'center', background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '20px', padding: '5px 15px' }}>
-        <svg style={{ width: '16px', height: '16px', color: '#aaa', marginRight: '8px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+      <div className={`search-container ${isOpen ? 'active' : ''}`} style={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        background: isOpen ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.5)', 
+        border: `1px solid ${isOpen ? 'rgba(242, 100, 34, 0.5)' : 'rgba(255,255,255,0.15)'}`, 
+        boxShadow: isOpen ? '0 0 15px rgba(242, 100, 34, 0.2)' : 'none',
+        borderRadius: '24px', 
+        padding: '6px 16px',
+        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+        width: isOpen ? '250px' : '180px'
+      }}>
+        <svg style={{ width: '16px', height: '16px', color: isOpen ? '#f26422' : '#aaa', marginRight: '8px', transition: 'color 0.3s' }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
         <input 
           type="text" 
           className="search-input"
@@ -48,7 +58,7 @@ export default function SearchBar() {
             setQuery(e.target.value);
           }}
           onFocus={() => query.length > 1 && setIsOpen(true)}
-          style={{ background: 'none', border: 'none', color: 'white', outline: 'none', width: '150px', fontSize: '0.9rem' }}
+          style={{ background: 'none', border: 'none', color: 'white', outline: 'none', width: '100%', fontSize: '0.9rem' }}
         />
       </div>
 
