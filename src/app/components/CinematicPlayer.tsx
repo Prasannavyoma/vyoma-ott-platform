@@ -272,6 +272,7 @@ export default function CinematicPlayer({
   
   // Study Room State
   const [studyRoomId, setStudyRoomId] = useState<string | null>(null);
+  const [studyRoom, setStudyRoom] = useState<any>(null);
   const [showStudyRoomSidebar, setShowStudyRoomSidebar] = useState(false);
   const [chatMessages, setChatMessages] = useState<any[]>([]);
   const [chatInput, setChatInput] = useState('');
