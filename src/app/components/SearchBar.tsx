@@ -6,141 +6,320 @@ import Link from 'next/link';
 
 export default function SearchBar() {
   const [query, setQuery] = useState('');
+  const [category, setCategory] = useState('All');
+  const [contentSearch, setContentSearch] = useState(false);
   const [results, setResults] = useState<any[]>([]);
   const [isOpen, setIsOpen] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  const [engine, setEngine] = useState('');
+  const categories = ['All', 'Ebooks', 'Courses', 'Audios', 'Videos', 'Podcasts'];
 
   useEffect(() => {
     const delayDebounce = setTimeout(async () => {
       if (query.trim().length > 1) {
-        const res = await searchContent(query);
+        setIsSearching(true);
+        const res = await searchContent(query, category, contentSearch);
         setResults(res.hits || []);
-        setEngine(res.engine || 'postgres');
-        setIsOpen(true);
+        setIsSearching(false);
       } else {
         setResults([]);
-        setIsOpen(false);
       }
-    }, 300);
+    }, 400);
 
     return () => clearTimeout(delayDebounce);
-  }, [query]);
+  }, [query, category, contentSearch]);
 
   useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+    if (isOpen && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isOpen]);
+
+  // Open modal if user hits cmd+k or ctrl+k
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setIsOpen(true);
+      }
+      if (e.key === 'Escape' && isOpen) {
         setIsOpen(false);
       }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen]);
 
   return (
-    <div ref={searchRef} style={{ position: 'relative' }}>
-      <div className={`search-container ${isOpen ? 'active' : ''}`} style={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        background: isOpen ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.5)', 
-        border: `1px solid ${isOpen ? 'rgba(242, 100, 34, 0.5)' : 'rgba(255,255,255,0.15)'}`, 
-        boxShadow: isOpen ? '0 0 15px rgba(242, 100, 34, 0.2)' : 'none',
-        borderRadius: '24px', 
-        padding: '6px 16px',
-        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-        width: isOpen ? '250px' : '180px'
-      }}>
-        <svg style={{ width: '16px', height: '16px', color: isOpen ? '#f26422' : '#aaa', marginRight: '8px', transition: 'color 0.3s' }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-        <input 
-          type="text" 
-          className="search-input"
-          placeholder="Titles, genres..." 
-          value={query}
-          onChange={(e) => {
-            setQuery(e.target.value);
-          }}
-          onFocus={() => query.length > 1 && setIsOpen(true)}
-          style={{ background: 'none', border: 'none', color: 'white', outline: 'none', width: '100%', fontSize: '0.9rem' }}
-        />
-      </div>
+    <>
+      {/* TRIGGER BUTTON (in NavBar) */}
+      <button 
+        onClick={() => setIsOpen(true)}
+        style={{
+          background: 'rgba(255,255,255,0.1)',
+          border: '1px solid rgba(255,255,255,0.15)',
+          borderRadius: '24px',
+          padding: '6px 16px',
+          color: '#aaa',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          cursor: 'pointer',
+          width: '180px',
+          transition: 'all 0.3s'
+        }}
+        onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}
+        onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
+      >
+        <svg style={{ width: '16px', height: '16px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+        </svg>
+        <span style={{ fontSize: '0.9rem' }}>Search...</span>
+      </button>
 
-      {isOpen && results.length > 0 && (
-        <div style={{ 
-          position: 'absolute', 
-          top: '110%', 
-          right: 0, 
-          width: '380px', 
-          background: 'linear-gradient(180deg, #161920 0%, #0d0f12 100%)', 
-          border: '1px solid rgba(255,255,255,0.08)', 
-          boxShadow: '0 20px 50px rgba(0,0,0,0.8)', 
-          borderRadius: '12px', 
-          zIndex: 9999,
-          overflow: 'hidden'
+      {/* FULL SCREEN MODAL */}
+      {isOpen && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          background: '#0a0d14', // Very dark navy/black matching OTT 1.0
+          zIndex: 99999,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          padding: '40px 20px',
+          overflowY: 'auto'
         }}>
-          <div style={{ background: 'rgba(255,255,255,0.02)', padding: '8px 12px', fontSize: '0.7rem', color: '#666', borderBottom: '1px solid rgba(255,255,255,0.05)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>
-             🎯 Deep Content Matches
-          </div>
-          
-          <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
-            {results.map((item: any) => (
-              <Link 
-                key={`${item.badge}-${item.id}`} 
-                href={item.url}
-                onClick={() => setIsOpen(false)}
-                style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  gap: '15px', 
-                  padding: '12px', 
-                  borderBottom: '1px solid rgba(255,255,255,0.03)',
-                  transition: 'all 0.2s',
-                  textDecoration: 'none'
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.04)'}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-              >
-                <img 
-                  src={item.thumbnail || 'https://placehold.co/60x35'} 
-                  alt={item.title}
-                  style={{ width: '70px', height: '40px', objectFit: 'cover', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.05)' }} 
-                />
-                
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#fff', marginBottom: '2px', overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical' }}>
-                    {item.title ? item.title.replace(/&amp;/g, '&') : ''}
-                  </div>
-                  
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <span style={{ 
-                      fontSize: '0.6rem', 
-                      color: item.badgeColor, 
-                      background: `${item.badgeColor}15`, // Added 15% opacity for bg
-                      border: `1px solid ${item.badgeColor}50`, 
-                      padding: '2px 6px', 
-                      borderRadius: '4px', 
-                      fontWeight: 900,
-                      textTransform: 'uppercase'
-                    }}>
-                      {item.badge}
-                    </span>
-                    
-                    <div style={{ fontSize: '0.75rem', color: '#777', overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical' }}>
-                      {item.subTitle ? item.subTitle.replace(/&amp;/g, '&') : ''}
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
+          {/* CLOSE BUTTON */}
+          <button 
+            onClick={() => setIsOpen(false)}
+            style={{
+              position: 'absolute',
+              top: '20px',
+              right: '30px',
+              background: 'none',
+              border: 'none',
+              color: '#fff',
+              cursor: 'pointer',
+              padding: '10px'
+            }}
+          >
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
 
-          {engine === 'meilisearch' && (
-            <div style={{ background: 'rgba(0,0,0,0.4)', padding: '6px 12px', textAlign: 'right', borderTop: '1px solid rgba(255,255,255,0.05)', fontSize: '0.65rem', color: '#888' }}>
-              ⚡ Powered by <span style={{ color: '#ff4c9f', fontWeight: 800 }}>Meilisearch</span>
+          <div style={{ width: '100%', maxWidth: '900px' }}>
+            
+            {/* SEARCH INPUT GROUP */}
+            <div style={{
+              display: 'flex',
+              background: '#1a1f2e',
+              border: '1px solid rgba(255,255,255,0.05)',
+              borderRadius: '6px',
+              overflow: 'hidden'
+            }}>
+              {/* CATEGORY SELECTOR */}
+              <div style={{ position: 'relative' }}>
+                <select 
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  style={{
+                    appearance: 'none',
+                    background: '#1f2436',
+                    color: '#fff',
+                    border: 'none',
+                    borderRight: '1px solid rgba(255,255,255,0.1)',
+                    padding: '15px 35px 15px 20px',
+                    fontSize: '1rem',
+                    cursor: 'pointer',
+                    outline: 'none',
+                    height: '100%'
+                  }}
+                >
+                  {categories.map(c => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+                <div style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: '#888' }}>
+                  <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7"></path></svg>
+                </div>
+              </div>
+
+              {/* TEXT INPUT */}
+              <input 
+                ref={inputRef}
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Titles, genres..."
+                style={{
+                  flex: 1,
+                  background: 'none',
+                  border: 'none',
+                  color: '#fff',
+                  padding: '15px 20px',
+                  fontSize: '1.1rem',
+                  outline: 'none'
+                }}
+              />
+
+              {/* SEARCH ICON */}
+              <div style={{ padding: '15px 20px', color: '#aaa', display: 'flex', alignItems: 'center' }}>
+                {isSearching ? (
+                   <div style={{ width: '20px', height: '20px', border: '2px solid rgba(255,255,255,0.2)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+                ) : (
+                  <svg style={{ width: '20px', height: '20px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                  </svg>
+                )}
+              </div>
             </div>
-          )}
+
+            {/* OPTIONS BAR */}
+            <div style={{ 
+              display: 'flex', 
+              justifyContent: 'flex-end', 
+              alignItems: 'center',
+              marginTop: '15px',
+              fontSize: '0.85rem',
+              color: '#ddd'
+            }}>
+              <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '8px' }}>
+                <span>To search inside book &rarr;</span>
+                <input 
+                  type="checkbox" 
+                  checked={contentSearch}
+                  onChange={(e) => setContentSearch(e.target.checked)}
+                  style={{ cursor: 'pointer', width: '16px', height: '16px' }}
+                />
+                <span style={{ fontWeight: 600 }}>Content Search</span>
+              </label>
+            </div>
+
+            {/* RESULTS METADATA */}
+            {query.length > 1 && (
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px', marginBottom: '15px', color: '#fff', fontWeight: 600, fontSize: '0.95rem' }}>
+                {results.length} results found
+              </div>
+            )}
+
+            {/* RESULTS GRID */}
+            {results.length > 0 && (
+              <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))', 
+                gap: '20px',
+                marginTop: '10px'
+              }}>
+                {results.map((item: any) => (
+                  <Link 
+                    key={`${item.type}-${item.id}`} 
+                    href={item.url}
+                    onClick={() => setIsOpen(false)}
+                    style={{ textDecoration: 'none' }}
+                  >
+                    <div style={{
+                      background: 'none',
+                      border: '1px solid rgba(255,255,255,0.15)',
+                      borderRadius: '8px',
+                      padding: '20px',
+                      height: '280px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      transition: 'border-color 0.2s, background 0.2s',
+                      cursor: 'pointer'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.borderColor = '#0055a5';
+                      e.currentTarget.style.background = 'rgba(0, 85, 165, 0.05)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)';
+                      e.currentTarget.style.background = 'none';
+                    }}
+                    >
+                      {/* BADGE */}
+                      <div style={{
+                        background: '#0055a5',
+                        color: '#fff',
+                        fontSize: '0.65rem',
+                        fontWeight: 700,
+                        padding: '4px 8px',
+                        borderRadius: '4px',
+                        display: 'inline-block',
+                        marginBottom: '15px',
+                        alignSelf: 'flex-start'
+                      }}>
+                        {item.badge}
+                      </div>
+
+                      {/* TITLE WITH HIGHLIGHTS */}
+                      <h3 
+                        style={{ fontSize: '1.2rem', color: '#fff', fontWeight: 700, marginBottom: '15px', lineHeight: '1.4' }}
+                        dangerouslySetInnerHTML={{ __html: item.title }}
+                      />
+
+                      <div style={{ height: '1px', background: 'rgba(255,255,255,0.1)', marginBottom: '15px' }} />
+
+                      {/* DESCRIPTION WITH CUSTOM SCROLLBAR & HIGHLIGHTS */}
+                      <div 
+                        className="search-desc-scroll"
+                        style={{ 
+                          flex: 1, 
+                          overflowY: 'auto', 
+                          fontSize: '0.9rem', 
+                          lineHeight: '1.6', 
+                          color: '#ccc',
+                          paddingRight: '15px'
+                        }}
+                        dangerouslySetInnerHTML={{ __html: item.description || 'No description available.' }}
+                      />
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+
+          </div>
         </div>
       )}
-    </div>
+
+      {/* GLOBAL CSS FOR HIGHLIGHTS AND CUSTOM SCROLLBAR */}
+      <style dangerouslySetInnerHTML={{__html: `
+        mark {
+          background-color: #ffd700 !important;
+          color: #000 !important;
+          padding: 0 2px;
+          border-radius: 2px;
+          font-weight: bold;
+        }
+        
+        .search-desc-scroll::-webkit-scrollbar {
+          width: 4px;
+        }
+        .search-desc-scroll::-webkit-scrollbar-track {
+          background: rgba(255,255,255,0.05); 
+          border-radius: 4px;
+        }
+        .search-desc-scroll::-webkit-scrollbar-thumb {
+          background: rgba(255,255,255,0.3); 
+          border-radius: 4px;
+        }
+        .search-desc-scroll::-webkit-scrollbar-thumb:hover {
+          background: rgba(255,255,255,0.5); 
+        }
+        
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+      `}} />
+    </>
   );
 }

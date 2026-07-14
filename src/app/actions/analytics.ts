@@ -61,42 +61,56 @@ export async function searchContent(query: string) {
     if (meiliClient) {
       try {
         const index = meiliClient.index('ott_content');
-        const searchResult = await index.search(cleanQuery, {
-          limit: 12
-        });
+        
+        let filter: string | undefined = undefined;
+        if (filterCategory !== 'All') {
+          // Simplistic mapping - in a real app, you might map 'Ebooks' -> 'EBOOK'
+          // assuming Meilisearch docs have `category` or `type`.
+          // We stored `type` as 'course' or 'episode' and `category` as actual category string.
+          if (filterCategory === 'Ebooks') filter = "category = 'Ebook' OR category = 'Ebooks'";
+          else filter = `category = '${filterCategory}'`;
+        }
+
+        const searchOptions: any = {
+          limit: 12,
+          attributesToHighlight: ['title', 'description'],
+          highlightPreTag: '<mark>',
+          highlightPostTag: '</mark>'
+        };
+
+        if (filter) {
+          searchOptions.filter = filter;
+        }
+
+        const searchResult = await index.search(cleanQuery, searchOptions);
 
         if (searchResult.hits && searchResult.hits.length > 0) {
           const hits = searchResult.hits.map((hit: any) => {
             const isEpisode = hit.type === 'episode';
+            let badge = 'MODULE';
+            let badgeColor = '#aaa';
+            
             if (isEpisode) {
-              const isAudio = !!hit.audioUrl;
-              const isVideo = !!hit.videoUrl;
-              
-              let badge = '📄 Module';
-              let badgeColor = '#aaa';
-              if (isVideo) { badge = '📽️ Video'; badgeColor = '#e50914'; }
-              else if (isAudio) { badge = '🎧 Audio'; badgeColor = '#1db954'; }
-
-              return {
-                id: hit.dbId,
-                title: hit.title,
-                subTitle: `In: ${hit.courseTitle || 'Course'}`,
-                thumbnail: hit.thumbnailUrl || 'https://placehold.co/60x35',
-                url: `/watch/${hit.courseId}?ep=${hit.dbId}`,
-                badge: badge,
-                badgeColor: badgeColor
-              };
+              if (!!hit.videoUrl) { badge = 'VIDEO'; badgeColor = '#e50914'; }
+              else if (!!hit.audioUrl) { badge = 'AUDIO'; badgeColor = '#1db954'; }
             } else {
-              return {
-                id: hit.dbId,
-                title: hit.title,
-                subTitle: hit.category || "Course",
-                thumbnail: hit.thumbnailUrl || 'https://placehold.co/60x35',
-                url: `/watch/${hit.dbId}`,
-                badge: '🎓 Course',
-                badgeColor: '#ffd700'
-              };
+              badge = hit.category?.toUpperCase() || 'COURSE';
+              badgeColor = '#0055a5'; // OTT 1.0 Blue badge style
             }
+
+            const formatted = hit._formatted || hit;
+
+            return {
+              id: hit.dbId,
+              title: formatted.title, // Highlighted
+              description: formatted.description || '', // Highlighted
+              subTitle: isEpisode ? `In: ${hit.courseTitle || 'Course'}` : (hit.category || "Course"),
+              thumbnail: hit.thumbnailUrl || 'https://placehold.co/60x35',
+              url: isEpisode ? `/watch/${hit.courseId}?ep=${hit.dbId}` : `/watch/${hit.dbId}`,
+              badge: badge,
+              badgeColor: badgeColor,
+              type: hit.type
+            };
           });
           return { hits, engine: 'meilisearch' };
         }
@@ -108,76 +122,92 @@ export async function searchContent(query: string) {
     // 2. DATABASE FALLBACK
     const queryWithAmp = cleanQuery.replace(/&/g, '&amp;');
 
-    // Search Courses (Top-level Products)
+    // Helper to wrap matched text in <mark>
+    const highlight = (text: string | null) => {
+      if (!text) return '';
+      const regex = new RegExp(`(${cleanQuery})`, 'gi');
+      return text.replace(regex, '<mark>$1</mark>');
+    };
+
+    let courseWhere: any = {
+      OR: [
+        { title: { contains: cleanQuery, mode: 'insensitive' } },
+        { title: { contains: queryWithAmp, mode: 'insensitive' } },
+        { description: { contains: cleanQuery, mode: 'insensitive' } },
+        { description: { contains: queryWithAmp, mode: 'insensitive' } }
+      ]
+    };
+
+    if (filterCategory !== 'All') {
+      courseWhere.category = { contains: filterCategory, mode: 'insensitive' };
+    }
+
     const matchedCourses = await prisma.course.findMany({
-      where: {
-        OR: [
-          { title: { contains: cleanQuery } },
-          { title: { contains: queryWithAmp } },
-          { description: { contains: cleanQuery } },
-          { description: { contains: queryWithAmp } },
-          { category: { contains: cleanQuery } },
-          { category: { contains: queryWithAmp } }
-        ]
-      },
-      take: 5,
+      where: courseWhere,
+      take: 8,
       select: {
         id: true,
         title: true,
+        description: true,
         thumbnailUrl: true,
         accessLevel: true,
         category: true
       }
     });
 
-    // Deep Search Episodes (Nested content: Videos, Audios, etc.)
+    let episodeWhere: any = {
+      OR: [
+        { title: { contains: cleanQuery, mode: 'insensitive' } },
+        { title: { contains: queryWithAmp, mode: 'insensitive' } },
+        { description: { contains: cleanQuery, mode: 'insensitive' } },
+        { description: { contains: queryWithAmp, mode: 'insensitive' } }
+      ]
+    };
+
+    // If filtering by Category, we might skip episodes entirely or filter their course category
+    if (filterCategory !== 'All') {
+      episodeWhere.course = {
+        category: { contains: filterCategory, mode: 'insensitive' }
+      };
+    }
+
     const matchedEpisodes = await prisma.episode.findMany({
-      where: {
-        OR: [
-          { title: { contains: cleanQuery } },
-          { title: { contains: queryWithAmp } },
-          { description: { contains: cleanQuery } },
-          { description: { contains: queryWithAmp } }
-        ]
-      },
+      where: episodeWhere,
       take: 6,
       include: {
-        course: {
-          select: {
-            title: true
-          }
-        }
+        course: { select: { title: true } }
       }
     });
 
     // Consolidate into a Unified Search Projection
     const normalizedCourses = matchedCourses.map(c => ({
       id: c.id,
-      title: c.title,
+      title: highlight(c.title),
+      description: highlight(c.description),
       subTitle: c.category || "Course",
       thumbnail: c.thumbnailUrl || 'https://placehold.co/60x35',
       url: `/watch/${c.id}`,
-      badge: '🎓 Course',
-      badgeColor: '#ffd700'
+      badge: (c.category || 'COURSE').toUpperCase(),
+      badgeColor: '#0055a5',
+      type: 'course'
     }));
 
     const normalizedEpisodes = matchedEpisodes.map(e => {
-      const isAudio = !!e.audioUrl;
-      const isVideo = !!e.videoUrl;
-      
-      let badge = '📄 Module';
+      let badge = 'MODULE';
       let badgeColor = '#aaa';
-      if (isVideo) { badge = '📽️ Video'; badgeColor = '#e50914'; }
-      else if (isAudio) { badge = '🎧 Audio'; badgeColor = '#1db954'; }
+      if (!!e.videoUrl) { badge = 'VIDEO'; badgeColor = '#e50914'; }
+      else if (!!e.audioUrl) { badge = 'AUDIO'; badgeColor = '#1db954'; }
 
       return {
         id: e.id,
-        title: e.title,
+        title: highlight(e.title),
+        description: highlight(e.description),
         subTitle: `In: ${e.course?.title || 'Course'}`,
         thumbnail: e.thumbnailUrl || 'https://placehold.co/60x35',
         url: `/watch/${e.courseId}?ep=${e.id}`,
         badge: badge,
-        badgeColor: badgeColor
+        badgeColor: badgeColor,
+        type: 'episode'
       };
     });
 
