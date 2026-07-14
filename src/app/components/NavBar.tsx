@@ -40,6 +40,12 @@ export default function NavBar() {
         <Link href="/shorts" title="Shorts">
           <span className="icon-wrapper" style={{ fontSize: '1.1rem', marginRight: '4px', color: '#ff4d4d' }}>📱</span> Shorts
         </Link>
+        <Link href="/blog" title="Vyoma Insights Blog">
+          <span className="icon-wrapper" style={{ fontSize: '1.1rem', marginRight: '4px' }}>📝</span> Blog
+        </Link>
+        <Link href="/testimonials" title="Community Testimonials">
+          <span className="icon-wrapper" style={{ fontSize: '1.1rem', marginRight: '4px', color: '#ffb300' }}>🌟</span> Stories
+        </Link>
         <Link href="/faq" title="Help / FAQ">
           <span className="icon-wrapper" style={{ fontSize: '1.1rem', marginRight: '4px', color: '#00d2ff' }}>❓</span> Help
         </Link>

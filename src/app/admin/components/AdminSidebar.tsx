@@ -44,6 +44,8 @@ export default function AdminSidebar({ userRole }: { userRole: string }) {
             <Link href="/admin/comments" className={`${pathname.includes('/admin/comments') ? 'active' : ''} sublink`}>💬 Comment Moderation</Link>
             <Link href="/admin/episodes" className={`${pathname.includes('/episodes') ? 'active' : ''} sublink`}>📺 Curriculum Units</Link>
             <Link href="/admin/bundles" className={pathname.includes('/admin/bundles') ? 'active' : ''}>📦 Course Bundling</Link>
+            <Link href="/admin/blogs" className={pathname.includes('/admin/blogs') ? 'active' : ''}>📝 Blog CMS</Link>
+            <Link href="/admin/testimonials" className={pathname.includes('/admin/testimonials') ? 'active' : ''}>🌟 Testimonial Approvals</Link>
             <Link href="/admin/pages" className={pathname.includes('/pages') ? 'active' : ''}>📄 Custom CMS Pages</Link>
             <Link href="/admin/layout-settings" className={pathname.includes('/layout-settings') ? 'active' : ''}>🛠️ Homepage Shelf</Link>
             <Link href="/admin/navigation" className={pathname.includes('/navigation') ? 'active' : ''}>🗂️ Nav Configuration</Link>
