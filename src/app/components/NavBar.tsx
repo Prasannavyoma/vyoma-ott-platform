@@ -36,9 +36,7 @@ export default function NavBar() {
     <>
       {/* 🚀 TOP SECONDARY UTILITY BAR */}
       <div className="top-utility-bar desktop-only">
-        <Link href="/explore" title="Search & Explore">
-          <span className="icon-wrapper" style={{ fontSize: '1rem', marginRight: '4px' }}>🔍</span> Search
-        </Link>
+
         <Link href="/shorts" title="Shorts">
           <span className="icon-wrapper" style={{ fontSize: '1.1rem', marginRight: '4px', color: '#ff4d4d' }}>📱</span> Shorts
         </Link>
@@ -110,6 +108,13 @@ export default function NavBar() {
         
         <div className="nav-actions" style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
           
+          {/* Main Search Bar (hidden on homepage to reduce clutter) */}
+          {pathname !== '/' && (
+            <div className="desktop-only" style={{ marginRight: '10px' }}>
+              <SearchBar />
+            </div>
+          )}
+
           <div className="desktop-only" title="Notifications" style={{ marginRight: '10px' }}>
             <NotificationBell />
           </div>
