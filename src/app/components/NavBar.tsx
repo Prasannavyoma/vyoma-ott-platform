@@ -44,7 +44,7 @@ export default function NavBar() {
           <span className="icon-wrapper" style={{ fontSize: '1.1rem', marginRight: '4px' }}>📝</span> Blog
         </Link>
         <Link href="/testimonials" title="Community Testimonials">
-          <span className="icon-wrapper" style={{ fontSize: '1.1rem', marginRight: '4px', color: '#ffb300' }}>🌟</span> Stories
+          <span className="icon-wrapper" style={{ fontSize: '1.1rem', marginRight: '4px', color: '#ffb300' }}>🌟</span> Testimonials
         </Link>
         <Link href="/faq" title="Help / FAQ">
           <span className="icon-wrapper" style={{ fontSize: '1.1rem', marginRight: '4px', color: '#00d2ff' }}>❓</span> Help
