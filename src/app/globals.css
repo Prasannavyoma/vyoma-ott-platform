@@ -159,10 +159,26 @@ a {
   100% { opacity: 1; transform: translate(-50%, 0); }
 }
 
+@keyframes dropdownEntranceRight {
+  0% { opacity: 0; transform: translate(0, -15px); }
+  100% { opacity: 1; transform: translate(0, 0); }
+}
+
 .dropdown:hover .dropdown-content,
 .dropdown.active-dropdown .dropdown-content {
   display: block;
   animation: dropdownEntrance 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+/* Prevent out-of-box overflow on right-side menus */
+.dropdown.dropdown-right .dropdown-content {
+  left: auto;
+  right: 0;
+  transform: none;
+}
+.dropdown.dropdown-right:hover .dropdown-content,
+.dropdown.dropdown-right.active-dropdown .dropdown-content {
+  animation: dropdownEntranceRight 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
 
 /* Trigger grid block-override if dynamic grid exists */

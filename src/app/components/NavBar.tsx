@@ -46,11 +46,11 @@ export default function NavBar() {
             </Link>
           </div>
 
-          <div className="nav-links">
-            {menus.map(menu => (
+          <div className="nav-links desktop-only" style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
+            {menus.map((menu, index) => (
               menu.children && menu.children.length > 0 ? (
                 <div 
-                  className={`dropdown ${activeDropdown === menu.id ? 'active-dropdown' : ''}`} 
+                  className={`dropdown ${activeDropdown === menu.id ? 'active-dropdown' : ''} ${index >= menus.length - 2 ? 'dropdown-right' : ''}`} 
                   key={menu.id}
                   onMouseEnter={() => setActiveDropdown(menu.id)}
                   onMouseLeave={() => setActiveDropdown(null)}
