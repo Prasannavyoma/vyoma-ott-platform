@@ -226,62 +226,64 @@ export default function SearchBar() {
                     style={{ textDecoration: 'none' }}
                   >
                     <div style={{
-                      background: 'rgba(20, 25, 38, 0.6)',
-                      backdropFilter: 'blur(10px)',
-                      border: '1px solid rgba(255,255,255,0.08)',
-                      borderRadius: '12px',
-                      height: '300px',
+                      background: 'rgba(255, 255, 255, 0.03)',
+                      backdropFilter: 'blur(12px)',
+                      border: '1px solid rgba(255,255,255,0.06)',
+                      borderRadius: '16px',
+                      height: '310px',
                       display: 'flex',
                       flexDirection: 'column',
-                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                      transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
                       cursor: 'pointer',
                       overflow: 'hidden',
-                      boxShadow: '0 10px 30px rgba(0,0,0,0.4)'
+                      boxShadow: '0 4px 20px rgba(0,0,0,0.2)'
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.borderColor = '#007aff';
-                      e.currentTarget.style.background = 'rgba(0, 122, 255, 0.08)';
-                      e.currentTarget.style.transform = 'translateY(-4px)';
-                      e.currentTarget.style.boxShadow = '0 15px 40px rgba(0, 122, 255, 0.15)';
+                      e.currentTarget.style.borderColor = 'rgba(242, 100, 34, 0.5)';
+                      e.currentTarget.style.background = 'rgba(242, 100, 34, 0.05)';
+                      e.currentTarget.style.transform = 'translateY(-6px) scale(1.02)';
+                      e.currentTarget.style.boxShadow = '0 20px 40px rgba(242, 100, 34, 0.15)';
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)';
-                      e.currentTarget.style.background = 'rgba(20, 25, 38, 0.6)';
-                      e.currentTarget.style.transform = 'translateY(0)';
-                      e.currentTarget.style.boxShadow = '0 10px 30px rgba(0,0,0,0.4)';
+                      e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)';
+                      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.03)';
+                      e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                      e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.2)';
                     }}
                     >
                       {/* CARD HEADER WITH THUMBNAIL & BADGE */}
-                      <div style={{ position: 'relative', height: '100px', flexShrink: 0, overflow: 'hidden' }}>
+                      <div style={{ position: 'relative', height: '120px', flexShrink: 0, overflow: 'hidden' }}>
                         <img 
-                          src={item.thumbnail || 'https://placehold.co/400x150/1a1f2e/ffffff?text=Course'} 
+                          src={item.thumbnail || 'https://placehold.co/400x150/1a1f2e/ffffff?text=Vyoma'} 
                           alt={item.title}
-                          style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.6, transition: 'opacity 0.3s' }}
+                          style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s', transform: 'scale(1.05)' }}
+                          onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
+                          onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
                         />
-                        <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(20,25,38,1))' }} />
+                        <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'linear-gradient(to bottom, rgba(0,0,0,0), #06080c)' }} />
                         
                         <div style={{
                           position: 'absolute',
-                          top: '15px',
-                          left: '15px',
-                          background: 'linear-gradient(135deg, #0055a5 0%, #007aff 100%)',
+                          top: '12px',
+                          left: '12px',
+                          background: 'linear-gradient(135deg, #f26422 0%, #ff8c00 100%)',
                           color: '#fff',
-                          fontSize: '0.65rem',
+                          fontSize: '0.6rem',
                           fontWeight: 800,
-                          padding: '6px 10px',
-                          borderRadius: '4px',
-                          letterSpacing: '1px',
-                          boxShadow: '0 4px 15px rgba(0, 85, 165, 0.5)'
+                          padding: '4px 10px',
+                          borderRadius: '20px',
+                          letterSpacing: '0.5px',
+                          boxShadow: '0 4px 12px rgba(242, 100, 34, 0.4)'
                         }}>
                           {item.badge}
                         </div>
                       </div>
 
                       {/* CARD CONTENT */}
-                      <div style={{ padding: '0 20px 20px 20px', flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                      <div style={{ padding: '5px 20px 20px 20px', flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', zIndex: 2 }}>
                         {/* TITLE WITH HIGHLIGHTS */}
                         <h3 
-                          style={{ fontSize: '1.15rem', color: '#fff', fontWeight: 700, marginBottom: '12px', lineHeight: '1.4' }}
+                          style={{ fontSize: '1.1rem', color: '#fff', fontWeight: 700, marginBottom: '8px', lineHeight: '1.4' }}
                           dangerouslySetInnerHTML={{ __html: item.title }}
                         />
 
@@ -291,12 +293,10 @@ export default function SearchBar() {
                           style={{ 
                             flex: 1, 
                             overflowY: 'auto', 
-                            fontSize: '0.9rem', 
+                            fontSize: '0.85rem', 
                             lineHeight: '1.6', 
-                            color: '#aaa',
-                            paddingRight: '15px',
-                            borderTop: '1px solid rgba(255,255,255,0.05)',
-                            paddingTop: '12px'
+                            color: '#a0a5b5',
+                            paddingRight: '12px'
                           }}
                           dangerouslySetInnerHTML={{ __html: item.description || 'No description available for this content.' }}
                         />
