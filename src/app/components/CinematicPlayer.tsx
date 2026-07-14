@@ -2,6 +2,7 @@
 
 import React, { useRef, useEffect, useState } from 'react';
 import { useGlobalPlayer } from './GlobalPlayerProvider';
+import { askAiAgent } from '@/app/actions/ai-agent';
 import Hls from 'hls.js';
 import { useRouter } from 'next/navigation';
 import { 
@@ -271,9 +272,18 @@ export default function CinematicPlayer({
   
   // Study Room State
   const [studyRoomId, setStudyRoomId] = useState<string | null>(null);
-  const [studyRoom, setStudyRoom] = useState<any>(null);
+  const [showStudyRoomSidebar, setShowStudyRoomSidebar] = useState(false);
   const [chatMessages, setChatMessages] = useState<any[]>([]);
   const [chatInput, setChatInput] = useState('');
+  
+  // AI Tutor State
+  const [showAiTutorSidebar, setShowAiTutorSidebar] = useState(false);
+  const [aiChatMessages, setAiChatMessages] = useState<any[]>([
+    { role: 'model', content: 'Namaste! 🙏 I am Vyoma Guru, your AI Tutor for this specific video. I have full context of what you are currently watching.\n\nAsk me to explain concepts, translate terms, or elaborate on the content of this lesson!' }
+  ]);
+  const [aiChatInput, setAiChatInput] = useState('');
+  const [isAiLoading, setIsAiLoading] = useState(false);
+  const aiChatEndRef = useRef<HTMLDivElement>(null);
   const [isHost, setIsHost] = useState(false);
   const [showStudyRoomSidebar, setShowStudyRoomSidebar] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
@@ -287,12 +297,22 @@ export default function CinematicPlayer({
   const [volume, setVolume] = useState(1);
   const [isMuted, setIsMuted] = useState(false);
   const [playbackRate, setPlaybackRate] = useState(1);
-  const [subtitlesEnabled, setSubtitlesEnabled] = useState(!!subtitleUrl);
+  
+  // UI state for menus
+  const [showSpeedMenu, setShowSpeedMenu] = useState(false);
+  const [showQualityMenu, setShowQualityMenu] = useState(false);
   const [audioMode, setAudioMode] = useState(false);
+  const [subtitlesEnabled, setSubtitlesEnabled] = useState(false);
   const isAudio = audioMode || isAudioFormat;
 
+  // Auto-scroll AI Chat
+  useEffect(() => {
+    if (aiChatEndRef.current) {
+      aiChatEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [aiChatMessages, isAiLoading, showAiTutorSidebar]);
+
   const [localTime, setLocalTime] = useState<number>(0);
-  const [showSpeedMenu, setShowSpeedMenu] = useState(false);
   const currentPosition = isNonNativeVideo && !isAudioFormat ? localTime : (videoRef.current?.currentTime || 0);
   
   const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -1521,6 +1541,36 @@ export default function CinematicPlayer({
                   👥 {studyRoomId ? 'Room Active' : 'Study Room'}
                 </button>
 
+                {/* AI Tutor Toggle */}
+                <button 
+                  onClick={() => {
+                    setShowAiTutorSidebar(!showAiTutorSidebar);
+                    if (!showAiTutorSidebar) {
+                      setShowStudyRoomSidebar(false); // Close other sidebar if open
+                      if (isPlaying && videoRef.current) {
+                        videoRef.current.pause(); // Auto-pause for focus
+                      }
+                    }
+                  }}
+                  style={{
+                    background: showAiTutorSidebar ? 'rgba(70,211,105,0.2)' : 'rgba(255,255,255,0.1)',
+                    border: showAiTutorSidebar ? '1px solid rgba(70,211,105,0.4)' : '1px solid rgba(255,255,255,0.2)',
+                    color: showAiTutorSidebar ? '#46d369' : '#fff',
+                    padding: '5px 12px',
+                    borderRadius: '20px',
+                    fontSize: '0.8rem',
+                    fontWeight: 900,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    backdropFilter: 'blur(5px)'
+                  }}
+                  title="AI Tutor Copilot"
+                >
+                  🤖 AI Tutor
+                </button>
+
                 {/* Audio/Video mode switcher */}
                 {!isAudioFormat && !(isHtml || isPdf) && (
                   <button 
@@ -2136,6 +2186,140 @@ export default function CinematicPlayer({
                 }}
               >
                 Send
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* 3. AI Tutor Copilot Sidebar Panel */}
+      {showAiTutorSidebar && (
+        <div style={{
+          width: '380px',
+          height: '100%',
+          background: '#050810', // slightly darker for AI
+          borderLeft: '1px solid rgba(70,211,105,0.3)',
+          display: 'flex',
+          flexDirection: 'column',
+          zIndex: 20,
+          position: 'relative'
+        }}>
+          {/* Header */}
+          <div style={{ padding: '20px', borderBottom: '1px solid rgba(255,255,255,0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div style={{ background: 'rgba(70,211,105,0.1)', padding: '8px', borderRadius: '50%', color: '#46d369' }}>🤖</div>
+              <div>
+                <h3 style={{ margin: 0, color: '#fff', fontSize: '1rem', fontWeight: 800 }}>Vyoma AI Copilot</h3>
+                <span style={{ fontSize: '0.75rem', color: '#46d369' }}>
+                  Context-Aware Tutor
+                </span>
+              </div>
+            </div>
+            <button 
+              onClick={() => setShowAiTutorSidebar(false)}
+              style={{ background: 'transparent', border: 'none', color: '#aaa', cursor: 'pointer', fontSize: '1.1rem' }}
+            >
+              ✕
+            </button>
+          </div>
+
+          {/* AI Chat Messages */}
+          <div style={{ flex: 1, padding: '20px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '15px' }}>
+            {aiChatMessages.map((msg: any, i: number) => {
+              const isMsgSelf = msg.role === 'user';
+              return (
+                <div key={i} style={{ display: 'flex', flexDirection: 'column', alignSelf: isMsgSelf ? 'flex-end' : 'flex-start', maxWidth: '85%' }}>
+                  <div style={{
+                    padding: '12px 16px',
+                    borderRadius: '16px',
+                    background: isMsgSelf ? 'linear-gradient(135deg, #f26422 0%, #ff8c53 100%)' : 'rgba(255,255,255,0.06)',
+                    color: '#fff',
+                    fontSize: '0.85rem',
+                    lineHeight: 1.5,
+                    borderTopRightRadius: isMsgSelf ? '4px' : '16px',
+                    borderTopLeftRadius: isMsgSelf ? '16px' : '4px',
+                    boxShadow: isMsgSelf ? '0 4px 15px rgba(242,100,34,0.3)' : 'none',
+                    wordBreak: 'break-word',
+                    whiteSpace: 'pre-wrap'
+                  }}>
+                    {msg.content}
+                  </div>
+                </div>
+              );
+            })}
+            {isAiLoading && (
+              <div style={{ display: 'flex', gap: '5px', padding: '10px', alignSelf: 'flex-start' }}>
+                <div style={{ width: '8px', height: '8px', background: '#46d369', borderRadius: '50%', animation: 'pulse 1s infinite' }}></div>
+                <div style={{ width: '8px', height: '8px', background: '#46d369', borderRadius: '50%', animation: 'pulse 1s infinite 0.2s' }}></div>
+                <div style={{ width: '8px', height: '8px', background: '#46d369', borderRadius: '50%', animation: 'pulse 1s infinite 0.4s' }}></div>
+              </div>
+            )}
+            <div ref={aiChatEndRef} />
+          </div>
+
+          {/* AI Chat Form Entry */}
+          <div style={{ padding: '15px 20px', borderTop: '1px solid rgba(255,255,255,0.08)', background: '#0a0f1d' }}>
+            <form 
+              onSubmit={async (e) => {
+                e.preventDefault();
+                if (!aiChatInput.trim() || isAiLoading) return;
+                
+                const text = aiChatInput.trim();
+                setAiChatInput('');
+                setAiChatMessages(prev => [...prev, { role: 'user', content: text }]);
+                setIsAiLoading(true);
+                
+                try {
+                  const history = aiChatMessages.slice(-8); // Keep last 8 messages
+                  const response = await askAiAgent(
+                    text, 
+                    history, 
+                    { courseTitle: document.title || 'Course', episodeTitle: 'Current Video' } // Will be injected by AI backend
+                  );
+                  setAiChatMessages(prev => [...prev, { role: 'model', content: response.message }]);
+                } catch (err) {
+                  console.error("AI Error:", err);
+                  setAiChatMessages(prev => [...prev, { role: 'model', content: 'Oops! I encountered an error connecting to my neural network. Please try again.' }]);
+                } finally {
+                  setIsAiLoading(false);
+                }
+              }}
+              style={{ display: 'flex', gap: '8px' }}
+            >
+              <input 
+                type="text"
+                value={aiChatInput}
+                onChange={(e) => setAiChatInput(e.target.value)}
+                placeholder="Ask a question about this video..."
+                disabled={isAiLoading}
+                style={{
+                  flex: 1,
+                  background: 'rgba(255,255,255,0.04)',
+                  border: '1px solid rgba(70,211,105,0.3)',
+                  borderRadius: '20px',
+                  padding: '10px 16px',
+                  color: '#fff',
+                  fontSize: '0.85rem',
+                  outline: 'none',
+                  opacity: isAiLoading ? 0.5 : 1
+                }}
+              />
+              <button
+                type="submit"
+                disabled={isAiLoading}
+                style={{
+                  background: 'linear-gradient(135deg, #46d369 0%, #29a349 100%)',
+                  border: 'none',
+                  color: '#fff',
+                  padding: '8px 16px',
+                  borderRadius: '20px',
+                  fontSize: '0.8rem',
+                  fontWeight: 800,
+                  cursor: isAiLoading ? 'not-allowed' : 'pointer',
+                  opacity: isAiLoading ? 0.5 : 1
+                }}
+              >
+                Ask
               </button>
             </form>
           </div>

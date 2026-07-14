@@ -10,7 +10,11 @@ export interface ChatMessage {
 /**
  * Server action to communicate with the AI Agent (Vyoma Guru)
  */
-export async function askAiAgent(userMessage: string, chatHistory: ChatMessage[] = []) {
+export async function askAiAgent(
+  userMessage: string, 
+  chatHistory: ChatMessage[] = [],
+  videoContext?: { courseTitle: string, episodeTitle: string }
+) {
   try {
     // 1. Check for API key (environment variable or database SystemSetting)
     let apiKey = process.env.GEMINI_API_KEY || '';
@@ -85,6 +89,10 @@ export async function askAiAgent(userMessage: string, chatHistory: ChatMessage[]
     // 5. Define the System Instruction with strict platform guidelines and Super Admin rules
     const systemPrompt = `You are "Vyoma Guru", the dedicated virtual learning guide for the Vyoma Sanskrit OTT platform.
 Your objective is to answer questions, guide navigation, explain features, and details about Sanskrit courses available on this website.
+
+${videoContext ? `CURRENT USER CONTEXT (CRITICAL):
+The user is currently inside the video player watching the episode "${videoContext.episodeTitle}" from the course "${videoContext.courseTitle}".
+If they ask questions like "explain this", "what does this mean", or ask a question about the content, assume they are asking about this specific course and episode!` : ''}
 
 DYNAMIC WEBSITE CONTENT:
 ---
