@@ -82,7 +82,7 @@ export async function searchContent(query: string) {
                 title: hit.title,
                 subTitle: `In: ${hit.courseTitle || 'Course'}`,
                 thumbnail: hit.thumbnailUrl || 'https://placehold.co/60x35',
-                url: hit.url,
+                url: `/watch/${hit.courseId}?ep=${hit.dbId}`,
                 badge: badge,
                 badgeColor: badgeColor
               };
@@ -92,7 +92,7 @@ export async function searchContent(query: string) {
                 title: hit.title,
                 subTitle: hit.category || "Course",
                 thumbnail: hit.thumbnailUrl || 'https://placehold.co/60x35',
-                url: hit.url,
+                url: `/watch/${hit.dbId}`,
                 badge: '🎓 Course',
                 badgeColor: '#ffd700'
               };
