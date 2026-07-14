@@ -16,8 +16,8 @@ export async function incrementView(courseId: string) {
   }
 }
 
-export async function searchContent(query: string) {
-  if (!query || query.trim().length < 2) return [];
+export async function searchContent(query: string, filterCategory: string = 'All', contentSearch: boolean = false) {
+  if (!query || query.trim().length < 2) return { hits: [], engine: 'postgres' };
 
   try {
     const cleanQuery = query.trim();
