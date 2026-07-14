@@ -90,12 +90,25 @@ export default function NavBar() {
         </div>
         
         <div className="nav-actions" style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-          {/* Dynamic Search Bar Core - Hidden on homepage to declutter */}
-          {pathname !== '/' && (
-            <div className="desktop-only">
-              <SearchBar />
-            </div>
-          )}
+          {/* Minimalist Search Icon instead of full bar to prevent overlapping */}
+          <Link 
+            href="/explore" 
+            className="desktop-only nav-icon-link"
+            title="Search & Explore"
+            style={{ 
+              color: '#fff', 
+              background: 'rgba(255, 255, 255, 0.05)', 
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              padding: '6px 12px',
+              borderRadius: '20px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              textDecoration: 'none'
+            }}
+          >
+             <span className="icon-emoji" style={{fontSize: '1.2rem', margin: 0}}>🔍</span>
+          </Link>
 
           <div className="desktop-only" title="Notifications">
             <NotificationBell />
