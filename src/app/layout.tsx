@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import React from 'react';
+import dynamic from 'next/dynamic';
 
 import Script from 'next/script';
 import prisma from "@/lib/prisma";
@@ -9,9 +11,13 @@ import { headers } from "next/headers";
 import { getCurrentUser } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { GlobalPlayerProvider } from "./components/GlobalPlayerProvider";
-import AiChatWidget from "./components/AiChatWidget";
 import ContactWidget from "./components/ContactWidget";
 import CustomEmbedChatbot from "./components/CustomEmbedChatbot";
+
+// 🚀 LAZY LOAD AI CHAT WIDGET: This prevents the heavy chatbot logic from blocking the initial page paint globally!
+const AiChatWidget = dynamic(() => import('./components/AiChatWidget'), {
+  ssr: false, // The AI widget relies heavily on client-side state and localStorage
+});
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

@@ -1,17 +1,30 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import prisma from '@/lib/prisma';
+import dynamic from 'next/dynamic';
 import { incrementView } from '@/app/actions/analytics';
 import DownloadButton from '@/app/components/DownloadButton';
-import AdaptivePlayer from '@/app/components/AdaptivePlayer';
 import CourseEngagement from '@/app/components/CourseEngagement';
 import ReviewSystem from '@/app/components/ReviewSystem';
 import AssessmentGate from '@/app/components/AssessmentGate';
-import CinematicPlayer from '@/app/components/CinematicPlayer';
-import WatchNotesManager from '@/app/components/WatchNotesManager';
 import CohortIndicator from '@/app/components/CohortIndicator';
 import EpisodeListExpander from '@/app/components/EpisodeListExpander';
 import TrailerPlayer from '@/app/components/TrailerPlayer';
+
+// 🚀 LAZY LOAD HEAVY CLIENT COMPONENTS TO SPEED UP INITIAL PAGE LOAD
+const CinematicPlayer = dynamic(() => import('@/app/components/CinematicPlayer'), { 
+  loading: () => <div style={{ height: '600px', width: '100%', background: '#0a0a0a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Loading Cinema Engine...</div>,
+  ssr: false // Huge performance boost: Client-side only video player
+});
+
+const AdaptivePlayer = dynamic(() => import('@/app/components/AdaptivePlayer'), { 
+  loading: () => <div style={{ height: '400px', width: '100%', background: '#0a0a0a' }}>Loading Video Engine...</div>,
+  ssr: false
+});
+
+const WatchNotesManager = dynamic(() => import('@/app/components/WatchNotesManager'), {
+  ssr: false // Client-side state heavy
+});
 import WatchlistButton from '@/app/components/WatchlistButton';
 import LikeDislikeSystem from '@/app/components/LikeDislikeSystem';
 import { getWatchlistStatus, getCourseLikeStatus, getCourseLikesCount } from '@/app/actions/ott';
