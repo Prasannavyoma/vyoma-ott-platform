@@ -38,54 +38,63 @@ a {
   position: fixed;
   top: 0;
   width: 100%;
-  height: 38px;
-  background: #02050a; /* Ultra dark contrast */
+  height: 40px;
+  background: linear-gradient(90deg, #02050a 0%, #0a0f1d 50%, #02050a 100%);
   display: flex;
   justify-content: flex-end;
   align-items: center;
   padding: 0 4%;
-  gap: 25px;
+  gap: 30px;
   z-index: 1001;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
 }
 .top-utility-bar a {
   color: #909bb0;
   font-size: 0.75rem;
-  font-weight: 700;
+  font-weight: 800;
   text-decoration: none;
   display: flex;
   align-items: center;
-  gap: 6px;
-  transition: color 0.2s;
+  gap: 8px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
 }
 .top-utility-bar a:hover {
   color: #fff;
+  transform: translateY(-1px);
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+.top-utility-bar a .icon-wrapper {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.top-utility-bar a:hover .icon-wrapper {
+  transform: scale(1.2) rotate(5deg);
 }
 
 .navbar {
   position: fixed;
-  top: 38px; /* Offset by top bar height */
+  top: 40px; /* Offset by top bar height */
   width: 100%;
   padding: 15px 4%; 
 
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: rgba(10, 14, 23, 0.85);
-  backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(255,255,255,0.02);
+  background: rgba(10, 14, 23, 0.7);
+  backdrop-filter: blur(25px) saturate(180%);
+  border-bottom: 1px solid rgba(255,255,255,0.03);
   z-index: 1000;
   transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .navbar.scrolled {
-  background: rgba(15, 16, 20, 0.85);
-  backdrop-filter: blur(20px);
-  padding: 15px 4%;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
-  box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+  background: rgba(10, 14, 23, 0.95);
+  backdrop-filter: blur(25px) saturate(180%);
+  padding: 12px 4%;
+  border-bottom: 1px solid rgba(242, 100, 34, 0.3); /* Premium brand accent line */
+  box-shadow: 0 10px 40px rgba(0,0,0,0.8), 0 0 20px rgba(242, 100, 34, 0.1);
 }
 
 .nav-links {

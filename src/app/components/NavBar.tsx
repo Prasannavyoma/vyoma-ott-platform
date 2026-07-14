@@ -37,19 +37,19 @@ export default function NavBar() {
       {/* 🚀 TOP SECONDARY UTILITY BAR */}
       <div className="top-utility-bar desktop-only">
         <Link href="/explore" title="Search & Explore">
-          <span style={{ fontSize: '1rem', marginRight: '4px' }}>🔍</span> Search
+          <span className="icon-wrapper" style={{ fontSize: '1rem', marginRight: '4px' }}>🔍</span> Search
         </Link>
         <Link href="/shorts" title="Shorts">
-          <span style={{ fontSize: '1.1rem', marginRight: '4px', color: '#ff4d4d' }}>📱</span> Shorts
+          <span className="icon-wrapper" style={{ fontSize: '1.1rem', marginRight: '4px', color: '#ff4d4d' }}>📱</span> Shorts
         </Link>
         <Link href="/faq" title="Help / FAQ">
-          <span style={{ fontSize: '1.1rem', marginRight: '4px', color: '#00d2ff' }}>❓</span> Help
+          <span className="icon-wrapper" style={{ fontSize: '1.1rem', marginRight: '4px', color: '#00d2ff' }}>❓</span> Help
         </Link>
         <Link href="/gift" title="Gift Wisdom">
-          <span style={{ fontSize: '1.1rem', marginRight: '4px' }}>🎁</span> Gift
+          <span className="icon-wrapper" style={{ fontSize: '1.1rem', marginRight: '4px' }}>🎁</span> Gift
         </Link>
         <Link href="/progress" title="Progress">
-          <span style={{ fontSize: '1.1rem', marginRight: '4px' }}>📈</span> Progress
+          <span className="icon-wrapper" style={{ fontSize: '1.1rem', marginRight: '4px' }}>📈</span> Progress
         </Link>
       </div>
 
