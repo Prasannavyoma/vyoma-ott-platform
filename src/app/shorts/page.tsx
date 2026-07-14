@@ -29,9 +29,9 @@ export default async function ShortsPage() {
   })).filter(s => s.videoUrl); // Only send shorts that actually have a video
 
   return (
-    <main style={{ background: '#000', minHeight: '100vh', overflow: 'hidden' }}>
+    <main style={{ background: '#000', height: '100dvh', overflow: 'hidden' }}>
       <NavBar />
-      <div style={{ height: 'calc(100vh - 70px)', marginTop: '70px', position: 'relative' }}>
+      <div style={{ height: 'calc(100dvh - 75px)', marginTop: '75px', position: 'relative' }}>
         {shorts.length > 0 ? (
           <ShortsFeedClient shorts={shorts} />
         ) : (
