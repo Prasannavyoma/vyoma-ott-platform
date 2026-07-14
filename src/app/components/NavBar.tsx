@@ -108,12 +108,10 @@ export default function NavBar() {
         
         <div className="nav-actions" style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
           
-          {/* Main Search Bar (hidden on homepage to reduce clutter) */}
-          {pathname !== '/' && (
-            <div className="desktop-only" style={{ marginRight: '10px' }}>
-              <SearchBar />
-            </div>
-          )}
+          {/* Main Search Bar */}
+          <div className="desktop-only" style={{ marginRight: '10px' }}>
+            <SearchBar />
+          </div>
 
           <div className="desktop-only" title="Notifications" style={{ marginRight: '10px' }}>
             <NotificationBell />
