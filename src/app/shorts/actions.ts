@@ -26,7 +26,6 @@ export async function createShort(formData: FormData) {
           title: title,
           videoUrl: videoUrl,
           duration: 60,
-          isFree: true,
           order: 1
         }
       }
