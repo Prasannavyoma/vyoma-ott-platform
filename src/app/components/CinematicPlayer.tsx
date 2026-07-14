@@ -285,7 +285,6 @@ export default function CinematicPlayer({
   const [isAiLoading, setIsAiLoading] = useState(false);
   const aiChatEndRef = useRef<HTMLDivElement>(null);
   const [isHost, setIsHost] = useState(false);
-  const [showStudyRoomSidebar, setShowStudyRoomSidebar] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [flashcardStatus, setFlashcardStatus] = useState<string | null>(null);
 
@@ -322,7 +321,6 @@ export default function CinematicPlayer({
   const [qualityLevels, setQualityLevels] = useState<{ index: number; height: number; bitrate: number }[]>([]);
   const [currentQuality, setCurrentQuality] = useState<number>(-1);
   const [activeResolution, setActiveResolution] = useState<string>('');
-  const [showQualityMenu, setShowQualityMenu] = useState(false);
 
   // Auto-play State
   const [showCountdown, setShowCountdown] = useState(false);
