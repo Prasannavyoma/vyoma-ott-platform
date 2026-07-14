@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import SearchBar from './SearchBar';
+import ExploreEye from './ExploreEye';
 import NotificationBell from './NotificationBell';
 
 export default function NavBar() {
@@ -114,6 +115,11 @@ export default function NavBar() {
         
         <div className="nav-actions" style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
           
+          {/* Explore Hub 'Live Eye' */}
+          <div className="desktop-only" style={{ marginRight: '5px' }}>
+            <ExploreEye />
+          </div>
+
           {/* Main Search Bar */}
           <div className="desktop-only" style={{ marginRight: '10px' }}>
             <SearchBar />
