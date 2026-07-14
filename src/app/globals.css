@@ -34,11 +34,42 @@ a {
 }
 
 /* Elevate WOW factor with glass and glow themes */
-.navbar {
+.top-utility-bar {
   position: fixed;
   top: 0;
   width: 100%;
-  padding: 15px 4%; /* Reduced horizontal padding from 6% to 4% for more width */
+  height: 38px;
+  background: #02050a; /* Ultra dark contrast */
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 0 4%;
+  gap: 25px;
+  z-index: 1001;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.top-utility-bar a {
+  color: #909bb0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: color 0.2s;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.top-utility-bar a:hover {
+  color: #fff;
+}
+
+.navbar {
+  position: fixed;
+  top: 38px; /* Offset by top bar height */
+  width: 100%;
+  padding: 15px 4%; 
+
   display: flex;
   justify-content: space-between;
   align-items: center;

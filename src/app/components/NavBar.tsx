@@ -34,6 +34,25 @@ export default function NavBar() {
 
   return (
     <>
+      {/* 🚀 TOP SECONDARY UTILITY BAR */}
+      <div className="top-utility-bar desktop-only">
+        <Link href="/explore" title="Search & Explore">
+          <span style={{ fontSize: '1rem', marginRight: '4px' }}>🔍</span> Search
+        </Link>
+        <Link href="/shorts" title="Shorts">
+          <span style={{ fontSize: '1.1rem', marginRight: '4px', color: '#ff4d4d' }}>📱</span> Shorts
+        </Link>
+        <Link href="/faq" title="Help / FAQ">
+          <span style={{ fontSize: '1.1rem', marginRight: '4px', color: '#00d2ff' }}>❓</span> Help
+        </Link>
+        <Link href="/gift" title="Gift Wisdom">
+          <span style={{ fontSize: '1.1rem', marginRight: '4px' }}>🎁</span> Gift
+        </Link>
+        <Link href="/progress" title="Progress">
+          <span style={{ fontSize: '1.1rem', marginRight: '4px' }}>📈</span> Progress
+        </Link>
+      </div>
+
       <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
         <div className="nav-left-group" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
           <div className="nav-brand">
@@ -89,83 +108,11 @@ export default function NavBar() {
           </div>
         </div>
         
-        <div className="nav-actions" style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-          {/* Minimalist Search Icon instead of full bar to prevent overlapping */}
-          <Link 
-            href="/explore" 
-            className="desktop-only nav-icon-link"
-            title="Search & Explore"
-            style={{ 
-              color: '#fff', 
-              background: 'rgba(255, 255, 255, 0.05)', 
-              border: '1px solid rgba(255, 255, 255, 0.1)',
-              padding: '6px 12px',
-              borderRadius: '20px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              textDecoration: 'none'
-            }}
-          >
-             <span className="icon-emoji" style={{fontSize: '1.2rem', margin: 0}}>🔍</span>
-          </Link>
-
-          <div className="desktop-only" title="Notifications">
+        <div className="nav-actions" style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
+          
+          <div className="desktop-only" title="Notifications" style={{ marginRight: '10px' }}>
             <NotificationBell />
           </div>
-
-          {/* ❓ High-Visibility Help/FAQ Entry */}
-          <Link 
-            href="/faq" 
-            className="desktop-only nav-icon-link"
-            title="Help / FAQ"
-            style={{ 
-              color: '#00d2ff', 
-              background: 'rgba(0, 210, 255, 0.1)', 
-              border: '1px solid rgba(0, 210, 255, 0.3)',
-              padding: '6px 12px',
-              borderRadius: '20px'
-            }}
-          >
-             <span className="icon-emoji" style={{fontSize: '1.1rem'}}>❓</span> <span className="faq-text">Help / FAQ</span>
-          </Link>
-
-          {/* 📱 Shorts / Reels Gateway */}
-          <Link 
-            href="/shorts" 
-            className="nav-icon-link"
-            title="Shorts"
-            style={{ 
-              color: '#ff4d4d', 
-              background: 'rgba(255, 77, 77, 0.1)', 
-              border: '1px solid rgba(255, 77, 77, 0.3)',
-              padding: '6px 12px',
-              borderRadius: '20px',
-              marginRight: '10px'
-            }}
-          >
-             <span className="icon-emoji" style={{fontSize: '1.2rem'}}>📱</span> <span className="gift-text">Shorts</span>
-          </Link>
-
-          {/* 🎁 High-Discovery Gifting Gateway Entry */}
-          <Link 
-            href="/gift" 
-            className="desktop-only nav-icon-link"
-            title="Gift Wisdom"
-            style={{ 
-              color: '#ffd700', 
-              background: 'rgba(255,215,0,0.1)', 
-              border: '1px solid rgba(255,215,0,0.3)',
-              padding: '6px 12px',
-              borderRadius: '20px'
-            }}
-          >
-             <span className="icon-emoji" style={{fontSize: '1.1rem'}}>🎁</span> <span className="gift-text">Gift Wisdom</span>
-          </Link>
-
-          <Link href="/progress" title="Progress" className="progress-link desktop-only nav-icon-link">
-             <span className="icon-emoji" style={{fontSize: '1.2rem'}}>📈</span> <span className="progress-text">Progress</span>
-          </Link>
 
           {isLoggedIn ? (
             <Link href="/profile" title="Profile" className="profile-link desktop-only nav-icon-link">
