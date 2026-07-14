@@ -117,6 +117,6 @@ export async function indexAllContent(clientInstance?: Meilisearch) {
   });
 
   // Upload documents (replaces index if already present, or creates if not)
-  const response = await index.addDocuments(documents);
+  const response = await index.addDocuments(documents, { primaryKey: 'id' });
   return response;
 }
