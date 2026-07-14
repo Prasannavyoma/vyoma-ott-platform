@@ -1512,17 +1512,7 @@ a {
   -webkit-text-fill-color: transparent;
 }
 
-.login-btn {
-  background: linear-gradient(135deg, var(--primary) 0%, #ff8c53 100%) !important;
-  border: none !important;
-  box-shadow: 0 10px 25px rgba(242,100,34,0.3) !important;
-  font-weight: 900 !important;
-  border-radius: 8px !important;
-}
-.login-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 30px rgba(242,100,34,0.4) !important;
-}
+
 
 @keyframes fadeInUp {
   from {
