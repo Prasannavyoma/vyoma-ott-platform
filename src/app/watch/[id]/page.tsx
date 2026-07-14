@@ -13,18 +13,14 @@ import TrailerPlayer from '@/app/components/TrailerPlayer';
 
 // 🚀 LAZY LOAD HEAVY CLIENT COMPONENTS TO SPEED UP INITIAL PAGE LOAD
 const CinematicPlayer = dynamic(() => import('@/app/components/CinematicPlayer'), { 
-  loading: () => <div style={{ height: '600px', width: '100%', background: '#0a0a0a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Loading Cinema Engine...</div>,
-  ssr: false // Huge performance boost: Client-side only video player
+  loading: () => <div style={{ height: '600px', width: '100%', background: '#0a0a0a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Loading Cinema Engine...</div>
 });
 
 const AdaptivePlayer = dynamic(() => import('@/app/components/AdaptivePlayer'), { 
-  loading: () => <div style={{ height: '400px', width: '100%', background: '#0a0a0a' }}>Loading Video Engine...</div>,
-  ssr: false
+  loading: () => <div style={{ height: '400px', width: '100%', background: '#0a0a0a' }}>Loading Video Engine...</div>
 });
 
-const WatchNotesManager = dynamic(() => import('@/app/components/WatchNotesManager'), {
-  ssr: false // Client-side state heavy
-});
+const WatchNotesManager = dynamic(() => import('@/app/components/WatchNotesManager'));
 import WatchlistButton from '@/app/components/WatchlistButton';
 import LikeDislikeSystem from '@/app/components/LikeDislikeSystem';
 import { getWatchlistStatus, getCourseLikeStatus, getCourseLikesCount } from '@/app/actions/ott';

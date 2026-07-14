@@ -15,9 +15,7 @@ import ContactWidget from "./components/ContactWidget";
 import CustomEmbedChatbot from "./components/CustomEmbedChatbot";
 
 // 🚀 LAZY LOAD AI CHAT WIDGET: This prevents the heavy chatbot logic from blocking the initial page paint globally!
-const AiChatWidget = dynamic(() => import('./components/AiChatWidget'), {
-  ssr: false, // The AI widget relies heavily on client-side state and localStorage
-});
+const AiChatWidget = dynamic(() => import('./components/AiChatWidget'));
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
