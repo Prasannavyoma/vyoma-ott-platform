@@ -27,10 +27,6 @@ async function migrateOrders() {
   // We need to keep track of active plans for users based on recent orders
   // Let's fetch all available plans to map them
   const plans = await prisma.plan.findMany();
-  let defaultPlan = plans.find(p => p.name === 'Free');
-  if (!defaultPlan) {
-    defaultPlan = await prisma.plan.create({ data: { name: 'Free', priceMonthly: 0, priceYearly: 0, allowedDevices: 1 } });
-  }
 
   while (hasMore) {
     console.log(`Fetching orders page ${page}...`);
@@ -75,50 +71,33 @@ async function migrateOrders() {
              where: { userId: user.id, courseId: course.id }
           });
           
-          if (!existingPurchase) {
-             await prisma.purchase.create({
-                data: {
-                  userId: user.id,
-                  courseId: course.id,
-                  amount: parseFloat(item.total || '0'),
-                  currency: wpOrder.currency || 'INR',
-                  status: wpOrder.status === 'completed' ? 'COMPLETED' : 'PENDING'
-                }
-             });
+              if (!existingPurchase) {
+                 await prisma.purchase.create({
+                    data: {
+                      userId: user.id,
+                      courseId: course.id,
+                      amount: parseFloat(item.total || '0'),
+                      razorpayOrderId: `WP-${wpOrder.ID}`,
+                      billingAddress: wpOrder.billing_address,
+                      createdAt: new Date(wpOrder.date_created || Date.now())
+                    }
+                 });
+              }
+            } else {
+              // If the product doesn't match a course, it might be a subscription like "Platinum Plan"
+              if (item.name.toLowerCase().includes('gold') || item.name.toLowerCase().includes('platinum') || item.name.toLowerCase().includes('subscription')) {
+                 isSubscription = true;
+                 let planMatch = plans.find(p => item.name.toLowerCase().includes(p.name.toLowerCase()));
+                 if (planMatch && wpOrder.status === 'completed') {
+                    await prisma.user.update({
+                       where: { id: user.id },
+                       data: { planId: planMatch.id }
+                    });
+                    console.log(`Updated user ${user.email} to plan ${planMatch.name}`);
+                 }
+              }
+            }
           }
-        } else {
-          // If the product doesn't match a course, it might be a subscription like "Platinum Plan"
-          if (item.name.toLowerCase().includes('gold') || item.name.toLowerCase().includes('platinum') || item.name.toLowerCase().includes('subscription')) {
-             isSubscription = true;
-             let planMatch = plans.find(p => item.name.toLowerCase().includes(p.name.toLowerCase()));
-             if (planMatch && wpOrder.status === 'completed') {
-                await prisma.user.update({
-                   where: { id: user.id },
-                   data: { planId: planMatch.id }
-                });
-                console.log(`Updated user ${user.email} to plan ${planMatch.name}`);
-             }
-          }
-        }
-      }
-
-      // Create an invoice record
-      const existingInvoice = await prisma.invoice.findFirst({
-        where: { invoiceId: `WP-${wpOrder.ID}` }
-      });
-
-      if (!existingInvoice) {
-        await prisma.invoice.create({
-           data: {
-             invoiceId: `WP-${wpOrder.ID}`,
-             userId: user.id,
-             amount: orderTotal,
-             currency: wpOrder.currency || 'INR',
-             status: wpOrder.status === 'completed' ? 'PAID' : 'PENDING',
-             createdAt: new Date(wpOrder.date_created || Date.now())
-           }
-        });
-      }
 
       totalImported++;
     }

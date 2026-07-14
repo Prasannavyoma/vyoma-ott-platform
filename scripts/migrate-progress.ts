@@ -46,7 +46,7 @@ async function migratePages() {
             title: wpPage.title,
             slug: slug,
             content: wpPage.content,
-            published: true,
+            active: true,
             createdAt: new Date(wpPage.created_at || Date.now())
           }
         });
