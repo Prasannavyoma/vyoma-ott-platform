@@ -226,7 +226,7 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
   } catch(e) {}
 
   // Final playback determination
-  const playUrl = activeEpisode?.videoUrl || "https://digitalsanskrit.b-cdn.net/Videos/Raghuveera_Gadyam_Chanting/01_Balakanda.mp4"; // Fallback
+  const playUrl = activeEpisode?.videoUrl || activeEpisode?.audioUrl || "https://digitalsanskrit.b-cdn.net/Videos/Raghuveera_Gadyam_Chanting/01_Balakanda.mp4"; // Fallback
   const displayTitle = activeEpisode ? `${course.title} - ${activeEpisode.title}` : course.title;
 
   // Fetch interactive markers for WOW features
