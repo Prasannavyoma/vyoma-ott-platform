@@ -302,6 +302,7 @@ export default function CinematicPlayer({
   
   // UI state for menus
   const [showSpeedMenu, setShowSpeedMenu] = useState(false);
+  const [isLightsOut, setIsLightsOut] = useState(false);
   const [showQualityMenu, setShowQualityMenu] = useState(false);
   const [audioMode, setAudioMode] = useState(false);
   const [subtitlesEnabled, setSubtitlesEnabled] = useState(false);
