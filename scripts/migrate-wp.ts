@@ -42,10 +42,21 @@ async function migrateUsers() {
 
       if (wpUser.subscriptions && wpUser.subscriptions.length > 0) {
         const activeSub = wpUser.subscriptions.find((s: any) => s.status === 'active') || wpUser.subscriptions[0];
-        plan = 'GOLD'; // Or PLATINUM based on logic
+        const subName = activeSub.name ? activeSub.name.toUpperCase() : '';
+        if (subName.includes('PLATINUM')) {
+          plan = 'PLATINUM';
+        } else if (subName.includes('GOLD')) {
+          plan = 'GOLD';
+        } else {
+          // fallback if sub name is not clear, but we have roles
+          if (wpUser.roles && wpUser.roles.includes('platinum_member')) plan = 'PLATINUM';
+          else if (wpUser.roles && wpUser.roles.includes('gold_member')) plan = 'GOLD';
+          else plan = 'GOLD'; // Default to Gold if active sub exists but unrecognized name
+        }
         expiresAt = activeSub.next_payment ? new Date(activeSub.next_payment) : null;
-      } else if (wpUser.roles && wpUser.roles.includes('gold_member')) {
-        plan = 'GOLD';
+      } else if (wpUser.roles) {
+        if (wpUser.roles.includes('platinum_member')) plan = 'PLATINUM';
+        else if (wpUser.roles.includes('gold_member')) plan = 'GOLD';
       }
 
       const phone = Array.isArray(wpUser.meta?.billing_phone) ? wpUser.meta.billing_phone[0] : wpUser.meta?.billing_phone;

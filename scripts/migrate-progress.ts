@@ -109,7 +109,7 @@ async function migrateProgress() {
         // In our DB, we need to mark X episodes as completed.
         const episodes = await prisma.episode.findMany({
           where: { courseId: course.id },
-          orderBy: { sequenceOrder: 'asc' },
+          orderBy: { order: 'asc' },
           take: completedLessons as number
         });
 
@@ -122,10 +122,9 @@ async function migrateProgress() {
              await prisma.progress.create({
                data: {
                  userId: user.id,
-                 courseId: course.id,
                  episodeId: ep.id,
-                 isCompleted: true,
-                 progressSeconds: 100 // dummy value to indicate completion
+                 completed: true,
+                 position: 100 // dummy value to indicate completion
                }
              });
            }

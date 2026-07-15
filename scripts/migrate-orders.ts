@@ -25,8 +25,6 @@ async function migrateOrders() {
   let totalImported = 0;
 
   // We need to keep track of active plans for users based on recent orders
-  // Let's fetch all available plans to map them
-  const plans = await prisma.plan.findMany();
 
   while (hasMore) {
     console.log(`Fetching orders page ${page}...`);
@@ -82,19 +80,6 @@ async function migrateOrders() {
                       createdAt: new Date(wpOrder.date_created || Date.now())
                     }
                  });
-              }
-            } else {
-              // If the product doesn't match a course, it might be a subscription like "Platinum Plan"
-              if (item.name.toLowerCase().includes('gold') || item.name.toLowerCase().includes('platinum') || item.name.toLowerCase().includes('subscription')) {
-                 isSubscription = true;
-                 let planMatch = plans.find(p => item.name.toLowerCase().includes(p.name.toLowerCase()));
-                 if (planMatch && wpOrder.status === 'completed') {
-                    await prisma.user.update({
-                       where: { id: user.id },
-                       data: { planId: planMatch.id }
-                    });
-                    console.log(`Updated user ${user.email} to plan ${planMatch.name}`);
-                 }
               }
             }
           }
