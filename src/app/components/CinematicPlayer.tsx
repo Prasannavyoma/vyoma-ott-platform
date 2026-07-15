@@ -203,7 +203,9 @@ export default function CinematicPlayer({
                         lowerUrl.endsWith('.mpd') || lowerUrl.includes('.mpd?') ||
                         lowerUrl.endsWith('.avi') || lowerUrl.includes('.avi?');
   const isHtml = lowerUrl.endsWith('.html') || lowerUrl.endsWith('.htm') || lowerUrl.includes('index.html') || lowerUrl.includes('story_html5.html') || lowerUrl.includes('/flipbooks/') || lowerUrl.includes('/flipbook/') || (!isPdf && !isAudioFormat && !isVideoFormat && !isEmbedVideo && (lowerUrl.startsWith('http://') || lowerUrl.startsWith('https://')));
-  const isNonNativeVideo = isHtml || isPdf || isAudioFormat || isEmbedVideo;
+  
+  // Bugfix: Audio IS played by the native video element, so it should not be considered "NonNativeVideo" which relies on iframes
+  const isNonNativeVideo = isHtml || isPdf || isEmbedVideo;
 
   const [docControlsMode, setDocControlsMode] = useState(false);
   const [iframeUrl, setIframeUrl] = useState(cleanUrl);
