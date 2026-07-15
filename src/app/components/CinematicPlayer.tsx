@@ -1663,6 +1663,36 @@ export default function CinematicPlayer({
                   </div>
                 )}
 
+                {/* Lights Out Toggle */}
+                <button
+                  onClick={() => setIsLightsOut(!isLightsOut)}
+                  style={{...btnStyle, color: isLightsOut ? '#f26422' : '#fff'}}
+                  title="Lights Out Mode"
+                >
+                  <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                     <path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                  </svg>
+                </button>
+
+                {/* Picture-in-Picture Toggle */}
+                {!(isHtml || isPdf) && (
+                  <button
+                    onClick={() => {
+                      if (document.pictureInPictureElement) {
+                        document.exitPictureInPicture();
+                      } else if (videoRef.current) {
+                        videoRef.current.requestPictureInPicture().catch(() => {});
+                      }
+                    }}
+                    style={btnStyle}
+                    title="Picture-in-Picture"
+                  >
+                    <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 11V9a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2h4m6-8v4m-4-2h8"/>
+                    </svg>
+                  </button>
+                )}
+
                 {/* Fullscreen Trigger */}
                 <button onClick={toggleFullscreen} style={btnStyle} title="Full Screen">
                   {!isFullscreen ? (
@@ -1676,6 +1706,45 @@ export default function CinematicPlayer({
             </div>
           </div>
         </div>
+
+        {/* SKIP INTRO BUTTON */}
+        {!isNonNativeVideo && localTime > 2 && localTime < 15 && (
+          <button
+            onClick={() => {
+              if (videoRef.current) {
+                videoRef.current.currentTime = 15; // Skip first 15 seconds
+              }
+            }}
+            style={{
+              position: 'absolute',
+              bottom: showControls ? '90px' : '30px',
+              right: '30px',
+              background: 'rgba(0,0,0,0.7)',
+              border: '1px solid rgba(255,255,255,0.2)',
+              color: '#fff',
+              padding: '10px 20px',
+              borderRadius: '8px',
+              fontSize: '0.9rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+              zIndex: 30,
+              backdropFilter: 'blur(5px)',
+              transition: 'all 0.3s ease',
+              animation: 'slideInRight 0.5s ease',
+              boxShadow: '0 4px 15px rgba(0,0,0,0.5)'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = '#fff';
+              e.currentTarget.style.color = '#000';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'rgba(0,0,0,0.7)';
+              e.currentTarget.style.color = '#fff';
+            }}
+          >
+            Skip Intro ⏭
+          </button>
+        )}
 
         {/* Up Next Countdown Overlay */}
         {showCountdown && finalNextUrl && (
