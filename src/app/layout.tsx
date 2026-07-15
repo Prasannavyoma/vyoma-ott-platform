@@ -66,39 +66,21 @@ export default async function RootLayout({
     const res = await prisma.systemSetting.findUnique({ where: { key: 'ONESIGNAL_APP_ID' } });
     oneSignalAppId = res?.value || "";
 
-    const cbSetting = await prisma.systemSetting.findUnique({
-      where: { key: 'CHATBOT_ENABLED' }
-    });
-    chatbotEnabled = cbSetting?.value === 'true';
+    const rawSettings = await prisma.systemSetting.findMany();
+    const settingsMap = new Map(rawSettings.map(s => [s.key, s.value]));
 
-    const modeSetting = await prisma.systemSetting.findUnique({
-      where: { key: 'CHATBOT_MODE' }
-    });
-    chatbotMode = modeSetting?.value || 'BUILTIN';
+    // AI Settings
+    if (settingsMap.has('CHATBOT_ENABLED')) {
+      chatbotEnabled = settingsMap.get('CHATBOT_ENABLED') === 'true';
+    }
+    if (settingsMap.has('CHATBOT_MODE')) {
+      chatbotMode = settingsMap.get('CHATBOT_MODE') || 'BUILTIN';
+    }
+    if (settingsMap.has('CHATBOT_CUSTOM_EMBED_CODE')) {
+      chatbotCustomEmbedCode = settingsMap.get('CHATBOT_CUSTOM_EMBED_CODE') || '';
+    }
 
-    const embedSetting = await prisma.systemSetting.findUnique({
-      where: { key: 'CHATBOT_CUSTOM_EMBED_CODE' }
-    });
-    chatbotCustomEmbedCode = embedSetting?.value || '';
-
-    const settingsList = await prisma.systemSetting.findMany({
-      where: {
-        key: {
-          in: [
-            'CONTACT_WIDGET_ENABLED',
-            'CONTACT_PHONE_ENABLED',
-            'CONTACT_PHONE_NUMBER',
-            'CONTACT_WHATSAPP_ENABLED',
-            'CONTACT_WHATSAPP_NUMBER',
-            'CONTACT_WHATSAPP_MESSAGE',
-            'CONTACT_EMAIL_ENABLED',
-            'CONTACT_EMAIL_ADDRESS'
-          ]
-        }
-      }
-    });
-
-    const settingsMap = new Map(settingsList.map(s => [s.key, s.value]));
+    // Contact Widget Settings
     if (settingsMap.has('CONTACT_WIDGET_ENABLED')) {
       contactSettings.widgetEnabled = settingsMap.get('CONTACT_WIDGET_ENABLED') === 'true';
     }
@@ -123,12 +105,6 @@ export default async function RootLayout({
     if (settingsMap.has('CONTACT_EMAIL_ADDRESS')) {
       contactSettings.emailAddress = settingsMap.get('CONTACT_EMAIL_ADDRESS') || "support@vyomasanskrit.in";
     }
-    let themePrimary = '#f26422';
-    let themeBg = '#030b17';
-    let themeCardBg = '#0f1624';
-    let themeFontFamily = 'Outfit';
-    let themeFontSize = '16px';
-    let themeButtonRadius = '8px';
 
     if (settingsMap.has('THEME_PRIMARY_COLOR')) themePrimary = settingsMap.get('THEME_PRIMARY_COLOR')!;
     if (settingsMap.has('THEME_BACKGROUND_COLOR')) themeBg = settingsMap.get('THEME_BACKGROUND_COLOR')!;
@@ -136,6 +112,10 @@ export default async function RootLayout({
     if (settingsMap.has('THEME_FONT_FAMILY')) themeFontFamily = settingsMap.get('THEME_FONT_FAMILY')!;
     if (settingsMap.has('THEME_FONT_SIZE_BASE')) themeFontSize = settingsMap.get('THEME_FONT_SIZE_BASE')!;
     if (settingsMap.has('THEME_BUTTON_RADIUS')) themeButtonRadius = settingsMap.get('THEME_BUTTON_RADIUS')!;
+
+    if (settingsMap.has('ONESIGNAL_APP_ID')) {
+      oneSignalAppId = settingsMap.get('ONESIGNAL_APP_ID') || "";
+    }
   } catch(e) {}
 
   // Construct dynamic font URL based on the user's selected font family
