@@ -62,6 +62,13 @@ export default async function RootLayout({
     emailAddress: "support@vyomasanskrit.in"
   };
 
+  let themePrimary = '#f26422';
+  let themeBg = '#030b17';
+  let themeCardBg = '#0f1624';
+  let themeFontFamily = 'Outfit';
+  let themeFontSize = '16px';
+  let themeButtonRadius = '8px';
+
   try {
     const res = await prisma.systemSetting.findUnique({ where: { key: 'ONESIGNAL_APP_ID' } });
     oneSignalAppId = res?.value || "";
