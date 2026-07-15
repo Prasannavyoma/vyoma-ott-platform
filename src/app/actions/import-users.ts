@@ -46,7 +46,8 @@ export async function registerUsersFromCSV(fd: FormData) {
       const currentLine = lines[i];
       if (!currentLine) continue;
 
-      const cells = currentLine.split(',').map(c => c.replace(/^["']|["']$/g, '').trim());
+      // Robust CSV parsing: split by commas not inside quotes
+      const cells = currentLine.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/^["']|["']$/g, '').trim());
       
       const email = cells[emailIdx];
       if (!email || !email.includes('@')) {
@@ -145,7 +146,8 @@ export async function handleMigrationCSV(fd: FormData) {
       const currentLine = lines[i];
       if (!currentLine) continue;
 
-      const cells = currentLine.split(',').map(c => c.replace(/^["']|["']$/g, '').trim());
+      // Robust CSV parsing: split by commas not inside quotes
+      const cells = currentLine.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/^["']|["']$/g, '').trim());
       
       const email = emailIdx !== -1 && emailIdx < cells.length ? cells[emailIdx] : null;
       if (!email || !email.includes('@')) continue;
