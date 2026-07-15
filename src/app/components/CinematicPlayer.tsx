@@ -1091,7 +1091,7 @@ export default function CinematicPlayer({
         style={{ 
           position: 'relative', 
           width: '100%', 
-          aspectRatio: showStudyRoomSidebar ? '21/9' : '16/9', 
+          aspectRatio: '16/9', 
           borderRadius: '12px', 
           overflow: 'hidden', 
           background: '#000',
