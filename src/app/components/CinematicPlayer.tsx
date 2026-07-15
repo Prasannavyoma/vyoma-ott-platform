@@ -471,7 +471,28 @@ export default function CinematicPlayer({
       }, 15000);
       return () => clearTimeout(timer);
     }
+  }, [episodeId, courseId, cleanUrl, initialPosition, poster, playEpisode, isNonNativeVideo]);
 
+  // Global heartbeat telemetry to ensure CohortIndicator always tracks presence accurately 
+  // (especially important for non-native HTML study rooms where video time doesn't update)
+  useEffect(() => {
+    if (!episodeId) return;
+    const interval = setInterval(() => {
+      fetch('/api/progress', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          episodeId, 
+          position: localTimeRef.current || 0, 
+          completed: false 
+        }),
+        keepalive: true
+      }).catch(() => {});
+    }, 15000); // Ping every 15 seconds to keep "updatedAt" fresh in the DB
+    return () => clearInterval(interval);
+  }, [episodeId]);
+
+  useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
