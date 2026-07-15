@@ -35,6 +35,15 @@ export default function ThemeSettingsPage() {
     loadData();
   }, []);
 
+  const handleReset = () => {
+    setPrimaryColor('#f26422');
+    setBackgroundColor('#030b17');
+    setCardBg('#0f1624');
+    setFontFamily('Outfit');
+    setFontSizeBase('16px');
+    setButtonRadius('8px');
+  };
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
@@ -148,12 +157,31 @@ export default function ThemeSettingsPage() {
               </div>
             </div>
 
-            <div style={{ marginTop: '20px' }}>
+            <div style={{ marginTop: '20px', display: 'flex', gap: '15px' }}>
+              <button 
+                type="button" 
+                onClick={handleReset}
+                disabled={isSaving}
+                style={{ 
+                  flex: 1, 
+                  padding: '15px', 
+                  background: 'transparent', 
+                  color: '#fff', 
+                  border: '1px solid rgba(255,255,255,0.2)', 
+                  borderRadius: '8px', 
+                  fontSize: '1.1rem', 
+                  fontWeight: 'bold', 
+                  cursor: isSaving ? 'not-allowed' : 'pointer',
+                  opacity: isSaving ? 0.7 : 1
+                }}
+              >
+                Reset to Defaults
+              </button>
               <button 
                 type="submit" 
                 disabled={isSaving}
                 style={{ 
-                  width: '100%', 
+                  flex: 2, 
                   padding: '15px', 
                   background: 'var(--primary)', 
                   color: '#fff', 
