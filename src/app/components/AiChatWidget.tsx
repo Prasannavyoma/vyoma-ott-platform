@@ -825,11 +825,32 @@ export default function AiChatWidget({ contactSettings, aiEnabled = true }: { co
           e.currentTarget.style.boxShadow = '0 8px 25px rgba(242, 100, 34, 0.4), inset 0 2px 4px rgba(255,255,255,0.3)';
         }}
       >
-        {isOpen ? '✕' : '🤖'}
+        {isOpen ? '✕' : (
+          <img 
+            src="/assets/guru-avatar.png" 
+            alt="Guru Avatar" 
+            className="guru-avatar"
+            style={{ 
+              width: '45px', 
+              height: '45px', 
+              borderRadius: '50%',
+              objectFit: 'cover',
+              background: '#fff'
+            }} 
+          />
+        )}
       </button>
 
       {/* Embed Keyframe Animations & Style Overrides */}
       <style jsx global>{`
+        @keyframes guruFloat {
+          0%, 100% { transform: translateY(0) scale(1); }
+          50% { transform: translateY(-3px) scale(1.05); }
+        }
+        .guru-avatar {
+          animation: guruFloat 3s ease-in-out infinite;
+          box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
         @keyframes vyomaChatSlideUp {
           from {
             opacity: 0;
