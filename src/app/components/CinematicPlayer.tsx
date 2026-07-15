@@ -1052,21 +1052,35 @@ export default function CinematicPlayer({
   // Non-Native early return removed to allow full player control overlays to render
 
   return (
-    <div 
-      ref={playerContainerRef}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={() => isPlaying && setShowControls(false)}
-      style={{ 
-        position: 'relative', 
-        width: '100%', 
-        aspectRatio: showStudyRoomSidebar ? '21/9' : '16/9', 
-        borderRadius: '12px', 
-        overflow: 'hidden', 
-        background: '#000',
-        display: 'flex',
-        flexDirection: 'row'
-      }}
-    >
+    <>
+      {isLightsOut && (
+        <div 
+          onClick={() => setIsLightsOut(false)}
+          style={{
+            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+            background: 'rgba(0,0,0,0.95)', zIndex: 9998, cursor: 'pointer',
+            transition: 'opacity 0.5s ease', backdropFilter: 'blur(10px)'
+          }}
+        />
+      )}
+      <div 
+        ref={playerContainerRef}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={() => isPlaying && setShowControls(false)}
+        style={{ 
+          position: 'relative', 
+          width: '100%', 
+          aspectRatio: showStudyRoomSidebar ? '21/9' : '16/9', 
+          borderRadius: '12px', 
+          overflow: 'hidden', 
+          background: '#000',
+          display: 'flex',
+          flexDirection: 'row',
+          zIndex: isLightsOut ? 9999 : 1,
+          boxShadow: isLightsOut ? '0 0 100px rgba(0,0,0,1)' : 'none',
+          transition: 'z-index 0.5s, box-shadow 0.5s'
+        }}
+      >
       {/* 1. Main Video & Overlays Area */}
       <div style={{ position: 'relative', flex: 1, height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
         
@@ -2261,7 +2275,7 @@ export default function CinematicPlayer({
           100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 75, 75, 0); }
         }
       `}} />
-    </div>
+    </>
   );
 }
 
