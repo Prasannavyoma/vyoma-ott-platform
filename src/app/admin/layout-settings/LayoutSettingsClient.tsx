@@ -2,20 +2,31 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { updateChannel, addSection, deleteSection, updateSection, toggleKnowledgeRoadmap } from '@/app/actions/layout-settings';
+import { updateChannel, addSection, deleteSection, updateSection, toggleKnowledgeRoadmap, toggleShortsFeature, toggleBlogFeature } from '@/app/actions/layout-settings';
 
 interface LayoutSettingsClientProps {
   sections: any[];
   channels: any[];
   availableCategories: string[];
   roadmapEnabled?: boolean;
+  shortsEnabled?: boolean;
+  blogEnabled?: boolean;
 }
 
-export default function LayoutSettingsClient({ sections, channels, availableCategories, roadmapEnabled = true }: LayoutSettingsClientProps) {
+export default function LayoutSettingsClient({ 
+  sections, 
+  channels, 
+  availableCategories, 
+  roadmapEnabled = true,
+  shortsEnabled = true,
+  blogEnabled = true
+}: LayoutSettingsClientProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [editingSectionId, setEditingSectionId] = useState<string | null>(null);
   const [isRoadmapEnabled, setIsRoadmapEnabled] = useState(roadmapEnabled);
+  const [isShortsEnabled, setIsShortsEnabled] = useState(shortsEnabled);
+  const [isBlogEnabled, setIsBlogEnabled] = useState(blogEnabled);
 
   return (
     <div style={{ maxWidth: '1000px' }}>
@@ -74,6 +85,80 @@ export default function LayoutSettingsClient({ sections, channels, availableCate
                 const newVal = e.target.checked;
                 setIsRoadmapEnabled(newVal);
                 await toggleKnowledgeRoadmap(newVal);
+              }} 
+            />
+          </label>
+        </div>
+
+        <div style={{ 
+          background: 'linear-gradient(to right, #0f1624, #070b14)', 
+          border: '1px solid rgba(255,255,255,0.06)',
+          padding: '20px', 
+          borderRadius: '12px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginTop: '15px'
+        }}>
+          <div>
+            <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>📱 Vyoma Shorts</h3>
+            <p style={{ color: '#aaa', fontSize: '0.9rem', marginTop: '5px' }}>Enable the TikTok-style vertical video Shorts module across the platform.</p>
+          </div>
+          <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '10px' }}>
+            <div style={{
+              width: '50px', height: '26px', background: isShortsEnabled ? '#28a745' : '#444', 
+              borderRadius: '26px', position: 'relative', transition: 'all 0.3s'
+            }}>
+              <div style={{
+                width: '22px', height: '22px', background: 'white', borderRadius: '50%',
+                position: 'absolute', top: '2px', left: isShortsEnabled ? '26px' : '2px', transition: 'all 0.3s'
+              }} />
+            </div>
+            <input 
+              type="checkbox" 
+              checked={isShortsEnabled} 
+              style={{ display: 'none' }}
+              onChange={async (e) => {
+                const newVal = e.target.checked;
+                setIsShortsEnabled(newVal);
+                await toggleShortsFeature(newVal);
+              }} 
+            />
+          </label>
+        </div>
+
+        <div style={{ 
+          background: 'linear-gradient(to right, #0f1624, #070b14)', 
+          border: '1px solid rgba(255,255,255,0.06)',
+          padding: '20px', 
+          borderRadius: '12px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginTop: '15px'
+        }}>
+          <div>
+            <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>📝 Vyoma Insights Blog</h3>
+            <p style={{ color: '#aaa', fontSize: '0.9rem', marginTop: '5px' }}>Enable the educational blog and articles module.</p>
+          </div>
+          <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '10px' }}>
+            <div style={{
+              width: '50px', height: '26px', background: isBlogEnabled ? '#28a745' : '#444', 
+              borderRadius: '26px', position: 'relative', transition: 'all 0.3s'
+            }}>
+              <div style={{
+                width: '22px', height: '22px', background: 'white', borderRadius: '50%',
+                position: 'absolute', top: '2px', left: isBlogEnabled ? '26px' : '2px', transition: 'all 0.3s'
+              }} />
+            </div>
+            <input 
+              type="checkbox" 
+              checked={isBlogEnabled} 
+              style={{ display: 'none' }}
+              onChange={async (e) => {
+                const newVal = e.target.checked;
+                setIsBlogEnabled(newVal);
+                await toggleBlogFeature(newVal);
               }} 
             />
           </label>

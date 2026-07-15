@@ -62,12 +62,20 @@ export default async function LayoutSettingsPage() {
   const roadmapSetting = await prisma.systemSetting.findUnique({ where: { key: 'FEATURE_KNOWLEDGE_ROADMAP' } });
   const roadmapEnabled = roadmapSetting ? roadmapSetting.value === 'true' : true; // Default true
 
+  const shortsSetting = await prisma.systemSetting.findUnique({ where: { key: 'FEATURE_SHORTS' } });
+  const shortsEnabled = shortsSetting ? shortsSetting.value === 'true' : true; // Default true
+
+  const blogSetting = await prisma.systemSetting.findUnique({ where: { key: 'FEATURE_BLOG' } });
+  const blogEnabled = blogSetting ? blogSetting.value === 'true' : true; // Default true
+
   return (
     <LayoutSettingsClient 
       sections={sections} 
       channels={channels} 
       availableCategories={availableCategories} 
       roadmapEnabled={roadmapEnabled}
+      shortsEnabled={shortsEnabled}
+      blogEnabled={blogEnabled}
     />
   );
 }

@@ -71,3 +71,23 @@ export async function toggleKnowledgeRoadmap(enabled: boolean) {
   revalidatePath('/admin/layout-settings');
   revalidatePath('/profile');
 }
+
+export async function toggleShortsFeature(enabled: boolean) {
+  await prisma.systemSetting.upsert({
+    where: { key: 'FEATURE_SHORTS' },
+    update: { value: enabled ? 'true' : 'false' },
+    create: { key: 'FEATURE_SHORTS', value: enabled ? 'true' : 'false' }
+  });
+  revalidatePath('/admin/layout-settings');
+  revalidatePath('/', 'layout');
+}
+
+export async function toggleBlogFeature(enabled: boolean) {
+  await prisma.systemSetting.upsert({
+    where: { key: 'FEATURE_BLOG' },
+    update: { value: enabled ? 'true' : 'false' },
+    create: { key: 'FEATURE_BLOG', value: enabled ? 'true' : 'false' }
+  });
+  revalidatePath('/admin/layout-settings');
+  revalidatePath('/', 'layout');
+}

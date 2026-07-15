@@ -12,6 +12,7 @@ export default function NavBar() {
   const [menus, setMenus] = useState<any[]>([]);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [features, setFeatures] = useState({ shortsEnabled: true, blogEnabled: true });
   
   // 📱 Mobile responsive state managers
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -28,6 +29,11 @@ export default function NavBar() {
       .then(data => setIsLoggedIn(data.isLoggedIn))
       .catch(e => console.error("Failed to fetch auth status."));
 
+    fetch('/api/features')
+      .then(res => res.json())
+      .then(data => setFeatures(data))
+      .catch(e => console.error("Failed to fetch features."));
+
     const handleScroll = () => setScrolled(window.scrollY > 50);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
@@ -38,12 +44,16 @@ export default function NavBar() {
       {/* 🚀 TOP SECONDARY UTILITY BAR */}
       <div className="top-utility-bar desktop-only">
 
-        <Link href="/shorts" title="Shorts">
-          <span className="icon-wrapper" style={{ fontSize: '1.1rem', marginRight: '4px', color: '#ff4d4d' }}>📱</span> Shorts
-        </Link>
-        <Link href="/blog" title="Vyoma Insights Blog">
-          <span className="icon-wrapper" style={{ fontSize: '1.1rem', marginRight: '4px' }}>📝</span> Blog
-        </Link>
+        {features.shortsEnabled && (
+          <Link href="/shorts" title="Shorts">
+            <span className="icon-wrapper" style={{ fontSize: '1.1rem', marginRight: '4px', color: '#ff4d4d' }}>📱</span> Shorts
+          </Link>
+        )}
+        {features.blogEnabled && (
+          <Link href="/blog" title="Vyoma Insights Blog">
+            <span className="icon-wrapper" style={{ fontSize: '1.1rem', marginRight: '4px' }}>📝</span> Blog
+          </Link>
+        )}
         <Link href="/testimonials" title="Community Testimonials">
           <span className="icon-wrapper" style={{ fontSize: '1.1rem', marginRight: '4px', color: '#ffb300' }}>🌟</span> Testimonials
         </Link>
