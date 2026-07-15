@@ -169,6 +169,30 @@ export async function sendPurchaseSuccess(to: string, planName: string, amount: 
     subject: `💰 Successful Privilege Upgrade: ${planName}`,
     html
   }).catch(console.error);
+
+  // Send Admin Notification Copy
+  const adminEmailSetting = await prisma.systemSetting.findUnique({ where: { key: 'ADMIN_EMAIL' } });
+  const adminEmail = adminEmailSetting?.value || (transporter.options as any).auth?.user;
+  
+  if (adminEmail) {
+    const adminHtml = getLuxuryWrap(`
+      <h1 style="color: #46d369;">New Order Received!</h1>
+      <p>A customer has just completed a purchase.</p>
+      <div style="background: #111; padding: 20px; border-radius: 8px; margin: 20px 0; border: 1px dashed #333;">
+        <strong>Customer Email:</strong> ${to} <br />
+        <strong>Settlement Amount:</strong> ₹${amount} <br />
+        <strong>Purchased Tier:</strong> ${planName}
+      </div>
+      <p>View the full transaction details in the Vyoma Admin Dashboard.</p>
+    `, `Admin Alert: New Order for ${planName}`);
+
+    await transporter.sendMail({
+      from: `"Vyoma System" <${(transporter.options as any).auth?.user}>`,
+      to: adminEmail,
+      subject: `🚨 NEW ORDER: ₹${amount} for ${planName} (${to})`,
+      html: adminHtml
+    }).catch(console.error);
+  }
 }
 
 export async function sendCancelNotification(to: string) {
