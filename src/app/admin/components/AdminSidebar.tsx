@@ -47,6 +47,7 @@ export default function AdminSidebar({ userRole }: { userRole: string }) {
             <Link href="/admin/blogs" className={pathname.includes('/admin/blogs') ? 'active' : ''}>📝 Blog CMS</Link>
             <Link href="/admin/testimonials" className={pathname.includes('/admin/testimonials') ? 'active' : ''}>🌟 Testimonial Approvals</Link>
             <Link href="/admin/pages" className={pathname.includes('/pages') ? 'active' : ''}>📄 Custom CMS Pages</Link>
+            <Link href="/admin/theme-settings" className={pathname.includes('/theme-settings') ? 'active' : ''}>🎨 Theme & Customization</Link>
             <Link href="/admin/layout-settings" className={pathname.includes('/layout-settings') ? 'active' : ''}>🛠️ Homepage Shelf</Link>
             <Link href="/admin/navigation" className={pathname.includes('/navigation') ? 'active' : ''}>🗂️ Nav Configuration</Link>
             <Link href="/admin/sponsors" className={pathname.includes('/sponsors') ? 'active' : ''}>🤝 Sponsors & Slider</Link>

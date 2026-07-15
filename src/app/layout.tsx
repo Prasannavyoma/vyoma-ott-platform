@@ -123,13 +123,53 @@ export default async function RootLayout({
     if (settingsMap.has('CONTACT_EMAIL_ADDRESS')) {
       contactSettings.emailAddress = settingsMap.get('CONTACT_EMAIL_ADDRESS') || "support@vyomasanskrit.in";
     }
+    let themePrimary = '#f26422';
+    let themeBg = '#030b17';
+    let themeCardBg = '#0f1624';
+    let themeFontFamily = 'Outfit';
+    let themeFontSize = '16px';
+    let themeButtonRadius = '8px';
+
+    if (settingsMap.has('THEME_PRIMARY_COLOR')) themePrimary = settingsMap.get('THEME_PRIMARY_COLOR')!;
+    if (settingsMap.has('THEME_BACKGROUND_COLOR')) themeBg = settingsMap.get('THEME_BACKGROUND_COLOR')!;
+    if (settingsMap.has('THEME_CARD_BG')) themeCardBg = settingsMap.get('THEME_CARD_BG')!;
+    if (settingsMap.has('THEME_FONT_FAMILY')) themeFontFamily = settingsMap.get('THEME_FONT_FAMILY')!;
+    if (settingsMap.has('THEME_FONT_SIZE_BASE')) themeFontSize = settingsMap.get('THEME_FONT_SIZE_BASE')!;
+    if (settingsMap.has('THEME_BUTTON_RADIUS')) themeButtonRadius = settingsMap.get('THEME_BUTTON_RADIUS')!;
   } catch(e) {}
+
+  // Construct dynamic font URL based on the user's selected font family
+  const fontUrl = `https://fonts.googleapis.com/css2?family=${themeFontFamily.replace(/ /g, '+')}:wght@300;400;500;600;700;800&display=swap`;
 
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
       <head>
         <link rel="manifest" href="/manifest.json" />
-        <meta name="theme-color" content="#f26422" />
+        <meta name="theme-color" content={themePrimary} />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href={fontUrl} rel="stylesheet" />
+        <style dangerouslySetInnerHTML={{ __html: `
+          :root {
+            --primary: ${themePrimary} !important;
+            --background: ${themeBg} !important;
+            --card-bg: ${themeCardBg} !important;
+            --font-family-dynamic: "${themeFontFamily}", sans-serif !important;
+            --font-size-base: ${themeFontSize} !important;
+            --button-radius: ${themeButtonRadius} !important;
+          }
+          
+          body {
+            font-family: var(--font-family-dynamic) !important;
+            font-size: var(--font-size-base) !important;
+            background: var(--background) !important;
+          }
+
+          /* Global Enforcements */
+          button, .btn, a.btn, input[type="submit"] {
+            border-radius: var(--button-radius) !important;
+          }
+        `}} />
       </head>
       <body>
         <GlobalPlayerProvider>
