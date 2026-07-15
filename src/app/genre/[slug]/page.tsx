@@ -25,20 +25,35 @@ export default async function GenrePage({ params }: { params: Promise<{ slug: st
   if (slugUpper.includes('GAMES-ACTIVITIES')) categoriesToSearch.push('Games &amp; Activities');
   if (slugUpper.includes('STORIES-SUBHASHITAS')) categoriesToSearch.push('Stories &amp; Subhashitas');
 
+  // Prevent "Game" search from accidentally matching "Game Based Learning"
+  const excludeGameBasedLearning = (slugUpper === 'GAME' || slugUpper.includes('GAMES-ACTIVITIES'));
+
   const courses = await prisma.course.findMany({
     where: {
-      OR: [
-        ...categoriesToSearch.map(cat => ({
-          category: {
-            contains: cat,
-            mode: 'insensitive' as const
-          }
-        })),
+      AND: [
         {
-          contentType: {
-            in: contentTypesToSearch
+          OR: [
+            ...categoriesToSearch.map(cat => ({
+              category: {
+                contains: cat,
+                mode: 'insensitive' as const
+              }
+            })),
+            {
+              contentType: {
+                in: contentTypesToSearch
+              }
+            }
+          ]
+        },
+        excludeGameBasedLearning ? {
+          NOT: {
+            category: {
+              contains: 'Game Based Learning',
+              mode: 'insensitive' as const
+            }
           }
-        }
+        } : {}
       ]
     },
     orderBy: { createdAt: 'desc' }
