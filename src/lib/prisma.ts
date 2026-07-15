@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
-// Refreshed Client Ingestion Marker: Dynamic Routing Cache Flush
+// Refreshed Client Ingestion Marker: Dynamic Routing Cache Flush 2026-07-14
 
-const globalForPrisma = global as unknown as { prisma: PrismaClient };
+const globalForPrisma = global as unknown as { prisma: PrismaClient | undefined };
 
 let dbUrl = process.env.DATABASE_URL || '';
 // Vercel strips the .pem file during build. AWS RDS native SSL is trusted by Node automatically,
