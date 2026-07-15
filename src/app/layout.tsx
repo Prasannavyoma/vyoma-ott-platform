@@ -145,7 +145,7 @@ export default async function RootLayout({
             (!chatbotEnabled && contactSettings.widgetEnabled) ||
             (chatbotEnabled && chatbotMode === 'CUSTOM_EMBED' && contactSettings.widgetEnabled)
           ) && (
-            <AiChatWidget contactSettings={contactSettings} aiEnabled={false} />
+            <ContactWidget settings={contactSettings} />
           )}
           {oneSignalAppId && <OneSignalRegistry appId={oneSignalAppId} />}
           <Script id="register-sw" strategy="lazyOnload">
