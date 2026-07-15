@@ -2275,6 +2275,7 @@ export default function CinematicPlayer({
           100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 75, 75, 0); }
         }
       `}} />
+    </div>
     </>
   );
 }
