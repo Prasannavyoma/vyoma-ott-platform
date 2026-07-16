@@ -10,10 +10,10 @@ export async function updateChannel(formData: FormData) {
   const icon = formData.get('icon') as string;
   const order = parseInt(formData.get('order') as string || "0");
 
-  await prisma.$executeRawUnsafe(
-    `UPDATE HomepageChannel SET name = $1, url = $2, icon = $3, "order" = $4 WHERE id = $5`,
-    name, url, icon, order, id
-  );
+  await prisma.homepageChannel.update({
+    where: { id },
+    data: { name, url, icon, order }
+  });
   
   revalidatePath('/admin/layout-settings');
   revalidatePath('/');
