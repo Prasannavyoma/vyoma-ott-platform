@@ -13,6 +13,7 @@ import { redirect } from "next/navigation";
 import { GlobalPlayerProvider } from "./components/GlobalPlayerProvider";
 import ContactWidget from "./components/ContactWidget";
 import CustomEmbedChatbot from "./components/CustomEmbedChatbot";
+import CookieConsent from "./components/CookieConsent";
 
 // 🚀 LAZY LOAD AI CHAT WIDGET: This prevents the heavy chatbot logic from blocking the initial page paint globally!
 const AiChatWidget = dynamic(() => import('./components/AiChatWidget'));
@@ -186,6 +187,7 @@ export default async function RootLayout({
               }
             `}
           </Script>
+          <CookieConsent />
         </GlobalPlayerProvider>
       </body>
     </html>
