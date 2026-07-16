@@ -19,6 +19,37 @@ export async function updateChannel(formData: FormData) {
   revalidatePath('/');
 }
 
+export async function addChannel(formData: FormData) {
+  const name = formData.get('name') as string || "New Channel";
+  const url = formData.get('url') as string || "/";
+  const icon = formData.get('icon') as string || "⭐";
+  const order = parseInt(formData.get('order') as string || "100");
+
+  await prisma.homepageChannel.create({
+    data: { name, url, icon, order, active: true }
+  });
+  
+  revalidatePath('/admin/layout-settings');
+  revalidatePath('/');
+}
+
+export async function toggleChannel(id: string, active: boolean) {
+  await prisma.homepageChannel.update({
+    where: { id },
+    data: { active }
+  });
+  revalidatePath('/admin/layout-settings');
+  revalidatePath('/');
+}
+
+export async function deleteChannel(id: string) {
+  await prisma.homepageChannel.delete({
+    where: { id }
+  });
+  revalidatePath('/admin/layout-settings');
+  revalidatePath('/');
+}
+
 export async function addSection(formData: FormData) {
   const title = formData.get('title') as string;
   const category = formData.get('category') as string;

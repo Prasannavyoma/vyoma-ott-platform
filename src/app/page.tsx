@@ -38,7 +38,10 @@ async function getSafeHomepageChannels(): Promise<any[]> {
       )
     `);
 
-    let raw = await prisma.homepageChannel.findMany({ orderBy: { order: 'asc' } });
+    let raw = await prisma.homepageChannel.findMany({ 
+      where: { active: true },
+      orderBy: { order: 'asc' } 
+    });
     
     if (!Array.isArray(raw) || raw.length === 0) {
       const defaults = [
@@ -52,10 +55,13 @@ async function getSafeHomepageChannels(): Promise<any[]> {
         await prisma.homepageChannel.upsert({
           where: { id: c.id },
           update: {},
-          create: { id: c.id, name: c.name, url: c.url, icon: c.icon, order: c.order }
+          create: { id: c.id, name: c.name, url: c.url, icon: c.icon, order: c.order, active: true }
         });
       }
-      raw = await prisma.homepageChannel.findMany({ orderBy: { order: 'asc' } });
+      raw = await prisma.homepageChannel.findMany({ 
+        where: { active: true },
+        orderBy: { order: 'asc' } 
+      });
     }
     return Array.isArray(raw) ? raw : [];
   } catch (e) {

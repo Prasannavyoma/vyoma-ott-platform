@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { updateChannel, addSection, deleteSection, updateSection, toggleKnowledgeRoadmap, toggleShortsFeature, toggleBlogFeature } from '@/app/actions/layout-settings';
+import { updateChannel, addChannel, toggleChannel, addSection, deleteSection, updateSection, toggleKnowledgeRoadmap, toggleShortsFeature, toggleBlogFeature } from '@/app/actions/layout-settings';
 
 interface LayoutSettingsClientProps {
   sections: any[];
@@ -192,16 +192,19 @@ export default function LayoutSettingsClient({
               padding: '15px 20px', 
               borderRadius: '10px', 
               display: 'grid', 
-              gridTemplateColumns: '190px 1fr 2fr 60px auto', 
+              gridTemplateColumns: '230px 1fr 2fr 60px 80px auto', 
               gap: '15px', 
               alignItems: 'center' 
             }}>
               <input type="hidden" name="id" value={chan.id} />
               
-              {/* Icon Input */}
+              {/* Icon Input & Preview */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                 <label style={{ display: 'block', color: '#777', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Icon/Emoji/URL</label>
-                <div style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  {(chan.icon?.startsWith('http') || chan.icon?.startsWith('/')) && (
+                    <img src={chan.icon} alt="Preview" style={{ width: '36px', height: '36px', objectFit: 'contain', background: 'rgba(255,255,255,0.02)', borderRadius: '4px' }} />
+                  )}
                   <input
                     required
                     id={`icon-field-${chan.id}`}
@@ -209,7 +212,7 @@ export default function LayoutSettingsClient({
                     name="icon"
                     defaultValue={chan.icon}
                     placeholder="Emoji or Image URL"
-                    style={{ width: '160px', padding: '8px', background: '#030b17', border: '1px solid #222', borderRadius: '6px', color: '#fff', textAlign: 'left', fontSize: '0.9rem' }}
+                    style={{ flex: 1, padding: '8px', background: '#030b17', border: '1px solid #222', borderRadius: '6px', color: '#fff', textAlign: 'left', fontSize: '0.9rem' }}
                   />
                 </div>
               </div>
@@ -232,6 +235,34 @@ export default function LayoutSettingsClient({
                 <input type="number" name="order" defaultValue={chan.order} style={{ width: '100%', padding: '8px', background: '#030b17', border: '1px solid #222', borderRadius: '6px', color: '#fff', textAlign: 'center' }} />
               </div>
 
+              {/* Active Toggle */}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                <label style={{ display: 'block', color: '#777', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Active</label>
+                <label style={{ position: 'relative', display: 'inline-block', width: '40px', height: '20px', cursor: 'pointer' }}>
+                  <div style={{ 
+                    position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, 
+                    backgroundColor: chan.active !== false ? '#4ade80' : '#444', 
+                    borderRadius: '20px', transition: '0.3s' 
+                  }}>
+                    <div style={{ 
+                      position: 'absolute', top: '2px', left: chan.active !== false ? '22px' : '2px', 
+                      width: '16px', height: '16px', backgroundColor: 'white', 
+                      borderRadius: '50%', transition: '0.3s' 
+                    }} />
+                  </div>
+                  <input 
+                    type="checkbox" 
+                    defaultChecked={chan.active !== false}
+                    onChange={async (e) => {
+                      try {
+                        await toggleChannel(chan.id, e.target.checked);
+                      } catch (err) {}
+                    }}
+                    style={{ display: 'none' }}
+                  />
+                </label>
+              </div>
+
               {/* Save Trigger */}
               <div style={{ paddingTop: '14px' }}>
                 <button type="submit" disabled={loading} className="save-channel-btn" style={{ opacity: loading ? 0.7 : 1 }}>
@@ -240,6 +271,48 @@ export default function LayoutSettingsClient({
               </div>
             </form>
           ))}
+          
+          {/* Add New Channel Form */}
+          <form onSubmit={async (e) => {
+            e.preventDefault();
+            setLoading(true);
+            try {
+              const fd = new FormData(e.currentTarget);
+              await addChannel(fd);
+              e.currentTarget.reset();
+            } finally {
+              setLoading(false);
+            }
+          }} style={{ 
+            background: 'rgba(255,255,255,0.02)', 
+            border: '1px dashed rgba(255,255,255,0.2)',
+            padding: '15px 20px', 
+            borderRadius: '10px', 
+            display: 'grid', 
+            gridTemplateColumns: '230px 1fr 2fr 60px 80px auto', 
+            gap: '15px', 
+            alignItems: 'center',
+            marginTop: '10px'
+          }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <input required type="text" name="icon" placeholder="Emoji or Image URL" style={{ width: '100%', padding: '8px', background: '#030b17', border: '1px solid #222', borderRadius: '6px', color: '#fff', fontSize: '0.9rem' }} />
+            </div>
+            <div>
+              <input required type="text" name="name" placeholder="New Channel Title" style={{ width: '100%', padding: '8px', background: '#030b17', border: '1px solid #222', borderRadius: '6px', color: '#fff', fontWeight: 'bold' }} />
+            </div>
+            <div>
+              <input required type="text" name="url" placeholder="/genre/..." style={{ width: '100%', padding: '8px', background: '#030b17', border: '1px solid #222', borderRadius: '6px', color: '#8f98a9', fontFamily: 'monospace', fontSize: '0.85rem' }} />
+            </div>
+            <div>
+              <input type="number" name="order" defaultValue="100" style={{ width: '100%', padding: '8px', background: '#030b17', border: '1px solid #222', borderRadius: '6px', color: '#fff', textAlign: 'center' }} />
+            </div>
+            <div></div>
+            <div>
+              <button type="submit" disabled={loading} style={{ background: '#4ade80', color: '#000', padding: '8px 16px', borderRadius: '6px', fontWeight: 'bold', border: 'none', cursor: 'pointer' }}>
+                + Add
+              </button>
+            </div>
+          </form>
         </div>
       </div>
 
