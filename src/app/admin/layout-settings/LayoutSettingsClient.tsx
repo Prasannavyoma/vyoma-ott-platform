@@ -200,7 +200,7 @@ export default function LayoutSettingsClient({
               
               {/* Icon Input */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                <label style={{ display: 'block', color: '#777', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Icon/Emoji</label>
+                <label style={{ display: 'block', color: '#777', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Icon/Emoji/URL</label>
                 <div style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
                   <input
                     required
@@ -208,47 +208,9 @@ export default function LayoutSettingsClient({
                     type="text"
                     name="icon"
                     defaultValue={chan.icon}
-                    style={{ width: '80px', padding: '8px', background: '#030b17', border: '1px solid #222', borderRadius: '6px', color: '#fff', textAlign: 'center', fontSize: '1.1rem' }}
+                    placeholder="Emoji or Image URL"
+                    style={{ width: '160px', padding: '8px', background: '#030b17', border: '1px solid #222', borderRadius: '6px', color: '#fff', textAlign: 'left', fontSize: '0.9rem' }}
                   />
-                  <label
-                    style={{
-                      background: 'rgba(255,255,255,0.05)',
-                      border: '1px solid rgba(255,255,255,0.1)',
-                      color: '#fff',
-                      padding: '8px 10px',
-                      borderRadius: '6px',
-                      cursor: 'pointer',
-                      fontSize: '0.7rem',
-                      fontWeight: 'bold',
-                      textAlign: 'center'
-                    }}
-                  >
-                    📂 Upload
-                    <input
-                      type="file"
-                      accept="image/*"
-                      style={{ display: 'none' }}
-                      onChange={async (e) => {
-                        const file = e.target.files?.[0];
-                        if (!file) return;
-                        const fd = new FormData();
-                        fd.append('file', file);
-                        try {
-                          const res = await fetch('/api/upload', { method: 'POST', body: fd }).then(r => r.json());
-                          if (res.success) {
-                            const input = document.getElementById(`icon-field-${chan.id}`) as HTMLInputElement;
-                            if (input) {
-                              input.value = res.url;
-                            }
-                          } else {
-                            alert('Upload failed: ' + res.error);
-                          }
-                        } catch (err: any) {
-                          alert('Upload error: ' + err.message);
-                        }
-                      }}
-                    />
-                  </label>
                 </div>
               </div>
 

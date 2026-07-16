@@ -264,7 +264,13 @@ export default async function HomePage() {
         <div className="channels-shelf">
           {personalizedChannels.map((chan: any) => (
             <Link href={chan.url} key={chan.id} className="channel-card">
-              <span className="emoji">{chan.icon}</span>
+              <span className="emoji">
+                {chan.icon?.startsWith('http') || chan.icon?.startsWith('/') ? (
+                  <img src={chan.icon} alt={chan.name} style={{ width: '40px', height: '40px', objectFit: 'contain' }} />
+                ) : (
+                  chan.icon
+                )}
+              </span>
               <span className="channel-title">{chan.name}</span>
             </Link>
           ))}
