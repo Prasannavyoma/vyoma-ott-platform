@@ -266,7 +266,7 @@ export default async function HomePage() {
             <Link href={chan.url} key={chan.id} className="channel-card">
               <span className="emoji">
                 {chan.icon?.startsWith('http') || chan.icon?.startsWith('/') ? (
-                  <img src={chan.icon} alt={chan.name} style={{ width: '40px', height: '40px', objectFit: 'contain' }} />
+                  <img src={chan.icon} alt={chan.name} className="channel-icon-img" />
                 ) : (
                   chan.icon
                 )}
