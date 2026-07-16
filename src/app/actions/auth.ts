@@ -3,9 +3,14 @@
 import { prisma } from '@/lib/prisma';
 import { redirect } from 'next/navigation';
 import { sendWelcomeEmail } from '@/lib/mail';
-import { setSessionUser, getCurrentUser } from '@/lib/auth';
+import { setSessionUser, getCurrentUser, clearSession } from '@/lib/auth';
 import { validateSpamVectors } from '@/lib/spam-guard';
 import { hashPassword } from '@/lib/hash';
+
+export async function logoutUser() {
+  await clearSession();
+  redirect('/login');
+}
 
 export async function registerUser(formData: FormData) {
   // 🛡️ Run Inbuilt Spam & Spambot Audit
@@ -116,17 +121,27 @@ export async function loginUser(formData: FormData) {
 
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;
-  if (!email || !email.includes('@')) {
-    return { error: 'Invalid email address' };
+  if (!email) {
+    return { error: 'Email or Username is required' };
   }
 
-  try {
+    try {
     const allowPasswordSetting = await prisma.systemSetting.findUnique({ where: { key: 'AUTH_ALLOW_PASSWORD' } });
     if (allowPasswordSetting && allowPasswordSetting.value === 'false') {
       return { error: 'Password-based login is currently disabled. Please sign in using Google.' };
     }
-    let user = await prisma.user.findUnique({ where: { email } });
+    let user = await prisma.user.findFirst({ 
+      where: { 
+        OR: [
+          { email: email },
+          { name: email }
+        ]
+      } 
+    });
     if (!user) {
+      if (!email.includes('@')) {
+        return { error: 'Incorrect username or password' };
+      }
       // Auto-register FREE user with password if entered
       const hashedPassword = password ? hashPassword(password) : null;
       user = await prisma.user.create({

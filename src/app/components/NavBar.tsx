@@ -6,6 +6,8 @@ import SearchBar from './SearchBar';
 import ExploreEye from './ExploreEye';
 import NotificationBell from './NotificationBell';
 
+import { logoutUser } from '@/app/actions/auth';
+
 export default function NavBar() {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
@@ -69,17 +71,7 @@ export default function NavBar() {
       </div>
 
       <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
-        <div className="nav-left-group" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-          <div className="nav-brand">
-            <Link href="/">
-              <img 
-                src="/assets/logo-200-x-70-px.png" 
-                alt="Vyoma Logo" 
-                style={{ height: '50px', objectFit: 'contain' }} 
-              />
-            </Link>
-          </div>
-
+        <div className="nav-left-group" style={{ display: 'flex', alignItems: 'center', gap: '20px', flex: 1 }}>
           <div className="nav-links desktop-only" style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
             {menus.map((menu, index) => (
               menu.children && menu.children.length > 0 ? (
@@ -122,8 +114,18 @@ export default function NavBar() {
             ))}
           </div>
         </div>
+
+        <div className="nav-brand" style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+          <Link href="/">
+            <img 
+              src="/assets/logo-200-x-70-px.png" 
+              alt="Vyoma Logo" 
+              style={{ height: '45px', objectFit: 'contain' }} 
+            />
+          </Link>
+        </div>
         
-        <div className="nav-actions" style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
+        <div className="nav-actions" style={{ display: 'flex', gap: '15px', alignItems: 'center', flex: 1, justifyContent: 'flex-end' }}>
           
           {/* Explore Hub 'Live Eye' */}
           <div className="desktop-only" style={{ marginRight: '5px' }}>
@@ -140,9 +142,20 @@ export default function NavBar() {
           </div>
 
           {isLoggedIn ? (
-            <Link href="/profile" title="Profile" className="profile-link desktop-only nav-icon-link">
-               <span className="icon-emoji" style={{fontSize: '1.2rem'}}>👤</span> <span className="profile-text">Profile</span>
-            </Link>
+            <div className="desktop-only" style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
+              <Link href="/profile" title="Profile" className="profile-link nav-icon-link">
+                 <span className="icon-emoji" style={{fontSize: '1.2rem'}}>👤</span> <span className="profile-text">Profile</span>
+              </Link>
+              <button 
+                onClick={async () => await logoutUser()} 
+                className="logout-btn" 
+                style={{ background: 'rgba(255,100,100,0.1)', color: '#ff6b6b', border: '1px solid rgba(255,100,100,0.2)', padding: '6px 14px', borderRadius: '20px', fontSize: '0.85rem', fontWeight: 'bold', cursor: 'pointer', transition: 'all 0.3s' }}
+                onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,100,100,0.2)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,100,100,0.1)'}
+              >
+                Logout
+              </button>
+            </div>
           ) : (
             <div className="desktop-only" style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
               <Link href="/login" className="login-btn">
@@ -178,23 +191,34 @@ export default function NavBar() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           
           {/* Quick-Action progress & profile blocks */}
-          <div style={{ display: 'flex', gap: '15px', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '18px', marginBottom: '5px' }}>
-            <Link 
-              href="/progress" 
-              onClick={() => setMobileMenuOpen(false)}
-              style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', background: 'rgba(255,255,255,0.04)', padding: '10px', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 700, border: '1px solid rgba(255,255,255,0.08)', color: '#fff', textDecoration: 'none' }}
-            >
-              📈 Progress
-            </Link>
-            {isLoggedIn ? (
+            <div style={{ display: 'flex', gap: '15px', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '18px', marginBottom: '5px', flexWrap: 'wrap' }}>
               <Link 
-                href="/profile" 
+                href="/progress" 
                 onClick={() => setMobileMenuOpen(false)}
                 style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', background: 'rgba(255,255,255,0.04)', padding: '10px', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 700, border: '1px solid rgba(255,255,255,0.08)', color: '#fff', textDecoration: 'none' }}
               >
-                👤 Profile
+                📈 Progress
               </Link>
-            ) : (
+              {isLoggedIn ? (
+                <>
+                  <Link 
+                    href="/profile" 
+                    onClick={() => setMobileMenuOpen(false)}
+                    style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', background: 'rgba(255,255,255,0.04)', padding: '10px', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 700, border: '1px solid rgba(255,255,255,0.08)', color: '#fff', textDecoration: 'none' }}
+                  >
+                    👤 Profile
+                  </Link>
+                  <button 
+                    onClick={async () => {
+                      setMobileMenuOpen(false);
+                      await logoutUser();
+                    }}
+                    style={{ flex: '1 1 100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', background: 'rgba(255,100,100,0.1)', padding: '10px', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 700, border: '1px solid rgba(255,100,100,0.2)', color: '#ff6b6b', cursor: 'pointer' }}
+                  >
+                    Logout
+                  </button>
+                </>
+              ) : (
               <Link 
                 href="/login" 
                 onClick={() => setMobileMenuOpen(false)}

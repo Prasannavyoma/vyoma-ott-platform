@@ -199,6 +199,7 @@ export default function WatchNotesManager({ courseId, initialNote }: { courseId:
 
         <button 
           onClick={exportStudyGuide}
+          disabled={!note.trim() && bookmarks.length === 0}
           style={{
             marginLeft: 'auto',
             background: 'rgba(255, 255, 255, 0.06)',
@@ -208,7 +209,8 @@ export default function WatchNotesManager({ courseId, initialNote }: { courseId:
             borderRadius: '12px',
             fontSize: '0.75rem',
             fontWeight: 800,
-            cursor: 'pointer'
+            cursor: (!note.trim() && bookmarks.length === 0) ? 'not-allowed' : 'pointer',
+            opacity: (!note.trim() && bookmarks.length === 0) ? 0.5 : 1
           }}
           title="Export everything to Markdown file"
         >

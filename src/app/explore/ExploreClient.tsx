@@ -38,7 +38,13 @@ export default function ExploreClient({ initialCourses }: { initialCourses: any[
     let result = initialCourses.filter(c => {
       if (selectedCategory !== 'All' && c.category !== selectedCategory) return false;
       if (selectedAccess !== 'All' && c.accessLevel !== selectedAccess) return false;
-      if (selectedContentType !== 'All' && c.contentType !== selectedContentType) return false;
+      if (selectedContentType !== 'All') {
+        if (selectedContentType === 'AUDIOBOOK') {
+           if (c.contentType !== 'AUDIOBOOK' && !(c.category || '').toLowerCase().includes('audiobook')) return false;
+        } else {
+           if (c.contentType !== selectedContentType) return false;
+        }
+      }
       if (searchQuery.trim() !== '') {
         const query = searchQuery.toLowerCase().replace(/&amp;/g, '&');
         const titleClean = (c.title || '').toLowerCase().replace(/&amp;/g, '&');

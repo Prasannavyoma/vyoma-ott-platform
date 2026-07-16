@@ -18,6 +18,7 @@ export default function LoginFormClient({ allowPassword, allowGoogle, googleClie
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState('');
   const [email, setEmail] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   // Sync email from query string if available
   useEffect(() => {
@@ -38,7 +39,7 @@ export default function LoginFormClient({ allowPassword, allowGoogle, googleClie
           if (res && res.error) {
             setError(res.error);
           } else if (res && res.success) {
-            const redirectUrl = searchParams.get('redirect') || '/profile';
+            const redirectUrl = searchParams.get('redirect') || '/';
             router.push(redirectUrl);
             router.refresh();
           } else {
@@ -71,7 +72,7 @@ export default function LoginFormClient({ allowPassword, allowGoogle, googleClie
         if (res.forcePasswordChange) {
           router.push('/change-password');
         } else {
-          const redirectUrl = searchParams.get('redirect') || '/profile';
+          const redirectUrl = searchParams.get('redirect') || '/';
           router.push(redirectUrl);
         }
         router.refresh();
@@ -91,7 +92,8 @@ export default function LoginFormClient({ allowPassword, allowGoogle, googleClie
       justifyContent: 'center',
       fontFamily: 'inherit',
       color: 'white',
-      position: 'relative'
+      position: 'relative',
+      animation: 'fadeIn 0.5s ease-out'
     }}>
       {/* Load Google Identity Services SDK */}
       {allowGoogle && googleClientId && (
@@ -102,17 +104,23 @@ export default function LoginFormClient({ allowPassword, allowGoogle, googleClie
          <Link href="/"><img src="/assets/logo-200-x-70-px.png" alt="Vyoma" style={{ height: '45px' }} /></Link>
       </div>
       
-      <div style={{ 
+      <div className="login-card" style={{ 
         position: 'relative',
         width: '100%', 
         maxWidth: '450px', 
-        backgroundColor: 'rgba(0, 0, 0, 0.75)', 
-        borderRadius: '10px', 
-        padding: '60px 68px 40px',
-        backdropFilter: 'blur(10px)',
-        boxShadow: '0 10px 40px rgba(0,0,0,0.5)',
-        margin: '20px'
+        background: 'rgba(20, 20, 22, 0.75)', 
+        borderRadius: '16px', 
+        padding: '50px 50px 40px',
+        backdropFilter: 'blur(20px)',
+        border: '1px solid rgba(255,255,255,0.08)',
+        boxShadow: '0 20px 50px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(255,255,255,0.05)',
+        margin: '20px',
+        animation: 'slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
+        overflow: 'hidden'
       }}>
+        {/* Decorative Top Glow */}
+        <div style={{ position: 'absolute', top: 0, left: '20%', right: '20%', height: '2px', background: 'linear-gradient(90deg, transparent, var(--primary), transparent)', opacity: 0.5 }}></div>
+
         {/* Close Icon */}
         <Link href="/" style={{ 
           position: 'absolute', right: '20px', top: '20px', 
@@ -143,21 +151,41 @@ export default function LoginFormClient({ allowPassword, allowGoogle, googleClie
         {allowPassword ? (
           <form onSubmit={onSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <input 
-              type="email" 
+              type="text" 
               name="email" 
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="Email or phone number" 
-              required
+              placeholder="Email or Username" 
               style={{
-                padding: '16px 20px',
-                backgroundColor: '#333',
-                border: 'none',
-                borderRadius: '4px',
-                color: 'white',
-                fontSize: '1rem'
+                width: '100%', padding: '14px 16px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.3)', color: '#fff', fontSize: '1rem', outline: 'none', transition: 'all 0.3s ease'
               }}
+              onFocus={e => e.currentTarget.style.borderColor = 'var(--primary)'}
+              onBlur={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'}
+              required
             />
+            <div style={{ position: 'relative' }}>
+              <input 
+                type={showPassword ? 'text' : 'password'}
+                name="password" 
+                placeholder="Password" 
+                style={{
+                  width: '100%', padding: '14px 16px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.3)', color: '#fff', fontSize: '1rem', outline: 'none', transition: 'all 0.3s ease'
+                }}
+                onFocus={e => e.currentTarget.style.borderColor = 'var(--primary)'}
+                onBlur={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'}
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#999', cursor: 'pointer', padding: '5px'
+                }}
+                title={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? '👁️' : '🙈'}
+              </button>
+            </div>
             
             {/* Honeypot */}
             <input 
@@ -168,24 +196,9 @@ export default function LoginFormClient({ allowPassword, allowGoogle, googleClie
               style={{ display: 'none', opacity: 0, position: 'absolute', zIndex: -999 }} 
             />
             
-            <input 
-              type="password" 
-              name="password" 
-              placeholder="Password" 
-              required
-              style={{
-                padding: '16px 20px',
-                backgroundColor: '#333',
-                border: 'none',
-                borderRadius: '4px',
-                color: 'white',
-                fontSize: '1rem'
-              }}
-            />
-            
             <button 
               type="submit" 
-              className="btn btn-primary" 
+              className="btn btn-primary premium-glow-btn" 
               disabled={isPending}
               style={{ 
                 marginTop: '20px', 
@@ -194,7 +207,8 @@ export default function LoginFormClient({ allowPassword, allowGoogle, googleClie
                 fontSize: '1.1rem', 
                 fontWeight: 700,
                 cursor: isPending ? 'not-allowed' : 'pointer',
-                opacity: isPending ? 0.7 : 1
+                opacity: isPending ? 0.7 : 1,
+                border: 'none'
               }}
             >
               {isPending ? 'Signing In...' : 'Sign In'}
