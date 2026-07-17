@@ -7,9 +7,10 @@ import HoverVideoPlayer from './HoverVideoPlayer';
 interface CourseRowProps {
   title: string;
   courses: any[];
+  icon?: React.ReactNode;
 }
 
-export default function CourseRow({ title, courses }: CourseRowProps) {
+export default function CourseRow({ title, courses, icon }: CourseRowProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const scroll = (direction: 'left' | 'right') => {
@@ -26,7 +27,10 @@ export default function CourseRow({ title, courses }: CourseRowProps) {
   return (
     <div className="row" style={{ position: 'relative', overflow: 'visible' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '10px', paddingRight: '20px' }}>
-        <h2 className="row-title" style={{ fontSize: '1.5rem', fontWeight: '700', color: '#fff', zIndex: 1, margin: 0 }}>{title ? title.replace(/&amp;/g, '&') : ''}</h2>
+        <h2 className="row-title" style={{ fontSize: '1.5rem', fontWeight: '700', color: '#fff', zIndex: 1, margin: 0, display: 'flex', alignItems: 'center', gap: '10px' }}>
+          {icon && <span style={{ color: 'var(--primary)' }}>{icon}</span>}
+          {title ? title.replace(/&amp;/g, '&') : ''}
+        </h2>
         <Link href={`/explore?filter=${encodeURIComponent(title)}`} style={{ color: 'var(--primary)', fontSize: '0.9rem', fontWeight: 'bold', textDecoration: 'none' }}>
           View All →
         </Link>

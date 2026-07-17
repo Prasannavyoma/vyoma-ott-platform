@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { FileText, Bookmark, Download, Cloud } from 'lucide-react';
 
 interface Bookmark {
   id: string;
@@ -178,7 +179,7 @@ export default function WatchNotesManager({ courseId, initialNote }: { courseId:
             transition: 'all 0.2s'
           }}
         >
-          📝 Study Notes
+          <FileText size={16} style={{ display: 'inline-block', verticalAlign: 'text-bottom', marginRight: '4px' }} /> Study Notes
         </button>
         <button
           onClick={() => setActiveTab('bookmarks')}
@@ -194,7 +195,7 @@ export default function WatchNotesManager({ courseId, initialNote }: { courseId:
             transition: 'all 0.2s'
           }}
         >
-          🔖 Video Bookmarks ({bookmarks.length})
+          <Bookmark size={16} style={{ display: 'inline-block', verticalAlign: 'text-bottom', marginRight: '4px' }} /> Video Bookmarks ({bookmarks.length})
         </button>
 
         <button 
@@ -214,7 +215,7 @@ export default function WatchNotesManager({ courseId, initialNote }: { courseId:
           }}
           title="Export everything to Markdown file"
         >
-          📥 Export guide
+          <Download size={14} style={{ display: 'inline-block', verticalAlign: 'text-bottom', marginRight: '4px' }} /> Export guide
         </button>
       </div>
 
@@ -266,7 +267,7 @@ export default function WatchNotesManager({ courseId, initialNote }: { courseId:
                 boxShadow: '0 4px 15px rgba(242,100,34,0.3)'
               }}
             >
-              💾 Cloud Sync
+              <Cloud size={14} style={{ display: 'inline-block', verticalAlign: 'text-bottom', marginRight: '4px' }} /> Cloud Sync
             </button>
           </div>
         </div>
@@ -331,7 +332,7 @@ export default function WatchNotesManager({ courseId, initialNote }: { courseId:
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '240px', overflowY: 'auto', paddingRight: '5px' }}>
             {bookmarks.length === 0 ? (
               <div style={{ textAlign: 'center', color: '#555', padding: '20px' }}>
-                <span style={{ fontSize: '1.5rem', display: 'block', marginBottom: '8px' }}>🔖</span>
+                <span style={{ display: 'block', marginBottom: '8px', opacity: 0.5 }}><Bookmark size={32} /></span>
                 <p style={{ margin: 0, fontSize: '0.8rem' }}>No bookmarks saved. Type above and click "+ Tag" to save timestamp bookmarks.</p>
               </div>
             ) : (

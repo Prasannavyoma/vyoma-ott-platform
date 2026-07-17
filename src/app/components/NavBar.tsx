@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { User } from 'lucide-react';
 import SearchBar from './SearchBar';
 import ExploreEye from './ExploreEye';
 import NotificationBell from './NotificationBell';
@@ -144,7 +145,7 @@ export default function NavBar() {
           {isLoggedIn ? (
             <div className="desktop-only" style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
               <Link href="/profile" title="Profile" className="profile-link nav-icon-link">
-                 <span className="icon-emoji" style={{fontSize: '1.2rem'}}>👤</span> <span className="profile-text">Profile</span>
+                 <User size={18} color="var(--primary)" /> <span className="profile-text" style={{ marginLeft: '6px' }}>Profile</span>
               </Link>
               <button 
                 onClick={async () => await logoutUser()} 

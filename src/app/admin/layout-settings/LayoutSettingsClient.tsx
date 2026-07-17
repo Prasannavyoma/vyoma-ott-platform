@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { Settings, Map as MapIcon, PlaySquare, FileText, Star } from 'lucide-react';
 import { updateChannel, addChannel, toggleChannel, addSection, deleteSection, updateSection, toggleKnowledgeRoadmap, toggleShortsFeature, toggleBlogFeature, toggleHotstarChannelsFeature } from '@/app/actions/layout-settings';
 
 interface LayoutSettingsClientProps {
@@ -53,7 +54,7 @@ export default function LayoutSettingsClient({
       <div style={{ marginBottom: '50px' }}>
         <div className="admin-header" style={{ marginBottom: '25px' }}>
           <h1 style={{ fontSize: '2rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '10px' }}>
-             ⚙️ Global Feature Toggles
+             <Settings color="var(--primary)" size={32} /> Global Feature Toggles
           </h1>
           <p style={{ color: '#aaa', marginTop: '5px' }}>Enable or disable experimental or major UI features platform-wide.</p>
         </div>
@@ -67,7 +68,9 @@ export default function LayoutSettingsClient({
           alignItems: 'center'
         }}>
           <div>
-            <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>🌌 Knowledge Roadmap (Constellation)</h3>
+            <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <MapIcon color="var(--primary)" size={20} /> Knowledge Roadmap (Constellation)
+            </h3>
             <p style={{ color: '#aaa', fontSize: '0.9rem', marginTop: '5px' }}>Shows the interactive 2D constellation roadmap on user profiles.</p>
           </div>
           <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '10px' }}>
@@ -104,7 +107,9 @@ export default function LayoutSettingsClient({
           marginTop: '15px'
         }}>
           <div>
-            <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>📱 Vyoma Shorts</h3>
+            <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <PlaySquare color="var(--primary)" size={20} /> Vyoma Shorts
+            </h3>
             <p style={{ color: '#aaa', fontSize: '0.9rem', marginTop: '5px' }}>Enable the TikTok-style vertical video Shorts module across the platform.</p>
           </div>
           <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '10px' }}>
@@ -141,7 +146,9 @@ export default function LayoutSettingsClient({
           marginTop: '15px'
         }}>
           <div>
-            <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>📝 Vyoma Insights Blog</h3>
+            <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <FileText color="var(--primary)" size={20} /> Vyoma Insights Blog
+            </h3>
             <p style={{ color: '#aaa', fontSize: '0.9rem', marginTop: '5px' }}>Enable the educational blog and articles module.</p>
           </div>
           <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '10px' }}>
@@ -173,7 +180,7 @@ export default function LayoutSettingsClient({
         <div className="admin-header" style={{ marginBottom: '25px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
             <h1 style={{ fontSize: '2rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '10px' }}>
-               ⭐ Hotstar Channels Dashboard
+               <Star color="var(--primary)" size={32} /> Hotstar Channels Dashboard
             </h1>
             <p style={{ color: '#aaa', marginTop: '5px' }}>Modify titles, URL mappings, and iconography for the interactive studio filters on the Homepage.</p>
           </div>

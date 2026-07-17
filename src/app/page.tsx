@@ -10,6 +10,7 @@ import prisma from '@/lib/prisma';
 import SponsorSlider from './components/SponsorSlider';
 import { cookies } from 'next/headers';
 import SubhashitaWidget from './components/SubhashitaWidget';
+import { PlayCircle, PlusCircle, Search as SearchIcon, Sparkles, Flame, CreditCard, LayoutTemplate, Smile, Headphones, Gift } from 'lucide-react';
 
 // Direct safe SQL conduit bypassing Prisma cached TS model definition locks
 async function getSafeHomepageSections(): Promise<any[]> {
@@ -277,6 +278,16 @@ export default async function HomePage() {
                 <span className="emoji">
                   {chan.icon?.startsWith('http') || chan.icon?.startsWith('/') ? (
                     <img src={chan.icon} alt={chan.name} className="channel-icon-img" />
+                  ) : chan.icon === '🔥' ? (
+                    <Flame size={36} color="var(--primary)" />
+                  ) : chan.icon === '🧸' ? (
+                    <Smile size={36} color="var(--primary)" />
+                  ) : chan.icon === '🎧' ? (
+                    <Headphones size={36} color="var(--primary)" />
+                  ) : chan.icon === '🎁' ? (
+                    <Gift size={36} color="var(--primary)" />
+                  ) : chan.icon === '✨' ? (
+                    <Sparkles size={36} color="var(--primary)" />
                   ) : (
                     chan.icon
                   )}
@@ -291,7 +302,8 @@ export default async function HomePage() {
         {continueWatching.length > 0 && (
           <div style={{ marginBottom: '25px' }}>
             <CourseRow 
-              title="🟠 Continue Watching"
+              icon={<PlayCircle size={24} />}
+              title="Continue Watching"
               courses={continueWatching.map((c: any) => ({
                 id: c.id, 
                 title: c.title, 
@@ -313,7 +325,8 @@ export default async function HomePage() {
         {userWatchlist.length > 0 && (
           <div style={{ marginBottom: '25px' }}>
             <CourseRow 
-              title="➕ My List / Favorites"
+              icon={<PlusCircle size={24} />}
+              title="My List / Favorites"
               courses={userWatchlist.map((c: any) => ({
                 id: c.id, 
                 title: c.title, 
@@ -333,7 +346,8 @@ export default async function HomePage() {
         {lastSearchQuery && searchMatchedCourses.length > 0 && (
           <div style={{ marginBottom: '25px' }}>
             <CourseRow 
-              title={`🔍 Because you searched for "${lastSearchQuery}"`}
+              icon={<SearchIcon size={24} />}
+              title={`Because you searched for "${lastSearchQuery}"`}
               courses={searchMatchedCourses.map((c: any) => ({
                 id: c.id, 
                 title: c.title, 
@@ -353,7 +367,8 @@ export default async function HomePage() {
         {aiRecommended.length > 0 && (
           <div style={{ marginBottom: '25px' }}>
             <CourseRow 
-              title="✨ Inspired by your Interests"
+              icon={<Sparkles size={24} />}
+              title="Inspired by your Interests"
               courses={aiRecommended.map((c: any) => ({
                 id: c.id, 
                 title: c.title, 
@@ -370,19 +385,23 @@ export default async function HomePage() {
         )}
 
         {trendingCourses.length > 0 && (
-          <CourseRow 
-            title="🔥 Trending & Top Engaged Now"
-            courses={trendingCourses.map(c => ({
-              id: c.id, title: c.title, image: c.thumbnailUrl || 'https://placehold.co/300x160', match: `${Math.min(100, 95 + c.views)}% Match`, tag: c.accessLevel, createdAt: c.createdAt, showRibbon: c.showRibbon, imageAlt: c.imageAlt, trailerUrl: c.trailerUrl
-            }))}
-          />
+          <div style={{ marginBottom: '25px' }}>
+            <CourseRow 
+              icon={<Flame size={24} />}
+              title="Trending Now"
+              courses={trendingCourses.map(c => ({
+                id: c.id, title: c.title, image: c.thumbnailUrl || 'https://placehold.co/300x160', match: `${Math.min(100, 95 + c.views)}% Match`, tag: c.accessLevel, createdAt: c.createdAt, showRibbon: c.showRibbon, imageAlt: c.imageAlt, trailerUrl: c.trailerUrl
+              }))}
+            />
+          </div>
         )}
 
         {/* 💳 EXCLUSIVE PAID PRODUCTS SHELF */}
         {allCourses.filter(c => c.accessLevel === 'PAID').length > 0 && (
           <div style={{ marginBottom: '25px' }}>
             <CourseRow 
-              title="💳 Flagship Courses (One-time Buy)"
+              icon={<CreditCard size={24} />}
+              title="Flagship Courses (One-time Buy)"
               courses={allCourses.filter(c => c.accessLevel === 'PAID').map(c => ({
                 id: c.id, 
                 title: c.title, 
@@ -416,6 +435,7 @@ export default async function HomePage() {
             return (
               <CourseRow 
                 key={section.id}
+                icon={<LayoutTemplate size={24} />}
                 title={section.title}
                 courses={matching.map(c => ({
                   id: c.id, title: c.title, image: c.thumbnailUrl || 'https://placehold.co/300x160', match: 'Recommended', tag: c.accessLevel, createdAt: c.createdAt, showRibbon: c.showRibbon, imageAlt: c.imageAlt, trailerUrl: c.trailerUrl
