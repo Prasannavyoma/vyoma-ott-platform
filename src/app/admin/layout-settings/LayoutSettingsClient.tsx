@@ -205,8 +205,6 @@ export default function LayoutSettingsClient({
           {channels.map((chan: any) => (
             <ChannelRow key={chan.id} chan={chan} />
           ))}
-
-          ))}
           
           {/* Add New Channel Form */}
           <form onSubmit={async (e) => {
