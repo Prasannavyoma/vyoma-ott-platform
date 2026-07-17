@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { User } from 'lucide-react';
+import { User, PlaySquare, FileText, Star, HelpCircle, Gift, TrendingUp } from 'lucide-react';
 import SearchBar from './SearchBar';
 import ExploreEye from './ExploreEye';
 import NotificationBell from './NotificationBell';
@@ -49,25 +49,25 @@ export default function NavBar() {
 
         {features.shortsEnabled && (
           <Link href="/shorts" title="Shorts">
-            <span className="icon-wrapper" style={{ fontSize: '1.1rem', marginRight: '4px', color: '#ff4d4d' }}>📱</span> Shorts
+            <span className="icon-wrapper" style={{ marginRight: '4px', color: '#ff4d4d', verticalAlign: 'text-bottom' }}><PlaySquare size={16} /></span> Shorts
           </Link>
         )}
         {features.blogEnabled && (
           <Link href="/blog" title="Vyoma Insights Blog">
-            <span className="icon-wrapper" style={{ fontSize: '1.1rem', marginRight: '4px' }}>📝</span> Blog
+            <span className="icon-wrapper" style={{ marginRight: '4px', verticalAlign: 'text-bottom' }}><FileText size={16} /></span> Blog
           </Link>
         )}
         <Link href="/testimonials" title="Community Testimonials">
-          <span className="icon-wrapper" style={{ fontSize: '1.1rem', marginRight: '4px', color: '#ffb300' }}>🌟</span> Testimonials
+          <span className="icon-wrapper" style={{ marginRight: '4px', color: '#ffb300', verticalAlign: 'text-bottom' }}><Star size={16} /></span> Testimonials
         </Link>
         <Link href="/faq" title="Help / FAQ">
-          <span className="icon-wrapper" style={{ fontSize: '1.1rem', marginRight: '4px', color: '#00d2ff' }}>❓</span> Help
+          <span className="icon-wrapper" style={{ marginRight: '4px', color: '#00d2ff', verticalAlign: 'text-bottom' }}><HelpCircle size={16} /></span> Help
         </Link>
         <Link href="/gift" title="Gift Wisdom">
-          <span className="icon-wrapper" style={{ fontSize: '1.1rem', marginRight: '4px' }}>🎁</span> Gift
+          <span className="icon-wrapper" style={{ marginRight: '4px', verticalAlign: 'text-bottom' }}><Gift size={16} /></span> Gift
         </Link>
         <Link href="/progress" title="Progress">
-          <span className="icon-wrapper" style={{ fontSize: '1.1rem', marginRight: '4px' }}>📈</span> Progress
+          <span className="icon-wrapper" style={{ marginRight: '4px', verticalAlign: 'text-bottom' }}><TrendingUp size={16} /></span> Progress
         </Link>
       </div>
 
@@ -198,7 +198,7 @@ export default function NavBar() {
                 onClick={() => setMobileMenuOpen(false)}
                 style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', background: 'rgba(255,255,255,0.04)', padding: '10px', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 700, border: '1px solid rgba(255,255,255,0.08)', color: '#fff', textDecoration: 'none' }}
               >
-                📈 Progress
+                <TrendingUp size={16} /> Progress
               </Link>
               {isLoggedIn ? (
                 <>
@@ -207,7 +207,7 @@ export default function NavBar() {
                     onClick={() => setMobileMenuOpen(false)}
                     style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', background: 'rgba(255,255,255,0.04)', padding: '10px', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 700, border: '1px solid rgba(255,255,255,0.08)', color: '#fff', textDecoration: 'none' }}
                   >
-                    👤 Profile
+                    <User size={16} /> Profile
                   </Link>
                   <button 
                     onClick={async () => {
