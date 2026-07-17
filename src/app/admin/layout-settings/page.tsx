@@ -68,6 +68,9 @@ export default async function LayoutSettingsPage() {
   const blogSetting = await prisma.systemSetting.findUnique({ where: { key: 'FEATURE_BLOG' } });
   const blogEnabled = blogSetting ? blogSetting.value === 'true' : true; // Default true
 
+  const hotstarSetting = await prisma.systemSetting.findUnique({ where: { key: 'FEATURE_HOTSTAR_CHANNELS' } });
+  const hotstarEnabled = hotstarSetting ? hotstarSetting.value === 'true' : true; // Default true
+
   return (
     <LayoutSettingsClient 
       sections={sections} 
@@ -76,6 +79,7 @@ export default async function LayoutSettingsPage() {
       roadmapEnabled={roadmapEnabled}
       shortsEnabled={shortsEnabled}
       blogEnabled={blogEnabled}
+      hotstarEnabled={hotstarEnabled}
     />
   );
 }

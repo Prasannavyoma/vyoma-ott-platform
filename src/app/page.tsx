@@ -114,7 +114,8 @@ export default async function HomePage() {
     aiRecommended,
     sponsors,
     hideDummySetting,
-    footerMenusData
+    footerMenusData,
+    hotstarChannelsSetting
   ] = await Promise.all([
     getFeaturedSlider(),
     getTrendingNow(),
@@ -177,12 +178,14 @@ export default async function HomePage() {
         console.error("Footer fetch failed:", e);
         return [];
       }
-    })()
+    })(),
+    (async () => { try { return await prisma.systemSetting.findUnique({ where: { key: 'FEATURE_HOTSTAR_CHANNELS' } }); } catch (e) { return null; } })()
   ]);
 
   let dynamicSections = dynamicSectionsRaw;
   let hideDummy = hideDummySetting?.value === 'true';
   let footerMenus = footerMenusData;
+  let hotstarChannelsEnabled = hotstarChannelsSetting ? hotstarChannelsSetting.value === 'true' : true;
 
   // Personalized Hero Slider: Boost courses matching the last search query
   let personalizedFeatured = [...featuredCourses];
@@ -267,20 +270,22 @@ export default async function HomePage() {
       <section className="row-container">
         
         {/* SLICK DYNAMIC HOTSTAR STUDIO/GENRE CHANNEL SHELF */}
-        <div className="channels-shelf">
-          {personalizedChannels.map((chan: any) => (
-            <Link href={chan.url} key={chan.id} className="channel-card">
-              <span className="emoji">
-                {chan.icon?.startsWith('http') || chan.icon?.startsWith('/') ? (
-                  <img src={chan.icon} alt={chan.name} className="channel-icon-img" />
-                ) : (
-                  chan.icon
-                )}
-              </span>
-              <span className="channel-title">{chan.name}</span>
-            </Link>
-          ))}
-        </div>
+        {hotstarChannelsEnabled && (
+          <div className="channels-shelf">
+            {personalizedChannels.map((chan: any) => (
+              <Link href={chan.url} key={chan.id} className="channel-card">
+                <span className="emoji">
+                  {chan.icon?.startsWith('http') || chan.icon?.startsWith('/') ? (
+                    <img src={chan.icon} alt={chan.name} className="channel-icon-img" />
+                  ) : (
+                    chan.icon
+                  )}
+                </span>
+                <span className="channel-title">{chan.name}</span>
+              </Link>
+            ))}
+          </div>
+        )}
 
         {/* DYNAMIC ENGAGEMENT SHELF 1: CONTINUE WATCHING */}
         {continueWatching.length > 0 && (

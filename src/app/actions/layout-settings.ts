@@ -122,3 +122,13 @@ export async function toggleBlogFeature(enabled: boolean) {
   revalidatePath('/admin/layout-settings');
   revalidatePath('/', 'layout');
 }
+
+export async function toggleHotstarChannelsFeature(enabled: boolean) {
+  await prisma.systemSetting.upsert({
+    where: { key: 'FEATURE_HOTSTAR_CHANNELS' },
+    update: { value: enabled ? 'true' : 'false' },
+    create: { key: 'FEATURE_HOTSTAR_CHANNELS', value: enabled ? 'true' : 'false' }
+  });
+  revalidatePath('/admin/layout-settings');
+  revalidatePath('/', 'layout');
+}

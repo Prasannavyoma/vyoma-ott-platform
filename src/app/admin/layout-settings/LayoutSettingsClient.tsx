@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { updateChannel, addChannel, toggleChannel, addSection, deleteSection, updateSection, toggleKnowledgeRoadmap, toggleShortsFeature, toggleBlogFeature } from '@/app/actions/layout-settings';
+import { updateChannel, addChannel, toggleChannel, addSection, deleteSection, updateSection, toggleKnowledgeRoadmap, toggleShortsFeature, toggleBlogFeature, toggleHotstarChannelsFeature } from '@/app/actions/layout-settings';
 
 interface LayoutSettingsClientProps {
   sections: any[];
@@ -11,6 +11,7 @@ interface LayoutSettingsClientProps {
   roadmapEnabled?: boolean;
   shortsEnabled?: boolean;
   blogEnabled?: boolean;
+  hotstarEnabled?: boolean;
 }
 
 export default function LayoutSettingsClient({ 
@@ -19,7 +20,8 @@ export default function LayoutSettingsClient({
   availableCategories, 
   roadmapEnabled = true,
   shortsEnabled = true,
-  blogEnabled = true
+  blogEnabled = true,
+  hotstarEnabled = true,
 }: LayoutSettingsClientProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -27,6 +29,7 @@ export default function LayoutSettingsClient({
   const [isRoadmapEnabled, setIsRoadmapEnabled] = useState(roadmapEnabled);
   const [isShortsEnabled, setIsShortsEnabled] = useState(shortsEnabled);
   const [isBlogEnabled, setIsBlogEnabled] = useState(blogEnabled);
+  const [isHotstarEnabled, setIsHotstarEnabled] = useState(hotstarEnabled);
 
   return (
     <div style={{ maxWidth: '1000px' }}>
@@ -167,11 +170,35 @@ export default function LayoutSettingsClient({
       
       {/* 1. SLEEK CHANNELS DASHBOARD MANAGER */}
       <div style={{ marginBottom: '50px' }}>
-        <div className="admin-header" style={{ marginBottom: '25px' }}>
-          <h1 style={{ fontSize: '2rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '10px' }}>
-             ⭐ Hotstar Channels Dashboard
-          </h1>
-          <p style={{ color: '#aaa', marginTop: '5px' }}>Modify titles, URL mappings, and iconography for the interactive studio filters on the Homepage.</p>
+        <div className="admin-header" style={{ marginBottom: '25px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <h1 style={{ fontSize: '2rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '10px' }}>
+               ⭐ Hotstar Channels Dashboard
+            </h1>
+            <p style={{ color: '#aaa', marginTop: '5px' }}>Modify titles, URL mappings, and iconography for the interactive studio filters on the Homepage.</p>
+          </div>
+          <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '10px' }}>
+            <span style={{ color: '#ccc', fontWeight: 600, fontSize: '0.9rem' }}>Master Enable</span>
+            <div style={{
+              width: '50px', height: '26px', background: isHotstarEnabled ? '#28a745' : '#444', 
+              borderRadius: '26px', position: 'relative', transition: 'all 0.3s'
+            }}>
+              <div style={{
+                width: '22px', height: '22px', background: 'white', borderRadius: '50%',
+                position: 'absolute', top: '2px', left: isHotstarEnabled ? '26px' : '2px', transition: 'all 0.3s'
+              }} />
+            </div>
+            <input 
+              type="checkbox" 
+              checked={isHotstarEnabled} 
+              style={{ display: 'none' }}
+              onChange={async (e) => {
+                const newVal = e.target.checked;
+                setIsHotstarEnabled(newVal);
+                await toggleHotstarChannelsFeature(newVal);
+              }} 
+            />
+          </label>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
