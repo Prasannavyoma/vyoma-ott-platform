@@ -3,6 +3,7 @@ import NavBar from '@/app/components/NavBar';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { getCurrentUser } from '@/lib/auth';
+import { Zap, BookOpen, Target, Clock, Gem, Award, GraduationCap } from 'lucide-react';
 
 export default async function ProgressTrackerPage() {
   // 1. Secure Context Validation
@@ -276,12 +277,12 @@ export default async function ProgressTrackerPage() {
             {/* ACTIVE COURSES */}
             <div style={{ marginBottom: '45px' }}>
               <h2 style={{ fontSize: '1.6rem', fontWeight: 800, color: '#fff', marginBottom: '25px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <span style={{ color: '#f26422' }}>⚡</span> Active Curriculum Queue
+                <span style={{ color: '#f26422' }}><Zap size={24} /></span> Active Curriculum Queue
               </h2>
 
               {activeTracks.length === 0 ? (
                 <div style={emptyStateStyle}>
-                  <span style={{ fontSize: '3rem', display: 'block', marginBottom: '15px' }}>📖</span>
+                  <span style={{ display: 'flex', justifyContent: 'center', marginBottom: '15px', color: '#8f98a9' }}><BookOpen size={48} /></span>
                   <h4 style={{ margin: '0 0 10px 0', fontSize: '1.2rem', color: '#fff' }}>No active courses in progress</h4>
                   <p style={{ color: '#8f98a9', fontSize: '0.95rem', marginBottom: '25px', maxWidth: '380px', margin: '0 auto 25px auto' }}>
                     Start streaming any Sanskrit course or Audiobook from our catalog to track your progress here.

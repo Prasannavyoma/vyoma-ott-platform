@@ -203,11 +203,11 @@ export default async function CourseEditorPage(props: any) {
                     <div>
                       <label style={{ display: 'block', fontSize: '0.65rem', color: '#888', textTransform: 'uppercase', fontWeight: 'bold', marginBottom: '4px' }}>Episode Lock Tier</label>
                       <select name="epAccess" style={{ width: '100%', padding: '10px', background: '#000', border: '1px solid #333', borderRadius: '6px', color: '#fff', fontSize: '0.85rem' }}>
-                        <option value="FREE">🆓 FREE ACCESS</option>
-                        <option value="GOLD_MONTHLY">🌟 GOLD (MONTHLY)</option>
-                        <option value="GOLD_YEARLY">👑 GOLD (YEARLY)</option>
-                        <option value="PLATINUM_MONTHLY">💎 PLATINUM (MONTHLY)</option>
-                        <option value="PLATINUM_YEARLY">🔮 PLATINUM (YEARLY)</option>
+                        <option value="FREE">FREE ACCESS</option>
+                        <option value="GOLD_MONTHLY">GOLD (MONTHLY)</option>
+                        <option value="GOLD_YEARLY">GOLD (YEARLY)</option>
+                        <option value="PLATINUM_MONTHLY">PLATINUM (MONTHLY)</option>
+                        <option value="PLATINUM_YEARLY">PLATINUM (YEARLY)</option>
                       </select>
                     </div>
                     <div>

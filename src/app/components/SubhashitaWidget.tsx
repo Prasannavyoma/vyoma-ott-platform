@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { getSanskritSettings } from '@/app/actions/sanskrit-settings';
 import { getSubhashitaOfTheDay } from '@/app/actions/subhashitas';
+import { BookOpen } from 'lucide-react';
 
 interface QuoteWord {
   word: string;
@@ -261,7 +262,7 @@ export default function SubhashitaWidget() {
             outline: 'none'
           }}
         >
-          <span>📖</span> {showSplits ? "Hide Word Meanings" : "Split Word Meanings"}
+          <span><BookOpen size={16} /></span> {showSplits ? "Hide Word Meanings" : "Split Word Meanings"}
         </button>
       </div>
 

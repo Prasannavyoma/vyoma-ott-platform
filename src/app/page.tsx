@@ -10,7 +10,7 @@ import prisma from '@/lib/prisma';
 import SponsorSlider from './components/SponsorSlider';
 import { cookies } from 'next/headers';
 import SubhashitaWidget from './components/SubhashitaWidget';
-import { PlayCircle, PlusCircle, Search as SearchIcon, Sparkles, Flame, CreditCard, LayoutTemplate, Smile, Headphones, Gift } from 'lucide-react';
+import { PlayCircle, PlusCircle, Search as SearchIcon, Sparkles, Flame, CreditCard, LayoutTemplate, Smile, Headphones, Gift, BookOpen, Star, Mic, Video, Gamepad2 } from 'lucide-react';
 
 // Direct safe SQL conduit bypassing Prisma cached TS model definition locks
 async function getSafeHomepageSections(): Promise<any[]> {
@@ -75,13 +75,13 @@ async function seedSafeSections() {
   try {
      const now = new Date().toISOString();
      const seeds = [
-       { id: 'row1', title: '📖 Must Read E-Books', category: 'E-books', order: 10, active: 1 },
+       { id: 'row1', title: 'Must Read E-Books', category: 'E-books', order: 10, active: 1 },
 
-       { id: 'row2', title: '🌟 Evergreen Epics & Puranas', category: 'Evergreen Epics & Puranas', order: 20, active: 1 },
-       { id: 'row3', title: '🎙️ Featured Podcasts', category: 'Devotional', order: 30, active: 1 },
-       { id: 'row4', title: '📽️ Popular Videos', category: 'Bhakti Bhava Lahari', order: 40, active: 1 },
-       { id: 'row5', title: '🎮 Interactive Games', category: 'Games & Activities', order: 50, active: 1 },
-       { id: 'row6', title: '👶 Sanskrit Kids Academy', category: 'Kids', order: 60, active: 1 }
+       { id: 'row2', title: 'Evergreen Epics & Puranas', category: 'Evergreen Epics & Puranas', order: 20, active: 1 },
+       { id: 'row3', title: 'Featured Podcasts', category: 'Devotional', order: 30, active: 1 },
+       { id: 'row4', title: 'Popular Videos', category: 'Bhakti Bhava Lahari', order: 40, active: 1 },
+       { id: 'row5', title: 'Interactive Games', category: 'Games & Activities', order: 50, active: 1 },
+       { id: 'row6', title: 'Sanskrit Kids Academy', category: 'Kids', order: 60, active: 1 }
      ];
      for(const section of seeds) {
        await prisma.homepageSection.upsert({
@@ -431,12 +431,22 @@ export default async function HomePage() {
           });
           
           if (matching.length === 0 && allCourses.length > 5) return null;
+          
+          const cleanTitle = (section.title || '').replace(/📖|🌟|🎙️|📽️|🎮|👶|🌸/g, '').trim();
+          let IconToUse = LayoutTemplate;
+          if (cleanTitle.toLowerCase().includes('e-books')) IconToUse = BookOpen;
+          else if (cleanTitle.toLowerCase().includes('epics')) IconToUse = Star;
+          else if (cleanTitle.toLowerCase().includes('podcasts')) IconToUse = Mic;
+          else if (cleanTitle.toLowerCase().includes('videos')) IconToUse = Video;
+          else if (cleanTitle.toLowerCase().includes('games')) IconToUse = Gamepad2;
+          else if (cleanTitle.toLowerCase().includes('kids')) IconToUse = Smile;
+          
           if (matching.length > 0) {
             return (
               <CourseRow 
                 key={section.id}
-                icon={<LayoutTemplate size={24} />}
-                title={section.title}
+                icon={<IconToUse size={24} />}
+                title={cleanTitle}
                 courses={matching.map(c => ({
                   id: c.id, title: c.title, image: c.thumbnailUrl || 'https://placehold.co/300x160', match: 'Recommended', tag: c.accessLevel, createdAt: c.createdAt, showRibbon: c.showRibbon, imageAlt: c.imageAlt, trailerUrl: c.trailerUrl
                 }))}
@@ -446,7 +456,8 @@ export default async function HomePage() {
           return (
             <CourseRow 
               key={section.id}
-              title={section.title}
+              icon={<IconToUse size={24} />}
+              title={cleanTitle}
               courses={[
                 { id: 'p1', title: 'Curriculum Track 1', image: '/assets/Bala-new.jpg', match: '99%', tag: 'PLATINUM' },
                 { id: 'p2', title: 'Curriculum Track 2', image: '/assets/May-Images-2.jpg', match: '97%', tag: 'GOLD' }

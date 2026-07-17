@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { getSanskritSettings, updateSanskritSettings } from '@/app/actions/sanskrit-settings';
 import Link from 'next/link';
+import { XCircle, Flower2 } from 'lucide-react';
 
 export default function SanskritSettingsPage() {
   const [hubEnabled, setHubEnabled] = useState(true);
@@ -82,7 +83,7 @@ export default function SanskritSettingsPage() {
   if (isSuperAdmin === false) {
     return (
       <div style={{ maxWidth: '600px', margin: '80px auto', padding: '40px', background: 'rgba(239, 68, 68, 0.05)', border: '1px solid rgba(239, 68, 68, 0.15)', borderRadius: '20px', textAlign: 'center', color: '#fff' }}>
-        <span style={{ fontSize: '3rem' }}>🚫</span>
+        <XCircle size={48} color="#ef4444" style={{ margin: '0 auto' }} />
         <h2 style={{ color: '#ef4444', marginTop: '20px', fontSize: '1.5rem', fontWeight: 800 }}>Access Denied</h2>
         <p style={{ color: '#94a3b8', margin: '15px 0 30px', fontSize: '0.95rem', lineHeight: 1.6 }}>
           This administrative configuration panel is strictly reserved for **SUPER_ADMIN** roles. General admins and managers are unauthorized to view or modify Sanskrit configurations.
@@ -99,8 +100,8 @@ export default function SanskritSettingsPage() {
       
       {/* Title Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '30px' }}>
-        <div style={{ width: '48px', height: '48px', borderRadius: '16px', background: 'rgba(242, 100, 34, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.8rem', border: '1px solid rgba(242, 100, 34, 0.2)' }}>
-          🌸
+        <div style={{ width: '48px', height: '48px', borderRadius: '16px', background: 'rgba(242, 100, 34, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(242, 100, 34, 0.2)' }}>
+          <Flower2 size={24} color="var(--primary)" />
         </div>
         <div>
           <h1 style={{ margin: 0, fontSize: '1.8rem', fontWeight: 800, color: '#fff' }}>Sanskrit Practice Hub Settings</h1>

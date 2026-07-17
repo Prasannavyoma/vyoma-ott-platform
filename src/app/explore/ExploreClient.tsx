@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import { Compass } from 'lucide-react';
 
 export default function ExploreClient({ initialCourses }: { initialCourses: any[] }) {
   const searchParams = useSearchParams();
@@ -80,7 +81,7 @@ export default function ExploreClient({ initialCourses }: { initialCourses: any[
       {/* PAGE HEADER */}
       <div style={{ marginBottom: '10px' }}>
         <h1 style={{ fontSize: '2.8rem', fontWeight: 950, textShadow: '0 4px 20px rgba(242,100,34,0.3)', letterSpacing: '-1px', display: 'flex', alignItems: 'center', gap: '15px', color: '#fff' }}>
-          <span>🧭</span> Explore Hub
+          <span><Compass size={40} color="var(--primary)" /></span> Explore Hub
         </h1>
         <p style={{ color: '#aaa', fontSize: '1.15rem', marginTop: '10px', maxWidth: '600px', lineHeight: '1.6' }}>Discover our massive library of premium Sanskrit education, epics, audiobooks, and more.</p>
       </div>
@@ -177,7 +178,7 @@ export default function ExploreClient({ initialCourses }: { initialCourses: any[
                     onMouseEnter={e => !isActive && (e.currentTarget.style.background = 'rgba(255,255,255,0.1)')}
                     onMouseLeave={e => !isActive && (e.currentTarget.style.background = 'rgba(255,255,255,0.05)')}
                   >
-                    {cat ? cat.replace(/&amp;/g, '&') : ''}
+                    {cat ? cat.replace(/&amp;/g, '&').replace(/📖|🌟|🎙️|📽️|🎮|👶|🌸/g, '').trim() : ''}
                   </button>
                 );
               })}

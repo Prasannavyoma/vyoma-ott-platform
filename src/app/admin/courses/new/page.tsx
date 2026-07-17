@@ -74,13 +74,13 @@ export default function AddCoursePage() {
               <input type="text" name="contentType" required placeholder="Type custom type..." style={{ width: '100%', padding: '14px', background: '#000', border: '1px solid var(--primary)', color: 'white', borderRadius: '8px', fontSize: '0.9rem' }} />
             ) : (
               <select name="contentType" defaultValue="VIDEO" onChange={(e) => { if (e.target.value === 'ADD_NEW_CUSTOM') { setShowCustomContentType(true); e.target.value = 'VIDEO'; } }} style={{ width: '100%', padding: '14px', background: '#000', border: '1px solid #333', color: 'white', borderRadius: '8px', fontSize: '0.9rem' }}>
-                <option value="VIDEO">📺 Video Series</option>
-                <option value="AUDIOBOOK">🎧 Audio Book</option>
-                <option value="PODCAST">🎙️ Podcast Series</option>
-                <option value="GAME">🎮 Game-Based Module</option>
-                <option value="EBOOK">📖 Ebook Document</option>
-                <option value="PROGRAM">🎓 Extensive Program</option>
-                <option value="ADD_NEW_CUSTOM" style={{ color: '#f26422', fontWeight: 'bold' }}>➕ + Add Custom Type...</option>
+                <option value="VIDEO">Video Series</option>
+                <option value="AUDIOBOOK">Audio Book</option>
+                <option value="PODCAST">Podcast Series</option>
+                <option value="GAME">Game-Based Module</option>
+                <option value="EBOOK">Ebook Document</option>
+                <option value="PROGRAM">Extensive Program</option>
+                <option value="ADD_NEW_CUSTOM" style={{ color: '#f26422', fontWeight: 'bold' }}>+ Add Custom Type...</option>
               </select>
             )}
           </div>
@@ -97,13 +97,13 @@ export default function AddCoursePage() {
               <input type="text" name="accessLevel" required placeholder="Type custom lock..." style={{ width: '100%', padding: '14px', background: '#000', border: '1px solid var(--primary)', color: 'white', borderRadius: '8px', fontSize: '0.9rem' }} />
             ) : (
               <select name="accessLevel" defaultValue="FREE" onChange={(e) => { if (e.target.value === 'ADD_NEW_CUSTOM') { setShowCustomAccessLevel(true); e.target.value = 'FREE'; } }} style={{ width: '100%', padding: '14px', background: '#000', border: '1px solid #333', color: 'white', borderRadius: '8px', fontSize: '0.9rem' }}>
-                <option value="FREE">🆓 FREE</option>
-                <option value="GOLD_MONTHLY">🌟 GOLD (MONTHLY)</option>
-                <option value="GOLD_YEARLY">👑 GOLD (YEARLY)</option>
-                <option value="PLATINUM_MONTHLY">💎 PLATINUM (MONTHLY)</option>
-                <option value="PLATINUM_YEARLY">🔮 PLATINUM (YEARLY)</option>
-                <option value="PAID">💳 PAID (Individual)</option>
-                <option value="ADD_NEW_CUSTOM" style={{ color: '#f26422', fontWeight: 'bold' }}>➕ + Add Custom Level...</option>
+                <option value="FREE">FREE</option>
+                <option value="GOLD_MONTHLY">GOLD (MONTHLY)</option>
+                <option value="GOLD_YEARLY">GOLD (YEARLY)</option>
+                <option value="PLATINUM_MONTHLY">PLATINUM (MONTHLY)</option>
+                <option value="PLATINUM_YEARLY">PLATINUM (YEARLY)</option>
+                <option value="PAID">PAID (Individual)</option>
+                <option value="ADD_NEW_CUSTOM" style={{ color: '#f26422', fontWeight: 'bold' }}>+ Add Custom Level...</option>
               </select>
             )}
           </div>

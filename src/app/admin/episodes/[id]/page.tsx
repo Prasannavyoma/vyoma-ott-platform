@@ -109,11 +109,11 @@ export default async function EpisodeEditorPage(props: any) {
               <div>
                  <label style={{ display: 'block', fontSize: '0.75rem', color: '#aaa', fontWeight: 'bold', textTransform: 'uppercase', marginBottom: '6px' }}>Lock Tier</label>
                  <select name="accessLevel" defaultValue={episode.accessLevel} style={{ width: '100%', padding: '12px', background: '#000', border: '1px solid #333', borderRadius: '8px', color: '#fff' }}>
-                    <option value="FREE">🆓 FREE</option>
-                    <option value="GOLD_MONTHLY">🌟 GOLD (MONTHLY)</option>
-                    <option value="GOLD_YEARLY">👑 GOLD (YEARLY)</option>
-                    <option value="PLATINUM_MONTHLY">💎 PLATINUM (MONTHLY)</option>
-                    <option value="PLATINUM_YEARLY">🔮 PLATINUM (YEARLY)</option>
+                    <option value="FREE">FREE</option>
+                    <option value="GOLD_MONTHLY">GOLD (MONTHLY)</option>
+                    <option value="GOLD_YEARLY">GOLD (YEARLY)</option>
+                    <option value="PLATINUM_MONTHLY">PLATINUM (MONTHLY)</option>
+                    <option value="PLATINUM_YEARLY">PLATINUM (YEARLY)</option>
                  </select>
               </div>
               <div>
@@ -129,7 +129,7 @@ export default async function EpisodeEditorPage(props: any) {
               </div>
               <div>
                  <label style={{ display: 'block', fontSize: '0.75rem', color: '#aaa', fontWeight: 'bold', textTransform: 'uppercase', marginBottom: '6px' }}>
-                   💬 Subtitle File URL (.vtt / .srt)
+                   Subtitle File URL (.vtt / .srt)
                    {(episode as any).subtitleUrl ? (
                      <span style={{ marginLeft: '10px', background: 'rgba(70,211,105,0.2)', border: '1px solid rgba(70,211,105,0.4)', color: '#46d369', padding: '2px 8px', borderRadius: '20px', fontSize: '0.65rem', fontWeight: 900 }}>✓ ACTIVE</span>
                    ) : (

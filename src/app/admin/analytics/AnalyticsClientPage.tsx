@@ -166,13 +166,13 @@ export default function AnalyticsClientPage({
                 minWidth: '150px'
               }}
             >
-              <option value="ALL">🌟 All Formats</option>
-              <option value="VIDEO">📽️ Videos Only</option>
-              <option value="AUDIOBOOK">🎧 Audiobooks Only</option>
-              <option value="PODCAST">🎙️ Podcasts Only</option>
-              <option value="EBOOK">📖 E-Books Only</option>
-              <option value="GAME">🎮 Games Only</option>
-              <option value="PROGRAM">🎓 Programs Only</option>
+              <option value="ALL">All Formats</option>
+              <option value="VIDEO">Videos Only</option>
+              <option value="AUDIOBOOK">Audiobooks Only</option>
+              <option value="PODCAST">Podcasts Only</option>
+              <option value="EBOOK">E-Books Only</option>
+              <option value="GAME">Games Only</option>
+              <option value="PROGRAM">Programs Only</option>
             </select>
           </div>
         </div>

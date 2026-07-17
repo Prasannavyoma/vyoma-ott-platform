@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { askAiAgent, ChatMessage } from '@/app/actions/ai-agent';
 import { getSanskritSettings } from '@/app/actions/sanskrit-settings';
+import { Bot, Phone, Flower2 } from 'lucide-react';
 
 interface ContactSettings {
   widgetEnabled: boolean;
@@ -309,7 +310,7 @@ export default function AiChatWidget({ contactSettings, aiEnabled = true }: { co
                     gap: '6px'
                   }}
                 >
-                  🤖 Chat
+                  <Bot size={16} /> Chat
                 </button>
               )}
               
@@ -331,7 +332,7 @@ export default function AiChatWidget({ contactSettings, aiEnabled = true }: { co
                     outline: 'none'
                   }}
                 >
-                  📞 Contact
+                  <Phone size={16} /> Contact
                 </button>
               )}
 
@@ -353,7 +354,7 @@ export default function AiChatWidget({ contactSettings, aiEnabled = true }: { co
                     outline: 'none'
                   }}
                 >
-                  🌸 Practice
+                  <Flower2 size={16} /> Practice
                 </button>
               )}
             </div>
