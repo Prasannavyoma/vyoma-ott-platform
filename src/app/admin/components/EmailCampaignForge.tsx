@@ -5,7 +5,7 @@ import { useState } from 'react';
 // Define pre-populated templates for high-fidelity campaigns
 const CAMPAIGN_TEMPLATES = {
   FESTIVAL_VASANTO: {
-    subject: "🌸 Vasantotsava Blessings: Resurge Your Sanskrit Path (Special 40% Off)",
+    subject: "Vasantotsava Blessings: Resurge Your Sanskrit Path (Special 40% Off)",
     bannerUrl: "/assets/Balakanda.jpg",
     body: `<p>Vasantotsava (the festival of spring) represents the resurgence of learning, growth, and divine wisdom.</p>
 <p>To celebrate this auspicious cycle, we have provisioned a customized Vasantotsava tier upgrade. Expand your horizons with deep audio chants, grammar simplifications, and epic puranic storytelling streams.</p>
@@ -129,7 +129,7 @@ export default function EmailCampaignForge({
             onChange={(e) => handleTemplateChange(e.target.value as TemplateKey)}
             style={{ width: '100%', background: '#000', border: '1px solid #333', padding: '12px', borderRadius: '8px', color: '#fff', fontSize: '0.95rem', fontWeight: 'bold' }}
           >
-            <option value="FESTIVAL_VASANTO">🌸 Spring Vasantotsava Chants Festival Campaign</option>
+            <option value="FESTIVAL_VASANTO">Spring Vasantotsava Chants Festival Campaign</option>
             <option value="NEW_STREAM_LAUNCH">🚀 'Grammar Simplified' New Curricular Stream</option>
             <option value="WEEKEND_SPRINT">🏆 Seeker's 48h Weekend Learning Sprint</option>
             <option value="CUSTOM_NEWSLETTER">✍️ Custom HTML Narrative Newsletter</option>

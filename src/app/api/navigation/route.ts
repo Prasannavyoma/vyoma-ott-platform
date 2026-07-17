@@ -43,7 +43,7 @@ export async function GET(request: Request) {
           if (children.length > 0) {
             items.push({
               id: 'sans-hub-menu',
-              label: '🌸 Practice Hub',
+              label: 'Practice Hub',
               url: '#',
               order: 99,
               parentId: null,

@@ -72,13 +72,13 @@ function getLuxuryWrap(contentHtml: string, preheader: string) {
 export function getDefaultSubject(key: string): string {
   switch (key) {
     case 'WELCOME':
-      return '🎉 Welcome to Vyoma - Your Vedic Portal is Ready!';
+      return 'Welcome to Vyoma - Your Vedic Portal is Ready!';
     case 'WINBACK':
-      return '🌸 We Miss You at Vyoma - Reconnect with Vedic Knowledge';
+      return 'We Miss You at Vyoma - Reconnect with Vedic Knowledge';
     case 'RENEWAL':
-      return '⚠️ Action Required: Keep Your Premium Access Active';
+      return 'Action Required: Keep Your Premium Access Active';
     case 'UPGRADE':
-      return '⚡ Elevate Your Sanskrit Journey: Upgrade to Premium';
+      return 'Elevate Your Sanskrit Journey: Upgrade to Premium';
     default:
       return 'Notification from Vyoma';
   }
