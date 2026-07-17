@@ -255,8 +255,13 @@ export default function LayoutSettingsClient({
                     defaultChecked={chan.active !== false}
                     onChange={async (e) => {
                       try {
+                        setLoading(true);
                         await toggleChannel(chan.id, e.target.checked);
-                      } catch (err) {}
+                        router.refresh();
+                      } catch (err) {
+                      } finally {
+                        setLoading(false);
+                      }
                     }}
                     style={{ display: 'none' }}
                   />
