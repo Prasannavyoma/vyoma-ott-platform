@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import { Target, Eye } from 'lucide-react';
 
 export const metadata = {
   title: "About Us - Vyoma 2.0",
@@ -40,7 +41,7 @@ export default function AboutUsPage() {
             padding: '40px',
             transition: 'transform 0.3s' 
           }} onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-10px)'} onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}>
-            <div style={{ fontSize: '3rem', marginBottom: '20px' }}>🎯</div>
+            <div style={{ marginBottom: '20px', color: 'var(--primary)' }}><Target size={48} /></div>
             <h2 style={{ fontSize: '1.8rem', fontWeight: 800, marginBottom: '15px', color: '#fff' }}>Our Mission</h2>
             <p style={{ color: '#aaa', lineHeight: '1.8', fontSize: '1.05rem' }}>
               To curate and distribute high-quality, structured Sanskrit education across the globe. We aim to break down language barriers and bring the profound literary, philosophical, and scientific heritage of India to your fingertips.
@@ -55,7 +56,7 @@ export default function AboutUsPage() {
             padding: '40px',
             transition: 'transform 0.3s' 
           }} onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-10px)'} onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}>
-            <div style={{ fontSize: '3rem', marginBottom: '20px' }}>👁️</div>
+            <div style={{ marginBottom: '20px', color: 'var(--primary)' }}><Eye size={48} /></div>
             <h2 style={{ fontSize: '1.8rem', fontWeight: 800, marginBottom: '15px', color: '#fff' }}>Our Vision</h2>
             <p style={{ color: '#aaa', lineHeight: '1.8', fontSize: '1.05rem' }}>
               A world where the timeless values and wisdom embedded in Sanskrit literature are lived and experienced globally, fostering a deeply connected, ethically grounded, and intellectually vibrant society.
