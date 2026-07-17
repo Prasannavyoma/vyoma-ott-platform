@@ -406,33 +406,22 @@ export default function LayoutSettingsClient({
 }
 
 function ChannelRow({ chan }: { chan: any }) {
-  const router = import('next/navigation').then(m => m.useRouter()).catch(() => null);
-  const [active, setActive] = import('react').then(m => m.useState(chan.active !== false)).catch(() => [chan.active !== false, () => {}]);
-  const [loading, setLoading] = import('react').then(m => m.useState(false)).catch(() => [false, () => {}]);
-  const [isMounted, setIsMounted] = import('react').then(m => m.useState(false)).catch(() => [false, () => {}]);
+  const router = useRouter();
+  const [active, setActive] = useState(chan.active !== false);
+  const [loading, setLoading] = useState(false);
   
-  import('react').then(m => {
-    m.useEffect(() => {
-      setIsMounted(true);
-      setActive(chan.active !== false);
-    }, [chan.active]);
-  });
-
   return (
     <form onSubmit={async (e) => {
       e.preventDefault();
-      const actions = await import('@/app/actions/layout-settings');
-      const r = await import('next/navigation');
-      const navRouter = r.useRouter();
       setLoading(true);
       try {
         const fd = new FormData(e.currentTarget);
-        await actions.updateChannel(fd);
-        navRouter.refresh();
+        await updateChannel(fd);
+        router.refresh();
       } finally {
         setLoading(false);
       }
-    }} style={{ 
+    }} style={{  
       background: 'linear-gradient(to right, #0f1624, #070b14)', 
       border: '1px solid rgba(255,255,255,0.06)',
       padding: '15px 20px', 
@@ -503,8 +492,7 @@ function ChannelRow({ chan }: { chan: any }) {
               const newVal = e.target.checked;
               setActive(newVal);
               try {
-                const actions = await import('@/app/actions/layout-settings');
-                await actions.toggleChannel(chan.id, newVal);
+                await toggleChannel(chan.id, newVal);
               } catch (err) {
                 setActive(!newVal); // Revert on failure
               }
