@@ -176,105 +176,9 @@ export default function LayoutSettingsClient({
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {channels.map((chan: any) => (
-            <form key={chan.id} onSubmit={async (e) => {
-              e.preventDefault();
-              setLoading(true);
-              try {
-                const fd = new FormData(e.currentTarget);
-                await updateChannel(fd);
-                router.refresh();
-              } finally {
-                setLoading(false);
-              }
-            }} style={{ 
-              background: 'linear-gradient(to right, #0f1624, #070b14)', 
-              border: '1px solid rgba(255,255,255,0.06)',
-              padding: '15px 20px', 
-              borderRadius: '10px', 
-              display: 'grid', 
-              gridTemplateColumns: '230px 1fr 2fr 60px 80px auto', 
-              gap: '15px', 
-              alignItems: 'center' 
-            }}>
-              <input type="hidden" name="id" value={chan.id} />
-              
-              {/* Icon Input & Preview */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                <label style={{ display: 'block', color: '#777', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Icon/Emoji/URL</label>
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                  {(chan.icon?.startsWith('http') || chan.icon?.startsWith('/')) && (
-                    <img src={chan.icon} alt="Preview" style={{ width: '36px', height: '36px', objectFit: 'contain', background: 'rgba(255,255,255,0.02)', borderRadius: '4px' }} />
-                  )}
-                  <input
-                    required
-                    id={`icon-field-${chan.id}`}
-                    type="text"
-                    name="icon"
-                    defaultValue={chan.icon}
-                    placeholder="Emoji or Image URL"
-                    style={{ flex: 1, padding: '8px', background: '#030b17', border: '1px solid #222', borderRadius: '6px', color: '#fff', textAlign: 'left', fontSize: '0.9rem' }}
-                  />
-                </div>
-              </div>
+            <ChannelRow key={chan.id} chan={chan} />
+          ))}
 
-              {/* Name Input */}
-              <div>
-                <label style={{ display: 'block', color: '#777', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>Channel Title</label>
-                <input required type="text" name="name" defaultValue={chan.name} style={{ width: '100%', padding: '8px', background: '#030b17', border: '1px solid #222', borderRadius: '6px', color: '#fff', fontWeight: 'bold' }} />
-              </div>
-
-              {/* URL Link Input */}
-              <div>
-                <label style={{ display: 'block', color: '#777', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>Redirect URL Path</label>
-                <input required type="text" name="url" defaultValue={chan.url} style={{ width: '100%', padding: '8px', background: '#030b17', border: '1px solid #222', borderRadius: '6px', color: '#8f98a9', fontFamily: 'monospace', fontSize: '0.85rem' }} />
-              </div>
-
-              {/* Order Input */}
-              <div>
-                <label style={{ display: 'block', color: '#777', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>Weight</label>
-                <input type="number" name="order" defaultValue={chan.order} style={{ width: '100%', padding: '8px', background: '#030b17', border: '1px solid #222', borderRadius: '6px', color: '#fff', textAlign: 'center' }} />
-              </div>
-
-              {/* Active Toggle */}
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
-                <label style={{ display: 'block', color: '#777', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Active</label>
-                <label style={{ position: 'relative', display: 'inline-block', width: '40px', height: '20px', cursor: 'pointer' }}>
-                  <div style={{ 
-                    position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, 
-                    backgroundColor: chan.active !== false ? '#4ade80' : '#444', 
-                    borderRadius: '20px', transition: '0.3s' 
-                  }}>
-                    <div style={{ 
-                      position: 'absolute', top: '2px', left: chan.active !== false ? '22px' : '2px', 
-                      width: '16px', height: '16px', backgroundColor: 'white', 
-                      borderRadius: '50%', transition: '0.3s' 
-                    }} />
-                  </div>
-                  <input 
-                    type="checkbox" 
-                    defaultChecked={chan.active !== false}
-                    onChange={async (e) => {
-                      try {
-                        setLoading(true);
-                        await toggleChannel(chan.id, e.target.checked);
-                        router.refresh();
-                      } catch (err) {
-                      } finally {
-                        setLoading(false);
-                      }
-                    }}
-                    style={{ display: 'none' }}
-                  />
-                </label>
-              </div>
-
-              {/* Save Trigger */}
-              <div style={{ paddingTop: '14px' }}>
-                <button type="submit" disabled={loading} className="save-channel-btn" style={{ opacity: loading ? 0.7 : 1 }}>
-                  {loading ? 'Saving...' : 'Save'}
-                </button>
-              </div>
-            </form>
           ))}
           
           {/* Add New Channel Form */}
@@ -498,5 +402,124 @@ export default function LayoutSettingsClient({
         )}
       </div>
     </div>
+  );
+}
+
+function ChannelRow({ chan }: { chan: any }) {
+  const router = import('next/navigation').then(m => m.useRouter()).catch(() => null);
+  const [active, setActive] = import('react').then(m => m.useState(chan.active !== false)).catch(() => [chan.active !== false, () => {}]);
+  const [loading, setLoading] = import('react').then(m => m.useState(false)).catch(() => [false, () => {}]);
+  const [isMounted, setIsMounted] = import('react').then(m => m.useState(false)).catch(() => [false, () => {}]);
+  
+  import('react').then(m => {
+    m.useEffect(() => {
+      setIsMounted(true);
+      setActive(chan.active !== false);
+    }, [chan.active]);
+  });
+
+  return (
+    <form onSubmit={async (e) => {
+      e.preventDefault();
+      const actions = await import('@/app/actions/layout-settings');
+      const r = await import('next/navigation');
+      const navRouter = r.useRouter();
+      setLoading(true);
+      try {
+        const fd = new FormData(e.currentTarget);
+        await actions.updateChannel(fd);
+        navRouter.refresh();
+      } finally {
+        setLoading(false);
+      }
+    }} style={{ 
+      background: 'linear-gradient(to right, #0f1624, #070b14)', 
+      border: '1px solid rgba(255,255,255,0.06)',
+      padding: '15px 20px', 
+      borderRadius: '10px', 
+      display: 'grid', 
+      gridTemplateColumns: '230px 1fr 2fr 60px 80px auto', 
+      gap: '15px', 
+      alignItems: 'center' 
+    }}>
+      <input type="hidden" name="id" value={chan.id} />
+      
+      {/* Icon Input & Preview */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        <label style={{ display: 'block', color: '#777', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Icon/Emoji/URL</label>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          {(chan.icon?.startsWith('http') || chan.icon?.startsWith('/')) && (
+            <img src={chan.icon} alt="Preview" style={{ width: '36px', height: '36px', objectFit: 'contain', background: 'rgba(255,255,255,0.02)', borderRadius: '4px' }} />
+          )}
+          <input
+            required
+            id={`icon-field-${chan.id}`}
+            type="text"
+            name="icon"
+            defaultValue={chan.icon}
+            placeholder="Emoji or Image URL"
+            style={{ flex: 1, padding: '8px', background: '#030b17', border: '1px solid #222', borderRadius: '6px', color: '#fff', textAlign: 'left', fontSize: '0.9rem' }}
+          />
+        </div>
+      </div>
+
+      {/* Name Input */}
+      <div>
+        <label style={{ display: 'block', color: '#777', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>Channel Title</label>
+        <input required type="text" name="name" defaultValue={chan.name} style={{ width: '100%', padding: '8px', background: '#030b17', border: '1px solid #222', borderRadius: '6px', color: '#fff', fontWeight: 'bold' }} />
+      </div>
+
+      {/* URL Link Input */}
+      <div>
+        <label style={{ display: 'block', color: '#777', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>Redirect URL Path</label>
+        <input required type="text" name="url" defaultValue={chan.url} style={{ width: '100%', padding: '8px', background: '#030b17', border: '1px solid #222', borderRadius: '6px', color: '#8f98a9', fontFamily: 'monospace', fontSize: '0.85rem' }} />
+      </div>
+
+      {/* Order Input */}
+      <div>
+        <label style={{ display: 'block', color: '#777', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>Weight</label>
+        <input type="number" name="order" defaultValue={chan.order} style={{ width: '100%', padding: '8px', background: '#030b17', border: '1px solid #222', borderRadius: '6px', color: '#fff', textAlign: 'center' }} />
+      </div>
+
+      {/* Active Toggle */}
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+        <label style={{ display: 'block', color: '#777', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Active</label>
+        <label style={{ position: 'relative', display: 'inline-block', width: '40px', height: '20px', cursor: 'pointer' }}>
+          <div style={{ 
+            position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, 
+            backgroundColor: active ? '#4ade80' : '#444', 
+            borderRadius: '20px', transition: '0.3s' 
+          }}>
+            <div style={{ 
+              position: 'absolute', top: '2px', left: active ? '22px' : '2px', 
+              width: '16px', height: '16px', backgroundColor: 'white', 
+              borderRadius: '50%', transition: '0.3s' 
+            }} />
+          </div>
+          <input 
+            type="checkbox" 
+            checked={active}
+            onChange={async (e) => {
+              const newVal = e.target.checked;
+              setActive(newVal);
+              try {
+                const actions = await import('@/app/actions/layout-settings');
+                await actions.toggleChannel(chan.id, newVal);
+              } catch (err) {
+                setActive(!newVal); // Revert on failure
+              }
+            }}
+            style={{ display: 'none' }}
+          />
+        </label>
+      </div>
+
+      {/* Save Trigger */}
+      <div style={{ paddingTop: '14px' }}>
+        <button type="submit" disabled={loading} className="save-channel-btn" style={{ opacity: loading ? 0.7 : 1 }}>
+          {loading ? 'Saving...' : 'Save'}
+        </button>
+      </div>
+    </form>
   );
 }
