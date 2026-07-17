@@ -1,11 +1,8 @@
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
-import { Target, Eye } from 'lucide-react';
-
-export const metadata = {
-  title: "About Us - Vyoma 2.0",
-  description: "Learn about the mission and vision behind Vyoma Sanskrit."
-};
+import { Target } from 'lucide-react';
 
 export default function AboutUsPage() {
   return (
