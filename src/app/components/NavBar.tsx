@@ -71,7 +71,17 @@ export default function NavBar() {
       </div>
 
       <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
-        <div className="nav-left-group" style={{ display: 'flex', alignItems: 'center', gap: '20px', flex: 1 }}>
+        <div className="nav-left-group" style={{ display: 'flex', alignItems: 'center', gap: '25px' }}>
+          <div className="nav-brand" style={{ transform: 'translateY(-12px)' }}>
+            <Link href="/">
+              <img 
+                src="/assets/logo-200-x-70-px.png" 
+                alt="Vyoma Logo" 
+                style={{ height: '55px', objectFit: 'contain', filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.3))' }} 
+              />
+            </Link>
+          </div>
+
           <div className="nav-links desktop-only" style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
             {menus.map((menu, index) => (
               menu.children && menu.children.length > 0 ? (
@@ -114,18 +124,8 @@ export default function NavBar() {
             ))}
           </div>
         </div>
-
-        <div className="nav-brand" style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-          <Link href="/">
-            <img 
-              src="/assets/logo-200-x-70-px.png" 
-              alt="Vyoma Logo" 
-              style={{ height: '45px', objectFit: 'contain' }} 
-            />
-          </Link>
-        </div>
         
-        <div className="nav-actions" style={{ display: 'flex', gap: '15px', alignItems: 'center', flex: 1, justifyContent: 'flex-end' }}>
+        <div className="nav-actions" style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
           
           {/* Explore Hub 'Live Eye' */}
           <div className="desktop-only" style={{ marginRight: '5px' }}>
