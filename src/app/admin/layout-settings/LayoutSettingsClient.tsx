@@ -72,7 +72,7 @@ export default function LayoutSettingsClient({
           </div>
           <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '10px' }}>
             <div style={{
-              width: '50px', height: '26px', background: isRoadmapEnabled ? '#28a745' : '#444', 
+              width: '50px', height: '26px', background: isRoadmapEnabled ? '#f26422' : '#444', 
               borderRadius: '26px', position: 'relative', transition: 'all 0.3s'
             }}>
               <div style={{
@@ -109,7 +109,7 @@ export default function LayoutSettingsClient({
           </div>
           <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '10px' }}>
             <div style={{
-              width: '50px', height: '26px', background: isShortsEnabled ? '#28a745' : '#444', 
+              width: '50px', height: '26px', background: isShortsEnabled ? '#f26422' : '#444', 
               borderRadius: '26px', position: 'relative', transition: 'all 0.3s'
             }}>
               <div style={{
@@ -146,7 +146,7 @@ export default function LayoutSettingsClient({
           </div>
           <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '10px' }}>
             <div style={{
-              width: '50px', height: '26px', background: isBlogEnabled ? '#28a745' : '#444', 
+              width: '50px', height: '26px', background: isBlogEnabled ? '#f26422' : '#444', 
               borderRadius: '26px', position: 'relative', transition: 'all 0.3s'
             }}>
               <div style={{
@@ -180,7 +180,7 @@ export default function LayoutSettingsClient({
           <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '10px' }}>
             <span style={{ color: '#ccc', fontWeight: 600, fontSize: '0.9rem' }}>Master Enable</span>
             <div style={{
-              width: '50px', height: '26px', background: isHotstarEnabled ? '#28a745' : '#444', 
+              width: '50px', height: '26px', background: isHotstarEnabled ? '#f26422' : '#444', 
               borderRadius: '26px', position: 'relative', transition: 'all 0.3s'
             }}>
               <div style={{
@@ -242,7 +242,7 @@ export default function LayoutSettingsClient({
             </div>
             <div></div>
             <div>
-              <button type="submit" disabled={loading} style={{ background: '#4ade80', color: '#000', padding: '8px 16px', borderRadius: '6px', fontWeight: 'bold', border: 'none', cursor: 'pointer' }}>
+              <button type="submit" disabled={loading} style={{ background: '#f26422', color: '#fff', padding: '8px 16px', borderRadius: '6px', fontWeight: 'bold', border: 'none', cursor: 'pointer' }}>
                 + Add
               </button>
             </div>
@@ -501,7 +501,7 @@ function ChannelRow({ chan }: { chan: any }) {
         <label style={{ position: 'relative', display: 'inline-block', width: '40px', height: '20px', cursor: 'pointer' }}>
           <div style={{ 
             position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, 
-            backgroundColor: active ? '#4ade80' : '#444', 
+            backgroundColor: active ? '#f26422' : '#444', 
             borderRadius: '20px', transition: '0.3s' 
           }}>
             <div style={{ 
