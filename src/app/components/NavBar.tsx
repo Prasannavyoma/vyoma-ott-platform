@@ -220,13 +220,22 @@ export default function NavBar() {
                   </button>
                 </>
               ) : (
-              <Link 
-                href="/login" 
-                onClick={() => setMobileMenuOpen(false)}
-                style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', background: 'rgba(255,255,255,0.04)', padding: '10px', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 700, border: '1px solid rgba(255,255,255,0.08)', color: '#fff', textDecoration: 'none' }}
-              >
-                Login
-              </Link>
+              <>
+                <Link 
+                  href="/login" 
+                  onClick={() => setMobileMenuOpen(false)}
+                  style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', background: 'rgba(255,255,255,0.04)', padding: '10px', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 700, border: '1px solid rgba(255,255,255,0.08)', color: '#fff', textDecoration: 'none' }}
+                >
+                  Login
+                </Link>
+                <Link 
+                  href="/register" 
+                  onClick={() => setMobileMenuOpen(false)}
+                  style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', background: 'linear-gradient(135deg, #0071BE 0%, #0095ff 100%)', padding: '10px', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 700, border: 'none', color: '#fff', textDecoration: 'none', boxShadow: '0 4px 15px rgba(0, 113, 190, 0.4)' }}
+                >
+                  Register
+                </Link>
+              </>
             )}
           </div>
 

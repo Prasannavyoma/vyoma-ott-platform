@@ -82,8 +82,8 @@ export default function HeroSlider({ items }: { items: SliderItem[] }) {
                 transition: 'all 1.0s cubic-bezier(0.25, 1, 0.5, 1)',
                 transitionDelay: '0.15s',
                 padding: '0 4%', 
-                maxWidth: '50%',  // Keep text confined
-                minWidth: '500px'
+                maxWidth: 'min(100%, 600px)',  // Fluid constraint
+                minWidth: 'min(100%, 300px)'
               }}>
 
                 {/* Refined Metadata Row */}

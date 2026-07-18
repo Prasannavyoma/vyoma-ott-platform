@@ -2107,3 +2107,109 @@ nextjs-portal,
   }
 }
 
+/* =========================================================
+   📱 VYOMA OTT 2.0 - GLOBAL MOBILE RESPONSIVENESS OVERHAUL
+   ========================================================= */
+
+@media (max-width: 768px) {
+  /* Fluid scaling overrides */
+  h1 { font-size: clamp(2rem, 6vw, 3rem) !important; line-height: 1.2 !important; }
+  h2 { font-size: clamp(1.5rem, 5vw, 2.2rem) !important; line-height: 1.3 !important; }
+  p { font-size: 1rem !important; }
+
+  /* Universal section padding reductions */
+  section {
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+    padding-top: 40px !important;
+    padding-bottom: 40px !important;
+  }
+  
+  /* Top Utility bar hidden to save space */
+  .top-utility-bar {
+    display: none !important;
+  }
+  
+  /* Adjust navbar since top bar is hidden */
+  .navbar {
+    top: 0 !important;
+    padding: 10px 15px !important;
+  }
+  
+  /* Mobile Drawer full screen width fix */
+  .mobile-menu-drawer {
+    width: 85vw !important;
+    max-width: 320px;
+    padding: 30px 20px !important;
+  }
+  
+  /* Make all primary buttons large touch targets */
+  .hero-buttons .btn {
+    width: 100% !important;
+    margin-bottom: 10px;
+  }
+  .hero-buttons {
+    flex-direction: column !important;
+    gap: 15px !important;
+  }
+  
+  /* Explore Filters Horizontal Scroll */
+  .category-filters {
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 15px;
+    justify-content: flex-start !important;
+  }
+  .category-filters::-webkit-scrollbar {
+    display: none;
+  }
+  .category-btn {
+    flex: 0 0 auto !important;
+  }
+  
+  /* Posters / Cards Grid to Vertical Stack or 2-column mobile */
+  .channel-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+  .explore-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)) !important;
+    gap: 15px !important;
+  }
+  
+  /* Hero section adjustments */
+  .hero-section {
+    min-height: 80vh !important;
+    padding-top: 80px !important;
+  }
+}
+@media (max-width: 768px) {
+  /* Hide Desktop Scroll Arrows on Touch Devices */
+  .scroll-arrow, .group-hover-controls > button {
+    display: none !important;
+  }
+  
+  /* Ensure CourseRow posters scroll flawlessly on Mobile */
+  .row-posters {
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    scroll-snap-type: x mandatory !important;
+    padding-bottom: 20px !important;
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+    width: 100vw !important;
+    position: relative !important;
+    left: calc(-50vw + 50%) !important;
+  }
+  
+  .row-posters > * {
+    flex: 0 0 calc(60vw) !important; /* Larger cards on mobile */
+    scroll-snap-align: center !important;
+  }
+  
+  .row-posters::-webkit-scrollbar {
+    display: none !important;
+  }
+}

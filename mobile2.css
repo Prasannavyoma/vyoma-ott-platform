@@ -1,0 +1,29 @@
+@media (max-width: 768px) {
+  /* Hide Desktop Scroll Arrows on Touch Devices */
+  .scroll-arrow, .group-hover-controls > button {
+    display: none !important;
+  }
+  
+  /* Ensure CourseRow posters scroll flawlessly on Mobile */
+  .row-posters {
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    scroll-snap-type: x mandatory !important;
+    padding-bottom: 20px !important;
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+    width: 100vw !important;
+    position: relative !important;
+    left: calc(-50vw + 50%) !important;
+  }
+  
+  .row-posters > * {
+    flex: 0 0 calc(60vw) !important; /* Larger cards on mobile */
+    scroll-snap-align: center !important;
+  }
+  
+  .row-posters::-webkit-scrollbar {
+    display: none !important;
+  }
+}
