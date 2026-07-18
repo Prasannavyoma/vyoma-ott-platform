@@ -194,12 +194,12 @@ a {
   font-size: 0.85rem;
   font-weight: 800;
   border-radius: 24px;
-  background: linear-gradient(135deg, #f26422 0%, #ff8c42 100%);
+  background: linear-gradient(135deg, #0071BE 0%, #0095ff 100%);
   color: #fff !important;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   border: none;
-  box-shadow: 0 4px 15px rgba(242, 100, 34, 0.4), inset 0 -2px 0 rgba(0,0,0,0.1);
+  box-shadow: 0 4px 15px rgba(0, 113, 190, 0.4), inset 0 -2px 0 rgba(0,0,0,0.1);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
@@ -215,8 +215,8 @@ a {
 }
 .premium-glow-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(242, 100, 34, 0.6), inset 0 -2px 0 rgba(0,0,0,0.1);
-  background: linear-gradient(135deg, #ff7b3a 0%, #ffa566 100%);
+  box-shadow: 0 8px 25px rgba(0, 113, 190, 0.6), inset 0 -2px 0 rgba(0,0,0,0.1);
+  background: linear-gradient(135deg, #005a96 0%, #0071BE 100%);
 }
 .premium-glow-btn:hover::before {
   left: 200%;
@@ -594,20 +594,20 @@ a {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--primary) 0%, #ff8c53 100%);
+  background: linear-gradient(135deg, #0071BE 0%, #0095ff 100%);
   color: white;
-  box-shadow: 0 5px 15px rgba(242, 100, 34, 0.3);
+  box-shadow: 0 5px 15px rgba(0, 113, 190, 0.3);
 }
 
 .btn-primary:hover {
-  background: linear-gradient(135deg, var(--primary-hover) 0%, #e06d34 100%);
-  box-shadow: 0 8px 25px rgba(242, 100, 34, 0.5);
+  background: linear-gradient(135deg, #005a96 0%, #0071BE 100%);
+  box-shadow: 0 8px 25px rgba(0, 113, 190, 0.5);
 }
 
 @keyframes pulse-glow {
-  0% { box-shadow: 0 0 0 0 rgba(242, 100, 34, 0.7); transform: scale(1); }
-  70% { box-shadow: 0 0 0 12px rgba(242, 100, 34, 0); transform: scale(1.04); }
-  100% { box-shadow: 0 0 0 0 rgba(242, 100, 34, 0); transform: scale(1); }
+  0% { box-shadow: 0 0 0 0 rgba(0, 113, 190, 0.7); transform: scale(1); }
+  70% { box-shadow: 0 0 0 12px rgba(0, 113, 190, 0); transform: scale(1.04); }
+  100% { box-shadow: 0 0 0 0 rgba(0, 113, 190, 0); transform: scale(1); }
 }
 
 .join-btn {
