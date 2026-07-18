@@ -162,7 +162,7 @@ export default function NavBar() {
               <Link href="/login" className="login-btn">
                 Login
               </Link>
-              <Link href="/register" className="btn btn-primary join-btn premium-glow-btn">
+              <Link href="/register" className="premium-glow-btn" style={{ marginLeft: '10px' }}>
                 FREE REGISTER
               </Link>
             </div>
