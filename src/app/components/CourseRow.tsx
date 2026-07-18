@@ -109,19 +109,6 @@ export default function CourseRow({ title, courses, icon }: CourseRowProps) {
           })}
         </div>
 
-        <button 
-          onClick={() => scroll('right')} 
-          style={{
-            position: 'absolute', right: '-40px', top: '50%', transform: 'translateY(-50%)',
-            zIndex: 60, background: 'rgba(0,0,0,0.5)', border: 'none', color: 'white',
-            width: '40px', height: '60px', cursor: 'pointer', borderRadius: '4px',
-            opacity: 0.7, transition: 'opacity 0.2s'
-          }}
-          onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
-          onMouseLeave={(e) => e.currentTarget.style.opacity = '0.7'}
-        >
-          ❯
-        </button>
       </div>
     </div>
   );
