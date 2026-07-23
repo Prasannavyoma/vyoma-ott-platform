@@ -3,10 +3,7 @@ import { revalidatePath } from 'next/cache';
 
 async function getSafeCategories(): Promise<any[]> {
   try {
-    // Standard Prisma might have generator lag here too, applying decoupling logic safely
-    // @ts-ignore
-    const raw = await prisma.$queryRawUnsafe(`SELECT * FROM Category ORDER BY name ASC`);
-    return Array.isArray(raw) ? raw : [];
+    return await prisma.category.findMany({ orderBy: { name: 'asc' } });
   } catch(e) { return []; }
 }
 

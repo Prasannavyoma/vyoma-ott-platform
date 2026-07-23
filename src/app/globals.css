@@ -359,21 +359,20 @@ a {
   top: 50%;
   transform: translateY(-50%);
   z-index: 60;
-  background: linear-gradient(135deg, rgba(0, 113, 190, 0.9) 0%, rgba(0, 149, 255, 0.9) 100%);
-  backdrop-filter: blur(8px);
+  background: #f26422 !important;
   border: 1px solid rgba(255,255,255,0.2);
   color: white;
-  width: 50px;
-  height: 50px;
+  width: 45px;
+  height: 60px;
   cursor: pointer;
-  border-radius: 50%;
+  border-radius: 8px;
   opacity: 0;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.2rem;
-  box-shadow: 0 4px 15px rgba(0, 113, 190, 0.5);
+  box-shadow: none;
 }
 
 .row:hover .scroll-arrow {
@@ -381,10 +380,10 @@ a {
 }
 
 .scroll-arrow:hover {
-  background: linear-gradient(135deg, #005a96 0%, #0071BE 100%);
+  background: #f26422 !important;
   transform: translateY(-50%) scale(1.1);
   border-color: rgba(255,255,255,0.5);
-  box-shadow: 0 6px 20px rgba(0, 113, 190, 0.8);
+  box-shadow: none;
 }
 
 .scroll-arrow-left { left: -25px; }
@@ -876,7 +875,7 @@ a {
   opacity: 0 !important;
   pointer-events: none;
   transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
-  box-shadow: 0 8px 30px rgba(0,0,0,0.6) !important;
+  box-shadow: none !important;
 }
 
 .group-hover-controls:hover button {

@@ -32,17 +32,6 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        // Apply these headers to all routes in the application
-        source: '/(.*)',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800',
-          },
-        ],
-      },
-      {
-        // Exception for API routes to prevent stale data
         source: '/api/(.*)',
         headers: [
           {
