@@ -6,9 +6,8 @@ import prisma from './prisma';
  */
 async function getSafeSetting(key: string): Promise<string> {
   try {
-    // @ts-ignore - Raw bypass protocol for hot reload decoupling
-    const rawResult = await prisma.$queryRawUnsafe(`SELECT value FROM SystemSetting WHERE key = ? LIMIT 1`, key) as any[];
-    return rawResult?.[0]?.value || "";
+    const setting = await prisma.systemSetting.findUnique({ where: { key } });
+    return setting?.value || "";
   } catch (e) {
     return "";
   }
