@@ -99,6 +99,10 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
   };
 
   const startUpgradeFlow = (p: Plan) => {
+    if (!currentUser || !currentUser.id) {
+      window.location.href = '/login?callbackUrl=/subscribe';
+      return;
+    }
     setTargetPlan(p);
     setIsCalculating(true);
   };
