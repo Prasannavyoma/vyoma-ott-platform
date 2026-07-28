@@ -27,6 +27,7 @@ export default async function SubscriptionManagementPage() {
   // 1. Resiliently load settings directly from storage engine bypass
   const currentKey = await getSafeSetting('RAZORPAY_KEY_ID');
   const currentSecret = await getSafeSetting('RAZORPAY_KEY_SECRET');
+  const currentWebhookSecret = await getSafeSetting('RAZORPAY_WEBHOOK_SECRET');
 
   // 2. Test Connection immediately if credentials present
   let connectionStatus: 'ACTIVE' | 'INACTIVE' | 'PENDING' = 'PENDING';
@@ -72,9 +73,11 @@ export default async function SubscriptionManagementPage() {
     "use server";
     const key = formData.get('keyId') as string;
     const secret = formData.get('keySecret') as string;
+    const webhookSecret = formData.get('webhookSecret') as string;
 
     await upsertSafeSetting('RAZORPAY_KEY_ID', key);
     await upsertSafeSetting('RAZORPAY_KEY_SECRET', secret);
+    await upsertSafeSetting('RAZORPAY_WEBHOOK_SECRET', webhookSecret);
 
     revalidatePath('/admin/subscriptions');
   }
@@ -176,7 +179,17 @@ export default async function SubscriptionManagementPage() {
               style={{ width: '100%', padding: '12px', background: '#000', border: '1px solid #333', borderRadius: '6px', color: '#fff', fontFamily: 'monospace' }}
             />
           </div>
-          <button type="submit" style={{ background: 'linear-gradient(to right, #2563eb, #4f46e5)', border: 'none', color: 'white', padding: '13px 25px', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>
+          <div style={{ gridColumn: 'span 2' }}>
+            <label style={{ display: 'block', fontSize: '0.75rem', color: '#aaa', textTransform: 'uppercase', marginBottom: '5px' }}>Webhook Secret</label>
+            <input 
+              type="password" 
+              name="webhookSecret" 
+              defaultValue={currentWebhookSecret}
+              placeholder="Webhook Validation Secret"
+              style={{ width: '100%', padding: '12px', background: '#000', border: '1px solid #333', borderRadius: '6px', color: '#fff', fontFamily: 'monospace' }}
+            />
+          </div>
+          <button type="submit" style={{ gridColumn: 'span 1', background: 'linear-gradient(to right, #2563eb, #4f46e5)', border: 'none', color: 'white', padding: '13px 25px', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>
             Apply & Link
           </button>
         </form>
