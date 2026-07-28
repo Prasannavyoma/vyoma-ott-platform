@@ -23,6 +23,10 @@ model User {
   planStartedAt           DateTime? // Used for explicit cycle calculations
   planExpiresAt           DateTime? // Accurate WordPress subscription expiration date
   
+  // Password Recovery
+  resetToken              String?
+  resetTokenExpires       DateTime?
+  
   // Communication
   phone                   String?  // For WhatsApp Integration
   

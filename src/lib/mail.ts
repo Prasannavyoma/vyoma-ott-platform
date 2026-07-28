@@ -149,6 +149,28 @@ export async function sendWelcomeEmail(to: string, name: string) {
   await sendTemplatedEmail(to, 'WELCOME', { name, platform_url: platformUrl }).catch(console.error);
 }
 
+export async function sendPasswordResetEmail(to: string, resetUrl: string) {
+  const transporter = await getDynamicTransporter();
+  if (!transporter) return;
+
+  const html = getLuxuryWrap(`
+    <h2 style="color: #fff; font-size: 24px; margin-bottom: 20px;">Password Reset Request</h2>
+    <p>We received a request to reset the password for your Vyoma Academy account.</p>
+    <p>If you made this request, please click the button below to set a new password. This link will expire in 1 hour.</p>
+    <div style="text-align: center; margin: 30px 0;">
+      <a href="${resetUrl}" style="background: linear-gradient(135deg, #f26422 0%, #ff8c53 100%); color: #fff; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; box-shadow: 0 10px 25px rgba(242, 100, 34, 0.4);">Reset Password</a>
+    </div>
+    <p style="color: #aaa; font-size: 13px;">If you did not request this, you can safely ignore this email.</p>
+  `, "Password Reset Request");
+
+  await transporter.sendMail({
+    from: `"Vyoma Security" <${(transporter.options as any).auth?.user}>`,
+    to,
+    subject: `🔒 Password Reset Request`,
+    html
+  }).catch(console.error);
+}
+
 export async function sendPurchaseSuccess(to: string, planName: string, amount: number) {
   const transporter = await getDynamicTransporter();
   if (!transporter) return;

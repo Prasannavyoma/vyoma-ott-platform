@@ -2,10 +2,11 @@
 
 import { prisma } from '@/lib/prisma';
 import { redirect } from 'next/navigation';
-import { sendWelcomeEmail } from '@/lib/mail';
+import { sendWelcomeEmail, sendPasswordResetEmail } from '@/lib/mail';
 import { setSessionUser, getCurrentUser, clearSession } from '@/lib/auth';
 import { validateSpamVectors } from '@/lib/spam-guard';
 import { hashPassword } from '@/lib/hash';
+import crypto from 'crypto';
 
 export async function logoutUser() {
   await clearSession();
@@ -324,3 +325,69 @@ export async function checkAuthStatus() {
     return { isLoggedIn: false };
   }
 }
+
+export async function requestPasswordReset(formData: FormData) {
+  const email = formData.get('email') as string;
+  if (!email) return { error: 'Email is required' };
+
+  try {
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      // Return success even if user not found to prevent email enumeration attacks
+      return { success: true };
+    }
+
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const resetTokenExpires = new Date(Date.now() + 3600000); // 1 hour
+
+    await prisma.user.update({
+      where: { email },
+      data: { resetToken, resetTokenExpires }
+    });
+
+    const resetUrl = `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/reset-password?token=${resetToken}`;
+    await sendPasswordResetEmail(email, resetUrl);
+
+    return { success: true };
+  } catch (e) {
+    console.error("Failed to request password reset", e);
+    return { error: 'Failed to request password reset' };
+  }
+}
+
+export async function resetPasswordWithToken(formData: FormData) {
+  const token = formData.get('token') as string;
+  const password = formData.get('password') as string;
+
+  if (!token || !password) return { error: 'Missing required fields' };
+  if (password.length < 6) return { error: 'Password must be at least 6 characters long.' };
+
+  try {
+    const user = await prisma.user.findFirst({
+      where: {
+        resetToken: token,
+        resetTokenExpires: { gt: new Date() }
+      }
+    });
+
+    if (!user) {
+      return { error: 'Invalid or expired password reset token' };
+    }
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        password: hashPassword(password),
+        resetToken: null,
+        resetTokenExpires: null,
+        forcePasswordChange: false
+      }
+    });
+
+    return { success: true };
+  } catch (e) {
+    console.error("Failed to reset password", e);
+    return { error: 'Failed to reset password' };
+  }
+}
+

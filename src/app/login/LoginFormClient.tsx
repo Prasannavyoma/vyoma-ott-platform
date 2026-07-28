@@ -218,7 +218,7 @@ export default function LoginFormClient({ allowPassword, allowGoogle, googleClie
               <label style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                 <input type="checkbox" name="rememberMe" defaultChecked /> Remember me
               </label>
-              <a href="#" style={{ color: '#b3b3b3', textDecoration: 'none' }}>Need help?</a>
+              <Link href="/forgot-password" style={{ color: '#b3b3b3', textDecoration: 'none' }}>Need help?</Link>
             </div>
           </form>
         ) : (
