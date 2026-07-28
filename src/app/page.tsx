@@ -479,12 +479,7 @@ export default async function HomePage() {
           color: '#8f98a9',
           fontFamily: 'inherit'
         }}>
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', 
-            gap: '40px', 
-            marginBottom: '50px' 
-          }}>
+          <div className="grid-responsive container" style={{ marginBottom: '50px' }}>
             {/* Branding Column */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
               <img 

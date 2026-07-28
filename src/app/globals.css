@@ -2213,3 +2213,106 @@ nextjs-portal,
     display: none !important;
   }
 }
+
+/* --- Global Responsive Utilities --- */
+
+.container {
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 5%;
+}
+
+.grid-responsive {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+.flex-responsive {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.hide-on-mobile {
+  display: none !important;
+}
+
+.show-on-mobile {
+  display: flex !important;
+}
+
+/* Auth Containers */
+.auth-container {
+  padding: 50px;
+  border-radius: 24px;
+  max-width: 450px;
+  width: 100%;
+}
+
+/* Tablet (768px - 1024px) */
+@media (min-width: 768px) {
+  .flex-responsive {
+    flex-direction: row;
+  }
+  .hide-on-mobile {
+    display: flex !important;
+  }
+  .show-on-mobile {
+    display: none !important;
+  }
+}
+
+/* Mobile Adjustments (< 768px) */
+@media (max-width: 767px) {
+  .grid-responsive {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 15px;
+  }
+  .container {
+    padding: 0 15px;
+  }
+  .auth-container {
+    padding: 30px;
+    border-radius: 16px;
+    width: 90%;
+  }
+  h1 { font-size: 1.8rem !important; }
+  h2 { font-size: 1.5rem !important; }
+}
+
+/* Smart TV / 10ft UI (> 1920px) */
+@media (min-width: 1920px) {
+  .container {
+    max-width: 1800px;
+    padding: 0 80px;
+  }
+  .grid-responsive {
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 40px;
+  }
+  body {
+    font-size: 1.5rem;
+  }
+  .tv-focus:focus, .tv-focus:hover {
+    outline: 6px solid var(--primary) !important;
+    transform: scale(1.05);
+    z-index: 10;
+    transition: all 0.2s ease-in-out;
+  }
+  h1 { font-size: 4rem !important; }
+  h2 { font-size: 3rem !important; }
+}
+
+
+/* Global Reset for Media to Prevent Overflow */
+img, video, iframe {
+  max-width: 100%;
+  height: auto;
+}
+
+* {
+  box-sizing: border-box;
+}
+

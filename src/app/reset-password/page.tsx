@@ -54,7 +54,7 @@ function ResetPasswordForm() {
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%)', color: '#fff', padding: '20px' }}>
-      <div style={{ background: 'rgba(255,255,255,0.03)', padding: '50px', borderRadius: '24px', maxWidth: '450px', width: '100%', border: '1px solid rgba(255,255,255,0.05)', boxShadow: '0 30px 60px rgba(0,0,0,0.4)', textAlign: 'center' }}>
+      <div className="auth-container" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', boxShadow: '0 30px 60px rgba(0,0,0,0.4)', textAlign: 'center' }}>
         <h1 style={{ fontSize: '2rem', fontWeight: 900, marginBottom: '20px', background: 'linear-gradient(135deg, #fff 0%, #a5b4fc 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
           Set New Password
         </h1>

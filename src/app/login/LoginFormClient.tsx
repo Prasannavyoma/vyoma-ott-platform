@@ -104,16 +104,15 @@ export default function LoginFormClient({ allowPassword, allowGoogle, googleClie
          <Link href="/"><img src="/assets/logo-200-x-70-px.png" alt="Vyoma" style={{ height: '45px' }} /></Link>
       </div>
       
-      <div className="login-card" style={{ 
+      <div className="auth-container" style={{ 
         position: 'relative',
-        width: '100%', 
-        maxWidth: '450px', 
-        background: 'rgba(20, 20, 22, 0.75)', 
+        background: 'rgba(255,255,255,0.03)', 
         borderRadius: '16px', 
         padding: '50px 50px 40px',
         backdropFilter: 'blur(20px)',
-        border: '1px solid rgba(255,255,255,0.08)',
-        boxShadow: '0 20px 50px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(255,255,255,0.05)',
+        border: '1px solid rgba(255,255,255,0.05)',
+        boxShadow: '0 30px 60px rgba(0,0,0,0.4)',
+        textAlign: 'center',
         margin: '20px',
         animation: 'slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
         overflow: 'hidden'
