@@ -287,7 +287,7 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
                 <div style={{ 
                   position: 'relative', 
                   aspectRatio: '16/9',
-                  minHeight: '400px',
+                  minHeight: '200px',
                   width: '100%', 
                   borderRadius: '12px', 
                   overflow: 'hidden', 
