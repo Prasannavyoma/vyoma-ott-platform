@@ -277,7 +277,7 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
 
         <div style={{ maxWidth: '1600px', margin: '0 auto', padding: '10px 4% 60px' }}>
           
-          <div className="watch-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: '40px', alignItems: 'start' }}>
+          <div className="watch-grid">
            
            {/* MAIN PLAYER AREA / OTT LOCK GATEWAY */}
            <div>

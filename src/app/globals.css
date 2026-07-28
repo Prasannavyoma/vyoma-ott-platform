@@ -2316,3 +2316,19 @@ img, video, iframe {
   box-sizing: border-box;
 }
 
+
+/* Watch Page Grid Responsiveness */
+.watch-grid {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 40px;
+  align-items: start;
+}
+
+@media (max-width: 1024px) {
+  .watch-grid {
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
+}
+
