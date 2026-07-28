@@ -60,6 +60,9 @@ export default function RazorpayCheckoutButton(props: CheckoutProps) {
 
     if (props.subscriptionId) {
       options.subscription_id = props.subscriptionId;
+      // Razorpay specifically requires amount and currency to NOT be passed for subscriptions
+      delete options.amount;
+      delete options.currency;
     } else if (props.orderId) {
       options.order_id = props.orderId;
     }
