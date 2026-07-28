@@ -26,11 +26,22 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
   
   // DYNAMIC CYCLE LOCK ENGINE
   const calculateDaysUsed = () => {
-    if (!currentUser?.planStartedAt) return 0;
+    if (!currentUser?.planStartedAt || currentUser.plan === 'FREE') return 0;
     const start = new Date(currentUser.planStartedAt).getTime();
     const now = new Date().getTime();
     const diffDays = Math.floor((now - start) / (1000 * 60 * 60 * 24));
     return Math.max(0, diffDays);
+  };
+
+  const getDaysForInterval = (interval: string) => {
+    switch (interval.toUpperCase()) {
+      case 'YEARLY': return 365;
+      case 'QUARTERLY': return 90;
+      case 'MONTHLY': return 30;
+      case 'WEEKLY': return 7;
+      case 'DAILY': return 1;
+      default: return 30;
+    }
   };
 
   const daysUsedSimulation = calculateDaysUsed();
@@ -72,17 +83,28 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
 
   // DYNAMIC PRORATION ENGINE
   const calculateProration = () => {
-    if (!targetPlan) return { unusedCredit: 0, remainingCost: 0, netDue: 0 };
+    if (!targetPlan) return { unusedCredit: '0.00', newProRatedCost: '0.00', netDue: '0.00', remainingDays: 0, dailyOld: '0.00', dailyNew: '0.00' };
     
-    const totalDays = currentInterval === 'YEARLY' ? 365 : 30;
-    const oldPrice = getCurrentPlanPrice();
+    const targetDays = getDaysForInterval(targetPlan.interval);
     const newPrice = getP(targetPlan);
+    const dailyNew = newPrice / targetDays;
+
+    if (currentTier === 'FREE' || !currentUser?.planStartedAt) {
+      return {
+        unusedCredit: "0.00",
+        newProRatedCost: newPrice.toFixed(2),
+        netDue: newPrice.toFixed(2),
+        dailyOld: "0.00",
+        dailyNew: dailyNew.toFixed(2),
+        remainingDays: targetDays
+      };
+    }
+
+    const currentDays = getDaysForInterval(currentInterval);
+    const oldPrice = getCurrentPlanPrice();
+    const dailyOld = oldPrice / currentDays;
     
-    const remainingDays = totalDays - daysUsedSimulation;
-    
-    const dailyOld = oldPrice / totalDays;
-    const dailyNew = newPrice / totalDays;
-    
+    const remainingDays = Math.max(0, currentDays - daysUsedSimulation);
     const unusedCredit = dailyOld * remainingDays;
     const newProRatedCost = dailyNew * remainingDays;
     
@@ -114,15 +136,25 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
     setIsInitializing(true);
     
     const amountToCharge = parseFloat(calc.netDue.toString()) > 0 ? parseFloat(calc.netDue.toString()) : 1;
-    
-    const res = await createRazorpaySubscription({
-       name: `Vyoma ${targetPlan.name} Tier`,
-       description: `Auto-renewing ${targetPlan.interval} mandate`,
-       amount: amountToCharge,
-       currency: region === 'INDIA' ? 'INR' : 'USD',
-       interval: targetPlan.interval.toLowerCase() as 'monthly' | 'yearly',
-       totalCount: targetPlan.interval === 'YEARLY' ? 10 : 120
-    });
+        const getTotalCount = (inv: string) => {
+         switch (inv.toUpperCase()) {
+           case 'YEARLY': return 10; // 10 years
+           case 'QUARTERLY': return 40; // 10 years
+           case 'MONTHLY': return 120; // 10 years
+           case 'WEEKLY': return 520; // 10 years
+           case 'DAILY': return 3650; // 10 years
+           default: return 120;
+         }
+      };
+
+      const res = await createRazorpaySubscription({
+         name: `Vyoma ${targetPlan.name} Tier`,
+         description: `Auto-renewing ${targetPlan.interval} mandate`,
+         amount: amountToCharge,
+         currency: region === 'INDIA' ? 'INR' : 'USD',
+         interval: targetPlan.interval.toLowerCase(),
+         totalCount: getTotalCount(targetPlan.interval)
+      });
     
     setSubData(res);
     setIsInitializing(false);
@@ -849,13 +881,13 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
               <div style={{ marginBottom: '30px' }}>
                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: '#8f98a9', marginBottom: '10px' }}>
                     <span>Active Plan Days Consumed:</span>
-                    <strong style={{ color: '#22c55e' }}>{daysUsedSimulation} Days</strong>
+                    <strong style={{ color: '#22c55e' }}>{currentTier === 'FREE' ? 0 : daysUsedSimulation} Days</strong>
                  </div>
                  
                  <div style={{ width: '100%', height: '6px', background: 'rgba(255,255,255,0.08)', borderRadius: '10px', overflow: 'hidden' }}>
                     <div style={{ 
                        height: '100%', 
-                       width: `${Math.min(100, (daysUsedSimulation / (currentInterval === 'YEARLY' ? 365 : 30)) * 100)}%`,
+                       width: `${Math.min(100, (currentTier === 'FREE' ? 0 : (daysUsedSimulation / getDaysForInterval(currentTier === 'FREE' ? targetPlan?.interval || 'MONTHLY' : currentInterval)) * 100))}%`,
                        background: 'linear-gradient(90deg, #f26422, #ff8c53)',
                        borderRadius: '10px'
                     }}></div>

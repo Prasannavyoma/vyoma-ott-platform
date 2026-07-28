@@ -243,6 +243,7 @@ export default async function SubscriptionManagementPage() {
               <option value="YEARLY">Yearly</option>
               <option value="QUARTERLY">Quarterly</option>
               <option value="WEEKLY">Weekly</option>
+              <option value="DAILY">Daily</option>
             </select>
           </div>
           <div>

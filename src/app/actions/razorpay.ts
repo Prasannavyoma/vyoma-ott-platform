@@ -64,7 +64,7 @@ export async function createRazorpayOrder(params: OrderParams) {
  * Server Action: Initiates a Native AutoPay Subscription via Razorpay.
  * Creates an ad-hoc Plan internally, then binds a Subscription to it for automated billing.
  */
-export async function createRazorpaySubscription(params: { name: string, description: string, amount: number, currency: string, interval: 'monthly' | 'yearly', totalCount: number }) {
+export async function createRazorpaySubscription(params: { name: string, description: string, amount: number, currency: string, interval: string, totalCount: number }) {
   try {
     const user = await getCurrentUser();
     if (user && user.country && user.country !== 'IN' && params.currency === 'INR') {
@@ -73,15 +73,24 @@ export async function createRazorpaySubscription(params: { name: string, descrip
 
     const publicKey = await getRazorpayPublicKey();
     const amountInSubunits = Math.round(params.amount * 100);
-    const period = params.interval === 'yearly' ? 'yearly' : 'monthly';
+    let period = params.interval.toLowerCase();
+    let rzpInterval = 1;
+
+    // Map business logic intervals to Razorpay native periods
+    if (period === 'quarterly') {
+      period = 'monthly';
+      rzpInterval = 3;
+    } else if (!['daily', 'weekly', 'monthly', 'yearly'].includes(period)) {
+      period = 'monthly';
+    }
     
     try {
       const client = await getRazorpayClient();
       
       // 1. Create native plan
       const plan = await client.plans.create({
-        period: period,
-        interval: 1,
+        period: period as "daily" | "weekly" | "monthly" | "yearly",
+        interval: rzpInterval,
         item: {
           name: params.name,
           description: params.description,
