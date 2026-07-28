@@ -59,7 +59,7 @@ export default function AiChatWidget({ contactSettings, aiEnabled = true }: { co
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       role: 'model',
-      content: 'Namaste! 🙏 I am **Vyoma Guru**, your guide for the Vyoma Sanskrit OTT platform.\n\nAsk me about our Sanskrit courses, subscription plans, earnable certificates, rewards coins, study rooms, or how to navigate the site!'
+      content: 'Namaste! 🙏 I am **Vyoma AI Bot**, your guide for the Vyoma Sanskrit OTT platform.\n\nAsk me about our Sanskrit courses, subscription plans, earnable certificates, rewards coins, study rooms, or how to navigate the site!'
     }
   ]);
   const [input, setInput] = useState('');
@@ -250,7 +250,7 @@ export default function AiChatWidget({ contactSettings, aiEnabled = true }: { co
                 }} />
               </div>
               <div>
-                <h4 style={{ margin: 0, color: '#fff', fontSize: '0.95rem', fontWeight: 700, letterSpacing: '0.5px' }}>Vyoma Guru</h4>
+                <h4 style={{ margin: 0, color: '#fff', fontSize: '0.95rem', fontWeight: 700, letterSpacing: '0.5px' }}>Vyoma AI Bot</h4>
                 <span style={{ color: 'rgba(255, 255, 255, 0.5)', fontSize: '0.75rem' }}>Online Guide</span>
               </div>
             </div>
@@ -483,7 +483,7 @@ export default function AiChatWidget({ contactSettings, aiEnabled = true }: { co
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyPress}
               disabled={isLoading}
-              placeholder="Ask Vyoma Guru..."
+              placeholder="Ask Vyoma AI Bot..."
               style={{
                 flex: 1,
                 background: 'rgba(255, 255, 255, 0.06)',
@@ -827,30 +827,19 @@ export default function AiChatWidget({ contactSettings, aiEnabled = true }: { co
         }}
       >
         {isOpen ? '✕' : (
-          <img 
-            src="/assets/guru-avatar.png" 
-            alt="Guru Avatar" 
-            className="guru-avatar"
-            style={{ 
-              width: '45px', 
-              height: '45px', 
-              borderRadius: '50%',
-              objectFit: 'cover',
-              background: '#fff'
-            }} 
-          />
+          <Bot size={32} color="#ffffff" className="bot-avatar" />
         )}
       </button>
 
       {/* Embed Keyframe Animations & Style Overrides */}
       <style jsx global>{`
-        @keyframes guruFloat {
+        @keyframes botFloat {
           0%, 100% { transform: translateY(0) scale(1); }
           50% { transform: translateY(-3px) scale(1.05); }
         }
-        .guru-avatar {
-          animation: guruFloat 3s ease-in-out infinite;
-          box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        .bot-avatar {
+          animation: botFloat 3s ease-in-out infinite;
+          
         }
         @keyframes vyomaChatSlideUp {
           from {

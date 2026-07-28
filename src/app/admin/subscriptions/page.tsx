@@ -1,12 +1,10 @@
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 
-// Direct runtime-resilient fetch helper that works even if Next.js server has cached old Prisma client types
 async function getSafeSetting(key: string): Promise<string> {
   try {
-    // @ts-ignore - Direct raw fallback to bypass runtime generator cache locks
-    const rawResult = await prisma.$queryRawUnsafe(`SELECT value FROM SystemSetting WHERE key = ? LIMIT 1`, key) as any[];
-    return rawResult?.[0]?.value || "";
+    const setting = await prisma.systemSetting.findUnique({ where: { key } });
+    return setting?.value || "";
   } catch (e) {
     console.error(`[SafeConfig] Read failure on key ${key}:`, e);
     return "";
@@ -15,12 +13,11 @@ async function getSafeSetting(key: string): Promise<string> {
 
 async function upsertSafeSetting(key: string, value: string) {
   try {
-    const now = new Date().toISOString();
-    // SQLite upsert logic directly injected to ensure zero type lag
-    await prisma.$executeRawUnsafe(
-      `INSERT INTO SystemSetting (key, value, updatedAt) VALUES (?, ?, ?) ON CONFLICT(key) DO UPDATE SET value=excluded.value, updatedAt=excluded.updatedAt`,
-      key, value, now
-    );
+    await prisma.systemSetting.upsert({
+      where: { key },
+      update: { value, updatedAt: new Date() },
+      create: { key, value, updatedAt: new Date() }
+    });
   } catch (e) {
     console.error(`[SafeConfig] Upsert failed for ${key}:`, e);
   }
