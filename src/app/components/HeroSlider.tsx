@@ -149,20 +149,38 @@ export default function HeroSlider({ items }: { items: SliderItem[] }) {
             </div>
 
             {/* --- MOBILE SLIDER (Netflix Poster Style) --- */}
-            <div className="mobile-only" style={{ height: '75vh', width: '100%', position: 'relative' }}>
+            <div className="mobile-only" style={{ height: '75vh', width: '100%', position: 'relative', overflow: 'hidden' }}>
+              {/* Blurred atmospheric background */}
               <div style={{
                 position: 'absolute',
-                top: 0, left: 0, right: 0, bottom: 0,
+                top: '-10%', left: '-10%', right: '-10%', bottom: '-10%',
                 backgroundImage: `url('${bgImg}')`,
                 backgroundSize: 'cover',
-                backgroundPosition: 'top center',
-                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'center',
+                filter: 'blur(20px) brightness(0.6)',
                 zIndex: 0
               }} />
+              
+              {/* Uncropped sharp foreground image centered in top half */}
               <div style={{
                 position: 'absolute',
-                top: 0, left: 0, right: 0, bottom: 0,
-                background: 'linear-gradient(to top, #030b17 0%, rgba(3,11,23,0.9) 15%, rgba(3,11,23,0.4) 40%, transparent 100%)',
+                top: '12%',
+                left: '5%',
+                right: '5%',
+                height: '40%',
+                backgroundImage: `url('${bgImg}')`,
+                backgroundSize: 'contain',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat',
+                filter: 'drop-shadow(0 15px 25px rgba(0,0,0,0.8))',
+                zIndex: 1
+              }} />
+
+              {/* Bottom gradient fade up to text */}
+              <div style={{
+                position: 'absolute',
+                top: '40%', left: 0, right: 0, bottom: 0,
+                background: 'linear-gradient(to top, #030b17 0%, #030b17 25%, rgba(3,11,23,0.8) 55%, transparent 100%)',
                 zIndex: 1
               }} />
 
