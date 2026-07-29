@@ -75,18 +75,19 @@ export default function HeroSlider({ items }: { items: SliderItem[] }) {
                   zIndex: 0
                 }} />
                 
-                {/* Sharp Foreground Image Restricted to the Right Side (No Text Overlap) */}
+                {/* Sharp Foreground Image Cropped to Right Side (To hide embedded text on the left) */}
                 <div style={{
                   position: 'absolute',
-                  top: '10%',
-                  bottom: '10%',
-                  right: '4%',
-                  width: '45%', /* Strictly confine to right half */
+                  top: '5%',
+                  bottom: '5%',
+                  right: '0%',
+                  width: '55%', /* Give it some breathing room on the right */
                   backgroundImage: `url('${bgImg}')`,
-                  backgroundSize: 'contain',
+                  backgroundSize: 'cover', /* This will crop the left side (where the text is) */
                   backgroundPosition: 'right center',
                   backgroundRepeat: 'no-repeat',
-                  filter: 'drop-shadow(0 20px 40px rgba(0,0,0,0.8))',
+                  WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 30%, black 100%)',
+                  maskImage: 'linear-gradient(to right, transparent 0%, black 30%, black 100%)',
                   zIndex: 1
                 }} />
 
