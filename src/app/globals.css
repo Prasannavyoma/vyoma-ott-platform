@@ -1636,10 +1636,17 @@ a {
   .hero {
     height: 100% !important;
     min-height: 100% !important;
-    background-size: 100% auto !important;
+    background-size: cover !important;
     background-position: top center !important;
     background-repeat: no-repeat !important;
     padding: 0 4%;
+  }
+  .hero-bg-image {
+    left: 0 !important;
+    right: 0 !important;
+    background-size: cover !important;
+    background-position: top center !important;
+    opacity: 0.6; /* Let background bleed through for readability on mobile */
   }
   .hero::before {
     background: linear-gradient(0deg, rgba(15,16,20,1) 0%, rgba(15,16,20,1) 40%, rgba(15,16,20,0.4) 70%, rgba(0,0,0,0) 100%) !important;
