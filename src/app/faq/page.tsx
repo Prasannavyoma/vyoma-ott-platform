@@ -16,9 +16,23 @@ export default function FAQPage() {
           <h1 style={{ fontSize: '3rem', fontWeight: '800', marginBottom: '10px', background: 'linear-gradient(to right, #fff, #aaa)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
             OTT 2.0 User Guide
           </h1>
-          <p style={{ fontSize: '1.2rem', color: '#ccc' }}>
+          <p style={{ fontSize: '1.2rem', color: '#ccc', marginBottom: '20px' }}>
             Everything you need to know to get started with the new platform.
           </p>
+          <div style={{
+            background: 'linear-gradient(90deg, #1a1c29, #ffd70033)',
+            padding: '12px 20px',
+            borderRadius: '8px',
+            border: '1px solid rgba(255,215,0,0.2)',
+            display: 'inline-block'
+          }}>
+            <p style={{ margin: 0, fontSize: '0.95rem', color: '#fff', fontWeight: 500 }}>
+              🎉 Welcome to the new Vyoma OTT 2.0! Migrating from the old portal? 
+              <Link href="/faq" style={{ color: '#ffd700', marginLeft: '10px', fontWeight: 'bold', textDecoration: 'underline' }}>
+                Read the guide below
+              </Link>
+            </p>
+          </div>
         </div>
         
         <FAQClient />
