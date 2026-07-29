@@ -4,9 +4,10 @@ import { revalidatePath } from 'next/cache';
 export default async function VoucherManager() {
   let vouchers: any[] = [];
   try {
-     // Decoupled conduit
-     // @ts-ignore
-     vouchers = await prisma.$queryRawUnsafe(`SELECT * FROM SubscriptionVoucher ORDER BY createdAt DESC LIMIT 50`);
+     vouchers = await prisma.subscriptionVoucher.findMany({
+       orderBy: { createdAt: 'desc' },
+       take: 50
+     });
   } catch(e) {}
 
   async function generateVouchers(formData: FormData) {

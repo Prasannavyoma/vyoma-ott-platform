@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Video, MessageSquare, Tv, Package, FileText, Star, File, Palette, Settings, Folder, Handshake, Coins, ShoppingCart, BarChart2, TrendingUp, Target, CreditCard, Ticket, Megaphone, Mail, Search, Users, Download, Key, Bot, Flower, Flame, LogOut } from 'lucide-react';
+import { Home, Video, MessageSquare, Tv, Package, FileText, Star, File, Palette, Settings, Folder, Handshake, Coins, ShoppingCart, BarChart2, TrendingUp, Target, CreditCard, Ticket, Megaphone, Mail, Search, Users, Download, Key, Bot, Flower, Flame, LogOut, Shield } from 'lucide-react';
 
 export default function AdminSidebar({ userRole }: { userRole: string }) {
   const pathname = usePathname() || '';
@@ -84,6 +84,17 @@ export default function AdminSidebar({ userRole }: { userRole: string }) {
             {isSuper && <Link href="/admin/ai-settings" className={pathname.includes('/ai-settings') ? 'active' : ''}><span className="sidebar-icon" style={{marginRight: "6px"}}><Bot size={16} /></span>AI Chatbot Settings</Link>}
             {isSuper && <Link href="/admin/sanskrit-settings" className={pathname === '/admin/sanskrit-settings' ? 'active' : ''}><span className="sidebar-icon" style={{marginRight: "6px"}}><Flower size={16} /></span>Sanskrit Hub Settings</Link>}
             {isAdmin && <Link href="/admin/sanskrit-settings/subhashitas" className={`${pathname.includes('/sanskrit-settings/subhashitas') ? 'active' : ''} sublink`}><span className="sidebar-icon" style={{marginRight: "6px"}}><Flame size={16} /></span>Manage Subhashitas</Link>}
+          </>
+        )}
+
+        {/* -- SECURITY MATRIX -- */}
+        {isAdmin && (
+          <>
+            <div className="sidebar-category-label" style={{ color: '#ff4d4f' }}>Security Engine</div>
+            <Link href="/admin/security" className={pathname.includes('/security') ? 'active' : ''}>
+              <span className="sidebar-icon" style={{marginRight: "6px"}}><Shield size={16} /></span>
+              Security & CSPM
+            </Link>
           </>
         )}
 

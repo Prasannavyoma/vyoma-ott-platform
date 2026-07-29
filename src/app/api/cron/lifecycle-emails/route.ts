@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { sendTemplatedEmail } from '@/lib/mail';
+import { sendWebPush } from '@/lib/push';
 
 export async function GET(req: Request) {
   try {
@@ -22,6 +23,7 @@ export async function GET(req: Request) {
       });
       for (const u of inactiveUsers) {
         await sendTemplatedEmail(u.email, 'WINBACK', { name: u.name || 'Seeker', platform_url: platformUrl }).catch(console.error);
+        await sendWebPush(u.id, 'We miss you!', 'Come back and continue your learning journey.').catch(console.error);
         winbackCount++;
       }
 
@@ -38,6 +40,7 @@ export async function GET(req: Request) {
       });
       for (const u of renewalTargets) {
         await sendTemplatedEmail(u.email, 'RENEWAL', { name: u.name || 'Seeker', platform_url: platformUrl }).catch(console.error);
+        await sendWebPush(u.id, 'Subscription Expiring', 'Your Vyoma OTT plan expires soon! Tap to renew now.').catch(console.error);
         renewalCount++;
       }
 
@@ -60,6 +63,7 @@ export async function GET(req: Request) {
       });
       for (const u of inactiveUsers) {
         await sendTemplatedEmail(u.email, 'WINBACK', { name: u.name || 'Seeker', platform_url: platformUrl }).catch(console.error);
+        await sendWebPush(u.id, 'We miss you!', 'Come back and continue your learning journey.').catch(console.error);
         winbackCount++;
       }
 
@@ -78,6 +82,7 @@ export async function GET(req: Request) {
       });
       for (const u of renewalTargets) {
         await sendTemplatedEmail(u.email, 'RENEWAL', { name: u.name || 'Seeker', platform_url: platformUrl }).catch(console.error);
+        await sendWebPush(u.id, 'Subscription Expiring', 'Your Vyoma OTT plan expires soon! Tap to renew now.').catch(console.error);
         renewalCount++;
       }
 

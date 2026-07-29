@@ -67,29 +67,30 @@ export async function POST(request: Request) {
 
           // 🎓 AUTO-GENERATE COMPLETION CERTIFICATE
           try {
-            const existingCert = await prisma.$queryRawUnsafe<any[]>(
-              `SELECT id FROM Certificate WHERE userId=? AND courseId=?`,
-              user.id, episode.courseId
-            );
-            if (!Array.isArray(existingCert) || existingCert.length === 0) {
+            const existingCert = await prisma.certificate.findFirst({
+              where: { userId: user.id, courseId: episode.courseId }
+            });
+            if (!existingCert) {
               const certCode = 'VYOMA-' + Math.random().toString(36).substring(2, 8).toUpperCase();
-              const certId = 'cert_' + Math.random().toString(36).substring(2, 12);
-              const now = new Date().toISOString();
-              await prisma.$executeRawUnsafe(
-                `INSERT INTO Certificate (id, userId, courseId, code, issuedAt) VALUES (?,?,?,?,?)`,
-                certId, user.id, episode.courseId, certCode, now
-              );
+              await prisma.certificate.create({
+                data: {
+                  userId: user.id,
+                  courseId: episode.courseId,
+                  code: certCode
+                }
+              });
 
               // 🔔 Create notification for certificate
-              const notifId = 'notif_' + Math.random().toString(36).substring(2, 12);
               const course = await prisma.course.findUnique({ where: { id: episode.courseId }, select: { title: true } });
-              await prisma.$executeRawUnsafe(
-                `INSERT INTO Notification (id, userId, type, title, message, link, read, createdAt) VALUES (?,?,?,?,?,?,0,?)`,
-                notifId, user.id, 'CERTIFICATE_ISSUED',
-                '🎓 Certificate Earned!',
-                `Congratulations! You completed "${course?.title || 'a course'}" — your certificate is ready.`,
-                `/certificate/${certCode}`, now
-              );
+              await prisma.notification.create({
+                data: {
+                  userId: user.id,
+                  type: 'CERTIFICATE_ISSUED',
+                  title: '🎓 Certificate Earned!',
+                  message: `Congratulations! You completed "${course?.title || 'a course'}" — your certificate is ready.`,
+                  linkUrl: `/certificate/${certCode}`
+                }
+              });
             }
           } catch (certErr) {
             console.error("Auto-cert generation failed:", certErr);

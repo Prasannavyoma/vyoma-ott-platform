@@ -2,6 +2,7 @@ import prisma from '@/lib/prisma';
 import NavBar from '@/app/components/NavBar';
 import AvatarUploader from '@/app/components/AvatarUploader';
 import ReferralLinkBox from '@/app/components/ReferralLinkBox';
+import PushManager from '@/app/components/PushManager';
 import { revalidatePath } from 'next/cache';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
@@ -378,6 +379,10 @@ export default async function ProfilePage() {
 
              {/* Interactive Link Copy component */}
              <ReferralLinkBox userId={user.id} />
+             
+             <div style={{ marginTop: '20px' }}>
+                <PushManager />
+             </div>
           </div>
 
           {/* 2. ADVANCED ACADEMY ANALYTICS MATRIX */}

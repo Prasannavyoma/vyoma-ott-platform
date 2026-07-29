@@ -4,9 +4,9 @@ import { revalidatePath } from 'next/cache';
 export default async function PagesManager() {
   let pages: any[] = [];
   try {
-    // Decoupled fallback to bypass standard TS caching artifacts 
-    // @ts-ignore
-    pages = await prisma.$queryRawUnsafe(`SELECT * FROM CustomPage ORDER BY updatedAt DESC`);
+    pages = await prisma.customPage.findMany({
+      orderBy: { updatedAt: 'desc' }
+    });
   } catch(e) {}
 
   async function createPage(formData: FormData) {

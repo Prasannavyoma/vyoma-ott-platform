@@ -7,16 +7,13 @@ export default async function CertificatePage(props: any) {
   const params = await props.params;
   const { code } = params;
 
-  const result = await prisma.$queryRawUnsafe<any[]>(
-    `SELECT c.id, c.code, c.issuedAt, u.name as userName, u.email as userEmail, co.title as courseTitle 
-     FROM Certificate c 
-     JOIN User u ON c.userId = u.id 
-     JOIN Course co ON c.courseId = co.id 
-     WHERE c.code = ?`,
-    code
-  );
-
-  const cert = result?.[0];
+  const cert = await prisma.certificate.findUnique({
+    where: { code },
+    include: {
+      user: { select: { name: true, email: true } },
+      course: { select: { title: true } }
+    }
+  });
 
   if (!cert) {
     return (
@@ -104,7 +101,7 @@ export default async function CertificatePage(props: any) {
         </p>
 
         <h2 style={{ fontFamily: 'Georgia, serif', fontSize: '4rem', color: '#d4af37', fontWeight: 'bold', borderBottom: '2px solid #ddd', paddingBottom: '10px', minWidth: '60%', marginBottom: '30px' }}>
-          {cert.userName || 'Student'}
+          {cert.user?.name || cert.user?.email || 'Student'}
         </h2>
 
         <p style={{ fontFamily: 'Georgia, serif', fontSize: '1.2rem', fontStyle: 'italic', color: '#555', marginBottom: '20px' }}>
@@ -112,7 +109,7 @@ export default async function CertificatePage(props: any) {
         </p>
 
         <h3 style={{ fontFamily: 'system-ui, sans-serif', fontSize: '2rem', color: '#f26422', fontWeight: 900, textTransform: 'uppercase', marginBottom: '50px', maxWidth: '80%' }}>
-          {cert.courseTitle}
+          {cert.course?.title}
         </h3>
 
         <div style={{ display: 'flex', justifyContent: 'space-between', width: '80%', marginTop: 'auto', borderTop: '1px solid #ccc', paddingTop: '20px' }}>

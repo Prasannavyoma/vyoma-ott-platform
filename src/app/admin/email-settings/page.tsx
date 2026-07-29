@@ -8,9 +8,8 @@ import TriggerLifecycleButton from './TriggerLifecycleButton';
 async function getSetting(key: string) {
   try {
     // Standard decoupled direct fallback
-    // @ts-ignore
-    const result = await prisma.$queryRawUnsafe(`SELECT value FROM SystemSetting WHERE key = ?`, key);
-    return Array.isArray(result) && result.length > 0 ? result[0].value : '';
+    const result = await prisma.systemSetting.findUnique({ where: { key } });
+    return result?.value || '';
   } catch(e) { return ''; }
 }
 

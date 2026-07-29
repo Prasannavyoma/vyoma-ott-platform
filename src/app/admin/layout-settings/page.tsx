@@ -12,39 +12,29 @@ async function getSafeSections(): Promise<any[]> {
 async function getSafeChannels(): Promise<any[]> {
   try {
     // 1. Ensure table exists in SQLite
-    await prisma.$executeRawUnsafe(`
-      CREATE TABLE IF NOT EXISTS HomepageChannel (
-        id TEXT PRIMARY KEY,
-        name TEXT NOT NULL,
-        url TEXT NOT NULL,
-        icon TEXT NOT NULL,
-        "order" INTEGER DEFAULT 0
-      )
-    `);
-
     // 2. Query channels
-    // @ts-ignore
-    let raw = await prisma.$queryRawUnsafe(`SELECT * FROM HomepageChannel ORDER BY "order" ASC`);
+    let raw = await prisma.homepageChannel.findMany({
+      orderBy: { order: 'asc' }
+    });
     
-    if (!Array.isArray(raw) || raw.length === 0) {
+    if (!raw || raw.length === 0) {
       // Seed defaults
       const defaults = [
-        ['chan_1', 'Originals', '/genre/Vyoma-Originals', '🔥', 10],
-        ['chan_2', 'Kids Academy', '/genre/Kids', '🧸', 20],
-        ['chan_3', 'Sanskrit Audio', '/genre/Audiobook', '🎧', 30],
-        ['chan_4', 'E-Book Shelf', '/genre/Ebook', '📖', 40],
-        ['chan_5', 'Fun & Games', '/genre/Game', '🎮', 50]
+        { id: 'chan_1', name: 'Originals', url: '/genre/Vyoma-Originals', icon: '🔥', order: 10 },
+        { id: 'chan_2', name: 'Kids Academy', url: '/genre/Kids', icon: '🧸', order: 20 },
+        { id: 'chan_3', name: 'Sanskrit Audio', url: '/genre/Audiobook', icon: '🎧', order: 30 },
+        { id: 'chan_4', name: 'E-Book Shelf', url: '/genre/Ebook', icon: '📖', order: 40 },
+        { id: 'chan_5', name: 'Fun & Games', url: '/genre/Game', icon: '🎮', order: 50 }
       ];
-      for (const row of defaults) {
-        await prisma.$queryRawUnsafe(
-          `INSERT INTO HomepageChannel (id, name, url, icon, "order") VALUES ($1, $2, $3, $4, $5) ON CONFLICT(id) DO NOTHING`,
-          row[0], row[1], row[2], row[3], row[4]
-        );
-      }
-      // @ts-ignore
-      raw = await prisma.$queryRawUnsafe(`SELECT * FROM HomepageChannel ORDER BY "order" ASC`);
+      await prisma.homepageChannel.createMany({
+        data: defaults,
+        skipDuplicates: true
+      });
+      raw = await prisma.homepageChannel.findMany({
+        orderBy: { order: 'asc' }
+      });
     }
-    return raw as any[];
+    return raw;
   } catch (e) {
     console.error("Failed reading/bootstrapping channels:", e);
     return [];

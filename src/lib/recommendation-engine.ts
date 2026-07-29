@@ -68,12 +68,16 @@ export async function getAIRecommendedCourses() {
     if (user) {
       let watchlistCourses: any[] = [];
       try {
-        const wlRaw: any = await prisma.$queryRawUnsafe(`
-          SELECT c.* FROM WatchlistItem w
-          JOIN Course c ON w.courseId = c.id
-          WHERE w.userId = ?
-        `, user.id);
-        if (Array.isArray(wlRaw)) watchlistCourses = wlRaw;
+        const wlRaw = await prisma.watchlistItem.findMany({
+          where: { userId: user.id }
+        });
+        const courseIds = wlRaw.map(w => w.courseId);
+        if (courseIds.length > 0) {
+          const courses = await prisma.course.findMany({
+            where: { id: { in: courseIds } }
+          });
+          watchlistCourses = courses;
+        }
       } catch (e) {
         // Fallback silently if WatchlistItem schema differs
       }

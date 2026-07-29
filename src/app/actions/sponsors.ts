@@ -109,8 +109,8 @@ export async function setHideDummySponsors(hide: boolean) {
  */
 export async function getHideDummySponsors() {
   try {
-    const res = await prisma.$queryRawUnsafe(`SELECT value FROM SystemSetting WHERE key = 'HIDE_DUMMY_SPONSORS' LIMIT 1`) as any[];
-    return res?.[0]?.value === 'true';
+    const res = await prisma.systemSetting.findUnique({ where: { key: 'HIDE_DUMMY_SPONSORS' } });
+    return res?.value === 'true';
   } catch (e) {
     return false;
   }

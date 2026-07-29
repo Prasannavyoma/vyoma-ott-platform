@@ -5,8 +5,8 @@ import EmailCampaignForge from '../components/EmailCampaignForge';
 
 async function getSetting(key: string) {
   try {
-    const res = await prisma.$queryRawUnsafe(`SELECT value FROM SystemSetting WHERE key = ? LIMIT 1`, key) as any[];
-    return res?.[0]?.value || "";
+    const res = await prisma.systemSetting.findUnique({ where: { key } });
+    return res?.value || "";
   } catch (e) { return ""; }
 }
 

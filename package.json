@@ -18,20 +18,22 @@
     "hls.js": "^1.6.16",
     "lucide-react": "^1.24.0",
     "meilisearch": "^0.58.0",
-    "next": "16.2.6",
-    "nodemailer": "^8.0.7",
+    "next": "^16.2.12",
+    "nodemailer": "^9.0.3",
     "razorpay": "^2.9.6",
     "react": "19.2.4",
     "react-dom": "19.2.4",
-    "react-player": "^3.4.0"
+    "react-player": "^3.4.0",
+    "web-push": "^3.6.7"
   },
   "devDependencies": {
     "@types/node": "^20",
     "@types/nodemailer": "^8.0.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "eslint": "^9",
-    "eslint-config-next": "16.2.6",
+    "@types/web-push": "^3.6.4",
+    "eslint": "^10.8.0",
+    "eslint-config-next": "^0.2.4",
     "prisma": "6.2.1",
     "typescript": "^5"
   }

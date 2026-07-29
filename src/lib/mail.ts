@@ -2,10 +2,13 @@ import nodemailer from 'nodemailer';
 import prisma from './prisma';
 
 async function getDynamicTransporter() {
-  // Dynamic lookup bypassing Next cache artifacts
-  // @ts-ignore
-  const settingsRaw = await prisma.$queryRawUnsafe(`SELECT key, value FROM SystemSetting WHERE key LIKE 'SMTP_%'`);
-  
+  const settingsRaw = await prisma.systemSetting.findMany({
+    where: {
+      key: {
+        startsWith: 'SMTP_'
+      }
+    }
+  });
   const settings: Record<string, string> = {};
   if (Array.isArray(settingsRaw)) {
     settingsRaw.forEach((s: any) => { settings[s.key] = s.value; });
