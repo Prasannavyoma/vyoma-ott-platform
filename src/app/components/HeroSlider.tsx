@@ -64,38 +64,30 @@ export default function HeroSlider({ items }: { items: SliderItem[] }) {
                 position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, height: '100%', minHeight: '100%',
                 display: 'flex', alignItems: 'center'
               }}>
-                {/* Full-bleed Blurred Atmospheric Background */}
+                {/* Full-width Cover Image, pushed to the right */}
                 <div style={{
                   position: 'absolute',
-                  top: '-5%', left: '-5%', right: '-5%', bottom: '-5%',
+                  top: 0, bottom: 0, left: 0, right: 0,
                   backgroundImage: `url('${bgImg}')`,
                   backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  filter: 'blur(25px) brightness(0.4)',
+                  backgroundPosition: 'right 20%', /* Align to right so the character is visible */
+                  backgroundRepeat: 'no-repeat',
                   zIndex: 0
                 }} />
-                
-                {/* Sharp Foreground Image Cropped to Right Side (To hide embedded text on the left) */}
-                <div style={{
-                  position: 'absolute',
-                  top: '5%',
-                  bottom: '5%',
-                  right: '0%',
-                  width: '55%', /* Give it some breathing room on the right */
-                  backgroundImage: `url('${bgImg}')`,
-                  backgroundSize: 'cover', /* This will crop the left side (where the text is) */
-                  backgroundPosition: 'right center',
-                  backgroundRepeat: 'no-repeat',
-                  WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 30%, black 100%)',
-                  maskImage: 'linear-gradient(to right, transparent 0%, black 30%, black 100%)',
-                  zIndex: 1
-                }} />
 
-                {/* Massive Dark Gradient Overlay for the Left Text Side */}
+                {/* Massive Netflix-style Solid Gradient Overlay */}
+                {/* 
+                  - Solid #030b17 from 0% to 45% completely ERASES any text built into the left side of the image.
+                  - Fades beautifully from 45% to 75% to reveal the artwork on the right.
+                  - Bottom gradient to blend smoothly into the page below.
+                */}
                 <div style={{
                   position: 'absolute',
                   top: 0, left: 0, right: 0, bottom: 0,
-                  background: 'linear-gradient(90deg, #030b17 0%, rgba(3,11,23,0.95) 30%, rgba(3,11,23,0.4) 60%, transparent 100%)',
+                  background: `
+                    linear-gradient(90deg, #030b17 0%, #030b17 45%, rgba(3,11,23,0.8) 60%, transparent 85%),
+                    linear-gradient(0deg, #030b17 0%, rgba(3,11,23,0) 25%)
+                  `,
                   zIndex: 1
                 }} />
 
