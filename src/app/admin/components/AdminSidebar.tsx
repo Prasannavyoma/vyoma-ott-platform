@@ -87,6 +87,17 @@ export default function AdminSidebar({ userRole }: { userRole: string }) {
           </>
         )}
 
+        {/* -- AI MARKETING MATRIX -- */}
+        {isAdmin && (
+          <>
+            <div className="sidebar-category-label" style={{ color: '#4ade80' }}>AI Marketing Engine</div>
+            <Link href="/admin/ai-marketing" className={pathname.includes('/ai-marketing') ? 'active' : ''}>
+              <span className="sidebar-icon" style={{marginRight: "6px"}}><Bot size={16} /></span>
+              Auto-Blog Generator
+            </Link>
+          </>
+        )}
+
         {/* -- SECURITY MATRIX -- */}
         {isAdmin && (
           <>

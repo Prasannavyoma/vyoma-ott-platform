@@ -1,7 +1,10 @@
 import prisma from '@/lib/prisma';
 import SubscribeClientPage from './SubscribeClientPage';
+import { headers } from 'next/headers';
 
 export default async function SubscribePage() {
+  const headersList = await headers();
+  const currency = headersList.get('x-user-currency') || 'INR';
   // Fetch real dynamic pricing from DB
   const rawPlans = await prisma.plan.findMany();
   
@@ -30,5 +33,5 @@ export default async function SubscribePage() {
     where: { accessLevel: 'PAID' }
   });
 
-  return <SubscribeClientPage initialPlans={plans as any} currentUser={activeUser as any} paidCourses={paidCourses} />;
+  return <SubscribeClientPage initialPlans={plans as any} currentUser={activeUser as any} paidCourses={paidCourses} defaultCurrency={currency} />;
 }

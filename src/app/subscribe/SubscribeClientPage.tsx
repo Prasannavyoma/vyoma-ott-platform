@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { createRazorpaySubscription } from '@/app/actions/razorpay';
 import { activateSubscription } from '@/app/actions/plans';
 import RazorpayCheckoutButton from '@/app/components/RazorpayCheckoutButton';
+import AiSalesBot from '@/app/components/AiSalesBot';
 
 interface Plan {
   id?: string;
@@ -14,8 +15,8 @@ interface Plan {
   priceUSD: number;
 }
 
-export default function SubscribeClientPage({ initialPlans, currentUser, paidCourses = [] }: { initialPlans: Plan[], currentUser?: any, paidCourses?: any[] }) {
-  const [region, setRegion] = useState<'INDIA' | 'ABROAD'>('INDIA');
+export default function SubscribeClientPage({ initialPlans, currentUser, paidCourses = [], defaultCurrency = 'INR' }: { initialPlans: Plan[], currentUser?: any, paidCourses?: any[], defaultCurrency?: string }) {
+  const [region, setRegion] = useState<'INDIA' | 'ABROAD'>(defaultCurrency === 'USD' ? 'ABROAD' : 'INDIA');
   const [billingPeriod, setBillingPeriod] = useState<'MONTHLY' | 'YEARLY'>('YEARLY');
   
   // UPGRADE CALCULATION MATRIX STATE
@@ -962,6 +963,7 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
         )}
 
       </main>
+      <AiSalesBot />
     </div>
   );
 }

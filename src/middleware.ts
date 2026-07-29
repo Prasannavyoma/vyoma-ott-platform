@@ -13,7 +13,15 @@ export function middleware(request: NextRequest) {
   // 2. Inject absolute target pathname for Layout resolution
   requestHeaders.set('x-pathname', request.nextUrl.pathname);
 
-  // 3. Propagate transaction to Next.js pipeline
+  // 3. GEO Engine: Detect country and map currency
+  // Vercel injects 'x-vercel-ip-country' in production edge networks
+  const country = request.headers.get('x-vercel-ip-country') || 'IN';
+  
+  // If user is from India, default to INR, otherwise USD
+  const currency = country === 'IN' ? 'INR' : 'USD';
+  requestHeaders.set('x-user-currency', currency);
+
+  // 4. Propagate transaction to Next.js pipeline
   return NextResponse.next({
     request: {
       headers: requestHeaders,
@@ -21,7 +29,7 @@ export function middleware(request: NextRequest) {
   });
 }
 
-// Match only routes we need (ignoring assets and static API payloads)
+// Match all routes except static assets to ensure pricing pages always get currency
 export const config = {
-  matcher: ['/admin/:path*', '/watch/:path*', '/quiz/:path*'],
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
 };

@@ -29,8 +29,34 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Vyoma Sanskrit OTT",
-  description: "World's Leading Sanskrit Learning Platform",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://www.vyoma-ott.com'),
+  title: {
+    default: "Vyoma Sanskrit OTT",
+    template: "%s | Vyoma Sanskrit OTT"
+  },
+  description: "World's Leading Sanskrit Learning Platform. Discover 100+ structured courses, interactive quizzes, and authentic Shastric knowledge.",
+  openGraph: {
+    title: 'Vyoma Sanskrit OTT',
+    description: 'Learn Sanskrit online with structured courses and authentic Shastric knowledge.',
+    url: '/',
+    siteName: 'Vyoma Sanskrit OTT',
+    images: [
+      {
+        url: '/og-image.jpg', // Placeholder for default OG image
+        width: 1200,
+        height: 630,
+        alt: 'Vyoma Sanskrit OTT Platform',
+      },
+    ],
+    locale: 'en_IN',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Vyoma Sanskrit OTT',
+    description: 'World\'s Leading Sanskrit Learning Platform.',
+    images: ['/og-image.jpg'],
+  },
 };
 
 export default async function RootLayout({
