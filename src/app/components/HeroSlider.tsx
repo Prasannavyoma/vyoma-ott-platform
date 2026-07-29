@@ -70,7 +70,7 @@ export default function HeroSlider({ items }: { items: SliderItem[] }) {
                   top: 0, bottom: 0, left: 0, right: 0,
                   backgroundImage: `url('${bgImg}')`,
                   backgroundSize: 'cover',
-                  backgroundPosition: 'right 20%', /* Align to right so the character is visible */
+                  backgroundPosition: 'right top', /* Pin to top so heads are never cropped */
                   backgroundRepeat: 'no-repeat',
                   zIndex: 0
                 }} />
