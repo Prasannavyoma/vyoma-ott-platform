@@ -59,16 +59,42 @@ export default function HeroSlider({ items }: { items: SliderItem[] }) {
             }}
           >
             {/* --- DESKTOP SLIDER --- */}
-            <div className="desktop-only" style={{ height: '100%', width: '100%' }}>
+            <div className="desktop-only" style={{ height: '100%', width: '100%', position: 'relative', overflow: 'hidden' }}>
               <section className="hero" style={{ 
                 position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, height: '100%', minHeight: '100%',
                 display: 'flex', alignItems: 'center'
               }}>
-                <div className="hero-bg-image" style={{ backgroundImage: `url('${bgImg}')` }} />
+                {/* Full-bleed Blurred Atmospheric Background */}
+                <div style={{
+                  position: 'absolute',
+                  top: '-5%', left: '-5%', right: '-5%', bottom: '-5%',
+                  backgroundImage: `url('${bgImg}')`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  filter: 'blur(25px) brightness(0.4)',
+                  zIndex: 0
+                }} />
+                
+                {/* Sharp Foreground Image Restricted to the Right Side (No Text Overlap) */}
+                <div style={{
+                  position: 'absolute',
+                  top: '10%',
+                  bottom: '10%',
+                  right: '4%',
+                  width: '45%', /* Strictly confine to right half */
+                  backgroundImage: `url('${bgImg}')`,
+                  backgroundSize: 'contain',
+                  backgroundPosition: 'right center',
+                  backgroundRepeat: 'no-repeat',
+                  filter: 'drop-shadow(0 20px 40px rgba(0,0,0,0.8))',
+                  zIndex: 1
+                }} />
+
+                {/* Massive Dark Gradient Overlay for the Left Text Side */}
                 <div style={{
                   position: 'absolute',
                   top: 0, left: 0, right: 0, bottom: 0,
-                  background: 'linear-gradient(90deg, rgba(10,12,20,0.95) 0%, rgba(10,12,20,0.5) 45%, rgba(0,0,0,0) 100%), linear-gradient(0deg, rgba(10,12,20,0.9) 0%, rgba(0,0,0,0) 30%)',
+                  background: 'linear-gradient(90deg, #030b17 0%, rgba(3,11,23,0.95) 30%, rgba(3,11,23,0.4) 60%, transparent 100%)',
                   zIndex: 1
                 }} />
 
