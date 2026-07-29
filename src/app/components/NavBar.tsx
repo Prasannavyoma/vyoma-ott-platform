@@ -129,16 +129,16 @@ export default function NavBar() {
         <div className="nav-actions" style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
           
           {/* Explore Hub 'Live Eye' */}
-          <div className="desktop-only" style={{ marginRight: '5px' }}>
+          <div style={{ marginRight: '5px' }}>
             <ExploreEye />
           </div>
 
           {/* Main Search Bar */}
-          <div className="desktop-only" style={{ marginRight: '10px' }}>
+          <div style={{ marginRight: '10px' }}>
             <SearchBar />
           </div>
 
-          <div className="desktop-only" title="Notifications" style={{ marginRight: '10px' }}>
+          <div title="Notifications" style={{ marginRight: '10px' }}>
             <NotificationBell />
           </div>
 
@@ -237,6 +237,29 @@ export default function NavBar() {
                 </Link>
               </>
             )}
+          </div>
+
+          {/* Secondary Header Links (Shorts, Blog, etc.) */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '15px', marginBottom: '5px' }}>
+            {features.shortsEnabled && (
+              <Link href="/shorts" onClick={() => setMobileMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: '12px', color: '#fff', textDecoration: 'none', fontSize: '1rem', fontWeight: 500 }}>
+                <PlaySquare size={18} color="#ff4d4d" /> Shorts
+              </Link>
+            )}
+            {features.blogEnabled && (
+              <Link href="/blog" onClick={() => setMobileMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: '12px', color: '#fff', textDecoration: 'none', fontSize: '1rem', fontWeight: 500 }}>
+                <FileText size={18} /> Vyoma Blog
+              </Link>
+            )}
+            <Link href="/testimonials" onClick={() => setMobileMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: '12px', color: '#fff', textDecoration: 'none', fontSize: '1rem', fontWeight: 500 }}>
+              <Star size={18} color="#ffb300" /> Testimonials
+            </Link>
+            <Link href="/faq" onClick={() => setMobileMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: '12px', color: '#fff', textDecoration: 'none', fontSize: '1rem', fontWeight: 500 }}>
+              <HelpCircle size={18} color="#00d2ff" /> Help / FAQ
+            </Link>
+            <Link href="/gift" onClick={() => setMobileMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: '12px', color: '#fff', textDecoration: 'none', fontSize: '1rem', fontWeight: 500 }}>
+              <Gift size={18} /> Gift Wisdom
+            </Link>
           </div>
 
           {/* Dynamic dynamic navigation links list */}
