@@ -73,7 +73,7 @@ export default function NavBar() {
 
       <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
         <div className="nav-left-group" style={{ display: 'flex', alignItems: 'center', gap: '25px' }}>
-          <div className="nav-brand" style={{ transform: 'translateY(-12px)' }}>
+          <div className="nav-brand">
             <Link href="/">
               <img 
                 src="/assets/logo-200-x-70-px.png" 

@@ -2332,3 +2332,28 @@ img, video, iframe {
   }
 }
 
+
+/* Make video player controls wrap on mobile to fit all buttons */
+@media (max-width: 768px) {
+  .player-controls-bottom {
+    flex-wrap: wrap !important;
+    gap: 10px !important;
+    padding: 10px !important;
+    justify-content: center !important;
+  }
+  .player-controls-left, .player-controls-right {
+    justify-content: center !important;
+    gap: 8px !important;
+    width: 100% !important;
+    flex-wrap: wrap !important;
+  }
+  .player-controls-right button, .player-controls-left button, .volume-mixer button {
+    padding: 4px 8px !important;
+    font-size: 0.75rem !important;
+  }
+  .player-controls-right svg, .player-controls-left svg, .volume-mixer svg {
+    width: 18px !important;
+    height: 18px !important;
+  }
+}
+
