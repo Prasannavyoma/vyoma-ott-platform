@@ -4,6 +4,7 @@ import { useState, useTransition, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Script from 'next/script';
+import { Eye, EyeOff } from 'lucide-react';
 import { loginUser, loginWithGoogleAction } from '../actions/auth';
 
 interface LoginFormClientProps {
@@ -178,11 +179,11 @@ export default function LoginFormClient({ allowPassword, allowGoogle, googleClie
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 style={{
-                  position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#999', cursor: 'pointer', padding: '5px'
+                  position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#999', cursor: 'pointer', padding: '5px', display: 'flex', alignItems: 'center', justifyContent: 'center'
                 }}
                 title={showPassword ? 'Hide password' : 'Show password'}
               >
-                {showPassword ? '👁️' : '🙈'}
+                {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
               </button>
             </div>
             
