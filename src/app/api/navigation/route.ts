@@ -9,11 +9,39 @@ export async function GET(request: Request) {
     const isFooter = type === 'footer';
 
     // Fetch primary menus with their nested children, sorted by priority
-    const items = await prisma.navigationMenu.findMany({
-      where: { parentId: null, isFooter },
-      include: { children: { orderBy: { order: 'asc' } } },
-      orderBy: { order: 'asc' }
-    });
+    let items: any[] = [];
+    try {
+      items = await prisma.navigationMenu.findMany({
+        where: { parentId: null, isFooter },
+        include: { children: { orderBy: { order: 'asc' } } },
+        orderBy: { order: 'asc' }
+      });
+    } catch (dbErr) {
+      console.error("Prisma navigationMenu fetch error:", dbErr);
+    }
+
+    if (isFooter && (!items || items.length === 0 || !items.some(i => i.children && i.children.length > 0))) {
+      return NextResponse.json([
+        {
+          id: 'footer-account',
+          label: 'Account & Plans',
+          children: [
+            { id: 'f-sub', label: 'Subscribe / Gold', url: '/subscribe' },
+            { id: 'f-gift', label: 'Referral Rewards', url: '/gift' },
+            { id: 'f-pwd', label: 'Change Password', url: '/change-password' }
+          ]
+        },
+        {
+          id: 'footer-legal',
+          label: 'Legal & Guidelines',
+          children: [
+            { id: 'f-privacy', label: 'Privacy Policy', url: '#' },
+            { id: 'f-terms', label: 'Terms of Service', url: '#' },
+            { id: 'f-refund', label: 'Refund Policy', url: '#' }
+          ]
+        }
+      ]);
+    }
 
     if (!isFooter) {
       try {

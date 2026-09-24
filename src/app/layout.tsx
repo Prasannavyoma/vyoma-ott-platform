@@ -179,8 +179,11 @@ export default async function RootLayout({
             background: var(--background) !important;
           }
 
-          /* Global Enforcements */
-          button, .btn, a.btn, input[type="submit"] {
+          /* Global Enforcements - exempt circular and pill navigation action buttons */
+          button:not(.circle-btn):not(.hamburger-toggle):not(.notif-btn):not(.nav-search-trigger):not(.action-pill):not(.explore-eye-link), 
+          .btn:not(.circle-btn), 
+          a.btn:not(.circle-btn), 
+          input[type="submit"] {
             border-radius: var(--button-radius) !important;
           }
         `}} />

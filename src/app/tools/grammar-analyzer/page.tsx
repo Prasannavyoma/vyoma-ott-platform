@@ -1,8 +1,11 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react';
 import { analyzeSanskritGrammar } from '@/app/actions/sanskrit-tools';
 import NavBar from '@/app/components/NavBar';
+import Footer from '@/app/components/Footer';
 import { getSanskritSettings } from '@/app/actions/sanskrit-settings';
 
 interface SandhiSplit {
@@ -111,8 +114,35 @@ export default function GrammarAnalyzerPage() {
     <div style={{ minHeight: '100vh', background: '#0b0f19', color: '#fff', fontFamily: 'var(--font-geist-sans), sans-serif' }}>
       <NavBar />
       
-      <div style={{ maxWidth: '1000px', margin: '40px auto', padding: '80px 20px 40px 20px' }}>
+      <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '160px 20px 60px 20px' }}>
         
+        {/* Back to Home Button */}
+        <div style={{ marginBottom: '30px' }}>
+          <Link 
+            href="/" 
+            className="back-btn-pill"
+            style={{ 
+              display: 'inline-flex', 
+              alignItems: 'center', 
+              gap: '10px', 
+              padding: '10px 22px', 
+              borderRadius: '30px', 
+              background: 'rgba(255, 255, 255, 0.05)', 
+              border: '1px solid rgba(255, 255, 255, 0.1)', 
+              color: '#e2e8f0', 
+              fontSize: '0.9rem', 
+              fontWeight: 700, 
+              textDecoration: 'none', 
+              backdropFilter: 'blur(10px)', 
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)', 
+              boxShadow: '0 4px 15px rgba(0,0,0,0.25)' 
+            }}
+          >
+            <ArrowLeft size={16} />
+            <span>Back to Home</span>
+          </Link>
+        </div>
+
         {/* Title Header */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '35px' }}>
           <div style={{ width: '50px', height: '50px', borderRadius: '16px', background: 'rgba(242, 100, 34, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.8rem', border: '1px solid rgba(242, 100, 34, 0.2)' }}>
@@ -304,6 +334,7 @@ export default function GrammarAnalyzerPage() {
         )}
 
       </div>
+      <Footer />
     </div>
   );
 }

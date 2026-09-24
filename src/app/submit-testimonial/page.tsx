@@ -1,4 +1,5 @@
 import NavBar from '@/app/components/NavBar';
+import Footer from '@/app/components/Footer';
 import SubmitTestimonialClient from './SubmitTestimonialClient';
 
 export default function SubmitTestimonialPage() {
@@ -13,6 +14,7 @@ export default function SubmitTestimonialPage() {
         
         <SubmitTestimonialClient />
       </div>
+      <Footer />
     </main>
   );
 }

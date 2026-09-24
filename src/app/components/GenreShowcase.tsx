@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import prisma from '@/lib/prisma';
+import Footer from './Footer';
 
 interface GenreShowcaseProps {
   contentType: string;
@@ -96,6 +97,7 @@ export default async function GenreShowcase({ contentType, title, description }:
              </div>
           )}
        </div>
+       <Footer />
     </main>
   );
 }
