@@ -1,14 +1,20 @@
 import prisma from '@/lib/prisma';
 import NavBar from '@/app/components/NavBar';
+import Footer from '@/app/components/Footer';
 import Link from 'next/link';
 
 export const revalidate = 3600; // Cache for 1 hour
 
 export default async function BlogListingPage() {
-  const blogs = await prisma.blogPost.findMany({
-    where: { published: true },
-    orderBy: { createdAt: 'desc' }
-  });
+  let blogs: any[] = [];
+  try {
+    blogs = await prisma.blogPost.findMany({
+      where: { published: true },
+      orderBy: { createdAt: 'desc' }
+    });
+  } catch (e) {
+    console.error("Failed to load blogs:", e);
+  }
 
   return (
     <main style={{ minHeight: '100vh', background: 'var(--background)' }}>
@@ -65,6 +71,7 @@ export default async function BlogListingPage() {
           </div>
         )}
       </div>
+      <Footer />
     </main>
   );
 }

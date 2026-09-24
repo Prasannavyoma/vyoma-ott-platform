@@ -37,5 +37,10 @@
     "eslint-config-next": "^0.2.4",
     "prisma": "6.2.1",
     "typescript": "^5"
+  },
+  "allowScripts": {
+    "@prisma/client@6.2.1": true,
+    "@prisma/engines@6.2.1": true,
+    "prisma@6.2.1": true
   }
 }

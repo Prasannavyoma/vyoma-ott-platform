@@ -65,15 +65,19 @@ export default function NotificationBell() {
     return () => clearInterval(interval);
   }, [fetchNotifications]);
 
-  // Click outside to close
+  // Click or touch outside to close
   useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
+    function handleClickOutside(event: MouseEvent | TouchEvent) {
       if (panelRef.current && !panelRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
     }
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
   }, []);
 
   async function handleMarkAllRead() {
@@ -128,30 +132,110 @@ export default function NotificationBell() {
           background: rgba(242, 100, 34, 0.15) !important;
           color: #f26422 !important;
         }
+        .notif-btn {
+          border-radius: 50% !important;
+          width: 38px !important;
+          height: 38px !important;
+        }
         .notif-btn:hover .icon-emoji {
           animation: icon-bounce 0.6s cubic-bezier(0.25, 1, 0.5, 1);
           display: inline-block;
+        }
+
+        /* 📱 Mobile & Tablet Responsive Compact View */
+        @media (max-width: 640px) {
+          .notif-dropdown-panel {
+            position: fixed !important;
+            top: 64px !important;
+            right: 10px !important;
+            left: auto !important;
+            width: calc(100vw - 20px) !important;
+            max-width: 300px !important;
+            max-height: min(340px, calc(100vh - 80px)) !important;
+            border-radius: 14px !important;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(255, 255, 255, 0.1) !important;
+            border: 1px solid rgba(255, 255, 255, 0.12) !important;
+          }
+          .notif-header {
+            padding: 10px 14px 8px !important;
+          }
+          .notif-header-title {
+            font-size: 0.88rem !important;
+          }
+          .notif-close-btn {
+            width: 26px !important;
+            height: 26px !important;
+          }
+          .notif-mark-btn {
+            padding: 3px 8px !important;
+            font-size: 0.68rem !important;
+          }
+          .notif-empty-state {
+            padding: 24px 14px !important;
+            gap: 8px !important;
+          }
+          .notif-empty-icon {
+            font-size: 1.8rem !important;
+          }
+          .notif-empty-title {
+            font-size: 0.82rem !important;
+          }
+          .notif-empty-desc {
+            font-size: 0.72rem !important;
+            line-height: 1.35 !important;
+          }
+          .notif-item {
+            padding: 10px 12px !important;
+            gap: 10px !important;
+          }
+          .notif-item-icon {
+            width: 32px !important;
+            height: 32px !important;
+            border-radius: 8px !important;
+            font-size: 1rem !important;
+          }
+          .notif-item-title {
+            font-size: 0.78rem !important;
+          }
+          .notif-item-msg {
+            font-size: 0.7rem !important;
+            line-height: 1.3 !important;
+          }
+        }
+
+        /* 📱 Ultra-compact for small phones <= 340px (e.g. 320px) */
+        @media (max-width: 340px) {
+          .notif-dropdown-panel {
+            right: 6px !important;
+            width: calc(100vw - 12px) !important;
+            max-width: 290px !important;
+            top: 60px !important;
+          }
+          .notif-empty-state {
+            padding: 18px 10px !important;
+          }
         }
       `}} />
 
       {/* Bell Button */}
       <button
-        className="notif-btn"
+        className="notif-btn circle-btn"
         onClick={() => setIsOpen(prev => !prev)}
         aria-label="Notifications"
         style={{
           position: 'relative',
           background: isOpen ? 'rgba(242, 100, 34, 0.12)' : 'rgba(255, 255, 255, 0.06)',
-          border: `1px solid ${isOpen ? 'rgba(242, 100, 34, 0.3)' : 'rgba(255, 255, 255, 0.1)'}`,
+          border: `1px solid ${isOpen ? 'rgba(242, 100, 34, 0.3)' : 'rgba(255, 255, 255, 0.12)'}`,
           borderRadius: '50%',
-          width: '42px',
-          height: '42px',
+          width: '38px',
+          height: '38px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           cursor: 'pointer',
           transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
           backdropFilter: 'blur(10px)',
+          flexShrink: 0,
         }}
         onMouseEnter={(e) => {
           e.currentTarget.style.background = 'rgba(242, 100, 34, 0.12)';
@@ -161,26 +245,26 @@ export default function NotificationBell() {
         onMouseLeave={(e) => {
           if (!isOpen) {
             e.currentTarget.style.background = 'rgba(255, 255, 255, 0.06)';
-            e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+            e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.12)';
           }
           e.currentTarget.style.transform = 'translateY(0)';
         }}
       >
         <span className="icon-emoji" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <svg
-            width="20"
-            height="20"
+            width="18"
+            height="18"
             viewBox="0 0 24 24"
             fill="none"
-          stroke={isOpen ? '#f26422' : '#ccc'}
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          style={{ transition: 'stroke 0.2s' }}
-        >
-          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-          <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-        </svg>
+            stroke={isOpen ? '#f26422' : '#ccc'}
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            style={{ transition: 'stroke 0.2s' }}
+          >
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+            <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+          </svg>
         </span>
 
         {/* Unread Badge */}
@@ -212,38 +296,47 @@ export default function NotificationBell() {
 
       {/* Dropdown Panel */}
       {isOpen && (
-        <div style={{
-          position: 'absolute',
-          top: 'calc(100% + 10px)',
-          right: 0,
-          width: '380px',
-          maxHeight: '400px',
-          background: 'linear-gradient(180deg, rgba(22, 25, 35, 0.97) 0%, rgba(13, 15, 20, 0.99) 100%)',
-          border: '1px solid rgba(255, 255, 255, 0.08)',
-          borderRadius: '16px',
-          boxShadow: '0 25px 60px rgba(0, 0, 0, 0.85), 0 0 1px rgba(255,255,255,0.1)',
-          backdropFilter: 'blur(40px)',
-          zIndex: 9999,
-          overflow: 'hidden',
-          animation: 'notifPanelIn 0.2s ease-out',
-          fontFamily: 'Outfit, sans-serif',
-          display: 'flex',
-          flexDirection: 'column',
-        }}>
-          {/* Header */}
-          <div style={{
+        <div 
+          className="notif-dropdown-panel"
+          style={{
+            position: 'absolute',
+            top: 'calc(100% + 10px)',
+            right: 0,
+            width: '380px',
+            maxHeight: '400px',
+            background: 'linear-gradient(180deg, rgba(22, 25, 35, 0.97) 0%, rgba(13, 15, 20, 0.99) 100%)',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            borderRadius: '16px',
+            boxShadow: '0 25px 60px rgba(0, 0, 0, 0.85), 0 0 1px rgba(255,255,255,0.1)',
+            backdropFilter: 'blur(40px)',
+            zIndex: 9999,
+            overflow: 'hidden',
+            animation: 'notifPanelIn 0.2s ease-out',
+            fontFamily: 'Outfit, sans-serif',
             display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '16px 18px 12px',
-            borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
-          }}>
-            <div style={{
-              fontSize: '0.95rem',
-              fontWeight: 800,
-              color: '#fff',
-              letterSpacing: '-0.01em',
-            }}>
+            flexDirection: 'column',
+          }}
+        >
+          {/* Header */}
+          <div 
+            className="notif-header"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '16px 18px 12px',
+              borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
+            }}
+          >
+            <div 
+              className="notif-header-title"
+              style={{
+                fontSize: '0.95rem',
+                fontWeight: 800,
+                color: '#fff',
+                letterSpacing: '-0.01em',
+              }}
+            >
               Notifications
               {unreadCount > 0 && (
                 <span style={{
@@ -260,28 +353,71 @@ export default function NotificationBell() {
               )}
             </div>
 
-            {unreadCount > 0 && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              {unreadCount > 0 && (
+                <button
+                  className="notif-mark-btn"
+                  onClick={handleMarkAllRead}
+                  disabled={isLoading}
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.04)',
+                    border: '1px solid rgba(255, 255, 255, 0.08)',
+                    borderRadius: '8px',
+                    color: '#8f98a9',
+                    fontSize: '0.72rem',
+                    fontWeight: 700,
+                    padding: '5px 10px',
+                    cursor: isLoading ? 'wait' : 'pointer',
+                    transition: 'all 0.2s',
+                    fontFamily: 'Outfit, sans-serif',
+                    opacity: isLoading ? 0.6 : 1,
+                  }}
+                >
+                  {isLoading ? '...' : 'Mark All Read'}
+                </button>
+              )}
+
+              {/* Close (X) button */}
               <button
-                className="notif-mark-btn"
-                onClick={handleMarkAllRead}
-                disabled={isLoading}
+                type="button"
+                id="close-notifications-btn"
+                className="notif-close-btn"
+                onClick={() => setIsOpen(false)}
+                aria-label="Close notifications"
+                title="Close"
                 style={{
                   background: 'rgba(255, 255, 255, 0.04)',
                   border: '1px solid rgba(255, 255, 255, 0.08)',
-                  borderRadius: '8px',
+                  borderRadius: '50%',
+                  width: '28px',
+                  height: '28px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                   color: '#8f98a9',
-                  fontSize: '0.72rem',
-                  fontWeight: 700,
-                  padding: '5px 10px',
-                  cursor: isLoading ? 'wait' : 'pointer',
+                  cursor: 'pointer',
                   transition: 'all 0.2s',
-                  fontFamily: 'Outfit, sans-serif',
-                  opacity: isLoading ? 0.6 : 1,
+                  padding: 0,
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(242, 100, 34, 0.15)';
+                  e.currentTarget.style.borderColor = 'rgba(242, 100, 34, 0.4)';
+                  e.currentTarget.style.color = '#fff';
+                  e.currentTarget.style.transform = 'scale(1.08)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.04)';
+                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.08)';
+                  e.currentTarget.style.color = '#8f98a9';
+                  e.currentTarget.style.transform = 'scale(1)';
                 }}
               >
-                {isLoading ? '...' : 'Mark All Read'}
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
               </button>
-            )}
+            </div>
           </div>
 
           {/* Notification List */}
@@ -295,28 +431,37 @@ export default function NotificationBell() {
           >
             {notifications.length === 0 ? (
               /* Empty State */
-              <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '50px 20px',
-                gap: '12px',
-              }}>
-                <span style={{ fontSize: '2.5rem', opacity: 0.4 }}>🔔</span>
-                <span style={{
-                  fontSize: '0.88rem',
-                  fontWeight: 600,
-                  color: '#555e6d',
-                  textAlign: 'center',
-                }}>
+              <div 
+                className="notif-empty-state"
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '50px 20px',
+                  gap: '12px',
+                }}
+              >
+                <span className="notif-empty-icon" style={{ fontSize: '2.5rem', opacity: 0.4 }}>🔔</span>
+                <span 
+                  className="notif-empty-title"
+                  style={{
+                    fontSize: '0.88rem',
+                    fontWeight: 600,
+                    color: '#555e6d',
+                    textAlign: 'center',
+                  }}
+                >
                   No notifications yet
                 </span>
-                <span style={{
-                  fontSize: '0.75rem',
-                  color: '#3d4452',
-                  textAlign: 'center',
-                }}>
+                <span 
+                  className="notif-empty-desc"
+                  style={{
+                    fontSize: '0.75rem',
+                    color: '#3d4452',
+                    textAlign: 'center',
+                  }}
+                >
                   We&apos;ll notify you about course updates, certificates, and rewards
                 </span>
               </div>
@@ -352,18 +497,21 @@ export default function NotificationBell() {
                   )}
 
                   {/* Type Icon */}
-                  <div style={{
-                    width: '40px',
-                    height: '40px',
-                    borderRadius: '12px',
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    border: '1px solid rgba(255, 255, 255, 0.06)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '1.2rem',
-                    flexShrink: 0,
-                  }}>
+                  <div 
+                    className="notif-item-icon"
+                    style={{
+                      width: '40px',
+                      height: '40px',
+                      borderRadius: '12px',
+                      background: 'rgba(255, 255, 255, 0.05)',
+                      border: '1px solid rgba(255, 255, 255, 0.06)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '1.2rem',
+                      flexShrink: 0,
+                    }}
+                  >
                     {TYPE_ICONS[notif.type] || '🔔'}
                   </div>
 
@@ -375,17 +523,20 @@ export default function NotificationBell() {
                       justifyContent: 'space-between',
                       gap: '8px',
                     }}>
-                      <span style={{
-                        fontSize: '0.82rem',
-                        fontWeight: notif.read ? 600 : 800,
-                        color: notif.read ? '#b0b8c7' : '#fff',
-                        lineHeight: 1.3,
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        display: '-webkit-box',
-                        WebkitLineClamp: 1,
-                        WebkitBoxOrient: 'vertical',
-                      }}>
+                      <span 
+                        className="notif-item-title"
+                        style={{
+                          fontSize: '0.82rem',
+                          fontWeight: notif.read ? 600 : 800,
+                          color: notif.read ? '#b0b8c7' : '#fff',
+                          lineHeight: 1.3,
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          display: '-webkit-box',
+                          WebkitLineClamp: 1,
+                          WebkitBoxOrient: 'vertical',
+                        }}
+                      >
                         {notif.title}
                       </span>
                       <span style={{
@@ -400,17 +551,20 @@ export default function NotificationBell() {
                       </span>
                     </div>
 
-                    <div style={{
-                      fontSize: '0.76rem',
-                      color: notif.read ? '#555e6d' : '#8f98a9',
-                      marginTop: '3px',
-                      lineHeight: 1.4,
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      display: '-webkit-box',
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: 'vertical',
-                    }}>
+                    <div 
+                      className="notif-item-msg"
+                      style={{
+                        fontSize: '0.76rem',
+                        color: notif.read ? '#555e6d' : '#8f98a9',
+                        marginTop: '3px',
+                        lineHeight: 1.4,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                      }}
+                    >
                       {notif.message}
                     </div>
                   </div>

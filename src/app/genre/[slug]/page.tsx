@@ -1,5 +1,8 @@
-import Link from 'next/link';
 import prisma from '@/lib/prisma';
+import NavBar from '@/app/components/NavBar';
+import Footer from '@/app/components/Footer';
+import GenreClientView from './GenreClientView';
+
 export default async function GenrePage({ params }: { params: Promise<{ slug: string }> }) {
   const unwrappedParams = await params;
   const slug = unwrappedParams?.slug || '';
@@ -19,75 +22,70 @@ export default async function GenrePage({ params }: { params: Promise<{ slug: st
   // Map "e-books" slug to EBOOK content type
   if (slugUpper.includes('E-BOOK')) contentTypesToSearch.push('EBOOK');
 
-  // Map slugs with missing ampersands to their HTML-encoded WordPress database equivalents
+  // Map slugs with missing ampersands or common database naming variations
   const categoriesToSearch = [categoryName];
-  if (slugUpper.includes('EPICS')) categoriesToSearch.push('Evergreen Epics &amp; Puranas');
-  if (slugUpper.includes('GAMES-ACTIVITIES')) categoriesToSearch.push('Games &amp; Activities');
-  if (slugUpper.includes('STORIES-SUBHASHITAS')) categoriesToSearch.push('Stories &amp; Subhashitas');
+  if (slugUpper.includes('CHANT')) categoriesToSearch.push('World of Chants', 'Chants', 'Stotra');
+  if (slugUpper.includes('BHAKTI')) categoriesToSearch.push('Bhakti Bhava Lahari', 'Bhakti');
+  if (slugUpper.includes('EPICS')) categoriesToSearch.push('Evergreen Epics &amp; Puranas', 'Evergreen Epics & Puranas', 'Epics', 'Puranas');
+  if (slugUpper.includes('GAMES-ACTIVITIES') || slugUpper === 'GAMES') categoriesToSearch.push('Games &amp; Activities', 'Games & Activities');
+  if (slugUpper.includes('STORIES-SUBHASHITAS')) categoriesToSearch.push('Stories &amp; Subhashitas', 'Stories & Subhashitas', 'Subhashitas', 'Stories');
+  if (slugUpper.includes('GRAMMAR')) categoriesToSearch.push('Grammar Simplified', 'Grammar');
+  if (slugUpper.includes('LANGUAGE')) categoriesToSearch.push('Language Learning', 'Sanskrit Language');
+  if (slugUpper.includes('GITA')) categoriesToSearch.push('Bhagavad Gita', 'Gita');
+  if (slugUpper.includes('VEDANTA')) categoriesToSearch.push('Vedanta');
+  if (slugUpper.includes('SHAASTRA')) categoriesToSearch.push('Shaastra Studies', 'Shastra');
+  if (slugUpper.includes('ROOTS')) categoriesToSearch.push('Roots of Dharma', 'Dharma');
+  if (slugUpper.includes('IKS')) categoriesToSearch.push('IKS', 'Indian Knowledge Systems');
 
   // Prevent "Game" search from accidentally matching "Game Based Learning"
   const excludeGameBasedLearning = (slugUpper === 'GAME' || slugUpper.includes('GAMES-ACTIVITIES'));
 
-  const courses = await prisma.course.findMany({
-    where: {
-      AND: [
-        {
-          OR: [
-            ...categoriesToSearch.map(cat => ({
+  let courses: any[] = [];
+  try {
+    courses = await prisma.course.findMany({
+      where: {
+        AND: [
+          {
+            OR: [
+              ...categoriesToSearch.map(cat => ({
+                category: {
+                  contains: cat,
+                  mode: 'insensitive' as const
+                }
+              })),
+              {
+                contentType: {
+                  in: contentTypesToSearch
+                }
+              }
+            ]
+          },
+          excludeGameBasedLearning ? {
+            NOT: {
               category: {
-                contains: cat,
+                contains: 'Game Based Learning',
                 mode: 'insensitive' as const
               }
-            })),
-            {
-              contentType: {
-                in: contentTypesToSearch
-              }
             }
-          ]
-        },
-        excludeGameBasedLearning ? {
-          NOT: {
-            category: {
-              contains: 'Game Based Learning',
-              mode: 'insensitive' as const
-            }
-          }
-        } : {}
-      ]
-    },
-    orderBy: { createdAt: 'desc' }
-  });
+          } : {}
+        ]
+      },
+      include: {
+        _count: {
+          select: { episodes: true }
+        }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+  } catch (error) {
+    console.error(`Failed to load courses for genre "${slug}":`, error);
+  }
 
   return (
-    <div style={{ padding: '120px 5% 50px', minHeight: '100vh', background: '#0f1014', color: 'white' }}>
-      <Link href="/" style={{ color: 'var(--primary)', display: 'inline-block', marginBottom: '30px' }}>
-        ← Back to Home
-      </Link>
-      
-      <h1 style={{ fontSize: '2.5rem', marginBottom: '30px' }}>{categoryName}</h1>
-      
-      {courses.length === 0 ? (
-        <p>No courses found in this category.</p>
-      ) : (
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', 
-          gap: '30px' 
-        }}>
-          {courses.map((course) => (
-            <Link href={`/watch/${course.id}`} key={course.id} className="poster" style={{ width: '100%', height: '180px', position: 'relative', display: 'block', borderRadius: '8px', overflow: 'hidden' }}>
-              <img src={course.thumbnailUrl || '/images/default-course.jpg'} alt={course.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              <div className="poster-overlay" style={{ opacity: 1, background: 'rgba(0,0,0,0.6)', position: 'absolute', bottom: 0, left: 0, right: 0, padding: '10px' }}>
-                <div className="poster-title" style={{ fontSize: '1rem', fontWeight: 'bold' }}>{course.title}</div>
-                <div className="poster-meta" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', marginTop: '5px' }}>
-                  <span style={{ color: '#46d369' }}>{course.accessLevel}</span>
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
-      )}
-    </div>
+    <>
+      <NavBar />
+      <GenreClientView categoryName={categoryName} slug={slug} courses={courses} />
+      <Footer />
+    </>
   );
 }

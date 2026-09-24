@@ -1,5 +1,6 @@
 import prisma from '@/lib/prisma';
 import NavBar from '@/app/components/NavBar';
+import Footer from '@/app/components/Footer';
 import { notFound } from 'next/navigation';
 
 export const revalidate = 3600;
@@ -50,6 +51,7 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
         `}</style>
 
       </div>
+      <Footer />
     </main>
   );
 }

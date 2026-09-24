@@ -12,12 +12,18 @@ if (dbUrl.includes('global-bundle.pem')) {
 
 export const prisma =
   globalForPrisma.prisma ||
-  new PrismaClient({
-    log: ['error', 'warn'],
-    datasources: {
-      db: { url: dbUrl }
-    }
-  });
+  new PrismaClient(
+    dbUrl
+      ? {
+          log: ['error', 'warn'],
+          datasources: {
+            db: { url: dbUrl }
+          }
+        }
+      : {
+          log: ['error', 'warn']
+        }
+  );
 
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 

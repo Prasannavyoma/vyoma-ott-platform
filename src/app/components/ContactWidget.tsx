@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 
 interface ContactSettings {
   widgetEnabled: boolean;
@@ -15,6 +15,22 @@ interface ContactSettings {
 
 export default function ContactWidget({ settings }: { settings: ContactSettings }) {
   const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Close widget when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen]);
 
   if (!settings.widgetEnabled) return null;
 
@@ -26,11 +42,10 @@ export default function ContactWidget({ settings }: { settings: ContactSettings 
   const emailUrl = `mailto:${settings.emailAddress}`;
 
   return (
-    <div className="vyoma-contact-container" style={{
+    <div ref={containerRef} className="vyoma-contact-container" style={{
       position: 'fixed',
-      right: '24px',
-      top: '50%',
-      transform: 'translateY(-50%)',
+      right: '30px',
+      bottom: '30px',
       zIndex: 9999,
       fontFamily: 'var(--font-geist-sans), sans-serif',
       width: '54px',
@@ -56,10 +71,8 @@ export default function ContactWidget({ settings }: { settings: ContactSettings 
         }
         @media (max-width: 768px) {
           .vyoma-contact-container {
-            top: auto !important;
-            bottom: 100px !important;
-            transform: none !important;
-            right: 33px !important;
+            bottom: 85px !important;
+            right: 20px !important;
           }
         }
       `}} />
@@ -131,6 +144,8 @@ export default function ContactWidget({ settings }: { settings: ContactSettings 
         {settings.emailEnabled && (
           <a
             href={emailUrl}
+            target="_blank"
+            rel="noopener noreferrer"
             title="Email Support"
             className="vyoma-contact-btn"
             style={{

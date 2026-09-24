@@ -10,6 +10,7 @@ import prisma from '@/lib/prisma';
 import SponsorSlider from './components/SponsorSlider';
 import { cookies } from 'next/headers';
 import SubhashitaWidget from './components/SubhashitaWidget';
+import Footer from './components/Footer';
 import { PlayCircle, PlusCircle, Search as SearchIcon, Sparkles, Flame, CreditCard, LayoutTemplate, Smile, Headphones, Gift, BookOpen, Star, Mic, Video, Gamepad2 } from 'lucide-react';
 
 // Direct safe SQL conduit bypassing Prisma cached TS model definition locks
@@ -185,7 +186,7 @@ export default async function HomePage() {
 
   let dynamicSections = dynamicSectionsRaw;
   let hideDummy = hideDummySetting?.value === 'true';
-  let footerMenus = footerMenusData;
+  let footerMenus = (footerMenusData && footerMenusData.length > 0 && footerMenusData.some((m: any) => m.children && m.children.length > 0)) ? footerMenusData : undefined;
   let hotstarChannelsEnabled = hotstarChannelsSetting ? hotstarChannelsSetting.value === 'true' : true;
 
   // Personalized Hero Slider: Boost courses matching the last search query
@@ -450,87 +451,9 @@ export default async function HomePage() {
         <SubhashitaWidget />
 
         <SponsorSlider dbSponsors={sponsors as any} hideDummy={hideDummy} />
-
-        <footer style={{ 
-          marginTop: '80px', 
-          borderTop: '1px solid rgba(255,255,255,0.06)', 
-          paddingTop: '60px', 
-          paddingBottom: '30px', 
-          color: '#8f98a9',
-          fontFamily: 'inherit'
-        }}>
-          <div className="grid-responsive container" style={{ marginBottom: '50px' }}>
-            {/* Branding Column */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-              <img 
-                src="/assets/logo-200-x-70-px.png" 
-                alt="Vyoma Logo" 
-                style={{ height: '45px', width: 'fit-content', objectFit: 'contain', filter: 'drop-shadow(0 0 10px rgba(242, 100, 34, 0.15))' }} 
-              />
-              <p style={{ fontSize: '0.9rem', lineHeight: '1.6', margin: 0, color: '#687387' }}>
-                Vyoma Linguistic Labs Foundation is a non-profit organization pioneering digital Sanskrit education globally.
-              </p>
-            </div>
-
-            {/* Dynamic Columns */}
-            {footerMenus.map(menu => (
-              <div key={menu.id}>
-                <h3 style={{ 
-                  color: 'white', 
-                  fontSize: '1.05rem', 
-                  fontWeight: 800, 
-                  marginBottom: '20px', 
-                  position: 'relative',
-                  paddingBottom: '8px',
-                  borderBottom: '2px solid rgba(242,100,34,0.3)',
-                  display: 'inline-block'
-                }}>
-                  {menu.label}
-                </h3>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '10px' }}>
-                  {menu.children && menu.children.map((child: any) => (
-                    <Link 
-                      key={child.id}
-                      href={child.url || '#'} 
-                      style={{ 
-                        color: '#8f98a9', 
-                        textDecoration: 'none', 
-                        fontSize: '0.9rem',
-                        transition: 'all 0.2s ease',
-                        display: 'block'
-                      }} 
-                    >
-                      {child.label}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Bottom copyright segment */}
-          <div style={{ 
-            borderTop: '1px solid rgba(255,255,255,0.04)', 
-            paddingTop: '30px', 
-            display: 'flex', 
-            justifyContent: 'space-between', 
-            alignItems: 'center', 
-            flexWrap: 'wrap', 
-            gap: '20px',
-            fontSize: '0.85rem',
-            color: '#687387'
-          }}>
-            <div>
-              © 2026 Vyoma Sanskrit OTT. All rights reserved.
-            </div>
-            <div style={{ display: 'flex', gap: '20px' }}>
-              <Link href="#" style={{ color: '#687387', textDecoration: 'none' }}>Privacy Policy</Link>
-              <Link href="#" style={{ color: '#687387', textDecoration: 'none' }}>Terms of Use</Link>
-              <Link href="#" style={{ color: '#687387', textDecoration: 'none' }}>Refund Policy</Link>
-            </div>
-          </div>
-        </footer>
       </section>
+
+      <Footer initialMenus={footerMenus} />
     </main>
   );
 }

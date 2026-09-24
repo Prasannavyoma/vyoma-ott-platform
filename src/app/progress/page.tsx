@@ -1,5 +1,6 @@
 import prisma from '@/lib/prisma';
 import NavBar from '@/app/components/NavBar';
+import Footer from '@/app/components/Footer';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { getCurrentUser } from '@/lib/auth';
@@ -426,6 +427,7 @@ export default async function ProgressTrackerPage() {
         </div>
 
       </div>
+      <Footer />
     </main>
   );
 }

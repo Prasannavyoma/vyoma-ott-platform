@@ -6,6 +6,7 @@ import { createRazorpaySubscription } from '@/app/actions/razorpay';
 import { activateSubscription } from '@/app/actions/plans';
 import RazorpayCheckoutButton from '@/app/components/RazorpayCheckoutButton';
 import AiSalesBot from '@/app/components/AiSalesBot';
+import Footer from '@/app/components/Footer';
 
 interface Plan {
   id?: string;
@@ -962,6 +963,7 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
           </div>
         )}
 
+        <Footer />
       </main>
       <AiSalesBot />
     </div>

@@ -1,5 +1,6 @@
 import prisma from '@/lib/prisma';
 import NavBar from '../components/NavBar';
+import Footer from '../components/Footer';
 import ShortsFeedClient from './ShortsFeedClient';
 
 export const metadata = {
@@ -29,9 +30,9 @@ export default async function ShortsPage() {
   })).filter(s => s.videoUrl); // Only send shorts that actually have a video
 
   return (
-    <main style={{ background: '#000', height: '100dvh', overflow: 'hidden' }}>
+    <main style={{ background: '#000', minHeight: '100dvh' }}>
       <NavBar />
-      <div style={{ height: 'calc(100dvh - 75px)', marginTop: '75px', position: 'relative' }}>
+      <div style={{ minHeight: 'calc(100dvh - 75px)', marginTop: '75px', position: 'relative' }}>
         {shorts.length > 0 ? (
           <ShortsFeedClient shorts={shorts} />
         ) : (
@@ -42,6 +43,7 @@ export default async function ShortsPage() {
           </div>
         )}
       </div>
+      <Footer />
     </main>
   );
 }

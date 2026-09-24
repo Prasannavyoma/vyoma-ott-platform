@@ -1,14 +1,20 @@
 import prisma from '@/lib/prisma';
 import NavBar from '@/app/components/NavBar';
+import Footer from '@/app/components/Footer';
 import Link from 'next/link';
 
 export const revalidate = 3600; // Cache for 1 hour
 
 export default async function TestimonialsPage() {
-  const testimonials = await prisma.testimonial.findMany({
-    where: { status: 'APPROVED' },
-    orderBy: { createdAt: 'desc' }
-  });
+  let testimonials: any[] = [];
+  try {
+    testimonials = await prisma.testimonial.findMany({
+      where: { status: 'APPROVED' },
+      orderBy: { createdAt: 'desc' }
+    });
+  } catch (e) {
+    console.error("Failed to load testimonials:", e);
+  }
 
   return (
     <main style={{ minHeight: '100vh', background: 'var(--background)' }}>
@@ -63,6 +69,7 @@ export default async function TestimonialsPage() {
         )}
 
       </div>
+      <Footer />
     </main>
   );
 }

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import NavBar from '@/app/components/NavBar';
+import Footer from '@/app/components/Footer';
 import { purchaseGiftVoucher } from '@/app/actions/gift';
 import { createRazorpayOrder } from '@/app/actions/razorpay';
 
@@ -502,7 +503,7 @@ export default function GiftClientPage({ initialPlans }: { initialPlans: RealPla
                             <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                                <button onClick={() => { navigator.clipboard.writeText(code); alert(`Key #${idx + 1} copied!`); }} className="share-btn" style={{ flex: 1, minWidth: '100px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)' }}>Copy Key</button>
                                <a href={indWhatsappUrl} target="_blank" rel="noopener noreferrer" className="share-btn" style={{ flex: 1, minWidth: '140px', background: '#25D366', color: '#fff' }}>💬 Share WhatsApp</a>
-                               <a href={indEmailUrl} className="share-btn" style={{ flex: 1, minWidth: '140px', background: '#3b82f6', color: '#fff' }}>✉️ Share Email</a>
+                               <a href={indEmailUrl} target="_blank" rel="noopener noreferrer" className="share-btn" style={{ flex: 1, minWidth: '140px', background: '#3b82f6', color: '#fff' }}>✉️ Share Email</a>
                             </div>
                          </div>
                       );
@@ -517,6 +518,7 @@ export default function GiftClientPage({ initialPlans }: { initialPlans: RealPla
           </div>
         )}
       </div>
+      <Footer />
     </div>
   );
 }
