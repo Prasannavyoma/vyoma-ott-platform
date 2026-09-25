@@ -4,6 +4,7 @@ import { useState, useTransition, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Script from 'next/script';
+import { Eye, EyeOff } from 'lucide-react';
 import { registerUser, loginWithGoogleAction } from '../actions/auth';
 
 interface RegisterFormClientProps {
@@ -19,8 +20,12 @@ export default function RegisterFormClient({ allowPassword, allowGoogle, googleC
 
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState('');
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // Password strength logic
   const getPasswordStrength = (pwd: string) => {
@@ -70,8 +75,35 @@ export default function RegisterFormClient({ allowPassword, allowGoogle, googleC
       return;
     }
 
+    const trimmedName = name.trim();
+    const trimmedEmail = email.trim();
+
+    // 1. Full Name Validation: should not begin with numbers or special characters
+    if (!trimmedName) {
+      setError('Please enter your Full Name.');
+      return;
+    }
+    if (!/^[a-zA-Z]/.test(trimmedName)) {
+      setError('Full Name should not begin with numbers or special characters.');
+      return;
+    }
+
+    // 2. Email / Gmail ID Validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!trimmedEmail || !emailRegex.test(trimmedEmail)) {
+      setError('Please enter a valid Email address (e.g. username@gmail.com).');
+      return;
+    }
+
+    // 3. Password Strength Check
     if (!strength.isValid) {
       setError('Please choose a medium or strong password.');
+      return;
+    }
+
+    // 4. Confirm Password Match Validation
+    if (password !== confirmPassword) {
+      setError('Passwords do not match. Please enter matching passwords.');
       return;
     }
 
@@ -132,7 +164,7 @@ export default function RegisterFormClient({ allowPassword, allowGoogle, googleC
           fontWeight: 'bold'
         }} onMouseEnter={(e)=>e.currentTarget.style.background='rgba(255,255,255,0.2)'} onMouseLeave={(e)=>e.currentTarget.style.background='rgba(255,255,255,0.1)'}>✕</Link>
 
-        <h1 style={{ fontSize: '2rem', fontWeight: 700, marginBottom: '30px' }}>Join Vyoma</h1>
+        <h1 style={{ fontSize: '2rem', fontWeight: 700, marginBottom: '30px' }}>Sign up</h1>
         
         {/* Error Messages */}
         {error === 'already_registered' ? (
@@ -170,6 +202,8 @@ export default function RegisterFormClient({ allowPassword, allowGoogle, googleC
             <input 
               type="text" 
               name="name" 
+              value={name}
+              onChange={(e) => setName(e.target.value)}
               placeholder="Full Name" 
               required
               style={{
@@ -178,7 +212,8 @@ export default function RegisterFormClient({ allowPassword, allowGoogle, googleC
                 border: 'none',
                 borderRadius: '4px',
                 color: 'white',
-                fontSize: '1rem'
+                fontSize: '1rem',
+                outline: 'none'
               }}
             />
 
@@ -204,28 +239,54 @@ export default function RegisterFormClient({ allowPassword, allowGoogle, googleC
                 border: 'none',
                 borderRadius: '4px',
                 color: 'white',
-                fontSize: '1rem'
+                fontSize: '1rem',
+                outline: 'none'
               }}
             />
             
+            {/* Create Password */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <input 
-                type="password" 
-                name="password" 
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Create Password" 
-                required
-                style={{
-                  padding: '16px 20px',
-                  backgroundColor: '#333',
-                  border: 'none',
-                  borderRadius: '4px',
-                  color: 'white',
-                  fontSize: '1rem',
-                  width: '100%'
-                }}
-              />
+              <div style={{ position: 'relative' }}>
+                <input 
+                  type={showPassword ? 'text' : 'password'} 
+                  name="password" 
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Create Password" 
+                  required
+                  style={{
+                    padding: '16px 45px 16px 20px',
+                    backgroundColor: '#333',
+                    border: 'none',
+                    borderRadius: '4px',
+                    color: 'white',
+                    fontSize: '1rem',
+                    width: '100%',
+                    outline: 'none'
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{
+                    position: 'absolute',
+                    right: '12px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    color: '#aaa',
+                    cursor: 'pointer',
+                    padding: '5px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                  title={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
+                </button>
+              </div>
               {/* Password strength UI */}
               {password && (
                 <div style={{ marginTop: '5px' }}>
@@ -239,22 +300,76 @@ export default function RegisterFormClient({ allowPassword, allowGoogle, googleC
                 </div>
               )}
             </div>
+
+            {/* Confirm Password */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div style={{ position: 'relative' }}>
+                <input 
+                  type={showConfirmPassword ? 'text' : 'password'} 
+                  name="confirmPassword" 
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Confirm Password" 
+                  required
+                  style={{
+                    padding: '16px 45px 16px 20px',
+                    backgroundColor: '#333',
+                    border: 'none',
+                    borderRadius: '4px',
+                    color: 'white',
+                    fontSize: '1rem',
+                    width: '100%',
+                    outline: 'none'
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  style={{
+                    position: 'absolute',
+                    right: '12px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    color: '#aaa',
+                    cursor: 'pointer',
+                    padding: '5px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                  title={showConfirmPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showConfirmPassword ? <Eye size={18} /> : <EyeOff size={18} />}
+                </button>
+              </div>
+              {confirmPassword && (
+                <div style={{ fontSize: '0.75rem', fontWeight: 'bold', marginTop: '2px' }}>
+                  {confirmPassword === password ? (
+                    <span style={{ color: '#22c55e' }}>✓ Passwords match</span>
+                  ) : (
+                    <span style={{ color: '#ef4444' }}>✕ Passwords do not match</span>
+                  )}
+                </div>
+              )}
+            </div>
             
             <button 
               type="submit" 
               className="btn btn-primary" 
-              disabled={isPending || (password !== '' && !strength.isValid)}
+              disabled={isPending || (password !== '' && !strength.isValid) || (confirmPassword !== '' && confirmPassword !== password)}
               style={{ 
                 marginTop: '10px', 
                 padding: '16px', 
                 justifyContent: 'center', 
                 fontSize: '1.1rem', 
                 fontWeight: 700,
-                cursor: (isPending || (password !== '' && !strength.isValid)) ? 'not-allowed' : 'pointer',
-                opacity: (isPending || (password !== '' && !strength.isValid)) ? 0.7 : 1
+                cursor: (isPending || (password !== '' && !strength.isValid) || (confirmPassword !== '' && confirmPassword !== password)) ? 'not-allowed' : 'pointer',
+                opacity: (isPending || (password !== '' && !strength.isValid) || (confirmPassword !== '' && confirmPassword !== password)) ? 0.7 : 1
               }}
             >
-              {isPending ? 'Registering...' : 'Complete Registration'}
+              {isPending ? 'Signing up...' : 'Sign up'}
             </button>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: '#b3b3b3' }}>
@@ -305,8 +420,15 @@ export default function RegisterFormClient({ allowPassword, allowGoogle, googleC
           Already using Vyoma? <Link href="/login" style={{ color: 'white', textDecoration: 'none' }}>Sign In</Link>
         </div>
         
-        <p style={{ marginTop: '20px', color: '#8c8c8c', fontSize: '0.8rem' }}>
-          By signing up, you agree to receive Sanskrit educational updates.
+        <p style={{ marginTop: '20px', color: '#8c8c8c', fontSize: '0.82rem', lineHeight: '1.5', textAlign: 'center' }}>
+          By continuing, you agree to digitalsanskrit.com{' '}
+          <a href="https://www.digitalsanskrit.com/terms-and-conditions" target="_blank" rel="noopener noreferrer" style={{ color: '#fff', textDecoration: 'underline' }}>
+            Terms &amp; Conditions
+          </a>{' '}
+          and{' '}
+          <a href="https://www.digitalsanskrit.com/privacy-policy" target="_blank" rel="noopener noreferrer" style={{ color: '#fff', textDecoration: 'underline' }}>
+            Privacy Policy
+          </a>.
         </p>
       </div>
     </div>
