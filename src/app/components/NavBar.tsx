@@ -2,10 +2,11 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { User, PlaySquare, FileText, Star, HelpCircle, Gift, TrendingUp } from 'lucide-react';
+import { User, PlaySquare, FileText, Star, HelpCircle, Gift, TrendingUp, ShieldCheck } from 'lucide-react';
 import SearchBar from './SearchBar';
 import ExploreEye from './ExploreEye';
 import NotificationBell from './NotificationBell';
+import FindMyPlanModal from './FindMyPlanModal';
 
 import { logoutUser } from '@/app/actions/auth';
 
@@ -15,6 +16,8 @@ export default function NavBar() {
   const [menus, setMenus] = useState<any[]>([]);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userPlanData, setUserPlanData] = useState<any>(null);
+  const [showFindMyPlan, setShowFindFindMyPlan] = useState(false);
   const [features, setFeatures] = useState({ shortsEnabled: true, blogEnabled: true });
   
   // 📱 Mobile responsive state managers
@@ -29,7 +32,10 @@ export default function NavBar() {
       
     fetch('/api/auth/status')
       .then(res => res.json())
-      .then(data => setIsLoggedIn(data.isLoggedIn))
+      .then(data => {
+        setIsLoggedIn(data.isLoggedIn);
+        setUserPlanData(data);
+      })
       .catch(e => console.error("Failed to fetch auth status."));
 
     fetch('/api/features')
@@ -128,6 +134,46 @@ export default function NavBar() {
         
         <div className="nav-actions" style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
           
+          {/* Find My Plan Button */}
+          <button 
+            onClick={() => setShowFindFindMyPlan(true)}
+            title="Find My Plan & Pricing"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              background: 'linear-gradient(135deg, rgba(242, 100, 34, 0.15) 0%, rgba(255, 179, 0, 0.15) 100%)',
+              border: '1px solid rgba(242, 100, 34, 0.35)',
+              color: '#fff',
+              padding: '6px 12px',
+              borderRadius: '20px',
+              fontSize: '0.82rem',
+              fontWeight: 800,
+              cursor: 'pointer',
+              transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+              boxShadow: '0 4px 15px rgba(242, 100, 34, 0.2)',
+              marginRight: '2px'
+            }}
+            onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
+            onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+          >
+            <ShieldCheck size={16} color="var(--primary)" />
+            <span className="desktop-only">Find My Plan</span>
+            {userPlanData?.user?.plan && userPlanData.user.plan !== 'FREE' && (
+              <span style={{
+                background: userPlanData.user.plan === 'PLATINUM' ? '#e5e4e2' : '#ffd700',
+                color: '#000',
+                padding: '1px 6px',
+                borderRadius: '10px',
+                fontSize: '0.65rem',
+                fontWeight: 900,
+                marginLeft: '2px'
+              }}>
+                {userPlanData.user.plan}
+              </span>
+            )}
+          </button>
+
           {/* Explore Hub 'Live Eye' */}
           <div style={{ marginRight: '5px' }}>
             <ExploreEye />
@@ -313,6 +359,30 @@ export default function NavBar() {
             );
           })}
 
+          {/* Find My Plan Target Button */}
+          <button 
+            onClick={() => { setMobileMenuOpen(false); setShowFindFindMyPlan(true); }}
+            style={{
+              width: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              background: 'linear-gradient(135deg, rgba(242, 100, 34, 0.2) 0%, rgba(255, 179, 0, 0.2) 100%)',
+              border: '1px solid rgba(242, 100, 34, 0.4)',
+              color: '#fff',
+              padding: '12px',
+              borderRadius: '10px',
+              fontSize: '0.9rem',
+              fontWeight: 800,
+              cursor: 'pointer',
+              marginBottom: '10px',
+              marginTop: '10px'
+            }}
+          >
+            <ShieldCheck size={18} color="var(--primary)" /> Find My Plan &amp; Pricing
+          </button>
+
           {/* Primary Join Free target */}
           {!isLoggedIn && (
             <Link 
@@ -326,6 +396,13 @@ export default function NavBar() {
           )}
         </div>
       </div>
+
+      {/* Find My Plan & Pricing Sheet Modal */}
+      <FindMyPlanModal 
+        isOpen={showFindMyPlan} 
+        onClose={() => setShowFindFindMyPlan(false)} 
+        userPlanData={userPlanData} 
+      />
     </>
   );
 }
