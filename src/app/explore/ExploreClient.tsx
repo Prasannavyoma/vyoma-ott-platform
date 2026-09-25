@@ -3,7 +3,37 @@
 import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { Compass } from 'lucide-react';
+import { Compass, Video, BookOpen, Headphones, Gamepad2, Sparkles } from 'lucide-react';
+
+function AnimatedCounter({ target, duration = 1200 }: { target: number; duration?: number }) {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    if (target <= 0) {
+      setCount(0);
+      return;
+    }
+    let startTimestamp: number | null = null;
+    let animationFrameId: number;
+
+    const step = (timestamp: number) => {
+      if (!startTimestamp) startTimestamp = timestamp;
+      const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+      const easeProgress = 1 - Math.pow(1 - progress, 3);
+      setCount(Math.floor(easeProgress * target));
+      if (progress < 1) {
+        animationFrameId = window.requestAnimationFrame(step);
+      } else {
+        setCount(target);
+      }
+    };
+
+    animationFrameId = window.requestAnimationFrame(step);
+    return () => window.cancelAnimationFrame(animationFrameId);
+  }, [target, duration]);
+
+  return <>{count.toLocaleString()}</>;
+}
 
 export default function ExploreClient({ initialCourses }: { initialCourses: any[] }) {
   const searchParams = useSearchParams();
@@ -34,6 +64,37 @@ export default function ExploreClient({ initialCourses }: { initialCourses: any[
       }
     }
   }, [initialFilter, categories]);
+
+  // Dynamically compute dynamic counts for Explore Hub Matrix Counter
+  const matrixMetrics = useMemo(() => {
+    let videoCount = 0;
+    let ebookCount = 0;
+    let audioCount = 0;
+    let gameCount = 0;
+
+    (initialCourses || []).forEach((c: any) => {
+      const type = (c.contentType || 'VIDEO').toUpperCase();
+      const cat = (c.category || '').toLowerCase();
+      
+      if (type === 'EBOOK' || cat.includes('ebook') || cat.includes('e-book')) {
+        ebookCount++;
+      } else if (type === 'GAME' || cat.includes('game')) {
+        gameCount++;
+      } else if (type === 'AUDIOBOOK' || type === 'PODCAST' || cat.includes('audiobook') || cat.includes('podcast')) {
+        audioCount++;
+      } else {
+        videoCount++;
+      }
+    });
+
+    return {
+      videoCount,
+      ebookCount,
+      audioCount,
+      gameCount,
+      totalCount: (initialCourses || []).length
+    };
+  }, [initialCourses]);
 
   const filteredCourses = useMemo(() => {
     let result = initialCourses.filter(c => {
@@ -84,6 +145,188 @@ export default function ExploreClient({ initialCourses }: { initialCourses: any[
           <span><Compass size={40} color="var(--primary)" /></span> Explore Hub
         </h1>
         <p style={{ color: '#aaa', fontSize: '1.15rem', marginTop: '10px', maxWidth: '600px', lineHeight: '1.6' }}>Discover our massive library of premium Sanskrit education, epics, audiobooks, and more.</p>
+      </div>
+
+      {/* EXPLORE MATRIX COUNTER BANNER - RUNNING NUMBERS & AUTOMATIC SYNC */}
+      <div style={{
+        background: 'linear-gradient(135deg, rgba(24, 28, 42, 0.75) 0%, rgba(12, 16, 26, 0.85) 100%)',
+        backdropFilter: 'blur(20px)',
+        borderRadius: '20px',
+        border: '1px solid rgba(255, 255, 255, 0.08)',
+        padding: '24px 28px',
+        boxShadow: '0 20px 50px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '18px',
+      }}>
+        {/* Matrix Header Bar */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span style={{
+              display: 'inline-flex',
+              padding: '6px 12px',
+              borderRadius: '20px',
+              background: 'rgba(242, 100, 34, 0.15)',
+              border: '1px solid rgba(242, 100, 34, 0.3)',
+              color: 'var(--primary)',
+              fontSize: '0.75rem',
+              fontWeight: 800,
+              letterSpacing: '1px',
+              textTransform: 'uppercase'
+            }}>
+              LIVE METRICS MATRIX
+            </span>
+            <span style={{ fontSize: '0.85rem', color: '#aaa', fontWeight: 600 }}>Real-Time Catalog Sync</span>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8rem', color: '#46d369', fontWeight: 700 }}>
+            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#46d369', boxShadow: '0 0 10px #46d369' }}></span>
+            <span>AUTOMATICALLY SYNCED</span>
+          </div>
+        </div>
+
+        {/* Matrix Grid */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+          gap: '16px'
+        }}>
+          {/* VIDEOS */}
+          <div 
+            onClick={() => setSelectedContentType(selectedContentType === 'VIDEO' ? 'All' : 'VIDEO')}
+            style={{
+              background: selectedContentType === 'VIDEO' ? 'rgba(59, 130, 246, 0.2)' : 'rgba(255, 255, 255, 0.03)',
+              border: `1px solid ${selectedContentType === 'VIDEO' ? '#3b82f6' : 'rgba(255, 255, 255, 0.06)'}`,
+              borderRadius: '16px',
+              padding: '18px 20px',
+              cursor: 'pointer',
+              transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+            }}
+            className="matrix-card"
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+              <span style={{ padding: '8px', borderRadius: '10px', background: 'rgba(59, 130, 246, 0.15)', color: '#60a5fa' }}>
+                <Video size={20} />
+              </span>
+              <span style={{ fontSize: '0.7rem', color: '#93c5fd', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>HD Lectures</span>
+            </div>
+            <div style={{ fontSize: '2.2rem', fontWeight: 900, color: '#fff', letterSpacing: '-0.5px', lineHeight: 1 }}>
+              <AnimatedCounter target={matrixMetrics.videoCount} />
+            </div>
+            <div style={{ fontSize: '0.85rem', color: '#94a3b8', marginTop: '6px', fontWeight: 700 }}>
+              Video Courses
+            </div>
+          </div>
+
+          {/* E-BOOKS */}
+          <div 
+            onClick={() => setSelectedContentType(selectedContentType === 'EBOOK' ? 'All' : 'EBOOK')}
+            style={{
+              background: selectedContentType === 'EBOOK' ? 'rgba(236, 72, 153, 0.2)' : 'rgba(255, 255, 255, 0.03)',
+              border: `1px solid ${selectedContentType === 'EBOOK' ? '#ec4899' : 'rgba(255, 255, 255, 0.06)'}`,
+              borderRadius: '16px',
+              padding: '18px 20px',
+              cursor: 'pointer',
+              transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+            }}
+            className="matrix-card"
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+              <span style={{ padding: '8px', borderRadius: '10px', background: 'rgba(236, 72, 153, 0.15)', color: '#f472b6' }}>
+                <BookOpen size={20} />
+              </span>
+              <span style={{ fontSize: '0.7rem', color: '#fbcfe8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Digital Texts</span>
+            </div>
+            <div style={{ fontSize: '2.2rem', fontWeight: 900, color: '#fff', letterSpacing: '-0.5px', lineHeight: 1 }}>
+              <AnimatedCounter target={matrixMetrics.ebookCount} />
+            </div>
+            <div style={{ fontSize: '0.85rem', color: '#94a3b8', marginTop: '6px', fontWeight: 700 }}>
+              E-Books
+            </div>
+          </div>
+
+          {/* AUDIO & PODCASTS */}
+          <div 
+            onClick={() => setSelectedContentType(selectedContentType === 'AUDIOBOOK' ? 'All' : 'AUDIOBOOK')}
+            style={{
+              background: selectedContentType === 'AUDIOBOOK' ? 'rgba(168, 85, 247, 0.2)' : 'rgba(255, 255, 255, 0.03)',
+              border: `1px solid ${selectedContentType === 'AUDIOBOOK' ? '#a855f7' : 'rgba(255, 255, 255, 0.06)'}`,
+              borderRadius: '16px',
+              padding: '18px 20px',
+              cursor: 'pointer',
+              transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+            }}
+            className="matrix-card"
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+              <span style={{ padding: '8px', borderRadius: '10px', background: 'rgba(168, 85, 247, 0.15)', color: '#c084fc' }}>
+                <Headphones size={20} />
+              </span>
+              <span style={{ fontSize: '0.7rem', color: '#e9d5ff', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Recitations</span>
+            </div>
+            <div style={{ fontSize: '2.2rem', fontWeight: 900, color: '#fff', letterSpacing: '-0.5px', lineHeight: 1 }}>
+              <AnimatedCounter target={matrixMetrics.audioCount} />
+            </div>
+            <div style={{ fontSize: '0.85rem', color: '#94a3b8', marginTop: '6px', fontWeight: 700 }}>
+              Audio & Podcasts
+            </div>
+          </div>
+
+          {/* GAMES */}
+          <div 
+            onClick={() => setSelectedContentType(selectedContentType === 'GAME' ? 'All' : 'GAME')}
+            style={{
+              background: selectedContentType === 'GAME' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(255, 255, 255, 0.03)',
+              border: `1px solid ${selectedContentType === 'GAME' ? '#10b981' : 'rgba(255, 255, 255, 0.06)'}`,
+              borderRadius: '16px',
+              padding: '18px 20px',
+              cursor: 'pointer',
+              transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+            }}
+            className="matrix-card"
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+              <span style={{ padding: '8px', borderRadius: '10px', background: 'rgba(16, 185, 129, 0.15)', color: '#34d399' }}>
+                <Gamepad2 size={20} />
+              </span>
+              <span style={{ fontSize: '0.7rem', color: '#a7f3d0', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Interactive</span>
+            </div>
+            <div style={{ fontSize: '2.2rem', fontWeight: 900, color: '#fff', letterSpacing: '-0.5px', lineHeight: 1 }}>
+              <AnimatedCounter target={matrixMetrics.gameCount} />
+            </div>
+            <div style={{ fontSize: '0.85rem', color: '#94a3b8', marginTop: '6px', fontWeight: 700 }}>
+              Games & Quizzes
+            </div>
+          </div>
+
+          {/* TOTAL CATALOG */}
+          <div 
+            onClick={() => { setSelectedCategory('All'); setSelectedAccess('All'); setSelectedContentType('All'); setSelectedSort('Newest'); setSearchQuery(''); }}
+            style={{
+              background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(242, 100, 34, 0.2) 100%)',
+              border: '1px solid rgba(245, 158, 11, 0.4)',
+              borderRadius: '16px',
+              padding: '18px 20px',
+              cursor: 'pointer',
+              transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+            }}
+            className="matrix-card"
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+              <span style={{ padding: '8px', borderRadius: '10px', background: 'rgba(245, 158, 11, 0.2)', color: '#fbbf24' }}>
+                <Sparkles size={20} />
+              </span>
+              <span style={{ fontSize: '0.7rem', color: '#fef08a', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Full Library</span>
+            </div>
+            <div style={{ fontSize: '2.2rem', fontWeight: 950, color: '#fff', letterSpacing: '-0.5px', lineHeight: 1 }}>
+              <AnimatedCounter target={matrixMetrics.totalCount} />
+            </div>
+            <div style={{ fontSize: '0.85rem', color: '#fde68a', marginTop: '6px', fontWeight: 800 }}>
+              Total Titles Available
+            </div>
+          </div>
+
+        </div>
       </div>
 
       <div className="explore-layout" style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: '40px', alignItems: 'start' }}>
@@ -378,8 +621,15 @@ export default function ExploreClient({ initialCourses }: { initialCourses: any[
  
       </div>
       
-      {/* Interactive hover scale CSS for posters */}
+      {/* Interactive hover scale CSS for posters and matrix cards */}
       <style dangerouslySetInnerHTML={{__html: `
+        .matrix-card {
+          transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), background 0.3s !important;
+        }
+        .matrix-card:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 16px 35px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.15);
+        }
         .explore-poster {
           transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s;
         }
