@@ -7,6 +7,7 @@ import SearchBar from './SearchBar';
 import ExploreEye from './ExploreEye';
 import NotificationBell from './NotificationBell';
 import FindMyPlanModal from './FindMyPlanModal';
+import SanskritStreakWidget from './SanskritStreakWidget';
 
 import { logoutUser } from '@/app/actions/auth';
 
@@ -18,7 +19,7 @@ export default function NavBar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userPlanData, setUserPlanData] = useState<any>(null);
   const [showFindMyPlan, setShowFindFindMyPlan] = useState(false);
-  const [features, setFeatures] = useState({ shortsEnabled: true, blogEnabled: true });
+  const [features, setFeatures] = useState<any>({ shortsEnabled: true, blogEnabled: true, streaksEnabled: true });
   
   // 📱 Mobile responsive state managers
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -134,6 +135,11 @@ export default function NavBar() {
         
         <div className="nav-actions" style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
           
+          {/* Sanskrit Learning Streaks & XP Widget */}
+          <div className="desktop-only">
+            <SanskritStreakWidget isEnabled={features.streaksEnabled !== false} />
+          </div>
+
           {/* Find My Plan Button */}
           <button 
             onClick={() => setShowFindFindMyPlan(true)}

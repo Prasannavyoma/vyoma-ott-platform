@@ -23,6 +23,8 @@ const AdaptivePlayer = dynamic(() => import('@/app/components/AdaptivePlayer'), 
 const WatchNotesManager = dynamic(() => import('@/app/components/WatchNotesManager'));
 import WatchlistButton from '@/app/components/WatchlistButton';
 import LikeDislikeSystem from '@/app/components/LikeDislikeSystem';
+import SanskritScriptSwitcher from '@/app/components/SanskritScriptSwitcher';
+import AiPronunciationAssistant from '@/app/components/AiPronunciationAssistant';
 import { getWatchlistStatus, getCourseLikeStatus, getCourseLikesCount } from '@/app/actions/ott';
 import { getCurrentUser } from '@/lib/auth';
 
@@ -85,7 +87,7 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
   incrementView(courseId).catch(e => {});
 
   // Check custom engagement telemetry & Fetch REAL course
-  const [initialCourse, isBookmarked, isLiked, likesCount] = await Promise.all([
+  const [initialCourse, isBookmarked, isLiked, likesCount, scriptSwitcherSetting, aiPronunciationSetting] = await Promise.all([
     prisma.course.findUnique({
       where: { id: courseId },
       include: { 
@@ -95,8 +97,13 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
     }),
     getWatchlistStatus(courseId),
     getCourseLikeStatus(courseId),
-    getCourseLikesCount(courseId)
+    getCourseLikesCount(courseId),
+    prisma.systemSetting.findUnique({ where: { key: 'FEATURE_SCRIPT_SWITCHER' } }),
+    prisma.systemSetting.findUnique({ where: { key: 'FEATURE_AI_PRONUNCIATION' } })
   ]);
+
+  const isScriptSwitcherEnabled = scriptSwitcherSetting ? scriptSwitcherSetting.value === 'true' : true;
+  const isAiPronunciationEnabled = aiPronunciationSetting ? aiPronunciationSetting.value === 'true' : true;
 
   let course = initialCourse;
 
@@ -367,8 +374,12 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
                  nextEpisodeTitle={nextEpTitle}
                  initialPosition={initialPosition}
                  subtitleUrl={(activeEpisode as any)?.subtitleUrl || undefined}
-                />
-             )}
+                 />
+              )}
+
+              {/* INNOVATIVE SANSKRIT LEARNING TOOLS */}
+              <SanskritScriptSwitcher isEnabled={isScriptSwitcherEnabled} />
+              <AiPronunciationAssistant isEnabled={isAiPronunciationEnabled} />
              
              {/* CONTENT METADATA & ACTIONS (GLASSMORPHIC) */}
              <div style={{ 

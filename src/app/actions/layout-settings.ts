@@ -132,3 +132,33 @@ export async function toggleHotstarChannelsFeature(enabled: boolean) {
   revalidatePath('/admin/layout-settings');
   revalidatePath('/', 'layout');
 }
+
+export async function toggleScriptSwitcherFeature(enabled: boolean) {
+  await prisma.systemSetting.upsert({
+    where: { key: 'FEATURE_SCRIPT_SWITCHER' },
+    update: { value: enabled ? 'true' : 'false' },
+    create: { key: 'FEATURE_SCRIPT_SWITCHER', value: enabled ? 'true' : 'false' }
+  });
+  revalidatePath('/admin/layout-settings');
+  revalidatePath('/', 'layout');
+}
+
+export async function toggleGamificationStreaksFeature(enabled: boolean) {
+  await prisma.systemSetting.upsert({
+    where: { key: 'FEATURE_GAMIFICATION_STREAKS' },
+    update: { value: enabled ? 'true' : 'false' },
+    create: { key: 'FEATURE_GAMIFICATION_STREAKS', value: enabled ? 'true' : 'false' }
+  });
+  revalidatePath('/admin/layout-settings');
+  revalidatePath('/', 'layout');
+}
+
+export async function toggleAiPronunciationFeature(enabled: boolean) {
+  await prisma.systemSetting.upsert({
+    where: { key: 'FEATURE_AI_PRONUNCIATION' },
+    update: { value: enabled ? 'true' : 'false' },
+    create: { key: 'FEATURE_AI_PRONUNCIATION', value: enabled ? 'true' : 'false' }
+  });
+  revalidatePath('/admin/layout-settings');
+  revalidatePath('/', 'layout');
+}

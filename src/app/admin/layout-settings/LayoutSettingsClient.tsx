@@ -2,8 +2,8 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { Settings, Map as MapIcon, PlaySquare, FileText, Star } from 'lucide-react';
-import { updateChannel, addChannel, toggleChannel, addSection, deleteSection, updateSection, toggleKnowledgeRoadmap, toggleShortsFeature, toggleBlogFeature, toggleHotstarChannelsFeature } from '@/app/actions/layout-settings';
+import { Settings, Map as MapIcon, PlaySquare, FileText, Star, Languages, Flame, Mic } from 'lucide-react';
+import { updateChannel, addChannel, toggleChannel, addSection, deleteSection, updateSection, toggleKnowledgeRoadmap, toggleShortsFeature, toggleBlogFeature, toggleHotstarChannelsFeature, toggleScriptSwitcherFeature, toggleGamificationStreaksFeature, toggleAiPronunciationFeature } from '@/app/actions/layout-settings';
 
 interface LayoutSettingsClientProps {
   sections: any[];
@@ -13,6 +13,9 @@ interface LayoutSettingsClientProps {
   shortsEnabled?: boolean;
   blogEnabled?: boolean;
   hotstarEnabled?: boolean;
+  scriptSwitcherEnabled?: boolean;
+  streaksEnabled?: boolean;
+  aiPronunciationEnabled?: boolean;
 }
 
 export default function LayoutSettingsClient({ 
@@ -23,6 +26,9 @@ export default function LayoutSettingsClient({
   shortsEnabled = true,
   blogEnabled = true,
   hotstarEnabled = true,
+  scriptSwitcherEnabled = true,
+  streaksEnabled = true,
+  aiPronunciationEnabled = true,
 }: LayoutSettingsClientProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -31,6 +37,9 @@ export default function LayoutSettingsClient({
   const [isShortsEnabled, setIsShortsEnabled] = useState(shortsEnabled);
   const [isBlogEnabled, setIsBlogEnabled] = useState(blogEnabled);
   const [isHotstarEnabled, setIsHotstarEnabled] = useState(hotstarEnabled);
+  const [isScriptSwitcherEnabled, setIsScriptSwitcherEnabled] = useState(scriptSwitcherEnabled);
+  const [isStreaksEnabled, setIsStreaksEnabled] = useState(streaksEnabled);
+  const [isAiPronunciationEnabled, setIsAiPronunciationEnabled] = useState(aiPronunciationEnabled);
 
   return (
     <div style={{ maxWidth: '1000px' }}>
@@ -169,6 +178,126 @@ export default function LayoutSettingsClient({
                 const newVal = e.target.checked;
                 setIsBlogEnabled(newVal);
                 await toggleBlogFeature(newVal);
+              }} 
+            />
+          </label>
+        </div>
+
+        {/* SCRIPT SWITCHER TOGGLE */}
+        <div style={{ 
+          background: 'linear-gradient(to right, #0f1624, #070b14)', 
+          border: '1px solid rgba(255,255,255,0.06)',
+          padding: '20px', 
+          borderRadius: '12px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginTop: '15px'
+        }}>
+          <div>
+            <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Languages color="#38bdf8" size={20} /> Interactive Script Switcher & Clickable Dictionary
+            </h3>
+            <p style={{ color: '#aaa', fontSize: '0.9rem', marginTop: '5px' }}>Enables live script conversion (Devanagari, IAST, Kannada, Telugu, Tamil) & word meanings on video/audio players.</p>
+          </div>
+          <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '10px' }}>
+            <div style={{
+              width: '50px', height: '26px', background: isScriptSwitcherEnabled ? '#f26422' : '#444', 
+              borderRadius: '26px', position: 'relative', transition: 'all 0.3s'
+            }}>
+              <div style={{
+                width: '22px', height: '22px', background: 'white', borderRadius: '50%',
+                position: 'absolute', top: '2px', left: isScriptSwitcherEnabled ? '26px' : '2px', transition: 'all 0.3s'
+              }} />
+            </div>
+            <input 
+              type="checkbox" 
+              checked={isScriptSwitcherEnabled} 
+              style={{ display: 'none' }}
+              onChange={async (e) => {
+                const newVal = e.target.checked;
+                setIsScriptSwitcherEnabled(newVal);
+                await toggleScriptSwitcherFeature(newVal);
+              }} 
+            />
+          </label>
+        </div>
+
+        {/* GAMIFICATION STREAKS TOGGLE */}
+        <div style={{ 
+          background: 'linear-gradient(to right, #0f1624, #070b14)', 
+          border: '1px solid rgba(255,255,255,0.06)',
+          padding: '20px', 
+          borderRadius: '12px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginTop: '15px'
+        }}>
+          <div>
+            <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Flame color="#f59e0b" size={20} /> Daily Sanskrit Learning Streaks & Gamification
+            </h3>
+            <p style={{ color: '#aaa', fontSize: '0.9rem', marginTop: '5px' }}>Displays user daily streaks, XP points counter, scholar badges, and gift voucher rewards widget.</p>
+          </div>
+          <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '10px' }}>
+            <div style={{
+              width: '50px', height: '26px', background: isStreaksEnabled ? '#f26422' : '#444', 
+              borderRadius: '26px', position: 'relative', transition: 'all 0.3s'
+            }}>
+              <div style={{
+                width: '22px', height: '22px', background: 'white', borderRadius: '50%',
+                position: 'absolute', top: '2px', left: isStreaksEnabled ? '26px' : '2px', transition: 'all 0.3s'
+              }} />
+            </div>
+            <input 
+              type="checkbox" 
+              checked={isStreaksEnabled} 
+              style={{ display: 'none' }}
+              onChange={async (e) => {
+                const newVal = e.target.checked;
+                setIsStreaksEnabled(newVal);
+                await toggleGamificationStreaksFeature(newVal);
+              }} 
+            />
+          </label>
+        </div>
+
+        {/* AI PRONUNCIATION ASSISTANT TOGGLE */}
+        <div style={{ 
+          background: 'linear-gradient(to right, #0f1624, #070b14)', 
+          border: '1px solid rgba(255,255,255,0.06)',
+          padding: '20px', 
+          borderRadius: '12px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginTop: '15px'
+        }}>
+          <div>
+            <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Mic color="#a855f7" size={20} /> AI Sanskrit Voice Pronunciation & Recitation Assistant
+            </h3>
+            <p style={{ color: '#aaa', fontSize: '0.9rem', marginTop: '5px' }}>Enables live microphone audio recording & AI recitation accuracy evaluation on watch pages & tools.</p>
+          </div>
+          <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '10px' }}>
+            <div style={{
+              width: '50px', height: '26px', background: isAiPronunciationEnabled ? '#f26422' : '#444', 
+              borderRadius: '26px', position: 'relative', transition: 'all 0.3s'
+            }}>
+              <div style={{
+                width: '22px', height: '22px', background: 'white', borderRadius: '50%',
+                position: 'absolute', top: '2px', left: isAiPronunciationEnabled ? '26px' : '2px', transition: 'all 0.3s'
+              }} />
+            </div>
+            <input 
+              type="checkbox" 
+              checked={isAiPronunciationEnabled} 
+              style={{ display: 'none' }}
+              onChange={async (e) => {
+                const newVal = e.target.checked;
+                setIsAiPronunciationEnabled(newVal);
+                await toggleAiPronunciationFeature(newVal);
               }} 
             />
           </label>

@@ -61,6 +61,15 @@ export default async function LayoutSettingsPage() {
   const hotstarSetting = await prisma.systemSetting.findUnique({ where: { key: 'FEATURE_HOTSTAR_CHANNELS' } });
   const hotstarEnabled = hotstarSetting ? hotstarSetting.value === 'true' : true; // Default true
 
+  const scriptSwitcherSetting = await prisma.systemSetting.findUnique({ where: { key: 'FEATURE_SCRIPT_SWITCHER' } });
+  const scriptSwitcherEnabled = scriptSwitcherSetting ? scriptSwitcherSetting.value === 'true' : true;
+
+  const streaksSetting = await prisma.systemSetting.findUnique({ where: { key: 'FEATURE_GAMIFICATION_STREAKS' } });
+  const streaksEnabled = streaksSetting ? streaksSetting.value === 'true' : true;
+
+  const aiPronunciationSetting = await prisma.systemSetting.findUnique({ where: { key: 'FEATURE_AI_PRONUNCIATION' } });
+  const aiPronunciationEnabled = aiPronunciationSetting ? aiPronunciationSetting.value === 'true' : true;
+
   return (
     <LayoutSettingsClient 
       sections={sections} 
@@ -70,6 +79,9 @@ export default async function LayoutSettingsPage() {
       shortsEnabled={shortsEnabled}
       blogEnabled={blogEnabled}
       hotstarEnabled={hotstarEnabled}
+      scriptSwitcherEnabled={scriptSwitcherEnabled}
+      streaksEnabled={streaksEnabled}
+      aiPronunciationEnabled={aiPronunciationEnabled}
     />
   );
 }
