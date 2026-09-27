@@ -135,11 +135,6 @@ export default function NavBar() {
         
         <div className="nav-actions" style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
           
-          {/* Sanskrit Learning Streaks & XP Widget */}
-          <div className="desktop-only">
-            <SanskritStreakWidget isEnabled={features.streaksEnabled !== false} />
-          </div>
-
           {/* Find My Plan Button */}
           <button 
             onClick={() => setShowFindFindMyPlan(true)}

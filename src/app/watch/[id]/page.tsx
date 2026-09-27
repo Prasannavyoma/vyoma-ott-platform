@@ -25,6 +25,7 @@ import WatchlistButton from '@/app/components/WatchlistButton';
 import LikeDislikeSystem from '@/app/components/LikeDislikeSystem';
 import SanskritScriptSwitcher from '@/app/components/SanskritScriptSwitcher';
 import AiPronunciationAssistant from '@/app/components/AiPronunciationAssistant';
+import SanskritStreakWidget from '@/app/components/SanskritStreakWidget';
 import { getWatchlistStatus, getCourseLikeStatus, getCourseLikesCount } from '@/app/actions/ott';
 import { getCurrentUser } from '@/lib/auth';
 
@@ -99,11 +100,13 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
     getCourseLikeStatus(courseId),
     getCourseLikesCount(courseId),
     prisma.systemSetting.findUnique({ where: { key: 'FEATURE_SCRIPT_SWITCHER' } }),
-    prisma.systemSetting.findUnique({ where: { key: 'FEATURE_AI_PRONUNCIATION' } })
+    prisma.systemSetting.findUnique({ where: { key: 'FEATURE_AI_PRONUNCIATION' } }), prisma.systemSetting.findUnique({ where: { key: 'FEATURE_GAMIFICATION_STREAKS' } })
   ]);
 
   const isScriptSwitcherEnabled = scriptSwitcherSetting ? scriptSwitcherSetting.value === 'true' : true;
   const isAiPronunciationEnabled = aiPronunciationSetting ? aiPronunciationSetting.value === 'true' : true;
+  const streaksSetting = arguments ? undefined : undefined;
+  const isStreaksEnabled = true;
 
   let course = initialCourse;
 
@@ -380,6 +383,7 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
               {/* INNOVATIVE SANSKRIT LEARNING TOOLS */}
               <SanskritScriptSwitcher isEnabled={isScriptSwitcherEnabled} />
               <AiPronunciationAssistant isEnabled={isAiPronunciationEnabled} />
+              <div style={{ marginTop: '15px' }}><SanskritStreakWidget isEnabled={true} /></div>
              
              {/* CONTENT METADATA & ACTIONS (GLASSMORPHIC) */}
              <div style={{ 

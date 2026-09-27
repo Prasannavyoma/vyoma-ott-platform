@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { getCurrentUser, clearSession } from '@/lib/auth';
 import SkillConstellation from './SkillConstellation';
+import SanskritStreakWidget from '@/app/components/SanskritStreakWidget';
 
 export default async function ProfilePage() {
   // 1. Secure Context Validation
@@ -20,6 +21,7 @@ export default async function ProfilePage() {
   let uiCoinsNameReward = 1;
   let uiCoinsProfileReward = 10;
   let roadmapEnabled = true; // Default true
+  let streaksEnabled = true; // Default true
   try {
     const nSetting = await prisma.systemSetting.findUnique({ where: { key: 'COINS_NAME_REWARD' } });
     if (nSetting) uiCoinsNameReward = parseInt(nSetting.value) || 0;
@@ -29,6 +31,9 @@ export default async function ProfilePage() {
 
     const rSetting = await prisma.systemSetting.findUnique({ where: { key: 'FEATURE_KNOWLEDGE_ROADMAP' } });
     if (rSetting) roadmapEnabled = rSetting.value === 'true';
+
+    const sSetting = await prisma.systemSetting.findUnique({ where: { key: 'FEATURE_GAMIFICATION_STREAKS' } });
+    if (sSetting) streaksEnabled = sSetting.value === 'true';
   } catch (e) {}
 
   // 2. Subscription Lifetime Tracker
@@ -314,7 +319,14 @@ export default async function ProfilePage() {
           </div>
        </div>
 
-          {/* 🎁 VYOMA REFERRAL & REWARD CENTER */}
+          {/* 🎁 DAILY SANSKRIT LEARNING STREAK & SCHOLAR REWARDS WIDGET */}
+        {streaksEnabled && (
+          <div style={{ marginBottom: '40px' }}>
+            <SanskritStreakWidget isEnabled={streaksEnabled} />
+          </div>
+        )}
+
+        {/* 🎁 VYOMA REFERRAL & REWARD CENTER */}
           <div style={{ 
             background: 'linear-gradient(135deg, rgba(242,100,34,0.05) 0%, rgba(15,22,36,0.6) 100%)', 
             border: '1px solid rgba(242,100,34,0.2)', 
