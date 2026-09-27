@@ -618,12 +618,18 @@ export default async function ProfilePage() {
                      <div style={{ color: '#555', fontSize: '0.8rem', padding: '20px', border: '1px dashed #333', borderRadius: '8px', textAlign: 'center' }}>No credentials earned.</div>
                   ) : (
                      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                        {user.certificates.slice(0, 3).map(c => (
-                           <div key={c.id} style={{ background: '#000', padding: '12px', borderRadius: '8px', border: '1px solid #222', fontSize: '0.8rem' }}>
-                              <div style={{ fontWeight: 'bold' }}>{c.course.title}</div>
-                              <div style={{ color: '#f26422', fontFamily: 'monospace', fontSize: '0.75rem', marginTop: '3px', fontWeight: 800 }}>SERIAL: {c.code}</div>
-                           </div>
-                        ))}
+                        {user.certificates.slice(0, 10).map(c => {
+                           const certPath = c.code || c.id;
+                           return (
+                             <Link key={c.id} href={certPath ? `/certificate/${certPath}` : '/profile'} style={{ textDecoration: 'none', background: '#000', padding: '12px', borderRadius: '8px', border: '1px solid rgba(242, 100, 34, 0.3)', fontSize: '0.8rem', display: 'block' }}>
+                               <div style={{ fontWeight: 'bold', color: '#fff', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                 <span>{c.course?.title || "Sanskrit Course Certificate"}</span>
+                                 <span style={{ color: '#f26422', fontWeight: 800, fontSize: '0.75rem' }}>View 📜</span>
+                               </div>
+                               <div style={{ color: '#f26422', fontFamily: 'monospace', fontSize: '0.75rem', marginTop: '4px', fontWeight: 800 }}>SERIAL: {certPath}</div>
+                             </Link>
+                           );
+                        })}
                      </div>
                   )}
                </div>

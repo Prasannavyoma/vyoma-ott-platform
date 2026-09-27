@@ -132,6 +132,18 @@ export default function NotificationBell() {
           animation: icon-bounce 0.6s cubic-bezier(0.25, 1, 0.5, 1);
           display: inline-block;
         }
+        @media (max-width: 640px) {
+          .notif-panel {
+            position: fixed !important;
+            top: 70px !important;
+            left: 12px !important;
+            right: 12px !important;
+            width: calc(100vw - 24px) !important;
+            max-width: calc(100vw - 24px) !important;
+            max-height: 80vh !important;
+            z-index: 999999 !important;
+          }
+        }
       `}} />
 
       {/* Bell Button */}
@@ -212,46 +224,53 @@ export default function NotificationBell() {
 
       {/* Dropdown Panel */}
       {isOpen && (
-        <div style={{
-          position: 'absolute',
-          top: 'calc(100% + 10px)',
-          right: 0,
-          width: '380px',
-          maxHeight: '400px',
-          background: 'linear-gradient(180deg, rgba(22, 25, 35, 0.97) 0%, rgba(13, 15, 20, 0.99) 100%)',
-          border: '1px solid rgba(255, 255, 255, 0.08)',
-          borderRadius: '16px',
-          boxShadow: '0 25px 60px rgba(0, 0, 0, 0.85), 0 0 1px rgba(255,255,255,0.1)',
-          backdropFilter: 'blur(40px)',
-          zIndex: 9999,
-          overflow: 'hidden',
-          animation: 'notifPanelIn 0.2s ease-out',
-          fontFamily: 'Outfit, sans-serif',
-          display: 'flex',
-          flexDirection: 'column',
-        }}>
+        <div 
+          className="notif-panel"
+          style={{
+            position: 'absolute',
+            top: 'calc(100% + 10px)',
+            right: 0,
+            width: '380px',
+            maxHeight: '420px',
+            background: 'linear-gradient(180deg, rgba(22, 25, 35, 0.98) 0%, rgba(13, 15, 20, 0.99) 100%)',
+            border: '1px solid rgba(255, 255, 255, 0.12)',
+            borderRadius: '16px',
+            boxShadow: '0 25px 60px rgba(0, 0, 0, 0.9), 0 0 1px rgba(255,255,255,0.1)',
+            backdropFilter: 'blur(40px)',
+            zIndex: 9999,
+            overflow: 'hidden',
+            animation: 'notifPanelIn 0.2s ease-out',
+            fontFamily: 'Outfit, sans-serif',
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
           {/* Header */}
           <div style={{
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            padding: '16px 18px 12px',
-            borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
+            padding: '14px 16px',
+            borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+            background: 'rgba(255,255,255,0.02)',
           }}>
             <div style={{
               fontSize: '0.95rem',
               fontWeight: 800,
               color: '#fff',
               letterSpacing: '-0.01em',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
             }}>
               Notifications
               {unreadCount > 0 && (
                 <span style={{
-                  marginLeft: '8px',
+                  marginLeft: '4px',
                   fontSize: '0.7rem',
                   fontWeight: 700,
                   color: '#f26422',
-                  background: 'rgba(242, 100, 34, 0.12)',
+                  background: 'rgba(242, 100, 34, 0.15)',
                   padding: '2px 8px',
                   borderRadius: '8px',
                 }}>
@@ -260,28 +279,64 @@ export default function NotificationBell() {
               )}
             </div>
 
-            {unreadCount > 0 && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              {unreadCount > 0 && (
+                <button
+                  className="notif-mark-btn"
+                  onClick={handleMarkAllRead}
+                  disabled={isLoading}
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    borderRadius: '8px',
+                    color: '#8f98a9',
+                    fontSize: '0.72rem',
+                    fontWeight: 700,
+                    padding: '4px 8px',
+                    cursor: isLoading ? 'wait' : 'pointer',
+                    transition: 'all 0.2s',
+                    fontFamily: 'Outfit, sans-serif',
+                    opacity: isLoading ? 0.6 : 1,
+                  }}
+                >
+                  {isLoading ? '...' : 'Mark Read'}
+                </button>
+              )}
+
+              {/* CLOSE X BUTTON */}
               <button
-                className="notif-mark-btn"
-                onClick={handleMarkAllRead}
-                disabled={isLoading}
+                onClick={() => setIsOpen(false)}
+                aria-label="Close Notifications"
                 style={{
-                  background: 'rgba(255, 255, 255, 0.04)',
-                  border: '1px solid rgba(255, 255, 255, 0.08)',
-                  borderRadius: '8px',
-                  color: '#8f98a9',
-                  fontSize: '0.72rem',
-                  fontWeight: 700,
-                  padding: '5px 10px',
-                  cursor: isLoading ? 'wait' : 'pointer',
+                  background: 'rgba(255, 255, 255, 0.08)',
+                  border: '1px solid rgba(255, 255, 255, 0.15)',
+                  borderRadius: '50%',
+                  width: '28px',
+                  height: '28px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#aaa',
+                  fontSize: '0.85rem',
+                  fontWeight: 'bold',
+                  cursor: 'pointer',
                   transition: 'all 0.2s',
-                  fontFamily: 'Outfit, sans-serif',
-                  opacity: isLoading ? 0.6 : 1,
+                  lineHeight: 1
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
+                  e.currentTarget.style.color = '#ef4444';
+                  e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)';
+                  e.currentTarget.style.color = '#aaa';
+                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.15)';
                 }}
               >
-                {isLoading ? '...' : 'Mark All Read'}
+                ✕
               </button>
-            )}
+            </div>
           </div>
 
           {/* Notification List */}

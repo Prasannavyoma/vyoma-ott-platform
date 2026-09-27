@@ -7,13 +7,27 @@ export default async function CertificatePage(props: any) {
   const params = await props.params;
   const { code } = params;
 
-  const cert = await prisma.certificate.findUnique({
-    where: { code },
-    include: {
-      user: { select: { name: true, email: true } },
-      course: { select: { title: true } }
-    }
-  });
+  let cert = null;
+  if (code && code !== 'undefined') {
+    try {
+      cert = await prisma.certificate.findUnique({
+        where: { code },
+        include: {
+          user: { select: { name: true, email: true } },
+          course: { select: { title: true } }
+        }
+      });
+      if (!cert) {
+        cert = await prisma.certificate.findUnique({
+          where: { id: code },
+          include: {
+            user: { select: { name: true, email: true } },
+            course: { select: { title: true } }
+          }
+        });
+      }
+    } catch (e) {}
+  }
 
   if (!cert) {
     return (

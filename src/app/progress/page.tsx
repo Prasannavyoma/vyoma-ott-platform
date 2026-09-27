@@ -375,9 +375,15 @@ export default async function ProgressTrackerPage() {
                           <Link href={`/watch/${item.course.id}`} style={{ ...resumeButtonStyle, flex: 1, padding: '10px', textAlign: 'center', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}>
                             🔄 Review Course
                           </Link>
-                          <Link href="/profile" style={{ ...resumeButtonStyle, flex: 1, padding: '10px', textAlign: 'center', background: 'linear-gradient(135deg, #46d369 0%, #3bb258 100%)', boxShadow: '0 5px 15px rgba(70,211,105,0.2)' }}>
-                            📜 View Certificate
-                          </Link>
+                          {(() => {
+                             const cObj = ((user as any).certificates || []).find((c: any) => c.courseId === item.course.id);
+                             const cPath = cObj ? (cObj.code || cObj.id) : null;
+                             return (
+                               <Link href={cPath ? `/certificate/${cPath}` : '/profile'} style={{ ...resumeButtonStyle, flex: 1, padding: '10px', textAlign: 'center', background: 'linear-gradient(135deg, #46d369 0%, #3bb258 100%)', boxShadow: '0 5px 15px rgba(70,211,105,0.2)' }}>
+                                 📜 View Certificate
+                               </Link>
+                             );
+                           })()}
                         </div>
                       </div>
                     </div>
