@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { ShieldCheck, Crown, CheckCircle2, Sparkles, AlertTriangle, ArrowRight, X, CreditCard, RefreshCw, Layers } from 'lucide-react';
+import { ShieldCheck, Crown, CheckCircle2, Sparkles, AlertTriangle, ArrowRight, X, CreditCard, RefreshCw, Layers, Globe, MapPin } from 'lucide-react';
 
 interface FindMyPlanModalProps {
   isOpen: boolean;
@@ -25,6 +25,7 @@ interface FindMyPlanModalProps {
 
 export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindMyPlanModalProps) {
   const [billingInterval, setBillingInterval] = useState<'MONTHLY' | 'YEARLY'>('MONTHLY');
+  const [region, setRegion] = useState<'LOCAL' | 'ABROAD'>('LOCAL');
 
   if (!isOpen) return null;
 
@@ -47,6 +48,25 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
     }
   };
 
+  // Pricing Matrix Definition
+  // Local (INR ₹): Gold = ₹499/mo | ₹4,999/yr, Platinum = ₹999/mo | ₹9,999/yr
+  // Abroad (USD $): Revised strictly to $3, $5, $10, $25, $50!
+  const getGoldPrice = () => {
+    if (region === 'LOCAL') {
+      return billingInterval === 'MONTHLY' ? '₹499' : '₹4,999';
+    } else {
+      return billingInterval === 'MONTHLY' ? '$3' : '$25';
+    }
+  };
+
+  const getPlatinumPrice = () => {
+    if (region === 'LOCAL') {
+      return billingInterval === 'MONTHLY' ? '₹999' : '₹9,999';
+    } else {
+      return billingInterval === 'MONTHLY' ? '$5' : '$50';
+    }
+  };
+
   return (
     <div style={{
       position: 'fixed',
@@ -66,8 +86,8 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
       <div style={{
         position: 'relative',
         width: '100%',
-        maxWidth: '1000px',
-        maxHeight: '90vh',
+        maxWidth: '1020px',
+        maxHeight: '92vh',
         overflowY: 'auto',
         background: 'linear-gradient(135deg, #0e1424 0%, #050811 100%)',
         borderRadius: '24px',
@@ -102,7 +122,7 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
         </button>
 
         {/* Modal Header */}
-        <div style={{ textAlign: 'center', marginBottom: '28px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
           <span style={{
             display: 'inline-flex',
             alignItems: 'center',
@@ -121,10 +141,10 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
             <ShieldCheck size={14} /> FIND MY PLAN &amp; PRICING SHEET
           </span>
           <h2 style={{ fontSize: '2.2rem', fontWeight: 950, letterSpacing: '-0.8px', margin: 0 }}>
-            Your Membership &amp; Plan Intelligence
+            Your Membership &amp; Pricing Telemetry
           </h2>
           <p style={{ color: '#aaa', fontSize: '1rem', marginTop: '8px', margin: '8px 0 0' }}>
-            Check your current active plan, expiration status, or upgrade to unlock premium features.
+            Check your current active plan, expiration status, or upgrade with local or abroad pricing.
           </p>
         </div>
 
@@ -137,7 +157,7 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
             border: `1px solid ${isExpiringSoon ? 'rgba(245, 158, 11, 0.4)' : 'rgba(242, 100, 34, 0.3)'}`,
             borderRadius: '16px',
             padding: '20px 24px',
-            marginBottom: '30px',
+            marginBottom: '28px',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
@@ -205,7 +225,7 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
             border: '1px solid rgba(255, 255, 255, 0.08)',
             borderRadius: '16px',
             padding: '16px 20px',
-            marginBottom: '30px',
+            marginBottom: '28px',
             textAlign: 'center',
             fontSize: '0.9rem',
             color: '#aaa'
@@ -214,15 +234,77 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
           </div>
         )}
 
-        {/* BILLING INTERVAL SWITCHER */}
-        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '30px' }}>
+        {/* 2 CUSTOMER-CENTRIC REGION TOGGLE BUTTONS & BILLING INTERVAL SWITCHER */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', marginBottom: '32px' }}>
+          
+          {/* CUSTOMER-CENTRIC BUTTON 1 & 2: REGION SELECTOR */}
+          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <button
+              onClick={() => setRegion('LOCAL')}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '10px 22px',
+                borderRadius: '30px',
+                border: region === 'LOCAL' ? '2px solid var(--primary)' : '1px solid rgba(255,255,255,0.1)',
+                background: region === 'LOCAL' ? 'linear-gradient(135deg, rgba(242,100,34,0.3) 0%, rgba(242,100,34,0.1) 100%)' : 'rgba(255,255,255,0.03)',
+                color: '#fff',
+                fontWeight: 800,
+                fontSize: '0.9rem',
+                cursor: 'pointer',
+                transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
+                boxShadow: region === 'LOCAL' ? '0 6px 20px rgba(242,100,34,0.3)' : 'none'
+              }}
+            >
+              <MapPin size={16} color={region === 'LOCAL' ? 'var(--primary)' : '#aaa'} />
+              <span>🇮🇳 Local / India (INR ₹)</span>
+            </button>
+
+            <button
+              onClick={() => setRegion('ABROAD')}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '10px 22px',
+                borderRadius: '30px',
+                border: region === 'ABROAD' ? '2px solid #60a5fa' : '1px solid rgba(255,255,255,0.1)',
+                background: region === 'ABROAD' ? 'linear-gradient(135deg, rgba(59,130,246,0.3) 0%, rgba(59,130,246,0.1) 100%)' : 'rgba(255,255,255,0.03)',
+                color: '#fff',
+                fontWeight: 800,
+                fontSize: '0.9rem',
+                cursor: 'pointer',
+                transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
+                boxShadow: region === 'ABROAD' ? '0 6px 20px rgba(59,130,246,0.3)' : 'none'
+              }}
+            >
+              <Globe size={16} color={region === 'ABROAD' ? '#60a5fa' : '#aaa'} />
+              <span>🌍 Abroad / International (USD $)</span>
+            </button>
+          </div>
+
+          {/* ABROAD PRICE TIER PRESET BADGES ($3, $5, $10, $25, $50) */}
+          {region === 'ABROAD' && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', fontSize: '0.8rem', color: '#93c5fd', fontWeight: 700 }}>
+              <span style={{ color: '#aaa' }}>Revised Abroad Tiers:</span>
+              {['$3', '$5', '$10', '$25', '$50'].map(price => (
+                <span key={price} style={{ background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)', padding: '2px 8px', borderRadius: '8px', color: '#60a5fa' }}>
+                  {price}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* BILLING INTERVAL TOGGLE */}
           <div style={{
             background: 'rgba(0, 0, 0, 0.5)',
             border: '1px solid rgba(255, 255, 255, 0.1)',
             borderRadius: '30px',
             padding: '4px',
             display: 'inline-flex',
-            gap: '4px'
+            gap: '4px',
+            marginTop: '4px'
           }}>
             <button
               onClick={() => setBillingInterval('MONTHLY')}
@@ -283,7 +365,9 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
             <div>
               <div style={{ fontSize: '0.75rem', color: '#888', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>Starter</div>
               <h3 style={{ fontSize: '1.5rem', fontWeight: 900, marginTop: '4px', margin: '4px 0 10px' }}>Free Tier</h3>
-              <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#fff' }}>₹0 <span style={{ fontSize: '0.85rem', color: '#888' }}>/ forever</span></div>
+              <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#fff' }}>
+                {region === 'LOCAL' ? '₹0' : '$0'} <span style={{ fontSize: '0.85rem', color: '#888' }}>/ forever</span>
+              </div>
               <div style={{ height: '1px', background: 'rgba(255,255,255,0.06)', margin: '16px 0' }}></div>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '0.85rem', color: '#ccc' }}>
                 <li style={{ display: 'flex', gap: '8px' }}><CheckCircle2 size={16} color="#888" /> Free preview video modules</li>
@@ -333,7 +417,7 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
               </div>
               <h3 style={{ fontSize: '1.5rem', fontWeight: 900, marginTop: '4px', margin: '4px 0 10px' }}>Gold Membership</h3>
               <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#fff' }}>
-                {billingInterval === 'MONTHLY' ? '₹499' : '₹4,999'}{' '}
+                {getGoldPrice()}{' '}
                 <span style={{ fontSize: '0.85rem', color: '#888' }}>/ {billingInterval.toLowerCase()}</span>
               </div>
               <div style={{ height: '1px', background: 'rgba(255,255,255,0.06)', margin: '16px 0' }}></div>
@@ -397,7 +481,7 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
                 className="btn btn-primary"
                 style={{ width: '100%', padding: '12px', borderRadius: '12px', fontWeight: 800, fontSize: '0.85rem', textAlign: 'center', textDecoration: 'none' }}
               >
-                Subscribe Gold
+                Subscribe Gold ({getGoldPrice()})
               </Link>
             )}
           </div>
@@ -423,7 +507,7 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
               </div>
               <h3 style={{ fontSize: '1.5rem', fontWeight: 900, marginTop: '4px', margin: '4px 0 10px' }}>Platinum VIP</h3>
               <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#fff' }}>
-                {billingInterval === 'MONTHLY' ? '₹999' : '₹9,999'}{' '}
+                {getPlatinumPrice()}{' '}
                 <span style={{ fontSize: '0.85rem', color: '#888' }}>/ {billingInterval.toLowerCase()}</span>
               </div>
               <div style={{ height: '1px', background: 'rgba(255,255,255,0.06)', margin: '16px 0' }}></div>
@@ -471,7 +555,7 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
                 className="btn btn-primary"
                 style={{ width: '100%', padding: '12px', borderRadius: '12px', fontWeight: 900, fontSize: '0.85rem', textAlign: 'center', textDecoration: 'none', boxShadow: '0 4px 20px rgba(242, 100, 34, 0.4)' }}
               >
-                {currentPlan === 'GOLD' ? 'Upgrade to Platinum VIP 🚀' : 'Subscribe Platinum VIP'}
+                {currentPlan === 'GOLD' ? `Upgrade to Platinum VIP 🚀 (${getPlatinumPrice()})` : `Subscribe Platinum VIP (${getPlatinumPrice()})`}
               </Link>
             )}
           </div>
@@ -482,7 +566,7 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
           <Link href="/profile" onClick={onClose} style={{ color: '#aaa', textDecoration: 'underline', display: 'flex', alignItems: 'center', gap: '6px' }}>
             <CreditCard size={14} /> View Billing Invoices &amp; History
           </Link>
-          <span>Auto-Renewal powered by Razorpay Secure</span>
+          <span>Auto-Renewal &amp; Global GEO Pricing powered by Razorpay</span>
         </div>
       </div>
     </div>

@@ -75,7 +75,17 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
   const currency = region === 'INDIA' ? '₹' : '$';
   const priceField = region === 'INDIA' ? 'priceINR' : 'priceUSD';
 
-  const getP = (plan: any) => plan ? (plan as any)[priceField] : 0;
+  const getP = (plan: any) => {
+    if (!plan) return 0;
+    if (region === 'ABROAD') {
+      // Revised Abroad Price Tiers ($3, $5, $10, $25, $50)
+      if (plan.name === 'GOLD' && plan.interval === 'MONTHLY') return 3;
+      if (plan.name === 'GOLD' && plan.interval === 'YEARLY') return 25;
+      if (plan.name === 'PLATINUM' && plan.interval === 'MONTHLY') return 5;
+      if (plan.name === 'PLATINUM' && plan.interval === 'YEARLY') return 50;
+    }
+    return (plan as any)[priceField] || 0;
+  };
 
   const getCurrentPlanPrice = () => {
     const match = initialPlans.find(p => p.name === currentTier && p.interval === currentInterval);
@@ -475,6 +485,64 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
             )}
           </div>
         </div>
+
+        {/* 2 CUSTOMER-CENTRIC REGION TOGGLE BUTTONS */}
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', marginBottom: '20px', flexWrap: 'wrap' }}>
+          <button
+            type="button"
+            onClick={() => setRegion('INDIA')}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '12px 26px',
+              borderRadius: '30px',
+              border: region === 'INDIA' ? '2px solid var(--primary)' : '1px solid rgba(255,255,255,0.1)',
+              background: region === 'INDIA' ? 'linear-gradient(135deg, rgba(242,100,34,0.35) 0%, rgba(242,100,34,0.1) 100%)' : 'rgba(15, 22, 36, 0.4)',
+              color: '#fff',
+              fontWeight: 800,
+              fontSize: '0.95rem',
+              cursor: 'pointer',
+              transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+              boxShadow: region === 'INDIA' ? '0 8px 25px rgba(242,100,34,0.3)' : 'none'
+            }}
+          >
+            <span>🇮🇳 Local / India (INR ₹)</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setRegion('ABROAD')}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '12px 26px',
+              borderRadius: '30px',
+              border: region === 'ABROAD' ? '2px solid #60a5fa' : '1px solid rgba(255,255,255,0.1)',
+              background: region === 'ABROAD' ? 'linear-gradient(135deg, rgba(59,130,246,0.35) 0%, rgba(59,130,246,0.1) 100%)' : 'rgba(15, 22, 36, 0.4)',
+              color: '#fff',
+              fontWeight: 800,
+              fontSize: '0.95rem',
+              cursor: 'pointer',
+              transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+              boxShadow: region === 'ABROAD' ? '0 8px 25px rgba(59,130,246,0.3)' : 'none'
+            }}
+          >
+            <span>🌍 Abroad / International (USD $)</span>
+          </button>
+        </div>
+
+        {region === 'ABROAD' && (
+          <div style={{ textAlign: 'center', marginBottom: '25px', color: '#93c5fd', fontSize: '0.85rem', fontWeight: 700 }}>
+            <span>Revised Abroad Tiers Active: </span>
+            {['$3', '$5', '$10', '$25', '$50'].map(p => (
+              <span key={p} style={{ background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)', padding: '2px 8px', borderRadius: '8px', margin: '0 4px', color: '#60a5fa' }}>
+                {p}
+              </span>
+            ))}
+          </div>
+        )}
 
         {/* Dynamic Billing Slider/Toggle */}
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '55px' }}>
