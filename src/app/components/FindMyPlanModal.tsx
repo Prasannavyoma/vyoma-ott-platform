@@ -367,7 +367,7 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
           </div>
         ) : (
           <>
-            {/* AUTOMATIC GEO LOCATION BANNER WITH TOGGLE OPTION */}
+            {/* AUTOMATIC GEO LOCATION BANNER WITH STRICT ANTI-EVASION LOCK */}
             <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '28px' }}>
               <div style={{
                 display: 'inline-flex',
@@ -381,7 +381,12 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
                 fontSize: '0.85rem',
                 fontWeight: 700
               }}>
-                {isAbroad ? (
+                {user?.country && user.country !== 'IN' ? (
+                  <>
+                    <Globe size={16} color="#60a5fa" />
+                    <span>🔒 Currency locked to USD ($) based on your international profile ({user.country})</span>
+                  </>
+                ) : isAbroad ? (
                   <>
                     <Globe size={16} color="#60a5fa" />
                     <span>Abroad Region Detected: Displaying USD ($) Pricing</span>
