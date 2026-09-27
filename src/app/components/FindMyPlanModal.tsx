@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ShieldCheck, Crown, CheckCircle2, Sparkles, AlertTriangle, X, CreditCard, RefreshCw, Globe, MapPin, ArrowLeft } from 'lucide-react';
 import { createRazorpaySubscription } from '@/app/actions/razorpay';
@@ -22,12 +22,13 @@ interface FindMyPlanModalProps {
       planExpiresAt: string | null;
       daysRemaining: number | null;
       coins: number;
+      country?: string | null;
     } | null;
   } | null;
 }
 
 export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindMyPlanModalProps) {
-  const [billingInterval, setBillingInterval] = useState<'MONTHLY' | 'YEARLY'>('MONTHLY');
+  const [isAbroad, setIsAbroad] = useState(false);
   const [isInitializing, setIsInitializing] = useState(false);
   const [checkoutData, setCheckoutData] = useState<{
     planName: 'GOLD' | 'PLATINUM';
@@ -37,10 +38,30 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
     subData: any;
   } | null>(null);
 
-  if (!isOpen) return null;
-
   const user = userPlanData?.user;
   const isLoggedIn = userPlanData?.isLoggedIn;
+
+  useEffect(() => {
+    if (user?.country && user.country !== 'IN') {
+      setIsAbroad(true);
+      return;
+    }
+
+    async function detectLocation() {
+      try {
+        const response = await fetch('https://ipapi.co/json/').then(r => r.json());
+        if (response.country_code && response.country_code !== 'IN') {
+          setIsAbroad(true);
+        }
+      } catch (e) {
+        setIsAbroad(false);
+      }
+    }
+    detectLocation();
+  }, [user]);
+
+  if (!isOpen) return null;
+
   const currentPlan = (user?.plan || 'FREE').toUpperCase();
   const daysRemaining = user?.daysRemaining ?? null;
   const isExpiringSoon = daysRemaining !== null && daysRemaining <= 14;
@@ -58,51 +79,39 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
     }
   };
 
-  const getGoldPrices = () => {
-    return billingInterval === 'MONTHLY'
-      ? { inr: '₹39', usd: '$3', inrNum: 39, usdNum: 3 }
-      : { inr: '₹390', usd: '$25', inrNum: 390, usdNum: 25 };
-  };
-
-  const getPlatinumPrices = () => {
-    return billingInterval === 'MONTHLY'
-      ? { inr: '₹49', usd: '$5', inrNum: 49, usdNum: 5 }
-      : { inr: '₹490', usd: '$50', inrNum: 490, usdNum: 50 };
-  };
-
-  const goldP = getGoldPrices();
-  const platP = getPlatinumPrices();
-
-  const handleCheckout = async (planName: 'GOLD' | 'PLATINUM', currency: 'INR' | 'USD') => {
+  const handleCheckout = async (planName: 'GOLD' | 'PLATINUM', interval: 'MONTHLY' | 'YEARLY', overrideAbroad?: boolean) => {
     if (!isLoggedIn || !user) {
       window.location.href = '/login?callbackUrl=/';
       return;
     }
 
+    const useAbroad = overrideAbroad !== undefined ? overrideAbroad : isAbroad;
+    const currency = useAbroad ? 'USD' : 'INR';
+
     setIsInitializing(true);
     let amount = 0;
     if (planName === 'GOLD') {
-      amount = currency === 'INR' ? (billingInterval === 'MONTHLY' ? 39 : 390) : (billingInterval === 'MONTHLY' ? 3 : 25);
+      amount = useAbroad ? (interval === 'MONTHLY' ? 3 : 25) : (interval === 'MONTHLY' ? 39 : 390);
     } else {
-      amount = currency === 'INR' ? (billingInterval === 'MONTHLY' ? 49 : 490) : (billingInterval === 'MONTHLY' ? 5 : 50);
+      amount = useAbroad ? (interval === 'MONTHLY' ? 5 : 50) : (interval === 'MONTHLY' ? 49 : 490);
     }
 
-    const totalCount = billingInterval === 'MONTHLY' ? 120 : 10;
+    const totalCount = interval === 'MONTHLY' ? 120 : 10;
 
     try {
       const res = await createRazorpaySubscription({
         name: `Vyoma ${planName} Tier`,
-        description: `Auto-renewing ${billingInterval} mandate`,
+        description: `Auto-renewing ${interval} mandate`,
         amount: amount,
         currency: currency,
-        interval: billingInterval.toLowerCase(),
+        interval: interval.toLowerCase(),
         totalCount: totalCount
       });
 
       if (res.success) {
         setCheckoutData({
           planName,
-          interval: billingInterval,
+          interval,
           currency,
           amount,
           subData: res
@@ -207,7 +216,7 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
             Your Membership &amp; Pricing Telemetry
           </h2>
           <p style={{ color: '#aaa', fontSize: '1rem', marginTop: '8px', margin: '8px 0 0' }}>
-            Check your current active plan telemetry or upgrade instantly with domestic (INR ₹) or international (USD $) checkout directly inside this popup.
+            Both Monthly &amp; Yearly options displayed together on each plan. Zero page redirects.
           </p>
         </div>
 
@@ -263,7 +272,7 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
                   <AlertTriangle size={16} /> Expiring Soon!
                 </span>
                 <button
-                  onClick={() => handleCheckout(currentPlan as any, 'INR')}
+                  onClick={() => handleCheckout(currentPlan as any, 'MONTHLY')}
                   disabled={isInitializing}
                   className="btn btn-primary"
                   style={{ padding: '8px 18px', fontSize: '0.85rem', fontWeight: 800, borderRadius: '12px', border: 'none', cursor: 'pointer' }}
@@ -358,75 +367,43 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
           </div>
         ) : (
           <>
-            {/* DUAL PRICING BANNER & BILLING INTERVAL SWITCHER */}
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', marginBottom: '32px' }}>
-              
+            {/* AUTOMATIC GEO LOCATION BANNER WITH TOGGLE OPTION */}
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '28px' }}>
               <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '16px',
-                background: 'rgba(255, 255, 255, 0.04)',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                borderRadius: '30px',
-                padding: '8px 22px',
-                flexWrap: 'wrap',
-                justifyContent: 'center'
-              }}>
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: '#ff8c53', fontWeight: 800, fontSize: '0.85rem' }}>
-                  <MapPin size={15} /> 🇮🇳 India Pricing (INR ₹)
-                </span>
-                <span style={{ color: 'rgba(255,255,255,0.2)' }}>•</span>
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: '#60a5fa', fontWeight: 800, fontSize: '0.85rem' }}>
-                  <Globe size={15} /> 🌍 Abroad Pricing ($3, $5, $25, $50 USD)
-                </span>
-              </div>
-
-              {/* BILLING INTERVAL TOGGLE */}
-              <div style={{
-                background: 'rgba(0, 0, 0, 0.5)',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                borderRadius: '30px',
-                padding: '4px',
                 display: 'inline-flex',
-                gap: '4px',
-                marginTop: '4px'
+                alignItems: 'center',
+                gap: '12px',
+                padding: '10px 24px',
+                borderRadius: '30px',
+                border: isAbroad ? '1px solid rgba(59,130,246,0.4)' : '1px solid rgba(242,100,34,0.4)',
+                background: isAbroad ? 'rgba(59,130,246,0.1)' : 'rgba(242,100,34,0.1)',
+                color: '#fff',
+                fontSize: '0.85rem',
+                fontWeight: 700
               }}>
-                <button
-                  onClick={() => setBillingInterval('MONTHLY')}
-                  style={{
-                    padding: '8px 20px',
-                    borderRadius: '24px',
-                    border: 'none',
-                    background: billingInterval === 'MONTHLY' ? 'var(--primary)' : 'transparent',
-                    color: '#fff',
-                    fontWeight: 800,
-                    fontSize: '0.85rem',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s'
-                  }}
-                >
-                  Monthly Billing
-                </button>
-                <button
-                  onClick={() => setBillingInterval('YEARLY')}
-                  style={{
-                    padding: '8px 20px',
-                    borderRadius: '24px',
-                    border: 'none',
-                    background: billingInterval === 'YEARLY' ? 'var(--primary)' : 'transparent',
-                    color: '#fff',
-                    fontWeight: 800,
-                    fontSize: '0.85rem',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px'
-                  }}
-                >
-                  <span>Yearly Billing</span>
-                  <span style={{ background: '#22c55e', color: '#000', padding: '1px 6px', borderRadius: '10px', fontSize: '0.65rem', fontWeight: 900 }}>SAVE 20%</span>
-                </button>
+                {isAbroad ? (
+                  <>
+                    <Globe size={16} color="#60a5fa" />
+                    <span>Abroad Region Detected: Displaying USD ($) Pricing</span>
+                    <button
+                      onClick={() => setIsAbroad(false)}
+                      style={{ background: 'transparent', border: 'none', color: '#93c5fd', textDecoration: 'underline', cursor: 'pointer', marginLeft: '6px', fontSize: '0.8rem', fontWeight: 800 }}
+                    >
+                      (Switch to INR ₹)
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <MapPin size={16} color="#ff8c53" />
+                    <span>Local Region Detected: Displaying India (INR ₹) Pricing</span>
+                    <button
+                      onClick={() => setIsAbroad(true)}
+                      style={{ background: 'transparent', border: 'none', color: '#ff8c53', textDecoration: 'underline', cursor: 'pointer', marginLeft: '6px', fontSize: '0.8rem', fontWeight: 800 }}
+                    >
+                      (Switch to USD $)
+                    </button>
+                  </>
+                )}
               </div>
             </div>
 
@@ -451,7 +428,7 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
                   <div style={{ fontSize: '0.75rem', color: '#888', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>Starter</div>
                   <h3 style={{ fontSize: '1.5rem', fontWeight: 900, marginTop: '4px', margin: '4px 0 10px' }}>Free Tier</h3>
                   <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#fff' }}>
-                    ₹0 / $0 <span style={{ fontSize: '0.85rem', color: '#888' }}>/ forever</span>
+                    {isAbroad ? '$0' : '₹0'} <span style={{ fontSize: '0.85rem', color: '#888' }}>/ forever</span>
                   </div>
                   <div style={{ height: '1px', background: 'rgba(255,255,255,0.06)', margin: '16px 0' }}></div>
                   <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '0.85rem', color: '#ccc' }}>
@@ -502,18 +479,20 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
                   </div>
                   <h3 style={{ fontSize: '1.5rem', fontWeight: 900, marginTop: '4px', margin: '4px 0 10px' }}>Gold Membership</h3>
                   
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginTop: '4px' }}>
-                    <span style={{ fontSize: '1.8rem', fontWeight: 950, color: '#fff' }}>{goldP.inr}</span>
-                    <span style={{ fontSize: '1.3rem', fontWeight: 800, color: '#60a5fa' }}>/ {goldP.usd}</span>
-                    <span style={{ fontSize: '0.85rem', color: '#888' }}>/ {billingInterval.toLowerCase()}</span>
-                  </div>
-                  <div style={{ display: 'flex', gap: '8px', marginTop: '8px', flexWrap: 'wrap' }}>
-                    <span style={{ background: 'rgba(242,100,34,0.15)', border: '1px solid rgba(242,100,34,0.3)', color: '#ff8c53', fontSize: '0.75rem', fontWeight: 800, padding: '2px 8px', borderRadius: '8px' }}>
-                      🇮🇳 India: {goldP.inr}
-                    </span>
-                    <span style={{ background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)', color: '#60a5fa', fontSize: '0.75rem', fontWeight: 800, padding: '2px 8px', borderRadius: '8px' }}>
-                      🌍 Abroad: {goldP.usd}
-                    </span>
+                  {/* BOTH MONTHLY & YEARLY PRICES DISPLAYED TOGETHER (NO SWITCH NEEDED) */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', background: 'rgba(0,0,0,0.3)', padding: '12px 14px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                      <span style={{ fontSize: '0.85rem', color: '#ccc' }}>Monthly:</span>
+                      <span style={{ fontSize: '1.4rem', fontWeight: 900, color: '#fff' }}>
+                        {isAbroad ? '$3' : '₹39'} <span style={{ fontSize: '0.75rem', color: '#888' }}>/ mo</span>
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                      <span style={{ fontSize: '0.85rem', color: '#22c55e', fontWeight: 700 }}>Yearly (Save 15%):</span>
+                      <span style={{ fontSize: '1.4rem', fontWeight: 900, color: '#22c55e' }}>
+                        {isAbroad ? '$25' : '₹390'} <span style={{ fontSize: '0.75rem', color: '#888' }}>/ yr</span>
+                      </span>
+                    </div>
                   </div>
 
                   <div style={{ height: '1px', background: 'rgba(255,255,255,0.06)', margin: '16px 0' }}></div>
@@ -562,7 +541,7 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     <button
-                      onClick={() => handleCheckout('GOLD', 'INR')}
+                      onClick={() => handleCheckout('GOLD', 'MONTHLY')}
                       disabled={isInitializing}
                       style={{
                         width: '100%',
@@ -572,28 +551,29 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
                         background: 'linear-gradient(135deg, rgba(242,100,34,0.2) 0%, rgba(242,100,34,0.05) 100%)',
                         color: '#fff',
                         fontWeight: 800,
-                        fontSize: '0.8rem',
+                        fontSize: '0.85rem',
                         cursor: 'pointer'
                       }}
                     >
-                      🇮🇳 Pay {goldP.inr} (India)
+                      Subscribe Monthly ({isAbroad ? '$3' : '₹39'})
                     </button>
                     <button
-                      onClick={() => handleCheckout('GOLD', 'USD')}
+                      onClick={() => handleCheckout('GOLD', 'YEARLY')}
                       disabled={isInitializing}
                       style={{
                         width: '100%',
                         padding: '10px',
                         borderRadius: '10px',
-                        border: '1px solid #3b82f6',
-                        background: 'linear-gradient(135deg, rgba(59,130,246,0.2) 0%, rgba(59,130,246,0.05) 100%)',
-                        color: '#60a5fa',
-                        fontWeight: 800,
-                        fontSize: '0.8rem',
-                        cursor: 'pointer'
+                        border: 'none',
+                        background: 'linear-gradient(135deg, #f26422 0%, #ff8c53 100%)',
+                        color: '#fff',
+                        fontWeight: 900,
+                        fontSize: '0.85rem',
+                        cursor: 'pointer',
+                        boxShadow: '0 4px 15px rgba(242, 100, 34, 0.3)'
                       }}
                     >
-                      🌍 Pay {goldP.usd} (Abroad)
+                      Subscribe Yearly ({isAbroad ? '$25' : '₹390'}) 🎁
                     </button>
                   </div>
                 )}
@@ -620,18 +600,20 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
                   </div>
                   <h3 style={{ fontSize: '1.5rem', fontWeight: 900, marginTop: '4px', margin: '4px 0 10px' }}>Platinum VIP</h3>
                   
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginTop: '4px' }}>
-                    <span style={{ fontSize: '1.8rem', fontWeight: 950, color: '#fff' }}>{platP.inr}</span>
-                    <span style={{ fontSize: '1.3rem', fontWeight: 800, color: '#60a5fa' }}>/ {platP.usd}</span>
-                    <span style={{ fontSize: '0.85rem', color: '#888' }}>/ {billingInterval.toLowerCase()}</span>
-                  </div>
-                  <div style={{ display: 'flex', gap: '8px', marginTop: '8px', flexWrap: 'wrap' }}>
-                    <span style={{ background: 'rgba(242,100,34,0.15)', border: '1px solid rgba(242,100,34,0.3)', color: '#ff8c53', fontSize: '0.75rem', fontWeight: 800, padding: '2px 8px', borderRadius: '8px' }}>
-                      🇮🇳 India: {platP.inr}
-                    </span>
-                    <span style={{ background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)', color: '#60a5fa', fontSize: '0.75rem', fontWeight: 800, padding: '2px 8px', borderRadius: '8px' }}>
-                      🌍 Abroad: {platP.usd}
-                    </span>
+                  {/* BOTH MONTHLY & YEARLY PRICES DISPLAYED TOGETHER (NO SWITCH NEEDED) */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', background: 'rgba(0,0,0,0.3)', padding: '12px 14px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                      <span style={{ fontSize: '0.85rem', color: '#ccc' }}>Monthly:</span>
+                      <span style={{ fontSize: '1.4rem', fontWeight: 900, color: '#fff' }}>
+                        {isAbroad ? '$5' : '₹49'} <span style={{ fontSize: '0.75rem', color: '#888' }}>/ mo</span>
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                      <span style={{ fontSize: '0.85rem', color: '#22c55e', fontWeight: 700 }}>Yearly (Save 15%):</span>
+                      <span style={{ fontSize: '1.4rem', fontWeight: 900, color: '#22c55e' }}>
+                        {isAbroad ? '$50' : '₹490'} <span style={{ fontSize: '0.75rem', color: '#888' }}>/ yr</span>
+                      </span>
+                    </div>
                   </div>
 
                   <div style={{ height: '1px', background: 'rgba(255,255,255,0.06)', margin: '16px 0' }}></div>
@@ -664,7 +646,24 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     <button
-                      onClick={() => handleCheckout('PLATINUM', 'INR')}
+                      onClick={() => handleCheckout('PLATINUM', 'MONTHLY')}
+                      disabled={isInitializing}
+                      style={{
+                        width: '100%',
+                        padding: '10px',
+                        borderRadius: '10px',
+                        border: '1px solid #c084fc',
+                        background: 'linear-gradient(135deg, rgba(192,132,252,0.2) 0%, rgba(192,132,252,0.05) 100%)',
+                        color: '#fff',
+                        fontWeight: 800,
+                        fontSize: '0.85rem',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      Subscribe Monthly ({isAbroad ? '$5' : '₹49'})
+                    </button>
+                    <button
+                      onClick={() => handleCheckout('PLATINUM', 'YEARLY')}
                       disabled={isInitializing}
                       style={{
                         width: '100%',
@@ -674,29 +673,12 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
                         background: 'linear-gradient(135deg, #f26422 0%, #ff8c53 100%)',
                         color: '#fff',
                         fontWeight: 900,
-                        fontSize: '0.8rem',
+                        fontSize: '0.85rem',
                         cursor: 'pointer',
-                        boxShadow: '0 4px 15px rgba(242, 100, 34, 0.3)'
+                        boxShadow: '0 4px 15px rgba(242, 100, 34, 0.4)'
                       }}
                     >
-                      🇮🇳 Pay {platP.inr} (India)
-                    </button>
-                    <button
-                      onClick={() => handleCheckout('PLATINUM', 'USD')}
-                      disabled={isInitializing}
-                      style={{
-                        width: '100%',
-                        padding: '10px',
-                        borderRadius: '10px',
-                        border: '1px solid #3b82f6',
-                        background: 'linear-gradient(135deg, rgba(59,130,246,0.3) 0%, rgba(59,130,246,0.1) 100%)',
-                        color: '#93c5fd',
-                        fontWeight: 800,
-                        fontSize: '0.8rem',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      🌍 Pay {platP.usd} (Abroad)
+                      Subscribe Yearly ({isAbroad ? '$50' : '₹490'}) 🚀
                     </button>
                   </div>
                 )}
@@ -710,7 +692,7 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
           <Link href="/profile" onClick={onClose} style={{ color: '#aaa', textDecoration: 'underline', display: 'flex', alignItems: 'center', gap: '6px' }}>
             <CreditCard size={14} /> View Billing Invoices &amp; History
           </Link>
-          <span>Direct In-Popup Mandates &amp; Dual Global Pricing powered by Razorpay</span>
+          <span>Direct In-Popup Mandates powered by Razorpay</span>
         </div>
       </div>
     </div>
