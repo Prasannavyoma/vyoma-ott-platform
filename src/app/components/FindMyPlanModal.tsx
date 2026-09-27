@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ShieldCheck, Crown, CheckCircle2, Sparkles, AlertTriangle, X, CreditCard, RefreshCw, Globe, MapPin, ArrowLeft } from 'lucide-react';
+import { ShieldCheck, Crown, CheckCircle2, Sparkles, AlertTriangle, X, CreditCard, RefreshCw, Globe, MapPin, ArrowLeft, Key } from 'lucide-react';
 import { createRazorpaySubscription } from '@/app/actions/razorpay';
 import { activateSubscription } from '@/app/actions/plans';
+import { redeemVoucherCode } from '@/app/actions/gift';
 import RazorpayCheckoutButton from '@/app/components/RazorpayCheckoutButton';
 
 interface FindMyPlanModalProps {
@@ -37,6 +38,12 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
     amount: number;
     subData: any;
   } | null>(null);
+
+  // 🔑 Gift Code / Voucher Redemption State
+  const [showGiftInput, setShowGiftInput] = useState(false);
+  const [giftCode, setGiftCode] = useState('');
+  const [giftLoading, setGiftLoading] = useState(false);
+  const [giftStatus, setGiftStatus] = useState<{ type: 'idle' | 'success' | 'error'; message?: string; meta?: any }>({ type: 'idle' });
 
   const user = userPlanData?.user;
   const isLoggedIn = userPlanData?.isLoggedIn;
@@ -138,6 +145,31 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
     window.location.reload();
   };
 
+  const handleRedeemGift = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!giftCode.trim()) return;
+
+    setGiftLoading(true);
+    setGiftStatus({ type: 'idle' });
+
+    try {
+      const res = await redeemVoucherCode(giftCode);
+      if (res.success) {
+        setGiftStatus({ type: 'success', meta: res });
+        setGiftCode('');
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
+      } else {
+        setGiftStatus({ type: 'error', message: res.error || "Failed to activate voucher." });
+      }
+    } catch (err: any) {
+      setGiftStatus({ type: 'error', message: "Connection error. Make sure you are logged in." });
+    } finally {
+      setGiftLoading(false);
+    }
+  };
+
   return (
     <div style={{
       position: 'fixed',
@@ -229,7 +261,7 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
             border: `1px solid ${isExpiringSoon ? 'rgba(245, 158, 11, 0.4)' : 'rgba(242, 100, 34, 0.3)'}`,
             borderRadius: '16px',
             padding: '20px 24px',
-            marginBottom: '28px',
+            marginBottom: '20px',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
@@ -297,7 +329,7 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
             border: '1px solid rgba(255, 255, 255, 0.08)',
             borderRadius: '16px',
             padding: '16px 20px',
-            marginBottom: '28px',
+            marginBottom: '20px',
             textAlign: 'center',
             fontSize: '0.9rem',
             color: '#aaa'
@@ -305,6 +337,94 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
             🔐 <Link href="/login" onClick={onClose} style={{ color: 'var(--primary)', fontWeight: 'bold', textDecoration: 'underline' }}>Sign In</Link> to view active plan telemetry &amp; authorize direct subscriptions.
           </div>
         )}
+
+        {/* 🔑 HAVE A GIFT CODE / VOUCHER REDEMPTION BOX */}
+        <div style={{
+          background: 'rgba(242, 100, 34, 0.07)',
+          border: '1px solid rgba(242, 100, 34, 0.3)',
+          borderRadius: '16px',
+          padding: '16px 20px',
+          marginBottom: '24px'
+        }}>
+          <div 
+            onClick={() => setShowGiftInput(!showGiftInput)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              cursor: 'pointer',
+              userSelect: 'none'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.95rem', fontWeight: 800, color: '#fff' }}>
+              <Key size={18} color="#ff8c53" />
+              <span>🔑 Have a Gift Code?</span>
+              <span style={{ fontSize: '0.75rem', color: '#ff8c53', background: 'rgba(242,100,34,0.15)', border: '1px solid rgba(242,100,34,0.3)', padding: '2px 8px', borderRadius: '10px', fontWeight: 800 }}>
+                Redeem Voucher
+              </span>
+            </div>
+            <span style={{ fontSize: '0.85rem', color: '#ff8c53', fontWeight: 800 }}>
+              {showGiftInput ? '▲ Hide' : '▼ Activate Key Now'}
+            </span>
+          </div>
+
+          {showGiftInput && (
+            <form onSubmit={handleRedeemGift} style={{ marginTop: '16px' }}>
+              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                <input
+                  type="text"
+                  required
+                  value={giftCode}
+                  onChange={(e) => setGiftCode(e.target.value)}
+                  placeholder="e.g. GIFT-VYOM-ABCD-1234"
+                  style={{
+                    flex: 1,
+                    minWidth: '220px',
+                    background: '#050a14',
+                    border: '1px solid rgba(255,255,255,0.2)',
+                    borderRadius: '10px',
+                    padding: '12px 16px',
+                    color: '#fff',
+                    fontSize: '0.95rem',
+                    fontWeight: 900,
+                    letterSpacing: '1.5px',
+                    textTransform: 'uppercase',
+                    outline: 'none'
+                  }}
+                />
+                <button
+                  type="submit"
+                  disabled={giftLoading}
+                  style={{
+                    padding: '12px 22px',
+                    borderRadius: '10px',
+                    border: 'none',
+                    background: 'linear-gradient(135deg, #f26422 0%, #ff8c53 100%)',
+                    color: '#fff',
+                    fontWeight: 900,
+                    fontSize: '0.9rem',
+                    cursor: giftLoading ? 'wait' : 'pointer',
+                    boxShadow: '0 4px 15px rgba(242,100,34,0.3)'
+                  }}
+                >
+                  {giftLoading ? 'VALIDATING...' : 'UNLOCK MEMBERSHIP 🔓'}
+                </button>
+              </div>
+
+              {giftStatus.type === 'error' && (
+                <div style={{ marginTop: '12px', color: '#f87171', fontSize: '0.85rem', fontWeight: 800, background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', padding: '10px 14px', borderRadius: '8px' }}>
+                  🚨 {giftStatus.message}
+                </div>
+              )}
+
+              {giftStatus.type === 'success' && (
+                <div style={{ marginTop: '12px', color: '#46d369', fontSize: '0.9rem', fontWeight: 900, background: 'rgba(70, 211, 105, 0.1)', border: '1px solid rgba(70, 211, 105, 0.3)', padding: '10px 14px', borderRadius: '8px' }}>
+                  🎉 Voucher Activated! Unlocked {giftStatus.meta?.months} Months {giftStatus.meta?.plan} Access! Reloading...
+                </div>
+              )}
+            </form>
+          )}
+        </div>
 
         {/* INTERACTIVE CHECKOUT OVERLAY (INSIDE POPUP ONLY - NO EXTRA PAGE) */}
         {checkoutData ? (
@@ -697,7 +817,7 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
           <Link href="/profile" onClick={onClose} style={{ color: '#aaa', textDecoration: 'underline', display: 'flex', alignItems: 'center', gap: '6px' }}>
             <CreditCard size={14} /> View Billing Invoices &amp; History
           </Link>
-          <span>Direct In-Popup Mandates powered by Razorpay</span>
+          <span>Direct In-Popup Mandates &amp; Voucher Activation powered by Razorpay</span>
         </div>
       </div>
     </div>
