@@ -48,19 +48,19 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
     }
   };
 
-  // Dual Pricing Matrix Definition
-  // Local (INR ₹): Gold = ₹499/mo | ₹4,999/yr, Platinum = ₹999/mo | ₹9,999/yr
-  // Abroad (USD $): Revised strictly to $3, $5, $10, $25, $50!
+  // Dual Pricing Matrix Definition (strictly aligned with authentic screenshot)
+  // Local (INR ₹): Gold = ₹39/mo | ₹390/yr, Platinum = ₹49/mo | ₹490/yr
+  // Abroad (USD $): Gold = $3/mo | $25/yr, Platinum = $5/mo | $50/yr
   const getGoldPrices = () => {
     return billingInterval === 'MONTHLY'
-      ? { inr: '₹499', usd: '$3' }
-      : { inr: '₹4,999', usd: '$25' };
+      ? { inr: '₹39', usd: '$3' }
+      : { inr: '₹390', usd: '$25' };
   };
 
   const getPlatinumPrices = () => {
     return billingInterval === 'MONTHLY'
-      ? { inr: '₹999', usd: '$5' }
-      : { inr: '₹9,999', usd: '$50' };
+      ? { inr: '₹49', usd: '$5' }
+      : { inr: '₹490', usd: '$50' };
   };
 
   const goldP = getGoldPrices();

@@ -74,10 +74,10 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
 
   const getINRPrice = (plan: any) => {
     if (!plan) return 0;
-    if (plan.name === 'GOLD' && plan.interval === 'MONTHLY') return 499;
-    if (plan.name === 'GOLD' && plan.interval === 'YEARLY') return 4999;
-    if (plan.name === 'PLATINUM' && plan.interval === 'MONTHLY') return 999;
-    if (plan.name === 'PLATINUM' && plan.interval === 'YEARLY') return 9999;
+    if (plan.name === 'GOLD' && plan.interval === 'MONTHLY') return 39;
+    if (plan.name === 'GOLD' && plan.interval === 'YEARLY') return 390;
+    if (plan.name === 'PLATINUM' && plan.interval === 'MONTHLY') return 49;
+    if (plan.name === 'PLATINUM' && plan.interval === 'YEARLY') return 490;
     return plan.priceINR || 0;
   };
 
@@ -618,7 +618,7 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
             <div style={{ zIndex: 2 }}>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
                 <span style={{ fontSize: '2.8rem', fontWeight: 950, color: '#fff' }}>
-                  ₹{selectedGold ? getINRPrice(selectedGold) : '499'}
+                  ₹{selectedGold ? getINRPrice(selectedGold) : '39'}
                 </span>
                 <span style={{ fontSize: '1.8rem', fontWeight: 800, color: '#60a5fa' }}>
                   / ${selectedGold ? getUSDPrice(selectedGold) : '3'}
@@ -626,7 +626,7 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
               </div>
               <div style={{ display: 'flex', gap: '8px', marginTop: '6px', flexWrap: 'wrap' }}>
                 <span style={{ background: 'rgba(242,100,34,0.15)', border: '1px solid rgba(242,100,34,0.3)', color: '#ff8c53', fontSize: '0.75rem', fontWeight: 800, padding: '2px 8px', borderRadius: '8px' }}>
-                  🇮🇳 India: ₹{selectedGold ? getINRPrice(selectedGold) : '499'}
+                  🇮🇳 India: ₹{selectedGold ? getINRPrice(selectedGold) : '39'}
                 </span>
                 <span style={{ background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)', color: '#60a5fa', fontSize: '0.75rem', fontWeight: 800, padding: '2px 8px', borderRadius: '8px' }}>
                   🌍 Abroad: ${selectedGold ? getUSDPrice(selectedGold) : '3'}
@@ -679,7 +679,7 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
                 onMouseEnter={(e) => { e.currentTarget.style.background = '#f26422'; }} 
                 onMouseLeave={(e) => { e.currentTarget.style.background = 'linear-gradient(135deg, rgba(242,100,34,0.2) 0%, rgba(242,100,34,0.05) 100%)'; }}
               >
-                🇮🇳 Pay ₹{selectedGold ? getINRPrice(selectedGold) : '499'} (India)
+                🇮🇳 Pay ₹{selectedGold ? getINRPrice(selectedGold) : '39'} (India)
               </button>
 
               <button 
@@ -735,7 +735,7 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
             <div style={{ zIndex: 2 }}>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
                 <span style={{ fontSize: '2.8rem', fontWeight: 950, color: '#fff' }}>
-                  ₹{selectedPlatinum ? getINRPrice(selectedPlatinum) : '999'}
+                  ₹{selectedPlatinum ? getINRPrice(selectedPlatinum) : '49'}
                 </span>
                 <span style={{ fontSize: '1.8rem', fontWeight: 800, color: '#60a5fa' }}>
                   / ${selectedPlatinum ? getUSDPrice(selectedPlatinum) : '5'}
@@ -743,7 +743,7 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
               </div>
               <div style={{ display: 'flex', gap: '8px', marginTop: '6px', flexWrap: 'wrap' }}>
                 <span style={{ background: 'rgba(242,100,34,0.15)', border: '1px solid rgba(242,100,34,0.3)', color: '#ff8c53', fontSize: '0.75rem', fontWeight: 800, padding: '2px 8px', borderRadius: '8px' }}>
-                  🇮🇳 India: ₹{selectedPlatinum ? getINRPrice(selectedPlatinum) : '999'}
+                  🇮🇳 India: ₹{selectedPlatinum ? getINRPrice(selectedPlatinum) : '49'}
                 </span>
                 <span style={{ background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)', color: '#60a5fa', fontSize: '0.75rem', fontWeight: 800, padding: '2px 8px', borderRadius: '8px' }}>
                   🌍 Abroad: ${selectedPlatinum ? getUSDPrice(selectedPlatinum) : '5'}

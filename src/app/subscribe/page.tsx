@@ -10,10 +10,10 @@ export default async function SubscribePage() {
   
   // Standardized fallback in case DB empty, but usually loaded
   const plans = rawPlans.length ? rawPlans : [
-    { name: 'GOLD', interval: 'MONTHLY', priceINR: 39, priceUSD: 5 },
-    { name: 'GOLD', interval: 'YEARLY', priceINR: 399, priceUSD: 50 },
-    { name: 'PLATINUM', interval: 'MONTHLY', priceINR: 49, priceUSD: 10 },
-    { name: 'PLATINUM', interval: 'YEARLY', priceINR: 499, priceUSD: 100 },
+    { name: 'GOLD', interval: 'MONTHLY', priceINR: 39, priceUSD: 3 },
+    { name: 'GOLD', interval: 'YEARLY', priceINR: 390, priceUSD: 25 },
+    { name: 'PLATINUM', interval: 'MONTHLY', priceINR: 49, priceUSD: 5 },
+    { name: 'PLATINUM', interval: 'YEARLY', priceINR: 490, priceUSD: 50 },
   ];
 
   // Fetch authentic logged in user for precise live calculation (no fake data)
