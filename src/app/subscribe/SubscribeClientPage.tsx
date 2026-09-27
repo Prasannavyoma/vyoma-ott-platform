@@ -72,19 +72,29 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
   const monthlyPlatinum = initialPlans.find(p => p.name === 'PLATINUM' && p.interval === 'MONTHLY');
   const yearlyPlatinum = initialPlans.find(p => p.name === 'PLATINUM' && p.interval === 'YEARLY');
 
-  const currency = region === 'INDIA' ? '₹' : '$';
-  const priceField = region === 'INDIA' ? 'priceINR' : 'priceUSD';
-
-  const getP = (plan: any) => {
+  const getINRPrice = (plan: any) => {
     if (!plan) return 0;
-    if (region === 'ABROAD') {
-      // Revised Abroad Price Tiers ($3, $5, $10, $25, $50)
-      if (plan.name === 'GOLD' && plan.interval === 'MONTHLY') return 3;
-      if (plan.name === 'GOLD' && plan.interval === 'YEARLY') return 25;
-      if (plan.name === 'PLATINUM' && plan.interval === 'MONTHLY') return 5;
-      if (plan.name === 'PLATINUM' && plan.interval === 'YEARLY') return 50;
-    }
-    return (plan as any)[priceField] || 0;
+    if (plan.name === 'GOLD' && plan.interval === 'MONTHLY') return 499;
+    if (plan.name === 'GOLD' && plan.interval === 'YEARLY') return 4999;
+    if (plan.name === 'PLATINUM' && plan.interval === 'MONTHLY') return 999;
+    if (plan.name === 'PLATINUM' && plan.interval === 'YEARLY') return 9999;
+    return plan.priceINR || 0;
+  };
+
+  const getUSDPrice = (plan: any) => {
+    if (!plan) return 0;
+    if (plan.name === 'GOLD' && plan.interval === 'MONTHLY') return 3;
+    if (plan.name === 'GOLD' && plan.interval === 'YEARLY') return 25;
+    if (plan.name === 'PLATINUM' && plan.interval === 'MONTHLY') return 5;
+    if (plan.name === 'PLATINUM' && plan.interval === 'YEARLY') return 50;
+    return plan.priceUSD || 0;
+  };
+
+  const currency = region === 'INDIA' ? '₹' : '$';
+
+  const getP = (plan: any, targetRegion?: 'INDIA' | 'ABROAD') => {
+    const reg = targetRegion || region;
+    return reg === 'INDIA' ? getINRPrice(plan) : getUSDPrice(plan);
   };
 
   const getCurrentPlanPrice = () => {
@@ -131,11 +141,12 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
     };
   };
 
-  const startUpgradeFlow = (p: Plan) => {
+  const startUpgradeFlow = (p: Plan, targetRegion: 'INDIA' | 'ABROAD' = 'INDIA') => {
     if (!currentUser || !currentUser.id) {
       window.location.href = '/login?callbackUrl=/subscribe';
       return;
     }
+    setRegion(targetRegion);
     setTargetPlan(p);
     setIsCalculating(true);
   };
@@ -486,63 +497,25 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
           </div>
         </div>
 
-        {/* 2 CUSTOMER-CENTRIC REGION TOGGLE BUTTONS */}
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', marginBottom: '20px', flexWrap: 'wrap' }}>
-          <button
-            type="button"
-            onClick={() => setRegion('INDIA')}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '12px 26px',
-              borderRadius: '30px',
-              border: region === 'INDIA' ? '2px solid var(--primary)' : '1px solid rgba(255,255,255,0.1)',
-              background: region === 'INDIA' ? 'linear-gradient(135deg, rgba(242,100,34,0.35) 0%, rgba(242,100,34,0.1) 100%)' : 'rgba(15, 22, 36, 0.4)',
-              color: '#fff',
-              fontWeight: 800,
-              fontSize: '0.95rem',
-              cursor: 'pointer',
-              transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-              boxShadow: region === 'INDIA' ? '0 8px 25px rgba(242,100,34,0.3)' : 'none'
-            }}
-          >
-            <span>🇮🇳 Local / India (INR ₹)</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setRegion('ABROAD')}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '12px 26px',
-              borderRadius: '30px',
-              border: region === 'ABROAD' ? '2px solid #60a5fa' : '1px solid rgba(255,255,255,0.1)',
-              background: region === 'ABROAD' ? 'linear-gradient(135deg, rgba(59,130,246,0.35) 0%, rgba(59,130,246,0.1) 100%)' : 'rgba(15, 22, 36, 0.4)',
-              color: '#fff',
-              fontWeight: 800,
-              fontSize: '0.95rem',
-              cursor: 'pointer',
-              transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-              boxShadow: region === 'ABROAD' ? '0 8px 25px rgba(59,130,246,0.3)' : 'none'
-            }}
-          >
-            <span>🌍 Abroad / International (USD $)</span>
-          </button>
-        </div>
-
-        {region === 'ABROAD' && (
-          <div style={{ textAlign: 'center', marginBottom: '25px', color: '#93c5fd', fontSize: '0.85rem', fontWeight: 700 }}>
-            <span>Revised Abroad Tiers Active: </span>
-            {['$3', '$5', '$10', '$25', '$50'].map(p => (
-              <span key={p} style={{ background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)', padding: '2px 8px', borderRadius: '8px', margin: '0 4px', color: '#60a5fa' }}>
-                {p}
-              </span>
-            ))}
+        {/* DUAL PRICING INFO BANNER */}
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '25px', flexWrap: 'wrap' }}>
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '12px',
+            padding: '10px 24px',
+            borderRadius: '30px',
+            border: '1px solid rgba(255,255,255,0.1)',
+            background: 'rgba(15, 22, 36, 0.6)',
+            color: '#fff',
+            fontSize: '0.9rem',
+            fontWeight: 700
+          }}>
+            <span style={{ color: '#ff8c53' }}>🇮🇳 India Pricing (INR ₹)</span>
+            <span style={{ color: 'rgba(255,255,255,0.2)' }}>•</span>
+            <span style={{ color: '#60a5fa' }}>🌍 Abroad Pricing ($3, $5, $25, $50 USD)</span>
           </div>
-        )}
+        </div>
 
         {/* Dynamic Billing Slider/Toggle */}
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '55px' }}>
@@ -589,7 +562,7 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
             </div>
             
             <div className="price-text" key={`free-${billingPeriod}`} style={{ animation: 'scalePop 0.4s ease-out', zIndex: 2 }}>
-              {currency}0
+              ₹0 / $0
             </div>
             <div className="price-sub" style={{ zIndex: 2 }}>Free Lifetime Tier</div>
 
@@ -642,10 +615,26 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
               <h3 style={{ fontSize: '1.9rem', fontWeight: 900, marginTop: '5px', color: '#f26422' }}>Gold Tier</h3>
             </div>
             
-            <div className="price-text" key={`gold-${billingPeriod}`} style={{ animation: 'scalePop 0.4s ease-out', zIndex: 2 }}>
-              {currency}{selectedGold ? getP(selectedGold) : '0'}
+            <div style={{ zIndex: 2 }}>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
+                <span style={{ fontSize: '2.8rem', fontWeight: 950, color: '#fff' }}>
+                  ₹{selectedGold ? getINRPrice(selectedGold) : '499'}
+                </span>
+                <span style={{ fontSize: '1.8rem', fontWeight: 800, color: '#60a5fa' }}>
+                  / ${selectedGold ? getUSDPrice(selectedGold) : '3'}
+                </span>
+              </div>
+              <div style={{ display: 'flex', gap: '8px', marginTop: '6px', flexWrap: 'wrap' }}>
+                <span style={{ background: 'rgba(242,100,34,0.15)', border: '1px solid rgba(242,100,34,0.3)', color: '#ff8c53', fontSize: '0.75rem', fontWeight: 800, padding: '2px 8px', borderRadius: '8px' }}>
+                  🇮🇳 India: ₹{selectedGold ? getINRPrice(selectedGold) : '499'}
+                </span>
+                <span style={{ background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)', color: '#60a5fa', fontSize: '0.75rem', fontWeight: 800, padding: '2px 8px', borderRadius: '8px' }}>
+                  🌍 Abroad: ${selectedGold ? getUSDPrice(selectedGold) : '3'}
+                </span>
+              </div>
             </div>
-            <div className="price-sub" style={{ zIndex: 2 }}>
+
+            <div className="price-sub" style={{ zIndex: 2, marginTop: '12px' }}>
               Billed {billingPeriod === 'YEARLY' ? 'Annually' : 'Monthly'}
             </div>
 
@@ -670,25 +659,50 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
               </div>
             </div>
 
-            <button 
-              onClick={() => selectedGold && startUpgradeFlow(selectedGold)}
-              style={{ 
-                width: '100%',
-                display: 'block', 
-                padding: '16px', 
-                border: '1px solid #f26422', 
-                borderRadius: '12px', 
-                fontWeight: 700,
-                fontSize: '1rem',
-                background: 'transparent',
-                color: '#f26422',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                textAlign: 'center',
-                zIndex: 2
-              }} onMouseEnter={(e) => { e.currentTarget.style.background = '#f26422'; e.currentTarget.style.color = '#fff'; e.currentTarget.style.boxShadow = '0 5px 15px rgba(242,100,34,0.2)'; }} onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#f26422'; e.currentTarget.style.boxShadow = 'none'; }}>
-              Subscribe to Gold
-            </button>
+            {/* DUAL ACTION BUTTONS (INR / USD) */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', zIndex: 2 }}>
+              <button 
+                onClick={() => selectedGold && startUpgradeFlow(selectedGold, 'INDIA')}
+                style={{ 
+                  width: '100%',
+                  padding: '13px', 
+                  border: '1px solid #f26422', 
+                  borderRadius: '12px', 
+                  fontWeight: 800,
+                  fontSize: '0.9rem',
+                  background: 'linear-gradient(135deg, rgba(242,100,34,0.2) 0%, rgba(242,100,34,0.05) 100%)',
+                  color: '#fff',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  textAlign: 'center'
+                }} 
+                onMouseEnter={(e) => { e.currentTarget.style.background = '#f26422'; }} 
+                onMouseLeave={(e) => { e.currentTarget.style.background = 'linear-gradient(135deg, rgba(242,100,34,0.2) 0%, rgba(242,100,34,0.05) 100%)'; }}
+              >
+                🇮🇳 Pay ₹{selectedGold ? getINRPrice(selectedGold) : '499'} (India)
+              </button>
+
+              <button 
+                onClick={() => selectedGold && startUpgradeFlow(selectedGold, 'ABROAD')}
+                style={{ 
+                  width: '100%',
+                  padding: '13px', 
+                  border: '1px solid #3b82f6', 
+                  borderRadius: '12px', 
+                  fontWeight: 800,
+                  fontSize: '0.9rem',
+                  background: 'linear-gradient(135deg, rgba(59,130,246,0.2) 0%, rgba(59,130,246,0.05) 100%)',
+                  color: '#60a5fa',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  textAlign: 'center'
+                }} 
+                onMouseEnter={(e) => { e.currentTarget.style.background = '#3b82f6'; e.currentTarget.style.color = '#fff'; }} 
+                onMouseLeave={(e) => { e.currentTarget.style.background = 'linear-gradient(135deg, rgba(59,130,246,0.2) 0%, rgba(59,130,246,0.05) 100%)'; e.currentTarget.style.color = '#60a5fa'; }}
+              >
+                🌍 Pay ${selectedGold ? getUSDPrice(selectedGold) : '3'} (Abroad)
+              </button>
+            </div>
           </div>
 
           {/* CARD 3: PLATINUM TIER */}
@@ -718,10 +732,26 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
               <h3 style={{ fontSize: '1.9rem', fontWeight: 900, marginTop: '5px', color: '#ff8c53' }}>Platinum Tier</h3>
             </div>
             
-            <div className="price-text" key={`plat-${billingPeriod}`} style={{ animation: 'scalePop 0.4s ease-out', textShadow: '0 0 20px rgba(242,100,34,0.2)', zIndex: 2 }}>
-              {currency}{selectedPlatinum ? getP(selectedPlatinum) : '0'}
+            <div style={{ zIndex: 2 }}>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
+                <span style={{ fontSize: '2.8rem', fontWeight: 950, color: '#fff' }}>
+                  ₹{selectedPlatinum ? getINRPrice(selectedPlatinum) : '999'}
+                </span>
+                <span style={{ fontSize: '1.8rem', fontWeight: 800, color: '#60a5fa' }}>
+                  / ${selectedPlatinum ? getUSDPrice(selectedPlatinum) : '5'}
+                </span>
+              </div>
+              <div style={{ display: 'flex', gap: '8px', marginTop: '6px', flexWrap: 'wrap' }}>
+                <span style={{ background: 'rgba(242,100,34,0.15)', border: '1px solid rgba(242,100,34,0.3)', color: '#ff8c53', fontSize: '0.75rem', fontWeight: 800, padding: '2px 8px', borderRadius: '8px' }}>
+                  🇮🇳 India: ₹{selectedPlatinum ? getINRPrice(selectedPlatinum) : '999'}
+                </span>
+                <span style={{ background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)', color: '#60a5fa', fontSize: '0.75rem', fontWeight: 800, padding: '2px 8px', borderRadius: '8px' }}>
+                  🌍 Abroad: ${selectedPlatinum ? getUSDPrice(selectedPlatinum) : '5'}
+                </span>
+              </div>
             </div>
-            <div className="price-sub" style={{ zIndex: 2 }}>
+
+            <div className="price-sub" style={{ zIndex: 2, marginTop: '12px' }}>
               Billed {billingPeriod === 'YEARLY' ? 'Annually' : 'Monthly'}
             </div>
 
@@ -746,26 +776,51 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
               </div>
             </div>
 
-            <button 
-              onClick={() => selectedPlatinum && startUpgradeFlow(selectedPlatinum)}
-              style={{ 
-                width: '100%',
-                display: 'block', 
-                padding: '17px', 
-                border: 'none', 
-                color: '#fff', 
-                borderRadius: '12px', 
-                fontWeight: 800,
-                fontSize: '1rem',
-                background: 'linear-gradient(135deg, #f26422 0%, #ff8c53 100%)',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                textAlign: 'center',
-                boxShadow: '0 5px 15px rgba(242,100,34,0.3)',
-                zIndex: 2
-              }} onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.02)'; e.currentTarget.style.boxShadow = '0 8px 25px rgba(242,100,34,0.5)'; }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 5px 15px rgba(242,100,34,0.3)' }}>
-              Subscribe to Platinum
-            </button>
+            {/* DUAL ACTION BUTTONS (INR / USD) */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', zIndex: 2 }}>
+              <button 
+                onClick={() => selectedPlatinum && startUpgradeFlow(selectedPlatinum, 'INDIA')}
+                style={{ 
+                  width: '100%',
+                  padding: '13px', 
+                  border: 'none', 
+                  borderRadius: '12px', 
+                  fontWeight: 900,
+                  fontSize: '0.9rem',
+                  background: 'linear-gradient(135deg, #f26422 0%, #ff8c53 100%)',
+                  color: '#fff',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  textAlign: 'center',
+                  boxShadow: '0 4px 15px rgba(242,100,34,0.3)'
+                }} 
+                onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.02)'; }} 
+                onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
+              >
+                🇮🇳 Pay ₹{selectedPlatinum ? getINRPrice(selectedPlatinum) : '999'} (India)
+              </button>
+
+              <button 
+                onClick={() => selectedPlatinum && startUpgradeFlow(selectedPlatinum, 'ABROAD')}
+                style={{ 
+                  width: '100%',
+                  padding: '13px', 
+                  border: '1px solid #3b82f6', 
+                  borderRadius: '12px', 
+                  fontWeight: 800,
+                  fontSize: '0.9rem',
+                  background: 'linear-gradient(135deg, rgba(59,130,246,0.3) 0%, rgba(59,130,246,0.1) 100%)',
+                  color: '#93c5fd',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  textAlign: 'center'
+                }} 
+                onMouseEnter={(e) => { e.currentTarget.style.background = '#3b82f6'; e.currentTarget.style.color = '#fff'; }} 
+                onMouseLeave={(e) => { e.currentTarget.style.background = 'linear-gradient(135deg, rgba(59,130,246,0.3) 0%, rgba(59,130,246,0.1) 100%)'; e.currentTarget.style.color = '#93c5fd'; }}
+              >
+                🌍 Pay ${selectedPlatinum ? getUSDPrice(selectedPlatinum) : '5'} (Abroad)
+              </button>
+            </div>
           </div>
 
         </div>

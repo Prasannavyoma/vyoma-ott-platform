@@ -48,24 +48,23 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
     }
   };
 
-  // Pricing Matrix Definition
+  // Dual Pricing Matrix Definition
   // Local (INR ₹): Gold = ₹499/mo | ₹4,999/yr, Platinum = ₹999/mo | ₹9,999/yr
   // Abroad (USD $): Revised strictly to $3, $5, $10, $25, $50!
-  const getGoldPrice = () => {
-    if (region === 'LOCAL') {
-      return billingInterval === 'MONTHLY' ? '₹499' : '₹4,999';
-    } else {
-      return billingInterval === 'MONTHLY' ? '$3' : '$25';
-    }
+  const getGoldPrices = () => {
+    return billingInterval === 'MONTHLY'
+      ? { inr: '₹499', usd: '$3' }
+      : { inr: '₹4,999', usd: '$25' };
   };
 
-  const getPlatinumPrice = () => {
-    if (region === 'LOCAL') {
-      return billingInterval === 'MONTHLY' ? '₹999' : '₹9,999';
-    } else {
-      return billingInterval === 'MONTHLY' ? '$5' : '$50';
-    }
+  const getPlatinumPrices = () => {
+    return billingInterval === 'MONTHLY'
+      ? { inr: '₹999', usd: '$5' }
+      : { inr: '₹9,999', usd: '$50' };
   };
+
+  const goldP = getGoldPrices();
+  const platP = getPlatinumPrices();
 
   return (
     <div style={{
@@ -144,7 +143,7 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
             Your Membership &amp; Pricing Telemetry
           </h2>
           <p style={{ color: '#aaa', fontSize: '1rem', marginTop: '8px', margin: '8px 0 0' }}>
-            Check your current active plan, expiration status, or upgrade with local or abroad pricing.
+            View active plan telemetry alongside complete side-by-side domestic (INR ₹) and international (USD $) pricing.
           </p>
         </div>
 
@@ -234,67 +233,28 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
           </div>
         )}
 
-        {/* 2 CUSTOMER-CENTRIC REGION TOGGLE BUTTONS & BILLING INTERVAL SWITCHER */}
+        {/* CUSTOMER-CENTRIC DUAL PRICING BANNER & BILLING INTERVAL SWITCHER */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', marginBottom: '32px' }}>
           
-          {/* CUSTOMER-CENTRIC BUTTON 1 & 2: REGION SELECTOR */}
-          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <button
-              onClick={() => setRegion('LOCAL')}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-                padding: '10px 22px',
-                borderRadius: '30px',
-                border: region === 'LOCAL' ? '2px solid var(--primary)' : '1px solid rgba(255,255,255,0.1)',
-                background: region === 'LOCAL' ? 'linear-gradient(135deg, rgba(242,100,34,0.3) 0%, rgba(242,100,34,0.1) 100%)' : 'rgba(255,255,255,0.03)',
-                color: '#fff',
-                fontWeight: 800,
-                fontSize: '0.9rem',
-                cursor: 'pointer',
-                transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
-                boxShadow: region === 'LOCAL' ? '0 6px 20px rgba(242,100,34,0.3)' : 'none'
-              }}
-            >
-              <MapPin size={16} color={region === 'LOCAL' ? 'var(--primary)' : '#aaa'} />
-              <span>🇮🇳 Local / India (INR ₹)</span>
-            </button>
-
-            <button
-              onClick={() => setRegion('ABROAD')}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-                padding: '10px 22px',
-                borderRadius: '30px',
-                border: region === 'ABROAD' ? '2px solid #60a5fa' : '1px solid rgba(255,255,255,0.1)',
-                background: region === 'ABROAD' ? 'linear-gradient(135deg, rgba(59,130,246,0.3) 0%, rgba(59,130,246,0.1) 100%)' : 'rgba(255,255,255,0.03)',
-                color: '#fff',
-                fontWeight: 800,
-                fontSize: '0.9rem',
-                cursor: 'pointer',
-                transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
-                boxShadow: region === 'ABROAD' ? '0 6px 20px rgba(59,130,246,0.3)' : 'none'
-              }}
-            >
-              <Globe size={16} color={region === 'ABROAD' ? '#60a5fa' : '#aaa'} />
-              <span>🌍 Abroad / International (USD $)</span>
-            </button>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '16px',
+            background: 'rgba(255, 255, 255, 0.04)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            borderRadius: '30px',
+            padding: '8px 22px',
+            flexWrap: 'wrap',
+            justifyContent: 'center'
+          }}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: '#ff8c53', fontWeight: 800, fontSize: '0.85rem' }}>
+              <MapPin size={15} /> 🇮🇳 India Pricing (INR ₹)
+            </span>
+            <span style={{ color: 'rgba(255,255,255,0.2)' }}>•</span>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: '#60a5fa', fontWeight: 800, fontSize: '0.85rem' }}>
+              <Globe size={15} /> 🌍 Abroad Pricing ($3, $5, $25, $50 USD)
+            </span>
           </div>
-
-          {/* ABROAD PRICE TIER PRESET BADGES ($3, $5, $10, $25, $50) */}
-          {region === 'ABROAD' && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', fontSize: '0.8rem', color: '#93c5fd', fontWeight: 700 }}>
-              <span style={{ color: '#aaa' }}>Revised Abroad Tiers:</span>
-              {['$3', '$5', '$10', '$25', '$50'].map(price => (
-                <span key={price} style={{ background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)', padding: '2px 8px', borderRadius: '8px', color: '#60a5fa' }}>
-                  {price}
-                </span>
-              ))}
-            </div>
-          )}
 
           {/* BILLING INTERVAL TOGGLE */}
           <div style={{
@@ -366,7 +326,7 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
               <div style={{ fontSize: '0.75rem', color: '#888', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>Starter</div>
               <h3 style={{ fontSize: '1.5rem', fontWeight: 900, marginTop: '4px', margin: '4px 0 10px' }}>Free Tier</h3>
               <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#fff' }}>
-                {region === 'LOCAL' ? '₹0' : '$0'} <span style={{ fontSize: '0.85rem', color: '#888' }}>/ forever</span>
+                ₹0 / $0 <span style={{ fontSize: '0.85rem', color: '#888' }}>/ forever</span>
               </div>
               <div style={{ height: '1px', background: 'rgba(255,255,255,0.06)', margin: '16px 0' }}></div>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '0.85rem', color: '#ccc' }}>
@@ -416,10 +376,21 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
                 <Crown size={14} /> Popular Choice
               </div>
               <h3 style={{ fontSize: '1.5rem', fontWeight: 900, marginTop: '4px', margin: '4px 0 10px' }}>Gold Membership</h3>
-              <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#fff' }}>
-                {getGoldPrice()}{' '}
+              
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginTop: '4px' }}>
+                <span style={{ fontSize: '1.8rem', fontWeight: 950, color: '#fff' }}>{goldP.inr}</span>
+                <span style={{ fontSize: '1.3rem', fontWeight: 800, color: '#60a5fa' }}>/ {goldP.usd}</span>
                 <span style={{ fontSize: '0.85rem', color: '#888' }}>/ {billingInterval.toLowerCase()}</span>
               </div>
+              <div style={{ display: 'flex', gap: '8px', marginTop: '8px', flexWrap: 'wrap' }}>
+                <span style={{ background: 'rgba(242,100,34,0.15)', border: '1px solid rgba(242,100,34,0.3)', color: '#ff8c53', fontSize: '0.75rem', fontWeight: 800, padding: '2px 8px', borderRadius: '8px' }}>
+                  🇮🇳 India: {goldP.inr}
+                </span>
+                <span style={{ background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)', color: '#60a5fa', fontSize: '0.75rem', fontWeight: 800, padding: '2px 8px', borderRadius: '8px' }}>
+                  🌍 Abroad: {goldP.usd}
+                </span>
+              </div>
+
               <div style={{ height: '1px', background: 'rgba(255,255,255,0.06)', margin: '16px 0' }}></div>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '0.85rem', color: '#ccc' }}>
                 <li style={{ display: 'flex', gap: '8px' }}><CheckCircle2 size={16} color="#ffd700" /> Full HD Video Lectures</li>
@@ -481,7 +452,7 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
                 className="btn btn-primary"
                 style={{ width: '100%', padding: '12px', borderRadius: '12px', fontWeight: 800, fontSize: '0.85rem', textAlign: 'center', textDecoration: 'none' }}
               >
-                Subscribe Gold ({getGoldPrice()})
+                Subscribe Gold ({goldP.inr} / {goldP.usd})
               </Link>
             )}
           </div>
@@ -506,10 +477,21 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
                 <Sparkles size={14} /> Ultimate VIP Access
               </div>
               <h3 style={{ fontSize: '1.5rem', fontWeight: 900, marginTop: '4px', margin: '4px 0 10px' }}>Platinum VIP</h3>
-              <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#fff' }}>
-                {getPlatinumPrice()}{' '}
+              
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginTop: '4px' }}>
+                <span style={{ fontSize: '1.8rem', fontWeight: 950, color: '#fff' }}>{platP.inr}</span>
+                <span style={{ fontSize: '1.3rem', fontWeight: 800, color: '#60a5fa' }}>/ {platP.usd}</span>
                 <span style={{ fontSize: '0.85rem', color: '#888' }}>/ {billingInterval.toLowerCase()}</span>
               </div>
+              <div style={{ display: 'flex', gap: '8px', marginTop: '8px', flexWrap: 'wrap' }}>
+                <span style={{ background: 'rgba(242,100,34,0.15)', border: '1px solid rgba(242,100,34,0.3)', color: '#ff8c53', fontSize: '0.75rem', fontWeight: 800, padding: '2px 8px', borderRadius: '8px' }}>
+                  🇮🇳 India: {platP.inr}
+                </span>
+                <span style={{ background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)', color: '#60a5fa', fontSize: '0.75rem', fontWeight: 800, padding: '2px 8px', borderRadius: '8px' }}>
+                  🌍 Abroad: {platP.usd}
+                </span>
+              </div>
+
               <div style={{ height: '1px', background: 'rgba(255,255,255,0.06)', margin: '16px 0' }}></div>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '0.85rem', color: '#ccc' }}>
                 <li style={{ display: 'flex', gap: '8px' }}><CheckCircle2 size={16} color="var(--primary)" /> Everything in Gold Plan</li>
@@ -555,7 +537,7 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
                 className="btn btn-primary"
                 style={{ width: '100%', padding: '12px', borderRadius: '12px', fontWeight: 900, fontSize: '0.85rem', textAlign: 'center', textDecoration: 'none', boxShadow: '0 4px 20px rgba(242, 100, 34, 0.4)' }}
               >
-                {currentPlan === 'GOLD' ? `Upgrade to Platinum VIP 🚀 (${getPlatinumPrice()})` : `Subscribe Platinum VIP (${getPlatinumPrice()})`}
+                {currentPlan === 'GOLD' ? `Upgrade to Platinum VIP 🚀 (${platP.inr} / ${platP.usd})` : `Subscribe Platinum VIP (${platP.inr} / ${platP.usd})`}
               </Link>
             )}
           </div>
@@ -566,7 +548,7 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
           <Link href="/profile" onClick={onClose} style={{ color: '#aaa', textDecoration: 'underline', display: 'flex', alignItems: 'center', gap: '6px' }}>
             <CreditCard size={14} /> View Billing Invoices &amp; History
           </Link>
-          <span>Auto-Renewal &amp; Global GEO Pricing powered by Razorpay</span>
+          <span>Auto-Renewal &amp; Dual Global Pricing powered by Razorpay</span>
         </div>
       </div>
     </div>
