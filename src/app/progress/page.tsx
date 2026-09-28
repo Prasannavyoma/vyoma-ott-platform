@@ -12,6 +12,13 @@ export default async function ProgressTrackerPage() {
     redirect('/login');
   }
 
+  // Check feature flags
+  let roadmapEnabled = false; // Turned off by default
+  try {
+    const rSetting = await prisma.systemSetting.findUnique({ where: { key: 'FEATURE_KNOWLEDGE_ROADMAP' } });
+    if (rSetting) roadmapEnabled = rSetting.value === 'true';
+  } catch (e) {}
+
   // 2. Fetch Detailed Progress Telemetry
   const userProgress = await prisma.progress.findMany({
     where: { userId: user.id },
@@ -198,7 +205,8 @@ export default async function ProgressTrackerPage() {
         </div>
 
         {/* 🗺️ INTERACTIVE VISUAL CURRICULUM ROADMAP */}
-        <div style={{
+        {roadmapEnabled && (
+          <div style={{
           background: 'rgba(15, 22, 36, 0.4)',
           backdropFilter: 'blur(20px)',
           border: '1px solid rgba(255, 255, 255, 0.05)',
@@ -267,6 +275,8 @@ export default async function ProgressTrackerPage() {
             ))}
           </div>
         </div>
+
+        )}
 
         {/* PROGRESS DETAILS & BADGES */}
         <div style={{ display: 'grid', gridTemplateColumns: '1.7fr 1fr', gap: '40px' }}>

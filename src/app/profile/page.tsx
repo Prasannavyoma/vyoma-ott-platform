@@ -20,7 +20,7 @@ export default async function ProfilePage() {
   // Fetch gamification configurations for UI
   let uiCoinsNameReward = 1;
   let uiCoinsProfileReward = 10;
-  let roadmapEnabled = true; // Default true
+  let roadmapEnabled = false; // Default false
   let streaksEnabled = true; // Default true
   try {
     const nSetting = await prisma.systemSetting.findUnique({ where: { key: 'COINS_NAME_REWARD' } });

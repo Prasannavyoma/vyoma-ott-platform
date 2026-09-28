@@ -11,7 +11,8 @@ export async function GET() {
             'FEATURE_BLOG',
             'FEATURE_SCRIPT_SWITCHER',
             'FEATURE_GAMIFICATION_STREAKS',
-            'FEATURE_AI_PRONUNCIATION'
+            'FEATURE_AI_PRONUNCIATION',
+            'FEATURE_KNOWLEDGE_ROADMAP'
           ]
         }
       }
@@ -24,13 +25,15 @@ export async function GET() {
     const scriptSwitcherEnabled = settingsMap.has('FEATURE_SCRIPT_SWITCHER') ? settingsMap.get('FEATURE_SCRIPT_SWITCHER') === 'true' : false; // TURNED OFF BY DEFAULT
     const streaksEnabled = settingsMap.has('FEATURE_GAMIFICATION_STREAKS') ? settingsMap.get('FEATURE_GAMIFICATION_STREAKS') === 'true' : true;
     const aiPronunciationEnabled = settingsMap.has('FEATURE_AI_PRONUNCIATION') ? settingsMap.get('FEATURE_AI_PRONUNCIATION') === 'true' : false; // TURNED OFF BY DEFAULT
+    const roadmapEnabled = settingsMap.has('FEATURE_KNOWLEDGE_ROADMAP') ? settingsMap.get('FEATURE_KNOWLEDGE_ROADMAP') === 'true' : false; // TURNED OFF BY DEFAULT
 
     return NextResponse.json({ 
       shortsEnabled, 
       blogEnabled,
       scriptSwitcherEnabled,
       streaksEnabled,
-      aiPronunciationEnabled
+      aiPronunciationEnabled,
+      roadmapEnabled
     });
   } catch (e) {
     return NextResponse.json({ 
@@ -38,7 +41,8 @@ export async function GET() {
       blogEnabled: true,
       scriptSwitcherEnabled: false,
       streaksEnabled: true,
-      aiPronunciationEnabled: false
+      aiPronunciationEnabled: false,
+      roadmapEnabled: false
     });
   }
 }

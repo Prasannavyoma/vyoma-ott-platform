@@ -50,7 +50,7 @@ export default async function LayoutSettingsPage() {
   const availableCategories = Array.from(new Set(rawCats));
 
   const roadmapSetting = await prisma.systemSetting.findUnique({ where: { key: 'FEATURE_KNOWLEDGE_ROADMAP' } });
-  const roadmapEnabled = roadmapSetting ? roadmapSetting.value === 'true' : true; // Default true
+  const roadmapEnabled = roadmapSetting ? roadmapSetting.value === 'true' : false; // Default false (turned off)
 
   const shortsSetting = await prisma.systemSetting.findUnique({ where: { key: 'FEATURE_SHORTS' } });
   const shortsEnabled = shortsSetting ? shortsSetting.value === 'true' : true; // Default true
