@@ -103,8 +103,8 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
     prisma.systemSetting.findUnique({ where: { key: 'FEATURE_AI_PRONUNCIATION' } }), prisma.systemSetting.findUnique({ where: { key: 'FEATURE_GAMIFICATION_STREAKS' } })
   ]);
 
-  const isScriptSwitcherEnabled = scriptSwitcherSetting ? scriptSwitcherSetting.value === 'true' : true;
-  const isAiPronunciationEnabled = aiPronunciationSetting ? aiPronunciationSetting.value === 'true' : true;
+  const isScriptSwitcherEnabled = scriptSwitcherSetting ? scriptSwitcherSetting.value === 'true' : false;
+  const isAiPronunciationEnabled = aiPronunciationSetting ? aiPronunciationSetting.value === 'true' : false;
   const streaksSetting = arguments ? undefined : undefined;
   const isStreaksEnabled = true;
 

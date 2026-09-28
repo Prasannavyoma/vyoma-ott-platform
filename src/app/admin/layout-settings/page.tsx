@@ -62,13 +62,13 @@ export default async function LayoutSettingsPage() {
   const hotstarEnabled = hotstarSetting ? hotstarSetting.value === 'true' : true; // Default true
 
   const scriptSwitcherSetting = await prisma.systemSetting.findUnique({ where: { key: 'FEATURE_SCRIPT_SWITCHER' } });
-  const scriptSwitcherEnabled = scriptSwitcherSetting ? scriptSwitcherSetting.value === 'true' : true;
+  const scriptSwitcherEnabled = scriptSwitcherSetting ? scriptSwitcherSetting.value === 'true' : false; // TURNED OFF BY DEFAULT
 
   const streaksSetting = await prisma.systemSetting.findUnique({ where: { key: 'FEATURE_GAMIFICATION_STREAKS' } });
   const streaksEnabled = streaksSetting ? streaksSetting.value === 'true' : true;
 
   const aiPronunciationSetting = await prisma.systemSetting.findUnique({ where: { key: 'FEATURE_AI_PRONUNCIATION' } });
-  const aiPronunciationEnabled = aiPronunciationSetting ? aiPronunciationSetting.value === 'true' : true;
+  const aiPronunciationEnabled = aiPronunciationSetting ? aiPronunciationSetting.value === 'true' : false; // TURNED OFF BY DEFAULT
 
   return (
     <LayoutSettingsClient 

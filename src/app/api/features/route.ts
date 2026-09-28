@@ -21,9 +21,9 @@ export async function GET() {
     
     const shortsEnabled = settingsMap.has('FEATURE_SHORTS') ? settingsMap.get('FEATURE_SHORTS') === 'true' : true;
     const blogEnabled = settingsMap.has('FEATURE_BLOG') ? settingsMap.get('FEATURE_BLOG') === 'true' : true;
-    const scriptSwitcherEnabled = settingsMap.has('FEATURE_SCRIPT_SWITCHER') ? settingsMap.get('FEATURE_SCRIPT_SWITCHER') === 'true' : true;
+    const scriptSwitcherEnabled = settingsMap.has('FEATURE_SCRIPT_SWITCHER') ? settingsMap.get('FEATURE_SCRIPT_SWITCHER') === 'true' : false; // TURNED OFF BY DEFAULT
     const streaksEnabled = settingsMap.has('FEATURE_GAMIFICATION_STREAKS') ? settingsMap.get('FEATURE_GAMIFICATION_STREAKS') === 'true' : true;
-    const aiPronunciationEnabled = settingsMap.has('FEATURE_AI_PRONUNCIATION') ? settingsMap.get('FEATURE_AI_PRONUNCIATION') === 'true' : true;
+    const aiPronunciationEnabled = settingsMap.has('FEATURE_AI_PRONUNCIATION') ? settingsMap.get('FEATURE_AI_PRONUNCIATION') === 'true' : false; // TURNED OFF BY DEFAULT
 
     return NextResponse.json({ 
       shortsEnabled, 
@@ -36,9 +36,9 @@ export async function GET() {
     return NextResponse.json({ 
       shortsEnabled: true, 
       blogEnabled: true,
-      scriptSwitcherEnabled: true,
+      scriptSwitcherEnabled: false,
       streaksEnabled: true,
-      aiPronunciationEnabled: true
+      aiPronunciationEnabled: false
     });
   }
 }
