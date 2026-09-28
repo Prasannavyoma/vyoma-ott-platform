@@ -6,7 +6,7 @@ export default function GameGenrePage() {
   return (
     <GenreShowcase 
       contentType="GAME" 
-      title="🎮 Game-Based Learning" 
+      title="🎮 Interactive Games" 
       description="Engage your comprehension through gamified interactive exercises, flashcard decks, and immersive modules."
     />
   );

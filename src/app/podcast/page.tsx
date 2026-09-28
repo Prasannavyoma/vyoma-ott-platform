@@ -6,8 +6,8 @@ export default function PodcastGenrePage() {
   return (
     <GenreShowcase 
       contentType="PODCAST" 
-      title="Discussion Podcasts" 
-      description="Tune into educational discussions, scholar roundtables, and episodic knowledge capsules recorded live."
+      title="🎙️ Audiobooks & Podcasts" 
+      description="Tune into educational discussions, audiobooks, scholar roundtables, and episodic knowledge capsules recorded live."
     />
   );
 }
