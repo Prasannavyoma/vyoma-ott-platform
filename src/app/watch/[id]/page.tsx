@@ -273,7 +273,7 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
       <div style={{ position: 'relative', zIndex: 10 }}>
         <header style={{ padding: '25px 4%', display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '20px', width: '100%' }}>
           <Link href="/" className="back-btn" style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', padding: '10px 24px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '30px', textDecoration: 'none', color: '#fff', fontWeight: 700, fontSize: '0.9rem', letterSpacing: '1px', transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)', backdropFilter: 'blur(12px)', boxShadow: '0 10px 30px rgba(0,0,0,0.3)' }}>
-            <span style={{ fontSize: '1.2rem' }}>←</span> <span style={{ opacity: 0.9 }}>Browse</span>
+            <span style={{ fontSize: '1.2rem' }}>←</span> <span style={{ opacity: 0.9 }}>Back</span>
           </Link>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, minWidth: '200px' }}>
              <span style={{ background: 'linear-gradient(135deg, rgba(242,100,34,0.2), rgba(242,100,34,0.05))', color: '#f26422', padding: '6px 12px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 900, letterSpacing: '1.5px', border: '1px solid rgba(242,100,34,0.3)', boxShadow: '0 0 15px rgba(242,100,34,0.2)' }}>
