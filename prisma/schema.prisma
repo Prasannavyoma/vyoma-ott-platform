@@ -44,6 +44,9 @@ model User {
   totalWatchSeconds   Int      @default(0) // Total curriculum interaction telemetry
   nameRewardGiven     Boolean  @default(false)
   profileRewardGiven  Boolean  @default(false)
+  streakDays          Int      @default(1)
+  xpPoints            Int      @default(100)
+  lastActiveDate      DateTime?
   
   // Demographics & Advanced Profile
   avatarUrl String?

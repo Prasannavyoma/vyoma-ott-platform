@@ -121,7 +121,10 @@ export async function POST(request: Request) {
       ...(coinsEarned > 0 ? [
         prisma.user.update({
           where: { id: user.id },
-          data: { coins: { increment: coinsEarned } }
+          data: {
+            coins: { increment: coinsEarned },
+            xpPoints: { increment: coinsEarned * 15 }
+          }
         })
       ] : [])
     ]);

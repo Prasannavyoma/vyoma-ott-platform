@@ -11,10 +11,10 @@ interface SanskritStreakWidgetProps {
 
 export default function SanskritStreakWidget({ isEnabled = true }: SanskritStreakWidgetProps) {
   const [stats, setStats] = useState({
-    streakDays: 5,
-    xpPoints: 350,
-    scholarRank: "Kavya Rasika",
-    badgeIcon: "🔥"
+    streakDays: 1,
+    xpPoints: 100,
+    scholarRank: "Sanskrit Seeker",
+    badgeIcon: "🌱"
   });
   const [showModal, setShowModal] = useState(false);
   const [showFindMyPlan, setShowFindMyPlan] = useState(false);
@@ -37,6 +37,10 @@ export default function SanskritStreakWidget({ isEnabled = true }: SanskritStrea
     setLoading(false);
     if (res.success && res.code) {
       setRedeemedCode(res.code);
+      // Refresh XP stats immediately
+      getUserGamificationStats().then(data => {
+        if (data) setStats(data);
+      });
     }
   };
 
@@ -148,7 +152,7 @@ export default function SanskritStreakWidget({ isEnabled = true }: SanskritStrea
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
                 <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#f59e0b', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <Flame size={16} /> 🔥 5-Day Active Recitation Streak
+                  <Flame size={16} /> 🔥 {stats.streakDays}-Day Active Recitation Streak
                 </span>
                 <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Goal: 7 Days</span>
               </div>
