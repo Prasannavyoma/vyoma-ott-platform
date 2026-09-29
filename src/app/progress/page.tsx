@@ -149,7 +149,7 @@ export default async function ProgressTrackerPage() {
       <NavBar />
 
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '120px 20px 60px 20px' }}>
-        
+
         {/* HEADER SECTION */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '30px' }}>
           <div>
@@ -228,7 +228,7 @@ export default async function ProgressTrackerPage() {
                 </linearGradient>
               </defs>
             </svg>
-            
+
             {roadmapNodes.map((node) => (
               <div key={node.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative', zIndex: 1, minWidth: '160px', textAlign: 'center' }}>
                 {/* Node Icon Circle */}
@@ -247,7 +247,7 @@ export default async function ProgressTrackerPage() {
                 }}>
                   {node.status === 'completed' ? '🏆' : node.status === 'active' ? '⚡' : '🔒'}
                 </div>
-                
+
                 {/* Node Meta */}
                 <div style={{ marginTop: '12px' }}>
                   <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#fff', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', height: '34px', lineHeight: '17px', maxWidth: '140px' }}>
@@ -270,10 +270,10 @@ export default async function ProgressTrackerPage() {
 
         {/* PROGRESS DETAILS & BADGES */}
         <div style={{ display: 'grid', gridTemplateColumns: '1.7fr 1fr', gap: '40px' }}>
-          
+
           {/* LEFT COLUMN: ACTIVE & COMPLETED COURSES */}
           <div>
-            
+
             {/* ACTIVE COURSES */}
             <div style={{ marginBottom: '45px' }}>
               <h2 style={{ fontSize: '1.6rem', fontWeight: 800, color: '#fff', marginBottom: '25px', display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -318,12 +318,12 @@ export default async function ProgressTrackerPage() {
                           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: '#8f98a9', marginBottom: '6px', fontWeight: 600 }}>
                             <span>{item.completedCount} / {item.totalEpisodes} Lessons Completed</span>
                           </div>
-                          
+
                           <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
                             <div style={{ flex: 1, height: '6px', background: 'rgba(255,255,255,0.08)', borderRadius: '3px', overflow: 'hidden' }}>
                               <div style={{ width: `${item.percent}%`, height: '100%', background: 'linear-gradient(to right, #f26422, #ff8c53)', borderRadius: '3px', boxShadow: '0 0 8px rgba(242,100,34,0.4)' }} />
                             </div>
-                            
+
                             <Link href={`/watch/${item.course.id}?ep=${item.lastEpId}`} style={resumeButtonStyle}>
                               ▶ Resume
                             </Link>
@@ -360,14 +360,14 @@ export default async function ProgressTrackerPage() {
                           Completed
                         </div>
                       </div>
-                      
+
                       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                         <div>
                           <h3 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0, color: '#fff' }}>
                             {item.course.title}
                           </h3>
                           <div style={{ background: 'rgba(70,211,105,0.1)', color: '#46d369', border: '1px solid rgba(70,211,105,0.2)', padding: '5px 10px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 800, display: 'inline-block', marginTop: '10px' }}>
-                             🎓 Certificate Available
+                            🎓 Certificate Available
                           </div>
                         </div>
 
@@ -394,12 +394,12 @@ export default async function ProgressTrackerPage() {
               <h3 style={{ fontSize: '1.3rem', fontWeight: 800, margin: '0 0 20px 0', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '15px', display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <span>🛡️</span> Scholar Badges & Ranks
               </h3>
-              
+
               <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 {badges.map(badge => (
                   <div key={badge.id} style={{ display: 'flex', gap: '15px', alignItems: 'center', padding: '12px', borderRadius: '12px', background: badge.unlocked ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.2)', border: badge.unlocked ? `1px solid rgba(255,255,255,0.05)` : '1px dashed rgba(255,255,255,0.04)', opacity: badge.unlocked ? 1 : 0.45 }}>
-                    <div style={{ 
-                      width: '55px', height: '55px', borderRadius: '50%', 
+                    <div style={{
+                      width: '55px', height: '55px', borderRadius: '50%',
                       background: badge.unlocked ? `radial-gradient(circle, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0) 70%)` : 'transparent',
                       border: badge.unlocked ? `2px solid ${badge.color}` : '2px dashed rgba(255,255,255,0.1)',
                       display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.8rem',
@@ -407,7 +407,7 @@ export default async function ProgressTrackerPage() {
                     }}>
                       {badge.emoji}
                     </div>
-                    
+
                     <div>
                       <div style={{ fontWeight: 800, fontSize: '0.95rem', color: badge.unlocked ? '#fff' : '#8f98a9', display: 'flex', alignItems: 'center', gap: '8px' }}>
                         {badge.name}

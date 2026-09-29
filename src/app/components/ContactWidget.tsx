@@ -28,16 +28,14 @@ export default function ContactWidget({ settings }: { settings: ContactSettings 
   return (
     <div className="vyoma-contact-container" style={{
       position: 'fixed',
-      right: '24px',
+      right: 0,
       top: '50%',
       transform: 'translateY(-50%)',
       zIndex: 9999,
       fontFamily: 'var(--font-geist-sans), sans-serif',
-      width: '54px',
-      height: '54px',
       display: 'flex',
       alignItems: 'center',
-      justifyContent: 'center',
+      justifyContent: 'flex-end',
     }}>
       {/* Styles for dynamic interactions and mobile responsiveness */}
       <style dangerouslySetInnerHTML={{ __html: `
@@ -52,14 +50,13 @@ export default function ContactWidget({ settings }: { settings: ContactSettings 
           transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s, background 0.3s !important;
         }
         .vyoma-contact-toggle:hover {
-          transform: scale(1.08) !important;
+          transform: translateX(-4px) !important;
         }
         @media (max-width: 768px) {
           .vyoma-contact-container {
-            top: auto !important;
-            bottom: 100px !important;
-            transform: none !important;
-            right: 33px !important;
+            right: 0 !important;
+            top: 55% !important;
+            transform: translateY(-50%) !important;
           }
         }
       `}} />
@@ -67,7 +64,8 @@ export default function ContactWidget({ settings }: { settings: ContactSettings 
       {/* Expanded Actions Stack (positioned absolute relative to container) */}
       <div style={{
         position: 'absolute',
-        bottom: '66px',
+        bottom: '60px',
+        right: '4px',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -153,15 +151,15 @@ export default function ContactWidget({ settings }: { settings: ContactSettings 
         )}
       </div>
 
-      {/* Main Toggle Button */}
+      {/* Main Toggle Button - Original Right Edge Docked Tab */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         title={isOpen ? "Close Support Options" : "Contact Support"}
         className="vyoma-contact-toggle"
         style={{
-          width: '54px',
-          height: '54px',
-          borderRadius: '50%',
+          width: '46px',
+          height: '52px',
+          borderRadius: '10px 0 0 10px',
           background: isOpen 
             ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)'
             : 'linear-gradient(135deg, #f26422 0%, #ff8c00 100%)',
@@ -171,17 +169,18 @@ export default function ContactWidget({ settings }: { settings: ContactSettings 
           alignItems: 'center',
           justifyContent: 'center',
           boxShadow: isOpen
-            ? '0 6px 18px rgba(239, 68, 68, 0.4)'
-            : '0 6px 18px rgba(242, 100, 34, 0.4)',
+            ? '-4px 2px 14px rgba(239, 68, 68, 0.4)'
+            : '-4px 2px 14px rgba(242, 100, 34, 0.4)',
           border: 'none',
-          outline: 'none'
+          outline: 'none',
+          paddingLeft: '3px'
         }}
       >
         {isOpen ? (
           <span style={{ fontSize: '18px', fontWeight: 700 }}>✕</span>
         ) : (
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.01-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
           </svg>
         )}
       </button>

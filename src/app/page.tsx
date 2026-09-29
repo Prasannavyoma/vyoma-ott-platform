@@ -39,11 +39,11 @@ async function getSafeHomepageChannels(): Promise<any[]> {
       )
     `);
 
-    let raw = await prisma.homepageChannel.findMany({ 
+    let raw = await prisma.homepageChannel.findMany({
       where: { active: true },
-      orderBy: { order: 'asc' } 
+      orderBy: { order: 'asc' }
     });
-    
+
     if (!Array.isArray(raw) || raw.length === 0) {
       const defaults = [
         { id: 'chan_1', name: 'Originals', url: '/genre/Vyoma-Originals', icon: '🔥', order: 10 },
@@ -59,9 +59,9 @@ async function getSafeHomepageChannels(): Promise<any[]> {
           create: { id: c.id, name: c.name, url: c.url, icon: c.icon, order: c.order, active: true }
         });
       }
-      raw = await prisma.homepageChannel.findMany({ 
+      raw = await prisma.homepageChannel.findMany({
         where: { active: true },
-        orderBy: { order: 'asc' } 
+        orderBy: { order: 'asc' }
       });
     }
     return Array.isArray(raw) ? raw : [];
@@ -73,30 +73,30 @@ async function getSafeHomepageChannels(): Promise<any[]> {
 
 async function seedSafeSections() {
   try {
-     const now = new Date().toISOString();
-     const seeds = [
-       { id: 'row1', title: 'Must Read E-Books', category: 'E-books', order: 10, active: 1 },
+    const now = new Date().toISOString();
+    const seeds = [
+      { id: 'row1', title: 'Must Read E-Books', category: 'E-books', order: 10, active: 1 },
 
-       { id: 'row2', title: 'Evergreen Epics & Puranas', category: 'Evergreen Epics & Puranas', order: 20, active: 1 },
-       { id: 'row3', title: 'Featured Podcasts', category: 'Devotional', order: 30, active: 1 },
-       { id: 'row4', title: 'Popular Videos', category: 'Bhakti Bhava Lahari', order: 40, active: 1 },
-       { id: 'row5', title: 'Interactive Games', category: 'Games & Activities', order: 50, active: 1 },
-       { id: 'row6', title: 'Sanskrit Kids Academy', category: 'Kids', order: 60, active: 1 }
-     ];
-     for(const section of seeds) {
-       await prisma.homepageSection.upsert({
-         where: { id: section.id },
-         update: {},
-         create: {
-           id: section.id,
-           title: section.title,
-           category: section.category,
-           order: section.order,
-           active: section.active === 1
-         }
-       });
-     }
-  } catch(e) { console.error("Seeding fallback failed:", e); }
+      { id: 'row2', title: 'Evergreen Epics & Puranas', category: 'Evergreen Epics & Puranas', order: 20, active: 1 },
+      { id: 'row3', title: 'Featured Podcasts', category: 'Devotional', order: 30, active: 1 },
+      { id: 'row4', title: 'Popular Videos', category: 'Bhakti Bhava Lahari', order: 40, active: 1 },
+      { id: 'row5', title: 'Interactive Games', category: 'Games & Activities', order: 50, active: 1 },
+      { id: 'row6', title: 'Sanskrit Kids Academy', category: 'Kids', order: 60, active: 1 }
+    ];
+    for (const section of seeds) {
+      await prisma.homepageSection.upsert({
+        where: { id: section.id },
+        update: {},
+        create: {
+          id: section.id,
+          title: section.title,
+          category: section.category,
+          order: section.order,
+          active: section.active === 1
+        }
+      });
+    }
+  } catch (e) { console.error("Seeding fallback failed:", e); }
 }
 
 export default async function HomePage() {
@@ -249,7 +249,7 @@ export default async function HomePage() {
 
 
       <section className="row-container">
-        
+
         {/* SLICK DYNAMIC HOTSTAR STUDIO/GENRE CHANNEL SHELF */}
         {hotstarChannelsEnabled && (
           <div className="channels-shelf">
@@ -281,14 +281,14 @@ export default async function HomePage() {
         {/* DYNAMIC ENGAGEMENT SHELF 1: CONTINUE WATCHING */}
         {continueWatching.length > 0 && (
           <div style={{ marginBottom: '25px' }}>
-            <CourseRow 
+            <CourseRow
               icon={<PlayCircle size={24} />}
               title="Continue Watching"
               courses={continueWatching.map((c: any) => ({
-                id: c.id, 
-                title: c.title, 
-                image: c.thumbnailUrl || 'https://placehold.co/300x160', 
-                match: 'Resuming', 
+                id: c.id,
+                title: c.title,
+                image: c.thumbnailUrl || 'https://placehold.co/300x160',
+                match: 'Resuming',
                 episodeId: c.activeEpisodeId,
                 subTitle: c.activeEpisodeTitle,
                 progressPercent: c.progressPercent,
@@ -304,14 +304,14 @@ export default async function HomePage() {
         {/* DYNAMIC ENGAGEMENT SHELF 2: MY LIST */}
         {userWatchlist.length > 0 && (
           <div style={{ marginBottom: '25px' }}>
-            <CourseRow 
+            <CourseRow
               icon={<PlusCircle size={24} />}
               title="My List / Favorites"
               courses={userWatchlist.map((c: any) => ({
-                id: c.id, 
-                title: c.title, 
-                image: c.thumbnailUrl || 'https://placehold.co/300x160', 
-                match: '99% Match', 
+                id: c.id,
+                title: c.title,
+                image: c.thumbnailUrl || 'https://placehold.co/300x160',
+                match: '99% Match',
                 tag: c.accessLevel,
                 createdAt: c.createdAt,
                 showRibbon: c.showRibbon,
@@ -325,14 +325,14 @@ export default async function HomePage() {
         {/* DYNAMIC SEARCH-INTENT ROW */}
         {lastSearchQuery && searchMatchedCourses.length > 0 && (
           <div style={{ marginBottom: '25px' }}>
-            <CourseRow 
+            <CourseRow
               icon={<SearchIcon size={24} />}
               title={`Because you searched for "${lastSearchQuery}"`}
               courses={searchMatchedCourses.map((c: any) => ({
-                id: c.id, 
-                title: c.title, 
-                image: c.thumbnailUrl || 'https://placehold.co/300x160', 
-                match: '98% Match', 
+                id: c.id,
+                title: c.title,
+                image: c.thumbnailUrl || 'https://placehold.co/300x160',
+                match: '98% Match',
                 tag: c.accessLevel,
                 createdAt: c.createdAt,
                 showRibbon: c.showRibbon,
@@ -346,14 +346,14 @@ export default async function HomePage() {
         {/* ✨ INTELLIGENT AI PERSONALIZED ROW */}
         {aiRecommended.length > 0 && (
           <div style={{ marginBottom: '25px' }}>
-            <CourseRow 
+            <CourseRow
               icon={<Sparkles size={24} />}
               title="Inspired by your Interests"
               courses={aiRecommended.map((c: any) => ({
-                id: c.id, 
-                title: c.title, 
-                image: c.thumbnailUrl || 'https://placehold.co/300x160', 
-                match: 'AI Recommended', 
+                id: c.id,
+                title: c.title,
+                image: c.thumbnailUrl || 'https://placehold.co/300x160',
+                match: 'AI Recommended',
                 tag: c.accessLevel,
                 createdAt: c.createdAt,
                 showRibbon: c.showRibbon,
@@ -366,7 +366,7 @@ export default async function HomePage() {
 
         {trendingCourses.length > 0 && (
           <div style={{ marginBottom: '25px' }}>
-            <CourseRow 
+            <CourseRow
               icon={<Flame size={24} />}
               title="Trending Now"
               courses={trendingCourses.map(c => ({
@@ -379,14 +379,14 @@ export default async function HomePage() {
         {/* 💳 EXCLUSIVE PAID PRODUCTS SHELF */}
         {allCourses.filter(c => c.accessLevel === 'PAID').length > 0 && (
           <div style={{ marginBottom: '25px' }}>
-            <CourseRow 
+            <CourseRow
               icon={<CreditCard size={24} />}
               title="Flagship Courses (One-time Buy)"
               courses={allCourses.filter(c => c.accessLevel === 'PAID').map(c => ({
-                id: c.id, 
-                title: c.title, 
-                image: c.thumbnailUrl || 'https://placehold.co/300x160', 
-                match: '99% Match', 
+                id: c.id,
+                title: c.title,
+                image: c.thumbnailUrl || 'https://placehold.co/300x160',
+                match: '99% Match',
                 tag: c.accessLevel,
                 createdAt: c.createdAt,
                 showRibbon: c.showRibbon,
@@ -402,16 +402,16 @@ export default async function HomePage() {
             // Clean Category comparison
             const dbCatClean = (c.category || '').replace(/&amp;/g, '&').trim();
             const targetCatClean = (section.category || '').replace(/&amp;/g, '&').trim();
-            
-            return dbCatClean === targetCatClean || 
-                   c.category === section.category ||
-                   (targetCatClean === 'EBOOK' && c.contentType === 'EBOOK') ||
-                   (targetCatClean === 'PODCAST' && c.contentType === 'PODCAST') ||
-                   (targetCatClean === 'GAME' && c.contentType === 'GAME');
+
+            return dbCatClean === targetCatClean ||
+              c.category === section.category ||
+              (targetCatClean === 'EBOOK' && c.contentType === 'EBOOK') ||
+              (targetCatClean === 'PODCAST' && c.contentType === 'PODCAST') ||
+              (targetCatClean === 'GAME' && c.contentType === 'GAME');
           });
-          
+
           if (matching.length === 0 && allCourses.length > 5) return null;
-          
+
           const cleanTitle = (section.title || '').replace(/📖|🌟|🎙️|📽️|🎮|👶|🌸/g, '').trim();
           let IconToUse = LayoutTemplate;
           if (cleanTitle.toLowerCase().includes('e-books')) IconToUse = BookOpen;
@@ -420,10 +420,10 @@ export default async function HomePage() {
           else if (cleanTitle.toLowerCase().includes('videos')) IconToUse = Video;
           else if (cleanTitle.toLowerCase().includes('games')) IconToUse = Gamepad2;
           else if (cleanTitle.toLowerCase().includes('kids')) IconToUse = Smile;
-          
+
           if (matching.length > 0) {
             return (
-              <CourseRow 
+              <CourseRow
                 key={section.id}
                 icon={<IconToUse size={24} />}
                 title={cleanTitle}
@@ -434,7 +434,7 @@ export default async function HomePage() {
             );
           }
           return (
-            <CourseRow 
+            <CourseRow
               key={section.id}
               icon={<IconToUse size={24} />}
               title={cleanTitle}
@@ -451,21 +451,21 @@ export default async function HomePage() {
 
         <SponsorSlider dbSponsors={sponsors as any} hideDummy={hideDummy} />
 
-        <footer style={{ 
-          marginTop: '80px', 
-          borderTop: '1px solid rgba(255,255,255,0.06)', 
-          paddingTop: '60px', 
-          paddingBottom: '30px', 
+        <footer style={{
+          marginTop: '80px',
+          borderTop: '1px solid rgba(255,255,255,0.06)',
+          paddingTop: '60px',
+          paddingBottom: '30px',
           color: '#8f98a9',
           fontFamily: 'inherit'
         }}>
           <div className="grid-responsive container" style={{ marginBottom: '50px' }}>
             {/* Branding Column */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-              <img 
-                src="/assets/logo-200-x-70-px.png" 
-                alt="Vyoma Logo" 
-                style={{ height: '45px', width: 'fit-content', objectFit: 'contain', filter: 'drop-shadow(0 0 10px rgba(242, 100, 34, 0.15))' }} 
+              <img
+                src="/assets/logo-200-x-70-px.png"
+                alt="Vyoma Logo"
+                style={{ height: '45px', width: 'fit-content', objectFit: 'contain', filter: 'drop-shadow(0 0 10px rgba(242, 100, 34, 0.15))' }}
               />
               <p style={{ fontSize: '0.9rem', lineHeight: '1.6', margin: 0, color: '#687387' }}>
                 Vyoma Linguistic Labs Foundation is a non-profit organization pioneering digital Sanskrit education globally.
@@ -475,11 +475,11 @@ export default async function HomePage() {
             {/* Dynamic Columns */}
             {footerMenus.map(menu => (
               <div key={menu.id}>
-                <h3 style={{ 
-                  color: 'white', 
-                  fontSize: '1.05rem', 
-                  fontWeight: 800, 
-                  marginBottom: '20px', 
+                <h3 style={{
+                  color: 'white',
+                  fontSize: '1.05rem',
+                  fontWeight: 800,
+                  marginBottom: '20px',
                   position: 'relative',
                   paddingBottom: '8px',
                   borderBottom: '2px solid rgba(242,100,34,0.3)',
@@ -489,16 +489,16 @@ export default async function HomePage() {
                 </h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '10px' }}>
                   {menu.children && menu.children.map((child: any) => (
-                    <Link 
+                    <Link
                       key={child.id}
-                      href={child.url || '#'} 
-                      style={{ 
-                        color: '#8f98a9', 
-                        textDecoration: 'none', 
+                      href={child.url || '#'}
+                      style={{
+                        color: '#8f98a9',
+                        textDecoration: 'none',
                         fontSize: '0.9rem',
                         transition: 'all 0.2s ease',
                         display: 'block'
-                      }} 
+                      }}
                     >
                       {child.label}
                     </Link>
@@ -509,13 +509,13 @@ export default async function HomePage() {
           </div>
 
           {/* Bottom copyright segment */}
-          <div style={{ 
-            borderTop: '1px solid rgba(255,255,255,0.04)', 
-            paddingTop: '30px', 
-            display: 'flex', 
-            justifyContent: 'space-between', 
-            alignItems: 'center', 
-            flexWrap: 'wrap', 
+          <div style={{
+            borderTop: '1px solid rgba(255,255,255,0.04)',
+            paddingTop: '30px',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexWrap: 'wrap',
             gap: '20px',
             fontSize: '0.85rem',
             color: '#687387'

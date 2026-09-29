@@ -25,6 +25,9 @@ export async function registerUser(formData: FormData) {
   const name = formData.get('name') as string;
   const password = formData.get('password') as string;
   const referrerId = formData.get('referrerId') as string || '';
+  const gender = formData.get('gender') as string || null;
+  const ageStr = formData.get('age') as string;
+  const age = ageStr ? parseInt(ageStr, 10) : null;
   
   if (!email) return { error: 'Email is required' };
   
@@ -47,7 +50,9 @@ export async function registerUser(formData: FormData) {
         plan: 'FREE',
         planInterval: 'YEARLY',
         password: hashedPassword,
-        forcePasswordChange: false
+        forcePasswordChange: false,
+        gender: gender || undefined,
+        age: age && !isNaN(age) ? age : undefined
       }
     });
 

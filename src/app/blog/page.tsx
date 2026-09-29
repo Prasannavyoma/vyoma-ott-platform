@@ -14,7 +14,7 @@ export default async function BlogListingPage() {
     <main style={{ minHeight: '100vh', background: 'var(--background)' }}>
       <NavBar />
       <div style={{ padding: '120px 5% 50px', maxWidth: '1000px', margin: '0 auto' }}>
-        
+
         <div style={{ textAlign: 'center', marginBottom: '50px' }}>
           <h1 style={{ fontSize: '3rem', fontWeight: 900, marginBottom: '10px' }}>Vyoma Insights</h1>
           <p style={{ color: '#aaa', fontSize: '1.2rem', margin: 0 }}>Articles, news, and deep-dives into Sanskrit literature.</p>
@@ -28,9 +28,9 @@ export default async function BlogListingPage() {
           <div style={{ display: 'grid', gap: '40px' }}>
             {blogs.map(b => (
               <Link href={`/blog/${b.slug}`} key={b.id} style={{ textDecoration: 'none', color: 'inherit' }}>
-                <div style={{ 
-                  background: 'rgba(255,255,255,0.02)', 
-                  border: '1px solid rgba(255,255,255,0.05)', 
+                <div style={{
+                  background: 'rgba(255,255,255,0.02)',
+                  border: '1px solid rgba(255,255,255,0.05)',
                   borderRadius: '24px',
                   display: 'flex',
                   flexDirection: 'row',
@@ -44,13 +44,13 @@ export default async function BlogListingPage() {
                       background: rgba(255,255,255,0.05) !important;
                     }
                   `}</style>
-                  
+
                   {b.thumbnailUrl && (
                     <div style={{ width: '300px', background: '#111', flexShrink: 0 }}>
                       <img src={b.thumbnailUrl} alt={b.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     </div>
                   )}
-                  
+
                   <div style={{ padding: '40px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                     <h2 style={{ fontSize: '1.8rem', fontWeight: 800, margin: '0 0 15px 0' }}>{b.title}</h2>
                     <p style={{ color: '#aaa', fontSize: '1.1rem', lineHeight: 1.6, margin: '0 0 25px 0' }}>{b.excerpt}</p>

@@ -16,7 +16,7 @@ export default function NavBar() {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [features, setFeatures] = useState({ shortsEnabled: true, blogEnabled: true });
-  
+
   // 📱 Mobile responsive state managers
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeMobileSubmenu, setActiveMobileSubmenu] = useState<string | null>(null);
@@ -26,7 +26,7 @@ export default function NavBar() {
       .then(res => res.json())
       .then(data => setMenus(data))
       .catch(e => console.error("Failed to fetch dynamic menu system."));
-      
+
     fetch('/api/auth/status')
       .then(res => res.json())
       .then(data => setIsLoggedIn(data.isLoggedIn))
@@ -75,10 +75,10 @@ export default function NavBar() {
         <div className="nav-left-group" style={{ display: 'flex', alignItems: 'center', gap: '25px' }}>
           <div className="nav-brand">
             <Link href="/">
-              <img 
-                src="/assets/logo-200-x-70-px.png" 
-                alt="Vyoma Logo" 
-                style={{ height: '55px', objectFit: 'contain', filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.3))' }} 
+              <img
+                src="/assets/logo-200-x-70-px.png"
+                alt="Vyoma Logo"
+                style={{ height: '55px', objectFit: 'contain', filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.3))' }}
               />
             </Link>
           </div>
@@ -86,14 +86,14 @@ export default function NavBar() {
           <div className="nav-links desktop-only" style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
             {menus.map((menu, index) => (
               menu.children && menu.children.length > 0 ? (
-                <div 
-                  className={`dropdown ${activeDropdown === menu.id ? 'active-dropdown' : ''} ${index >= menus.length - 2 ? 'dropdown-right' : ''}`} 
+                <div
+                  className={`dropdown ${activeDropdown === menu.id ? 'active-dropdown' : ''} ${index >= menus.length - 2 ? 'dropdown-right' : ''}`}
                   key={menu.id}
                   onMouseEnter={() => setActiveDropdown(menu.id)}
                   onMouseLeave={() => setActiveDropdown(null)}
                 >
-                  <Link 
-                    href={menu.url && menu.url !== '#' ? menu.url : '#'} 
+                  <Link
+                    href={menu.url && menu.url !== '#' ? menu.url : '#'}
                     onClick={(e) => {
                       if (!menu.url || menu.url === '#') {
                         e.preventDefault();
@@ -104,13 +104,13 @@ export default function NavBar() {
                   >
                     {menu.label}
                     <svg width="11" height="7" viewBox="0 0 12 8" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.8, transition: 'transform 0.3s', transform: activeDropdown === menu.id ? 'rotate(180deg)' : 'translateY(1px)' }}>
-                      <path d="M1 1L6 6L11 1"/>
+                      <path d="M1 1L6 6L11 1" />
                     </svg>
                   </Link>
                   <div className="dropdown-content">
                     {menu.children.map((child: any) => (
-                      <Link 
-                        key={child.id} 
+                      <Link
+                        key={child.id}
                         href={child.url || '#'}
                         onClick={() => setActiveDropdown(null)} // Close on select
                       >
@@ -125,9 +125,9 @@ export default function NavBar() {
             ))}
           </div>
         </div>
-        
+
         <div className="nav-actions" style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
-          
+
           {/* Explore Hub 'Live Eye' */}
           <div style={{ marginRight: '5px' }}>
             <ExploreEye />
@@ -145,11 +145,11 @@ export default function NavBar() {
           {isLoggedIn ? (
             <div className="desktop-only" style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
               <Link href="/profile" title="Profile" className="profile-link nav-icon-link">
-                 <User size={18} color="var(--primary)" /> <span className="profile-text" style={{ marginLeft: '6px' }}>Profile</span>
+                <User size={18} color="var(--primary)" /> <span className="profile-text" style={{ marginLeft: '6px' }}>Profile</span>
               </Link>
-              <button 
-                onClick={async () => await logoutUser()} 
-                className="logout-btn" 
+              <button
+                onClick={async () => await logoutUser()}
+                className="logout-btn"
                 style={{ background: 'rgba(255,100,100,0.1)', color: '#ff6b6b', border: '1px solid rgba(255,100,100,0.2)', padding: '6px 14px', borderRadius: '20px', fontSize: '0.85rem', fontWeight: 'bold', cursor: 'pointer', transition: 'all 0.3s' }}
                 onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,100,100,0.2)'}
                 onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,100,100,0.1)'}
@@ -169,7 +169,7 @@ export default function NavBar() {
           )}
 
           {/* 📱 Mobile Hamburger Menu Toggle */}
-          <button 
+          <button
             className={`hamburger-toggle ${mobileMenuOpen ? 'active' : ''}`}
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label="Toggle navigation menu"
@@ -182,7 +182,7 @@ export default function NavBar() {
       </nav>
 
       {/* 📱 Mobile Dropdown Drawer Backdrop */}
-      <div 
+      <div
         className={`mobile-menu-drawer-backdrop ${mobileMenuOpen ? 'open' : ''}`}
         onClick={() => setMobileMenuOpen(false)}
       />
@@ -190,46 +190,46 @@ export default function NavBar() {
       {/* 📱 Stateful Sliding Mobile Menu Drawer */}
       <div className={`mobile-menu-drawer ${mobileMenuOpen ? 'open' : ''}`}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          
+
           {/* Quick-Action progress & profile blocks */}
-            <div style={{ display: 'flex', gap: '15px', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '18px', marginBottom: '5px', flexWrap: 'wrap' }}>
-              <Link 
-                href="/progress" 
-                onClick={() => setMobileMenuOpen(false)}
-                style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', background: 'rgba(255,255,255,0.04)', padding: '10px', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 700, border: '1px solid rgba(255,255,255,0.08)', color: '#fff', textDecoration: 'none' }}
-              >
-                <TrendingUp size={16} /> Progress
-              </Link>
-              {isLoggedIn ? (
-                <>
-                  <Link 
-                    href="/profile" 
-                    onClick={() => setMobileMenuOpen(false)}
-                    style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', background: 'rgba(255,255,255,0.04)', padding: '10px', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 700, border: '1px solid rgba(255,255,255,0.08)', color: '#fff', textDecoration: 'none' }}
-                  >
-                    <User size={16} /> Profile
-                  </Link>
-                  <button 
-                    onClick={async () => {
-                      setMobileMenuOpen(false);
-                      await logoutUser();
-                    }}
-                    style={{ flex: '1 1 100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', background: 'rgba(255,100,100,0.1)', padding: '10px', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 700, border: '1px solid rgba(255,100,100,0.2)', color: '#ff6b6b', cursor: 'pointer' }}
-                  >
-                    Logout
-                  </button>
-                </>
-              ) : (
+          <div style={{ display: 'flex', gap: '15px', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '18px', marginBottom: '5px', flexWrap: 'wrap' }}>
+            <Link
+              href="/progress"
+              onClick={() => setMobileMenuOpen(false)}
+              style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', background: 'rgba(255,255,255,0.04)', padding: '10px', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 700, border: '1px solid rgba(255,255,255,0.08)', color: '#fff', textDecoration: 'none' }}
+            >
+              <TrendingUp size={16} /> Progress
+            </Link>
+            {isLoggedIn ? (
               <>
-                <Link 
-                  href="/login" 
+                <Link
+                  href="/profile"
+                  onClick={() => setMobileMenuOpen(false)}
+                  style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', background: 'rgba(255,255,255,0.04)', padding: '10px', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 700, border: '1px solid rgba(255,255,255,0.08)', color: '#fff', textDecoration: 'none' }}
+                >
+                  <User size={16} /> Profile
+                </Link>
+                <button
+                  onClick={async () => {
+                    setMobileMenuOpen(false);
+                    await logoutUser();
+                  }}
+                  style={{ flex: '1 1 100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', background: 'rgba(255,100,100,0.1)', padding: '10px', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 700, border: '1px solid rgba(255,100,100,0.2)', color: '#ff6b6b', cursor: 'pointer' }}
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/login"
                   onClick={() => setMobileMenuOpen(false)}
                   style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', background: 'rgba(255,255,255,0.04)', padding: '10px', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 700, border: '1px solid rgba(255,255,255,0.08)', color: '#fff', textDecoration: 'none' }}
                 >
                   Login
                 </Link>
-                <Link 
-                  href="/register" 
+                <Link
+                  href="/register"
                   onClick={() => setMobileMenuOpen(false)}
                   style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', background: 'linear-gradient(135deg, #0071BE 0%, #0095ff 100%)', padding: '10px', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 700, border: 'none', color: '#fff', textDecoration: 'none', boxShadow: '0 4px 15px rgba(0, 113, 190, 0.4)' }}
                 >
@@ -269,7 +269,7 @@ export default function NavBar() {
 
             return (
               <div key={menu.id} style={{ display: 'flex', flexDirection: 'column' }}>
-                <div 
+                <div
                   className={`mobile-nav-link ${isSubmenuOpen ? 'active' : ''}`}
                   onClick={() => {
                     if (hasChildren) {
@@ -289,7 +289,7 @@ export default function NavBar() {
 
                   {hasChildren && (
                     <svg width="10" height="6" viewBox="0 0 12 8" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transition: 'transform 0.3s', transform: isSubmenuOpen ? 'rotate(180deg)' : 'rotate(0)' }}>
-                      <path d="M1 1L6 6L11 1"/>
+                      <path d="M1 1L6 6L11 1" />
                     </svg>
                   )}
                 </div>
@@ -297,8 +297,8 @@ export default function NavBar() {
                 {hasChildren && isSubmenuOpen && (
                   <div className="mobile-submenu">
                     {menu.children.map((child: any) => (
-                      <Link 
-                        key={child.id} 
+                      <Link
+                        key={child.id}
                         href={child.url || '#'}
                         className="mobile-submenu-link"
                         onClick={() => setMobileMenuOpen(false)}
@@ -315,10 +315,10 @@ export default function NavBar() {
 
           {/* Primary Join Free target */}
           {!isLoggedIn && (
-            <Link 
-              href="/register" 
+            <Link
+              href="/register"
               onClick={() => setMobileMenuOpen(false)}
-              className="btn btn-primary" 
+              className="btn btn-primary"
               style={{ width: '100%', display: 'flex', justifyContent: 'center', padding: '14px', fontSize: '0.95rem', fontWeight: 800, marginTop: '10px' }}
             >
               Free Register

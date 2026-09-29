@@ -4,6 +4,7 @@ import { useState, useTransition, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Script from 'next/script';
+import { Eye, EyeOff } from 'lucide-react';
 import { registerUser, loginWithGoogleAction } from '../actions/auth';
 
 interface RegisterFormClientProps {
@@ -21,6 +22,16 @@ export default function RegisterFormClient({ allowPassword, allowGoogle, googleC
   const [error, setError] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  // Per-field error messages
+  const [nameError, setNameError] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [confirmPasswordError, setConfirmPasswordError] = useState('');
 
   // Password strength logic
   const getPasswordStrength = (pwd: string) => {
@@ -40,6 +51,14 @@ export default function RegisterFormClient({ allowPassword, allowGoogle, googleC
   };
 
   const strength = getPasswordStrength(password);
+
+  const isValidEmail = (val: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+    return emailRegex.test(val.trim());
+  };
+
+  // Must start with a letter; supports unicode letters, dots (e.g. initials), spaces, hyphens and apostrophes
+  const isValidName = (val: string) => /^[\p{L}][\p{L}\s'.-]*$/u.test(val.trim());
 
   // Bind Google OAuth Callback to window object
   useEffect(() => {
@@ -70,20 +89,60 @@ export default function RegisterFormClient({ allowPassword, allowGoogle, googleC
       return;
     }
 
-    if (!strength.isValid) {
-      setError('Please choose a medium or strong password.');
-      return;
+    // Reset field errors before re-validating
+    setNameError('');
+    setEmailError('');
+    setPasswordError('');
+    setConfirmPasswordError('');
+
+    let hasError = false;
+
+    if (!name.trim()) {
+      setNameError('Please enter your full name.');
+      hasError = true;
+    } else if (!isValidName(name)) {
+      setNameError('Name can only contain letters, dots, spaces, apostrophes or hyphens.');
+      hasError = true;
     }
 
+    if (!email) {
+      setEmailError('Please enter your email address.');
+      hasError = true;
+    } else if (!isValidEmail(email)) {
+      setEmailError('Please enter a valid email address.');
+      hasError = true;
+    }
+
+    if (!password) {
+      setPasswordError('Please enter a password.');
+      hasError = true;
+    } else if (!strength.isValid) {
+      setPasswordError('Please choose a medium or strong password.');
+      hasError = true;
+    }
+
+    if (!confirmPassword) {
+      setConfirmPasswordError('Please confirm your password.');
+      hasError = true;
+    } else if (password && confirmPassword !== password) {
+      setConfirmPasswordError('Passwords do not match.');
+      hasError = true;
+    }
+
+    if (hasError) return;
+
     setError('');
-    const formData = new FormData(e.currentTarget);
+    const formElement = e.currentTarget;
+    const formData = new FormData(formElement);
     
     startTransition(async () => {
       const res = await registerUser(formData);
       if (res && res.error) {
         setError(res.error);
       } else if (res && res.success) {
-        router.push('/?registered=true');
+        const redirectUrl = searchParams.get('redirect') || '/?registered=true';
+        router.push(redirectUrl);
+        router.refresh();
       } else {
         setError('Something went wrong. Please try again.');
       }
@@ -93,35 +152,47 @@ export default function RegisterFormClient({ allowPassword, allowGoogle, googleC
   return (
     <div style={{ 
       minHeight: '100vh', 
-      background: `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.9)), url('/assets/Balakanda.jpg') center/cover no-repeat`,
+      background: `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.9)), url('/assets/Ayodhyakanda.jpg') center/cover no-repeat`,
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
       fontFamily: 'inherit',
       color: 'white',
-      position: 'relative'
+      position: 'relative',
+      padding: '40px 16px',
+      animation: 'fadeIn 0.5s ease-out'
     }}>
       {/* Load Google SDK */}
       {allowGoogle && googleClientId && (
         <Script src="https://accounts.google.com/gsi/client" strategy="afterInteractive" />
       )}
 
-      <div style={{ position: 'absolute', top: '30px', left: '5%' }}>
-         <Link href="/"><img src="/assets/logo-200-x-70-px.png" alt="Vyoma" style={{ height: '45px' }} /></Link>
+      {/* Top Left Vyoma Brand Logo - exactly matching Home & Sign-In */}
+      <div style={{ position: 'absolute', top: '30px', left: '5%', zIndex: 10 }}>
+        <Link href="/">
+          <img src="/assets/logo-200-x-70-px.png" alt="Vyoma" style={{ height: '45px' }} />
+        </Link>
       </div>
-      
-      <div style={{ 
+
+      <div className="auth-container" style={{ 
         position: 'relative',
         width: '100%', 
-        maxWidth: '450px', 
-        backgroundColor: 'rgba(0, 0, 0, 0.75)', 
-        borderRadius: '10px', 
-        padding: '60px 68px 40px',
-        backdropFilter: 'blur(10px)',
-        boxShadow: '0 10px 40px rgba(0,0,0,0.5)',
-        margin: '20px'
+        maxWidth: '480px', 
+        background: 'rgba(255,255,255,0.03)', 
+        borderRadius: '16px', 
+        padding: '50px 45px 35px',
+        backdropFilter: 'blur(20px)',
+        border: '1px solid rgba(255,255,255,0.05)',
+        boxShadow: '0 30px 60px rgba(0,0,0,0.4)',
+        margin: '20px auto',
+        animation: 'slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
+        overflow: 'hidden',
+        boxSizing: 'border-box'
       }}>
+        {/* Decorative Top Glow */}
+        <div style={{ position: 'absolute', top: 0, left: '20%', right: '20%', height: '2px', background: 'linear-gradient(90deg, transparent, var(--primary), transparent)', opacity: 0.5 }}></div>
+
         {/* Close Icon */}
         <Link href="/" style={{ 
           position: 'absolute', right: '20px', top: '20px', 
@@ -129,10 +200,10 @@ export default function RegisterFormClient({ allowPassword, allowGoogle, googleC
           width: '32px', height: '32px', borderRadius: '50%', 
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           background: 'rgba(255,255,255,0.1)', cursor: 'pointer', transition: 'background 0.2s',
-          fontWeight: 'bold'
+          fontWeight: 'bold', zIndex: 10
         }} onMouseEnter={(e)=>e.currentTarget.style.background='rgba(255,255,255,0.2)'} onMouseLeave={(e)=>e.currentTarget.style.background='rgba(255,255,255,0.1)'}>✕</Link>
 
-        <h1 style={{ fontSize: '2rem', fontWeight: 700, marginBottom: '30px' }}>Join Vyoma</h1>
+        <h1 style={{ fontSize: '2rem', fontWeight: 700, marginBottom: '28px', textAlign: 'center', color: '#fff' }}>Sign up</h1>
         
         {/* Error Messages */}
         {error === 'already_registered' ? (
@@ -164,23 +235,38 @@ export default function RegisterFormClient({ allowPassword, allowGoogle, googleC
 
         {/* Password Registration Form */}
         {allowPassword ? (
-          <form onSubmit={onSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <form onSubmit={onSubmit} noValidate style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <input type="hidden" name="referrerId" value={refCode} />
             
-            <input 
-              type="text" 
-              name="name" 
-              placeholder="Full Name" 
-              required
-              style={{
-                padding: '16px 20px',
-                backgroundColor: '#333',
-                border: 'none',
-                borderRadius: '4px',
-                color: 'white',
-                fontSize: '1rem'
-              }}
-            />
+            {/* Full Name */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <input 
+                type="text" 
+                name="name" 
+                value={name}
+                onChange={(e) => {
+                  setName(e.target.value);
+                  if (e.target.value.trim() && isValidName(e.target.value)) setNameError('');
+                }}
+                placeholder="Full Name" 
+                style={{
+                  width: '100%',
+                  padding: '14px 16px',
+                  borderRadius: '10px',
+                  border: nameError ? '1px solid #ef4444' : '1px solid rgba(255,255,255,0.1)',
+                  background: 'rgba(0,0,0,0.3)',
+                  color: '#fff',
+                  fontSize: '1rem',
+                  outline: 'none',
+                  transition: 'all 0.3s ease',
+                  boxSizing: 'border-box'
+                }}
+                onFocus={e => e.currentTarget.style.borderColor = 'var(--primary)'}
+                onBlur={e => e.currentTarget.style.borderColor = nameError ? '#ef4444' : 'rgba(255,255,255,0.1)'}
+              />
+              {nameError && (
+                <span style={{ color: '#ef4444', fontSize: '0.8rem', textAlign: 'left' }}>{nameError}</span>
+                       </div></div>
 
             {/* Honeypot */}
             <input 
@@ -191,44 +277,83 @@ export default function RegisterFormClient({ allowPassword, allowGoogle, googleC
               style={{ display: 'none', opacity: 0, position: 'absolute', zIndex: -999 }} 
             />
             
-            <input 
-              type="email" 
-              name="email" 
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Email Address" 
-              required
-              style={{
-                padding: '16px 20px',
-                backgroundColor: '#333',
-                border: 'none',
-                borderRadius: '4px',
-                color: 'white',
-                fontSize: '1rem'
-              }}
-            />
-            
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {/* Email */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
               <input 
-                type="password" 
-                name="password" 
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Create Password" 
-                required
-                style={{
-                  padding: '16px 20px',
-                  backgroundColor: '#333',
-                  border: 'none',
-                  borderRadius: '4px',
-                  color: 'white',
-                  fontSize: '1rem',
-                  width: '100%'
+                type="email" 
+                name="email" 
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (e.target.value && isValidEmail(e.target.value)) setEmailError('');
                 }}
+                placeholder="Email Address" 
+                style={{
+                  width: '100%',
+                  padding: '14px 16px',
+                  borderRadius: '10px',
+                  border: emailError ? '1px solid #ef4444' : '1px solid rgba(255,255,255,0.1)',
+                  background: 'rgba(0,0,0,0.3)',
+                  color: '#fff',
+                  fontSize: '1rem',
+                  outline: 'none',
+                  transition: 'all 0.3s ease',
+                  boxSizing: 'border-box'
+                }}
+                onFocus={e => e.currentTarget.style.borderColor = 'var(--primary)'}
+                onBlur={e => e.currentTarget.style.borderColor = emailError ? '#ef4444' : 'rgba(255,255,255,0.1)'}
               />
+              {emailError && (
+                <span style={{ color: '#ef4444', fontSize: '0.8rem', textAlign: 'left' }}>{emailError}</span>
+              )}
+            </div>
+            
+            {/* Password with Eye Toggle */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <div style={{ position: 'relative' }}>
+                <input 
+                  type={showPassword ? 'text' : 'password'}
+                  name="password" 
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    if (e.target.value && getPasswordStrength(e.target.value).isValid) setPasswordError('');
+                  }}
+                  placeholder="Create Password" 
+                  style={{
+                    width: '100%',
+                    padding: '14px 44px 14px 16px',
+                    borderRadius: '10px',
+                    border: passwordError ? '1px solid #ef4444' : '1px solid rgba(255,255,255,0.1)',
+                    background: 'rgba(0,0,0,0.3)',
+                    color: '#fff',
+                    fontSize: '1rem',
+                    outline: 'none',
+                    transition: 'all 0.3s ease',
+                    boxSizing: 'border-box'
+                  }}
+                  onFocus={e => e.currentTarget.style.borderColor = 'var(--primary)'}
+                  onBlur={e => e.currentTarget.style.borderColor = passwordError ? '#ef4444' : 'rgba(255,255,255,0.1)'}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{
+                    position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)',
+                    background: 'none', border: 'none', color: '#999', cursor: 'pointer',
+                    padding: '5px', display: 'flex', alignItems: 'center', justifyContent: 'center'
+                  }}
+                  title={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
+                </button>
+              </div>
+              {passwordError && (
+                <span style={{ color: '#ef4444', fontSize: '0.8rem', textAlign: 'left' }}>{passwordError}</span>
+              )}
               {/* Password strength UI */}
               {password && (
-                <div style={{ marginTop: '5px' }}>
+                <div style={{ marginTop: '4px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: strength.color, fontWeight: 'bold', marginBottom: '4px' }}>
                     <span>Strength: {strength.label}</span>
                     {!strength.isValid && <span style={{ opacity: 0.8 }}>Not Accepted</span>}
@@ -239,27 +364,77 @@ export default function RegisterFormClient({ allowPassword, allowGoogle, googleC
                 </div>
               )}
             </div>
+
+            {/* Confirm Password with Eye Toggle */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <div style={{ position: 'relative' }}>
+                <input 
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  name="confirmPassword" 
+                  value={confirmPassword}
+                  onChange={(e) => {
+                    setConfirmPassword(e.target.value);
+                    if (e.target.value && e.target.value === password) setConfirmPasswordError('');
+                  }}
+                  placeholder="Confirm Password" 
+                  style={{
+                    width: '100%',
+                    padding: '14px 44px 14px 16px',
+                    borderRadius: '10px',
+                    border: confirmPasswordError ? '1px solid #ef4444' : '1px solid rgba(255,255,255,0.1)',
+                    background: 'rgba(0,0,0,0.3)',
+                    color: '#fff',
+                    fontSize: '1rem',
+                    outline: 'none',
+                    transition: 'all 0.3s ease',
+                    boxSizing: 'border-box'
+                  }}
+                  onFocus={e => e.currentTarget.style.borderColor = 'var(--primary)'}
+                  onBlur={e => e.currentTarget.style.borderColor = confirmPasswordError ? '#ef4444' : 'rgba(255,255,255,0.1)'}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  style={{
+                    position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)',
+                    background: 'none', border: 'none', color: '#999', cursor: 'pointer',
+                    padding: '5px', display: 'flex', alignItems: 'center', justifyContent: 'center'
+                  }}
+                  title={showConfirmPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showConfirmPassword ? <Eye size={18} /> : <EyeOff size={18} />}
+                </button>
+              </div>
+              {confirmPasswordError && (
+                <span style={{ color: '#ef4444', fontSize: '0.8rem', textAlign: 'left' }}>{confirmPasswordError}</span>
+              )}
+            </div>
             
             <button 
               type="submit" 
-              className="btn btn-primary" 
-              disabled={isPending || (password !== '' && !strength.isValid)}
+              className="btn btn-primary premium-glow-btn" 
+              disabled={isPending}
               style={{ 
                 marginTop: '10px', 
                 padding: '16px', 
                 justifyContent: 'center', 
-                fontSize: '1.1rem', 
+                fontSize: '1.05rem', 
                 fontWeight: 700,
-                cursor: (isPending || (password !== '' && !strength.isValid)) ? 'not-allowed' : 'pointer',
-                opacity: (isPending || (password !== '' && !strength.isValid)) ? 0.7 : 1
+                cursor: isPending ? 'not-allowed' : 'pointer',
+                opacity: isPending ? 0.7 : 1,
+                borderRadius: '10px',
+                border: 'none',
+                background: '#0080ff',
+                color: '#fff',
+                letterSpacing: '0.5px'
               }}
             >
-              {isPending ? 'Registering...' : 'Complete Registration'}
+              {isPending ? 'Signing up...' : 'Sign up'}
             </button>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: '#b3b3b3' }}>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                <input type="checkbox" name="rememberMe" defaultChecked /> Remember me
+            <div style={{ display: 'flex', alignItems: 'center', fontSize: '0.85rem', color: '#b3b3b3', marginTop: '4px' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                <input type="checkbox" name="rememberMe" defaultChecked style={{ accentColor: '#0080ff' }} /> Remember me
               </label>
             </div>
           </form>
@@ -274,9 +449,9 @@ export default function RegisterFormClient({ allowPassword, allowGoogle, googleC
           <>
             {allowPassword && (
               <div style={{ margin: '20px 0', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <div style={{ flex: 1, height: '1px', background: '#333' }}></div>
-                <div style={{ color: '#666', fontSize: '0.8rem' }}>OR</div>
-                <div style={{ flex: 1, height: '1px', background: '#333' }}></div>
+                <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.1)' }}></div>
+                <div style={{ color: '#777', fontSize: '0.8rem' }}>OR</div>
+                <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.1)' }}></div>
               </div>
             )}
             
@@ -301,12 +476,12 @@ export default function RegisterFormClient({ allowPassword, allowGoogle, googleC
           </>
         )}
         
-        <div style={{ marginTop: '30px', color: '#737373', fontSize: '0.95rem' }}>
-          Already using Vyoma? <Link href="/login" style={{ color: 'white', textDecoration: 'none' }}>Sign In</Link>
+        <div style={{ marginTop: '28px', textAlign: 'center', color: '#8c8c8c', fontSize: '0.95rem' }}>
+          Already using Vyoma? <Link href="/login" style={{ color: 'white', textDecoration: 'none', fontWeight: 600 }}>Sign In</Link>
         </div>
         
-        <p style={{ marginTop: '20px', color: '#8c8c8c', fontSize: '0.8rem' }}>
-          By signing up, you agree to receive Sanskrit educational updates.
+        <p style={{ marginTop: '16px', color: '#737373', fontSize: '0.78rem', textAlign: 'center', lineHeight: '1.4' }}>
+          By continuing, you agree to digitalsanskrit.com <Link href="/terms" style={{ color: '#fff', textDecoration: 'underline' }}>Terms & Conditions</Link> and <Link href="/privacy" style={{ color: '#fff', textDecoration: 'underline' }}>Privacy Policy</Link>.
         </p>
       </div>
     </div>

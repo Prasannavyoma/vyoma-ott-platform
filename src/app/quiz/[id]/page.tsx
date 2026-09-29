@@ -11,7 +11,7 @@ export default async function QuizPage(props: { params: Promise<{ id: string }> 
   if (courseId && courseId.includes('%')) {
     try {
       courseId = decodeURIComponent(courseId);
-    } catch (e) {}
+    } catch (e) { }
   }
 
   const { getCurrentUser } = await import('@/lib/auth');
@@ -33,7 +33,7 @@ export default async function QuizPage(props: { params: Promise<{ id: string }> 
   // Advanced Server Action to ingest results and release coins/certificates
   async function submitResult(uid: string, score: number, passed: boolean) {
     "use server";
-    
+
     const existingResult = await prisma.quizResult.create({
       data: {
         userId: uid,
@@ -52,7 +52,7 @@ export default async function QuizPage(props: { params: Promise<{ id: string }> 
       try {
         const qSetting = await prisma.systemSetting.findUnique({ where: { key: 'COINS_QUIZ_REWARD' } });
         if (qSetting) coinsQuizReward = parseInt(qSetting.value) || 0;
-      } catch (e) {}
+      } catch (e) { }
 
       coinsGranted = coinsQuizReward;
       await prisma.user.update({
@@ -83,11 +83,11 @@ export default async function QuizPage(props: { params: Promise<{ id: string }> 
         if (userObj?.phone) {
           const settings = await getWhatsAppSettings();
           if (settings.enabled && settings.templates.certificate) {
-             sendWhatsAppMessage(userObj.phone, settings.templates.certificate, 'en_US', [
-               { type: "text", text: userObj.name || 'Scholar' },
-               { type: "text", text: course!.title },
-               { type: "text", text: `vyoma-ott.com/certificate/${certCode}` }
-             ]).catch(console.error);
+            sendWhatsAppMessage(userObj.phone, settings.templates.certificate, 'en_US', [
+              { type: "text", text: userObj.name || 'Scholar' },
+              { type: "text", text: course!.title },
+              { type: "text", text: `vyoma-ott.com/certificate/${certCode}` }
+            ]).catch(console.error);
           }
         }
       } else {
@@ -101,23 +101,23 @@ export default async function QuizPage(props: { params: Promise<{ id: string }> 
   return (
     <main style={{ minHeight: '100vh', background: '#000', color: '#fff' }}>
       <NavBar />
-      
-      <div style={{ maxWidth: '800px', margin: '0 auto', padding: '100px 20px' }}>
-         <div style={{ marginBottom: '40px', textAlign: 'center' }}>
-            <span style={{ color: 'var(--primary)', fontSize: '0.9rem', fontWeight: 'bold', letterSpacing: '2px', textTransform: 'uppercase' }}>FINAL EVALUATION</span>
-            <h1 style={{ fontSize: '2.5rem', fontWeight: 900, marginTop: '10px' }}>{course.title}</h1>
-            <p style={{ color: '#888', marginTop: '10px' }}>Demonstrate your mastery to unlock dynamic artifacts and wallet elevations.</p>
-         </div>
 
-         <QuizEngine 
-           quizId={quiz.id}
-           courseId={course.id}
-           title={course.title}
-           questions={quiz.questions}
-           minPassScore={quiz.minPassScore}
-           userId={user.id}
-           submitResultAction={submitResult}
-         />
+      <div style={{ maxWidth: '800px', margin: '0 auto', padding: '100px 20px' }}>
+        <div style={{ marginBottom: '40px', textAlign: 'center' }}>
+          <span style={{ color: 'var(--primary)', fontSize: '0.9rem', fontWeight: 'bold', letterSpacing: '2px', textTransform: 'uppercase' }}>FINAL EVALUATION</span>
+          <h1 style={{ fontSize: '2.5rem', fontWeight: 900, marginTop: '10px' }}>{course.title}</h1>
+          <p style={{ color: '#888', marginTop: '10px' }}>Demonstrate your mastery to unlock dynamic artifacts and wallet elevations.</p>
+        </div>
+
+        <QuizEngine
+          quizId={quiz.id}
+          courseId={course.id}
+          title={course.title}
+          questions={quiz.questions}
+          minPassScore={quiz.minPassScore}
+          userId={user.id}
+          submitResultAction={submitResult}
+        />
       </div>
     </main>
   );

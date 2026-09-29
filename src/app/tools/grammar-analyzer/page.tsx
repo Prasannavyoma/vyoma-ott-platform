@@ -110,9 +110,9 @@ export default function GrammarAnalyzerPage() {
   return (
     <div style={{ minHeight: '100vh', background: '#0b0f19', color: '#fff', fontFamily: 'var(--font-geist-sans), sans-serif' }}>
       <NavBar />
-      
+
       <div style={{ maxWidth: '1000px', margin: '40px auto', padding: '80px 20px 40px 20px' }}>
-        
+
         {/* Title Header */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '35px' }}>
           <div style={{ width: '50px', height: '50px', borderRadius: '16px', background: 'rgba(242, 100, 34, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.8rem', border: '1px solid rgba(242, 100, 34, 0.2)' }}>
@@ -214,7 +214,7 @@ export default function GrammarAnalyzerPage() {
         {result && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '30px', animation: 'fadeIn 0.3s ease' }}>
             <style dangerouslySetInnerHTML={{ __html: `@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }` }} />
-            
+
             {/* Translation Card */}
             <div style={{
               background: 'rgba(30, 41, 59, 0.25)', borderRadius: '20px', border: '1px solid rgba(255, 255, 255, 0.05)',
@@ -265,7 +265,7 @@ export default function GrammarAnalyzerPage() {
               padding: '24px'
             }}>
               <h4 style={{ margin: '0 0 15px 0', fontSize: '0.82rem', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '1px' }}>Word-by-word grammatical breakdown</h4>
-              
+
               <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
                 {result.wordsBreakdown.map((item, index) => (
                   <div

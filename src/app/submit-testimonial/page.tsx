@@ -10,7 +10,7 @@ export default function SubmitTestimonialPage() {
           <h1 style={{ fontSize: '2.5rem', fontWeight: 900, marginBottom: '10px' }}>Share Your Vyoma Experience</h1>
           <p style={{ color: '#aaa', fontSize: '1.1rem' }}>We'd love to hear how Vyoma has helped you on your journey to learning Sanskrit!</p>
         </div>
-        
+
         <SubmitTestimonialClient />
       </div>
     </main>

@@ -13,7 +13,7 @@ export default async function FlashcardsPage() {
   }
 
   const allCards = await getAllFlashcards();
-  
+
   // Sort due cards
   const now = new Date();
   const dueCards = allCards.filter(c => new Date(c.nextReviewAt) <= now);
@@ -22,9 +22,9 @@ export default async function FlashcardsPage() {
   return (
     <div style={{ minHeight: '100vh', background: '#07090e', color: '#fff', fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
       <NavBar />
-      
+
       <main style={{ maxWidth: '1000px', margin: '0 auto', padding: '40px 20px' }}>
-        
+
         {/* Navigation Breadcrumb */}
         <div style={{ marginBottom: '30px', display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Link href="/profile" style={{ color: '#888', textDecoration: 'none', fontSize: '0.9rem', fontWeight: 600 }} onMouseEnter={e => e.currentTarget.style.color = '#fff'} onMouseLeave={e => e.currentTarget.style.color = '#888'}>

@@ -16,7 +16,7 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
   return (
     <main style={{ minHeight: '100vh', background: 'var(--background)' }}>
       <NavBar />
-      
+
       {blog.thumbnailUrl && (
         <div style={{ width: '100%', height: '400px', position: 'relative', marginTop: '80px' }}>
           <img src={blog.thumbnailUrl} alt={blog.title} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.5 }} />
@@ -26,19 +26,19 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
 
       <div style={{ padding: blog.thumbnailUrl ? '0 5% 50px' : '120px 5% 50px', maxWidth: '800px', margin: '0 auto', position: 'relative', zIndex: 10 }}>
         <h1 style={{ fontSize: '3rem', fontWeight: 900, marginBottom: '20px', lineHeight: 1.2 }}>{blog.title}</h1>
-        
+
         <div style={{ display: 'flex', gap: '20px', alignItems: 'center', color: '#888', fontSize: '1rem', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '30px', marginBottom: '40px' }}>
           <span><strong>✍️ {blog.author}</strong></span>
           <span>📅 {new Date(blog.createdAt).toLocaleDateString()}</span>
         </div>
 
         {/* Since content is plain HTML/Text for V1, we use dangerouslySetInnerHTML */}
-        <div 
-          style={{ fontSize: '1.15rem', lineHeight: 1.8, color: '#ddd' }} 
+        <div
+          style={{ fontSize: '1.15rem', lineHeight: 1.8, color: '#ddd' }}
           className="blog-content"
-          dangerouslySetInnerHTML={{ __html: blog.content }} 
+          dangerouslySetInnerHTML={{ __html: blog.content }}
         />
-        
+
         <style>{`
           .blog-content p { margin-bottom: 1.5em; }
           .blog-content h2 { margin-top: 2em; margin-bottom: 0.5em; color: white; }

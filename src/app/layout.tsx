@@ -73,7 +73,7 @@ export default async function RootLayout({
       redirect("/change-password");
     }
   }
-  
+
   let oneSignalAppId = "";
   let chatbotEnabled = false;
   let chatbotMode = "BUILTIN";
@@ -150,7 +150,7 @@ export default async function RootLayout({
     if (settingsMap.has('ONESIGNAL_APP_ID')) {
       oneSignalAppId = settingsMap.get('ONESIGNAL_APP_ID') || "";
     }
-  } catch(e) {}
+  } catch (e) { }
 
   // Construct dynamic font URL based on the user's selected font family
   const fontUrl = `https://fonts.googleapis.com/css2?family=${themeFontFamily.replace(/ /g, '+')}:wght@300;400;500;600;700;800&display=swap`;
@@ -163,7 +163,8 @@ export default async function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href={fontUrl} rel="stylesheet" />
-        <style dangerouslySetInnerHTML={{ __html: `
+        <style dangerouslySetInnerHTML={{
+          __html: `
           :root {
             --primary: ${themePrimary} !important;
             --background: ${themeBg} !important;
@@ -199,8 +200,8 @@ export default async function RootLayout({
             (!chatbotEnabled && contactSettings.widgetEnabled) ||
             (chatbotEnabled && chatbotMode === 'CUSTOM_EMBED' && contactSettings.widgetEnabled)
           ) && (
-            <ContactWidget settings={contactSettings} />
-          )}
+              <ContactWidget settings={contactSettings} />
+            )}
           {oneSignalAppId && <OneSignalRegistry appId={oneSignalAppId} />}
           <Script id="register-sw" strategy="lazyOnload">
             {`
