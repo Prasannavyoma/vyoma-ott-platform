@@ -1,11 +1,14 @@
 "use client";
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Home, Video, MessageSquare, Tv, Package, FileText, Star, File, Palette, Settings, Folder, Handshake, Coins, ShoppingCart, BarChart2, TrendingUp, Target, CreditCard, Ticket, Megaphone, Mail, Search, Users, Download, Key, Bot, Flower, Flame, LogOut, Shield } from 'lucide-react';
+import LogoutConfirmationModal from '@/app/components/LogoutConfirmationModal';
 
 export default function AdminSidebar({ userRole }: { userRole: string }) {
   const pathname = usePathname() || '';
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   // Define Access Authority Matrix
   const isSuper = userRole === 'SUPER_ADMIN';
@@ -125,11 +128,7 @@ export default function AdminSidebar({ userRole }: { userRole: string }) {
         }}>
           ← Back to Website
         </Link>
-        <button onClick={async () => {
-          const { logoutAdmin } = await import('@/app/actions/admin-auth');
-          await logoutAdmin();
-          window.location.href = '/admin/login';
-        }} className="back-to-website-btn" style={{ 
+        <button onClick={() => setShowLogoutModal(true)} className="back-to-website-btn" style={{ 
           marginTop: '10px', 
           color: '#ff4d4f', 
           fontWeight: 800,
@@ -145,6 +144,19 @@ export default function AdminSidebar({ userRole }: { userRole: string }) {
           <span className="sidebar-icon" style={{marginRight: "6px"}}><LogOut size={16} /></span>Logout Session
         </button>
       </nav>
+
+      <LogoutConfirmationModal
+        isOpen={showLogoutModal}
+        onClose={() => setShowLogoutModal(false)}
+        title="Confirm Admin Logout"
+        description="Are you sure you want to end your Vyoma Admin session?"
+        onConfirm={async () => {
+          setShowLogoutModal(false);
+          const { logoutAdmin } = await import('@/app/actions/admin-auth');
+          await logoutAdmin();
+          window.location.href = '/admin/login';
+        }}
+      />
     </aside>
   );
 }

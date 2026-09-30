@@ -8,6 +8,7 @@ import ExploreEye from './ExploreEye';
 import NotificationBell from './NotificationBell';
 import FindMyPlanModal from './FindMyPlanModal';
 import SanskritStreakWidget from './SanskritStreakWidget';
+import LogoutConfirmationModal from './LogoutConfirmationModal';
 
 import { logoutUser } from '@/app/actions/auth';
 
@@ -19,6 +20,7 @@ export default function NavBar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userPlanData, setUserPlanData] = useState<any>(null);
   const [showFindMyPlan, setShowFindFindMyPlan] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [features, setFeatures] = useState<any>({ shortsEnabled: true, blogEnabled: true, streaksEnabled: true });
   
   // 📱 Mobile responsive state managers
@@ -195,7 +197,7 @@ export default function NavBar() {
                  <User size={18} color="var(--primary)" /> <span className="profile-text" style={{ marginLeft: '6px' }}>Profile</span>
               </Link>
               <button 
-                onClick={async () => await logoutUser()} 
+                onClick={() => setShowLogoutModal(true)} 
                 className="logout-btn" 
                 style={{ background: 'rgba(255,100,100,0.1)', color: '#ff6b6b', border: '1px solid rgba(255,100,100,0.2)', padding: '6px 14px', borderRadius: '20px', fontSize: '0.85rem', fontWeight: 'bold', cursor: 'pointer', transition: 'all 0.3s' }}
                 onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,100,100,0.2)'}
@@ -257,9 +259,9 @@ export default function NavBar() {
                     <User size={16} /> Profile
                   </Link>
                   <button 
-                    onClick={async () => {
+                    onClick={() => {
                       setMobileMenuOpen(false);
-                      await logoutUser();
+                      setShowLogoutModal(true);
                     }}
                     style={{ flex: '1 1 100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', background: 'rgba(255,100,100,0.1)', padding: '10px', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 700, border: '1px solid rgba(255,100,100,0.2)', color: '#ff6b6b', cursor: 'pointer' }}
                   >
@@ -403,6 +405,16 @@ export default function NavBar() {
         isOpen={showFindMyPlan} 
         onClose={() => setShowFindFindMyPlan(false)} 
         userPlanData={userPlanData} 
+      />
+
+      {/* 🚪 Logout Confirmation Modal */}
+      <LogoutConfirmationModal
+        isOpen={showLogoutModal}
+        onClose={() => setShowLogoutModal(false)}
+        onConfirm={async () => {
+          setShowLogoutModal(false);
+          await logoutUser();
+        }}
       />
     </>
   );
