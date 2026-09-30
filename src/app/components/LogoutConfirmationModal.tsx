@@ -16,7 +16,7 @@ export default function LogoutConfirmationModal({
   onClose,
   onConfirm,
   title = "Confirm Logout",
-  description = "Are you sure you want to log out of your Vyoma Sanskrit account? You will need to log back in to access your course progress and scholar rewards."
+  description = "Are you sure you want to log out of your Digitalsanskrit OTT? You will need to log back in to access your course progress and Course material,Ebooks , etc"
 }: LogoutConfirmationModalProps) {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
