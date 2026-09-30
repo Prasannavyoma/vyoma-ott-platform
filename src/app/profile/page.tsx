@@ -9,6 +9,7 @@ import { redirect } from 'next/navigation';
 import { getCurrentUser, clearSession } from '@/lib/auth';
 import SkillConstellation from './SkillConstellation';
 import SanskritStreakWidget from '@/app/components/SanskritStreakWidget';
+import OfflineDownloadsManager from './OfflineDownloadsManager';
 
 export default async function ProfilePage() {
   // 1. Secure Context Validation
@@ -325,6 +326,9 @@ export default async function ProfilePage() {
             <SanskritStreakWidget isEnabled={streaksEnabled} />
           </div>
         )}
+
+        {/* 📥 YOUTUBE-STYLE OFFLINE DOWNLOADS MANAGER */}
+        <OfflineDownloadsManager />
 
         {/* 🎁 VYOMA REFERRAL & REWARD CENTER */}
           <div style={{ 

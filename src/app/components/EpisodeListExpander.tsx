@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import DownloadButton from '@/app/components/DownloadButton';
 
 interface ExpanderEpisode {
   id: string;
@@ -112,9 +113,22 @@ export default function EpisodeListExpander({ episodes, courseId, courseThumbnai
                       🔒 {ep.accessLevel?.replace('_', ' ')} PRESCRIBED
                     </span>
                   ) : (
-                    <span style={{ background: 'rgba(70, 211, 105, 0.12)', border: '1px solid rgba(70,211,105,0.2)', color: '#46d369', padding: '4px 10px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 'bold', letterSpacing: '0.5px' }}>
-                      ● ACCESS GRANTED
-                    </span>
+                    <>
+                      <span style={{ background: 'rgba(70, 211, 105, 0.12)', border: '1px solid rgba(70,211,105,0.2)', color: '#46d369', padding: '4px 10px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 'bold', letterSpacing: '0.5px' }}>
+                        ● ACCESS GRANTED
+                      </span>
+                      {ep.videoUrl && (
+                        <DownloadButton
+                          compact
+                          videoUrl={ep.videoUrl}
+                          courseTitle="Vyoma Course"
+                          episodeTitle={ep.title}
+                          courseId={courseId}
+                          episodeId={ep.id}
+                          thumbnailUrl={epThumb}
+                        />
+                      )}
+                    </>
                   )}
                 </div>
               </div>

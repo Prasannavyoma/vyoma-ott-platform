@@ -503,7 +503,14 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
                      {/* COMPILING DOWNSTREAM TRIGGERS */}
                      {!isLocked && (
                        <div style={{ marginLeft: 'auto' }}>
-                         <DownloadButton videoUrl={playUrl} courseTitle={displayTitle} />
+                         <DownloadButton 
+                            videoUrl={playUrl} 
+                            courseTitle={course.title}
+                            episodeTitle={activeEpisode?.title}
+                            courseId={course.id}
+                            episodeId={activeEpisode?.id}
+                            thumbnailUrl={activePosterUrl}
+                          />
                        </div>
                      )}
                   </div>
