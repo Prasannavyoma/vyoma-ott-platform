@@ -72,11 +72,13 @@ export default async function EmailSettingsPage() {
     ];
 
     for (const update of updates) {
-      await prisma.$executeRawUnsafe(
-        `INSERT INTO SystemSetting ("key", "value", "updatedAt") VALUES (?, ?, ?)
-         ON CONFLICT("key") DO UPDATE SET "value"=excluded."value", "updatedAt"=excluded."updatedAt"`,
-        update.k, update.v, new Date().toISOString()
-      );
+      if (update.v !== undefined && update.v !== null) {
+        await prisma.systemSetting.upsert({
+          where: { key: update.k },
+          update: { value: update.v },
+          create: { key: update.k, value: update.v },
+        });
+      }
     }
     revalidatePath('/admin/email-settings');
   }
