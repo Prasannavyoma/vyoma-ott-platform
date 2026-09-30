@@ -14,10 +14,10 @@ async function getDynamicTransporter() {
     settingsRaw.forEach((s: any) => { settings[s.key] = s.value; });
   }
 
-  const host = settings['SMTP_HOST'] || 'smtp.gmail.com';
-  const port = parseInt(settings['SMTP_PORT'] || '587');
-  const user = settings['SMTP_USER'] || '';
-  const pass = settings['SMTP_PASS'] || '';
+  const host = settings['SMTP_HOST'] || process.env.SMTP_HOST || 'smtp.gmail.com';
+  const port = parseInt(settings['SMTP_PORT'] || process.env.SMTP_PORT || '587');
+  const user = settings['SMTP_USER'] || process.env.SMTP_USER || process.env.GMAIL_USER || '';
+  const pass = settings['SMTP_PASS'] || process.env.SMTP_PASS || process.env.GMAIL_PASS || '';
 
   if (!user || !pass) {
     console.log("[Mail System] SMTP not fully initialized. Skipping dispatch.");
@@ -153,25 +153,36 @@ export async function sendWelcomeEmail(to: string, name: string) {
 }
 
 export async function sendPasswordResetEmail(to: string, resetUrl: string) {
-  const transporter = await getDynamicTransporter();
-  if (!transporter) return;
+  try {
+    const transporter = await getDynamicTransporter();
+    if (!transporter) {
+      console.warn(`[Mail System] Cannot send password reset to ${to}: SMTP credentials not configured in Admin Email Settings.`);
+      return { success: false, reason: 'SMTP mail gateway credentials not configured in Admin Email Settings' };
+    }
 
-  const html = getLuxuryWrap(`
-    <h2 style="color: #fff; font-size: 24px; margin-bottom: 20px;">Password Reset Request</h2>
-    <p>We received a request to reset the password for your Vyoma Academy account.</p>
-    <p>If you made this request, please click the button below to set a new password. This link will expire in 1 hour.</p>
-    <div style="text-align: center; margin: 30px 0;">
-      <a href="${resetUrl}" style="background: linear-gradient(135deg, #f26422 0%, #ff8c53 100%); color: #fff; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; box-shadow: 0 10px 25px rgba(242, 100, 34, 0.4);">Reset Password</a>
-    </div>
-    <p style="color: #aaa; font-size: 13px;">If you did not request this, you can safely ignore this email.</p>
-  `, "Password Reset Request");
+    const html = getLuxuryWrap(`
+      <h2 style="color: #fff; font-size: 24px; margin-bottom: 20px;">Password Reset Request</h2>
+      <p>We received a request to reset the password for your Vyoma Digitalsanskrit account.</p>
+      <p>If you made this request, please click the button below to set a new password. This link will expire in 1 hour.</p>
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="${resetUrl}" style="background: linear-gradient(135deg, #f26422 0%, #ff8c53 100%); color: #fff; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; box-shadow: 0 10px 25px rgba(242, 100, 34, 0.4);">Reset Password</a>
+      </div>
+      <p style="color: #aaa; font-size: 13px;">If you did not request this, you can safely ignore this email.</p>
+    `, "Password Reset Request");
 
-  await transporter.sendMail({
-    from: `"Vyoma Security" <${(transporter.options as any).auth?.user}>`,
-    to,
-    subject: `🔒 Password Reset Request`,
-    html
-  }).catch(console.error);
+    await transporter.sendMail({
+      from: `"Vyoma Security" <${(transporter.options as any).auth?.user}>`,
+      to,
+      subject: `🔒 Password Reset Request - Digitalsanskrit OTT`,
+      html
+    });
+
+    console.log(`[Mail System] Password reset email successfully dispatched to ${to}`);
+    return { success: true };
+  } catch (err: any) {
+    console.error(`[Mail System] Error sending password reset email to ${to}:`, err);
+    return { success: false, reason: err?.message || String(err) };
+  }
 }
 
 export async function sendPurchaseSuccess(to: string, planName: string, amount: number) {

@@ -338,31 +338,66 @@ export async function checkAuthStatus() {
 }
 
 export async function requestPasswordReset(formData: FormData) {
-  const email = formData.get('email') as string;
-  if (!email) return { error: 'Email is required' };
+  const rawEmail = (formData.get('email') as string || '').trim();
+  if (!rawEmail) return { error: 'Email address is required.' };
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(rawEmail)) {
+    return { error: 'Please enter a valid Email address.' };
+  }
+
+  const normalizedEmail = rawEmail.toLowerCase();
 
   try {
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await prisma.user.findFirst({
+      where: {
+        email: { equals: normalizedEmail, mode: 'insensitive' }
+      }
+    });
+
     if (!user) {
-      // Return success even if user not found to prevent email enumeration attacks
-      return { success: true };
+      return { error: 'No account found with this email address. Please check for typos or register.' };
     }
 
     const resetToken = crypto.randomBytes(32).toString('hex');
-    const resetTokenExpires = new Date(Date.now() + 3600000); // 1 hour
+    const resetTokenExpires = new Date(Date.now() + 3600000); // 1 hour token validity
 
     await prisma.user.update({
-      where: { email },
+      where: { id: user.id },
       data: { resetToken, resetTokenExpires }
     });
 
-    const resetUrl = `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/reset-password?token=${resetToken}`;
-    await sendPasswordResetEmail(email, resetUrl);
+    // Dynamically resolve base URL for reset link
+    let origin = process.env.NEXT_PUBLIC_BASE_URL || '';
+    if (!origin) {
+      try {
+        const { headers } = await import('next/headers');
+        const headerList = await headers();
+        const host = headerList.get('host');
+        const proto = headerList.get('x-forwarded-proto') || 'https';
+        if (host) {
+          origin = `${proto}://${host}`;
+        }
+      } catch (e) {}
+    }
+    if (!origin) origin = 'https://digitalsanskrit.com';
+
+    const resetUrl = `${origin}/reset-password?token=${resetToken}`;
+    
+    const mailResult = await sendPasswordResetEmail(user.email, resetUrl);
+    
+    if (mailResult && !mailResult.success) {
+      console.error("Password reset mail error:", mailResult.reason);
+      if (mailResult.reason?.includes('SMTP')) {
+        return { error: 'Mail gateway is not configured. Please contact admin to set up SMTP settings in Admin Panel.' };
+      }
+      return { error: `Failed to dispatch recovery email: ${mailResult.reason}` };
+    }
 
     return { success: true };
-  } catch (e) {
-    console.error("Failed to request password reset", e);
-    return { error: 'Failed to request password reset' };
+  } catch (e: any) {
+    console.error("Failed to request password reset:", e);
+    return { error: 'Failed to request password reset. Please try again.' };
   }
 }
 
