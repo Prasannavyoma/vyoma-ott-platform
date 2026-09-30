@@ -60,6 +60,20 @@ export default function LoginFormClient({ allowPassword, allowGoogle, googleClie
       return;
     }
 
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail) {
+      setError('Please enter your Email Address or Username.');
+      return;
+    }
+
+    if (trimmedEmail.includes('@')) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(trimmedEmail)) {
+        setError('The email address entered is invalid. Please check for typos.');
+        return;
+      }
+    }
+
     const formData = new FormData(e.currentTarget);
     startTransition(async () => {
       const res = await loginUser(formData);

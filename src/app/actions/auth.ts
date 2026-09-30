@@ -21,19 +21,32 @@ export async function registerUser(formData: FormData) {
     redirect('/?error=verification_failed');
   }
 
-  const email = formData.get('email') as string;
-  const name = formData.get('name') as string;
+  const rawEmail = (formData.get('email') as string || '').trim();
+  const name = (formData.get('name') as string || '').trim();
   const password = formData.get('password') as string;
-  const referrerId = formData.get('referrerId') as string || '';
+  const referrerId = (formData.get('referrerId') as string || '').trim();
   
-  if (!email) return { error: 'Email is required' };
+  if (!rawEmail) return { error: 'Email address is required.' };
   
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(rawEmail)) {
+    return { error: 'Please enter a valid Email address.' };
+  }
+
+  const normalizedEmail = rawEmail.toLowerCase();
+
   try {
     const allowPasswordSetting = await prisma.systemSetting.findUnique({ where: { key: 'AUTH_ALLOW_PASSWORD' } });
     if (allowPasswordSetting && allowPasswordSetting.value === 'false') {
       return { error: 'Password-based registration is currently disabled. Please use Google Sign-In.' };
     }
-    const existing = await prisma.user.findUnique({ where: { email } });
+
+    const existing = await prisma.user.findFirst({
+      where: {
+        email: { equals: normalizedEmail, mode: 'insensitive' }
+      }
+    });
+
     if (existing) {
       return { error: 'already_registered' };
     }
@@ -42,8 +55,8 @@ export async function registerUser(formData: FormData) {
 
     await prisma.user.create({
       data: {
-        email,
-        name: name || email.split('@')[0],
+        email: normalizedEmail,
+        name: name || normalizedEmail.split('@')[0],
         plan: 'FREE',
         planInterval: 'YEARLY',
         password: hashedPassword,
@@ -60,7 +73,7 @@ export async function registerUser(formData: FormData) {
           await prisma.referral.create({
             data: {
               referrerId: referrerId,
-              referredEmail: email
+              referredEmail: normalizedEmail
             }
           });
 
@@ -102,10 +115,10 @@ export async function registerUser(formData: FormData) {
     }
 
     // 🔑 Set session cookie to log the user in instantly
-    await setSessionUser(email, rememberMe);
+    await setSessionUser(normalizedEmail, rememberMe);
 
     // Trigger fire-and-forget welcome email execution pipeline
-    sendWelcomeEmail(email, name || email.split('@')[0]).catch(e => {});
+    sendWelcomeEmail(normalizedEmail, name || normalizedEmail.split('@')[0]).catch(e => {});
     return { success: true };
   } catch (error: any) {
     console.error("Registration error:", error);
@@ -120,59 +133,57 @@ export async function loginUser(formData: FormData) {
     return { error: 'spam_detected' };
   }
 
-  const email = formData.get('email') as string;
+  const rawEmail = (formData.get('email') as string || '').trim();
   const password = formData.get('password') as string;
-  if (!email) {
-    return { error: 'Email or Username is required' };
+  if (!rawEmail) {
+    return { error: 'Email or Username is required.' };
   }
 
-    try {
+  const normalizedEmail = rawEmail.toLowerCase();
+
+  // Validate format if input is an email address
+  if (rawEmail.includes('@')) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(rawEmail)) {
+      return { error: 'The email address entered is invalid.' };
+    }
+  }
+
+  try {
     const allowPasswordSetting = await prisma.systemSetting.findUnique({ where: { key: 'AUTH_ALLOW_PASSWORD' } });
     if (allowPasswordSetting && allowPasswordSetting.value === 'false') {
       return { error: 'Password-based login is currently disabled. Please sign in using Google.' };
     }
-    let user = await prisma.user.findFirst({ 
+
+    const user = await prisma.user.findFirst({ 
       where: { 
         OR: [
-          { email: email },
-          { name: email }
+          { email: { equals: normalizedEmail, mode: 'insensitive' } },
+          { name: { equals: rawEmail, mode: 'insensitive' } }
         ]
       } 
     });
-    if (!user) {
-      if (!email.includes('@')) {
-        return { error: 'Incorrect username or password' };
-      }
-      // Auto-register FREE user with password if entered
-      const hashedPassword = password ? hashPassword(password) : null;
-      user = await prisma.user.create({
-        data: {
-          email,
-          name: email.split('@')[0],
-          plan: 'FREE',
-          planInterval: 'YEARLY',
-          password: hashedPassword,
-          coins: 0
-        }
-      });
-    } else {
-      // If migrated user from WordPress, intercept login to force reset
-      if (user.forcePasswordChange) {
-        return { error: 'force_password_change' };
-      }
 
-      // Verify password if one is set in DB
-      if (user.password) {
-        if (!password || hashPassword(password) !== user.password) {
-          return { error: 'Incorrect password' };
-        }
-      } else if (password) {
-        // Automatically save password if none was previously set (migration helper)
-        await prisma.user.update({
-          where: { id: user.id },
-          data: { password: hashPassword(password) }
-        });
+    if (!user) {
+      return { error: 'User ID or Email address is invalid / not registered.' };
+    }
+
+    // If migrated user from WordPress, intercept login to force reset
+    if (user.forcePasswordChange) {
+      return { error: 'force_password_change' };
+    }
+
+    // Verify password if one is set in DB
+    if (user.password) {
+      if (!password || hashPassword(password) !== user.password) {
+        return { error: 'Incorrect password.' };
       }
+    } else if (password) {
+      // Automatically save password if none was previously set (migration helper)
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { password: hashPassword(password) }
+      });
     }
 
     let rememberMe = false;
@@ -180,7 +191,7 @@ export async function loginUser(formData: FormData) {
       rememberMe = true;
     }
 
-    await setSessionUser(email, rememberMe);
+    await setSessionUser(user.email, rememberMe);
     return { 
       success: true, 
       forcePasswordChange: user.forcePasswordChange 
