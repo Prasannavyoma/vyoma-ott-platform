@@ -495,11 +495,6 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
                      {/* DYNAMIC SENTIMENT TRACKING */}
                      <LikeDislikeSystem courseId={course.id} initialStatus={isLiked} initialLikesCount={likesCount} />
 
-                     {/* CINEMATIC PLAYBACK TEASER */}
-                     {(course as any).trailerUrl && (
-                       <TrailerPlayer trailerUrl={(course as any).trailerUrl} title={course.title} />
-                     )}
-
                      {/* COMPILING DOWNSTREAM TRIGGERS */}
                      {!isLocked && (
                        <div style={{ marginLeft: 'auto' }}>

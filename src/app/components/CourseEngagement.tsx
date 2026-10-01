@@ -22,14 +22,14 @@ export default function CourseEngagement({ courseId, children }: { courseId: str
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const shareTitle = "Check out this awesome Vedic lesson on Vyoma!";
+  const shareTitle = "Check out this awesome lesson on Vyoma!";
   
   // Handle standard native sharing pipeline
   async function handleNativeShare() {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: 'Vyoma Sanskrit OTT',
+          title: 'Vyoma OTT',
           text: shareTitle,
           url: shareUrl,
         });
@@ -47,30 +47,74 @@ export default function CourseEngagement({ courseId, children }: { courseId: str
   }
 
   return (
-    <div style={{ marginTop: '25px', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '20px' }}>
+    <div style={{ marginTop: '30px', borderTop: '1px solid #222', paddingTop: '25px' }}>
       
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'center' }}>
-         {children}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '20px', alignItems: 'center' }}>
+         {/* 1. Like/Favorite Toggle */}
+         <button 
+           onClick={() => setLiked(!liked)} 
+           style={{ 
+             background: liked ? 'rgba(255,0,0,0.1)' : 'rgba(255,255,255,0.03)', 
+             color: liked ? '#ff3b30' : '#fff', 
+             border: liked ? '1px solid rgba(255,59,48,0.4)' : '1px solid rgba(255,255,255,0.08)', 
+             padding: '12px 20px', 
+             borderRadius: '30px', 
+             cursor: 'pointer', 
+             fontWeight: 800,
+             fontSize: '0.9rem',
+             display: 'flex',
+             alignItems: 'center',
+             gap: '8px',
+             transition: 'all 0.2s'
+           }}
+         >
+            <span style={{ fontSize: '1.1rem' }}>{liked ? '❤️' : '🤍'}</span> 
+            {liked ? 'Favorited' : 'Favorite'}
+         </button>
+         
+         {/* 2. Watchlist Toggle */}
+         <button 
+           onClick={() => setBookmarked(!bookmarked)} 
+           style={{ 
+             background: bookmarked ? 'rgba(242,100,34,0.12)' : 'rgba(255,255,255,0.04)', 
+             color: bookmarked ? 'var(--primary)' : '#fff', 
+             border: bookmarked ? '1px solid rgba(242,100,34,0.4)' : '1px solid rgba(255,255,255,0.08)', 
+             padding: '12px 24px', 
+             borderRadius: '30px', 
+             cursor: 'pointer', 
+             fontWeight: 800,
+             fontSize: '0.9rem',
+             display: 'flex',
+             alignItems: 'center',
+             gap: '8px',
+             transition: 'all 0.2s',
+             boxShadow: '0 4px 10px rgba(0,0,0,0.1)'
+           }}
+         >
+            <span style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>{bookmarked ? '✓' : '＋'}</span> 
+            {bookmarked ? 'In Watchlist' : 'Watchlist'}
+         </button>
 
-         {/* Unified Dropdown Share Control */}
+         <div style={{ height: '30px', width: '1px', background: 'rgba(255,255,255,0.1)', margin: '0 5px' }} className="engagement-divider"></div>
+
+         {/* 3. Unified Dropdown Share Control */}
          <div ref={dropdownRef} style={{ position: 'relative' }}>
             <button 
               onClick={() => setShowDropdown(!showDropdown)}
               style={{
-                display: 'inline-flex',
+                background: showDropdown ? 'var(--primary)' : 'rgba(255,255,255,0.03)',
+                color: '#fff',
+                border: '1px solid rgba(255,255,255,0.08)',
+                padding: '12px 22px',
+                borderRadius: '30px',
+                cursor: 'pointer',
+                fontWeight: 900,
+                fontSize: '0.9rem',
+                display: 'flex',
                 alignItems: 'center',
                 gap: '8px',
-                padding: '12px 22px',
-                background: showDropdown ? 'var(--primary)' : 'rgba(255, 255, 255, 0.08)',
-                border: '1px solid rgba(255, 255, 255, 0.15)',
-                borderRadius: '30px',
-                color: '#fff',
-                fontWeight: 800,
-                fontSize: '0.95rem',
-                cursor: 'pointer',
                 transition: 'all 0.25s ease',
-                backdropFilter: 'blur(10px)',
-                boxShadow: showDropdown ? '0 8px 20px rgba(242,100,34,0.3)' : '0 4px 15px rgba(0,0,0,0.2)'
+                boxShadow: showDropdown ? '0 8px 20px rgba(242,100,34,0.3)' : 'none'
               }}
             >
                <span style={{ fontSize: '1.1rem' }}>🔗</span>
@@ -182,7 +226,7 @@ export default function CourseEngagement({ courseId, children }: { courseId: str
                     </div>
                  </a>
 
-                 {/* Telegram (NEW requested by 'other also add') */}
+                 {/* Telegram */}
                  <a 
                    href={`https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareTitle)}`} 
                    target="_blank"
@@ -234,6 +278,8 @@ export default function CourseEngagement({ courseId, children }: { courseId: str
             )}
           </div>
        </div>
+
+       {children}
     </div>
   );
 }
