@@ -708,6 +708,13 @@ export default function CinematicPlayer({
         }),
         keepalive: true
       }).catch(err => console.error("Progress save error", err));
+
+      fetch('/api/telemetry', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ seconds: 10 }),
+        keepalive: true
+      }).catch(() => {});
     }
 
     // Interactive Marker Polling
@@ -918,6 +925,13 @@ export default function CinematicPlayer({
         }),
         keepalive: true
       }).catch(err => console.error("Progress save error", err));
+
+      fetch('/api/telemetry', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ seconds: 10 }),
+        keepalive: true
+      }).catch(() => {});
     }
 
     // Interactive Marker Polling
