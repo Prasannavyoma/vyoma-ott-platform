@@ -87,6 +87,101 @@ export default async function AnalyticsDashboardPage(props: { searchParams: Prom
     if (ratingCounts[star] !== undefined) ratingCounts[star]++;
   });
 
+  // 7. Fetch Subscription Tiers & Timeframe Breakdowns
+  const subscriptionUsers = await prisma.user.findMany({
+    select: {
+      id: true,
+      plan: true,
+      planInterval: true,
+      planStartedAt: true,
+      createdAt: true,
+    }
+  });
+
+  const planSummary = {
+    free: 0,
+    goldMonthly: 0,
+    goldYearly: 0,
+    platinumMonthly: 0,
+    platinumYearly: 0,
+  };
+
+  type TierKey = keyof typeof planSummary;
+
+  const getTierKey = (plan: string, interval: string | null): TierKey => {
+    const p = (plan || 'FREE').toUpperCase();
+    const i = (interval || 'MONTHLY').toUpperCase();
+    if (p === 'GOLD') {
+      return i === 'YEARLY' ? 'goldYearly' : 'goldMonthly';
+    } else if (p === 'PLATINUM') {
+      return i === 'YEARLY' ? 'platinumYearly' : 'platinumMonthly';
+    }
+    return 'free';
+  };
+
+  type TierBreakdown = { free: number; goldMonthly: number; goldYearly: number; platinumMonthly: number; platinumYearly: number; total: number };
+
+  const dailyMap: { [label: string]: TierBreakdown } = {};
+  const weeklyMap: { [label: string]: TierBreakdown } = {};
+  const monthlyMap: { [label: string]: TierBreakdown } = {};
+  const yearlyMap: { [label: string]: TierBreakdown } = {};
+
+  const initBreakdown = (): TierBreakdown => ({ free: 0, goldMonthly: 0, goldYearly: 0, platinumMonthly: 0, platinumYearly: 0, total: 0 });
+
+  subscriptionUsers.forEach((u) => {
+    const tierKey = getTierKey(u.plan, u.planInterval);
+    planSummary[tierKey]++;
+
+    const date = u.planStartedAt ? new Date(u.planStartedAt) : new Date(u.createdAt);
+
+    // Day key: YYYY-MM-DD
+    const dayKey = date.toISOString().split('T')[0];
+    if (!dailyMap[dayKey]) dailyMap[dayKey] = initBreakdown();
+    dailyMap[dayKey][tierKey]++;
+    dailyMap[dayKey].total++;
+
+    // Week key: Start of week
+    const d = new Date(date);
+    const dayOfWeek = d.getDay();
+    const startOfWeek = new Date(d);
+    startOfWeek.setDate(d.getDate() - dayOfWeek);
+    const weekKey = `Week of ${startOfWeek.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+    if (!weeklyMap[weekKey]) weeklyMap[weekKey] = initBreakdown();
+    weeklyMap[weekKey][tierKey]++;
+    weeklyMap[weekKey].total++;
+
+    // Month key: "MMM YYYY"
+    const monthKey = date.toLocaleString('en-US', { month: 'short', year: 'numeric' });
+    if (!monthlyMap[monthKey]) monthlyMap[monthKey] = initBreakdown();
+    monthlyMap[monthKey][tierKey]++;
+    monthlyMap[monthKey].total++;
+
+    // Year key: "YYYY"
+    const yearKey = date.getFullYear().toString();
+    if (!yearlyMap[yearKey]) yearlyMap[yearKey] = initBreakdown();
+    yearlyMap[yearKey][tierKey]++;
+    yearlyMap[yearKey].total++;
+  });
+
+  const dailyBreakdown = Object.entries(dailyMap)
+    .sort((a, b) => a[0].localeCompare(b[0]))
+    .slice(-14)
+    .map(([period, data]) => ({ period, ...data }));
+
+  const weeklyBreakdown = Object.entries(weeklyMap)
+    .sort((a, b) => new Date(a[0].replace('Week of ', '')).getTime() - new Date(b[0].replace('Week of ', '')).getTime())
+    .slice(-8)
+    .map(([period, data]) => ({ period, ...data }));
+
+  const monthlyBreakdown = Object.entries(monthlyMap)
+    .sort((a, b) => new Date(a[0]).getTime() - new Date(b[0]).getTime())
+    .slice(-12)
+    .map(([period, data]) => ({ period, ...data }));
+
+  const yearlyBreakdown = Object.entries(yearlyMap)
+    .sort((a, b) => Number(a[0]) - Number(b[0]))
+    .map(([period, data]) => ({ period, ...data }));
+
   return (
     <AnalyticsClientPage
       totalUsersCount={totalUsersCount}
@@ -101,6 +196,13 @@ export default async function AnalyticsDashboardPage(props: { searchParams: Prom
       totalReviews={totalReviews}
       ratingCounts={ratingCounts}
       selectedType={contentType}
+      planSummary={planSummary}
+      timeframeAnalytics={{
+        daily: dailyBreakdown,
+        weekly: weeklyBreakdown,
+        monthly: monthlyBreakdown,
+        yearly: yearlyBreakdown,
+      }}
     />
   );
 }

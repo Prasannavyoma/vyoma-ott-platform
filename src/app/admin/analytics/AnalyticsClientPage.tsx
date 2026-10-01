@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -28,6 +29,31 @@ interface RatingCounts {
   1: number;
 }
 
+export interface PlanSummary {
+  free: number;
+  goldMonthly: number;
+  goldYearly: number;
+  platinumMonthly: number;
+  platinumYearly: number;
+}
+
+export interface TimeframeRow {
+  period: string;
+  free: number;
+  goldMonthly: number;
+  goldYearly: number;
+  platinumMonthly: number;
+  platinumYearly: number;
+  total: number;
+}
+
+export interface TimeframeAnalytics {
+  daily: TimeframeRow[];
+  weekly: TimeframeRow[];
+  monthly: TimeframeRow[];
+  yearly: TimeframeRow[];
+}
+
 interface AnalyticsClientPageProps {
   totalUsersCount: number;
   totalReferrals: number;
@@ -41,6 +67,8 @@ interface AnalyticsClientPageProps {
   totalReviews: number;
   ratingCounts: RatingCounts;
   selectedType: string;
+  planSummary: PlanSummary;
+  timeframeAnalytics: TimeframeAnalytics;
 }
 
 export default function AnalyticsClientPage({
@@ -56,8 +84,12 @@ export default function AnalyticsClientPage({
   totalReviews,
   ratingCounts,
   selectedType,
+  planSummary,
+  timeframeAnalytics,
 }: AnalyticsClientPageProps) {
   const router = useRouter();
+  const [timeframeTab, setTimeframeTab] = useState<'daily' | 'weekly' | 'monthly' | 'yearly'>('monthly');
+
   
   // SVG Chart Dimensions & Computations
   // A. Signup Trend Line SVG (width: 500, height: 200)
@@ -239,7 +271,124 @@ export default function AnalyticsClientPage({
           </div>
           <div style={{ fontSize: '0.8rem', color: '#555', marginTop: '6px' }}>Based on {totalReviews} text reviews</div>
         </div>
+      </div>
 
+      {/* SUBSCRIPTION TIER BREAKDOWN SECTION */}
+      <div className="trend-card print-card" style={{ marginBottom: '45px', borderLeft: '4px solid var(--primary)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '15px' }}>
+          <div>
+            <h2 style={{ fontSize: '1.4rem', fontWeight: 900, margin: 0 }}>💎 Subscription Tier Analytics & Conversion Matrix</h2>
+            <p style={{ color: '#aaa', fontSize: '0.85rem', marginTop: '4px', margin: 0 }}>
+              Captured user breakdown across Free, Gold (Monthly/Yearly), and Platinum (Monthly/Yearly) tiers.
+            </p>
+          </div>
+          <a
+            href={`data:text/csv;charset=utf-8,Period,Free,Gold Monthly,Gold Yearly,Platinum Monthly,Platinum Yearly,Total\n${(timeframeAnalytics[timeframeTab] || []).map(r => `"${r.period}",${r.free},${r.goldMonthly},${r.goldYearly},${r.platinumMonthly},${r.platinumYearly},${r.total}`).join('\n')}`}
+            download={`Subscription_Breakdown_${timeframeTab.toUpperCase()}.csv`}
+            style={{
+              background: 'rgba(242, 100, 34, 0.15)',
+              color: 'var(--primary)',
+              border: '1px solid rgba(242, 100, 34, 0.3)',
+              padding: '8px 16px',
+              borderRadius: '8px',
+              fontWeight: 'bold',
+              fontSize: '0.85rem',
+              textDecoration: 'none',
+            }}
+          >
+            📥 Export {timeframeTab.toUpperCase()} CSV
+          </a>
+        </div>
+
+        {/* TIER TOTALS GRID */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '15px', marginBottom: '25px' }}>
+          <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', padding: '15px', textAlign: 'center' }}>
+            <div style={{ color: '#888', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase' }}>FREE Plan</div>
+            <div style={{ fontSize: '1.8rem', fontWeight: 900, marginTop: '6px', color: '#aaa' }}>{planSummary.free}</div>
+          </div>
+          <div style={{ background: 'rgba(255, 215, 0, 0.05)', border: '1px solid rgba(255, 215, 0, 0.2)', borderRadius: '12px', padding: '15px', textAlign: 'center' }}>
+            <div style={{ color: '#ffd700', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase' }}>GOLD Monthly</div>
+            <div style={{ fontSize: '1.8rem', fontWeight: 900, marginTop: '6px', color: '#ffd700' }}>{planSummary.goldMonthly}</div>
+          </div>
+          <div style={{ background: 'rgba(255, 215, 0, 0.08)', border: '1px solid rgba(255, 215, 0, 0.3)', borderRadius: '12px', padding: '15px', textAlign: 'center' }}>
+            <div style={{ color: '#ffd700', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase' }}>GOLD Yearly</div>
+            <div style={{ fontSize: '1.8rem', fontWeight: 900, marginTop: '6px', color: '#ffd700' }}>{planSummary.goldYearly}</div>
+          </div>
+          <div style={{ background: 'rgba(168, 85, 247, 0.05)', border: '1px solid rgba(168, 85, 247, 0.2)', borderRadius: '12px', padding: '15px', textAlign: 'center' }}>
+            <div style={{ color: '#a855f7', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase' }}>PLATINUM Monthly</div>
+            <div style={{ fontSize: '1.8rem', fontWeight: 900, marginTop: '6px', color: '#a855f7' }}>{planSummary.platinumMonthly}</div>
+          </div>
+          <div style={{ background: 'rgba(168, 85, 247, 0.08)', border: '1px solid rgba(168, 85, 247, 0.3)', borderRadius: '12px', padding: '15px', textAlign: 'center' }}>
+            <div style={{ color: '#a855f7', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase' }}>PLATINUM Yearly</div>
+            <div style={{ fontSize: '1.8rem', fontWeight: 900, marginTop: '6px', color: '#a855f7' }}>{planSummary.platinumYearly}</div>
+          </div>
+        </div>
+
+        {/* TIMEFRAME TABS */}
+        <div style={{ display: 'flex', gap: '8px', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '12px', marginBottom: '20px' }}>
+          {[
+            { id: 'daily', label: '📅 Daily (Day-wise)' },
+            { id: 'weekly', label: '🗓️ Weekly (Week-wise)' },
+            { id: 'monthly', label: '📆 Monthly (Month-wise)' },
+            { id: 'yearly', label: '📊 Yearly (Year-wise)' },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setTimeframeTab(tab.id as 'daily' | 'weekly' | 'monthly' | 'yearly')}
+              style={{
+                background: timeframeTab === tab.id ? 'var(--primary)' : 'rgba(255,255,255,0.05)',
+                color: timeframeTab === tab.id ? '#fff' : '#aaa',
+                border: 'none',
+                borderRadius: '8px',
+                padding: '8px 16px',
+                fontSize: '0.85rem',
+                fontWeight: 'bold',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+              }}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* TIMEFRAME BREAKDOWN TABLE */}
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.85rem' }}>
+            <thead>
+              <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', color: '#8f98a9' }}>
+                <th style={{ padding: '10px 12px' }}>Time Period</th>
+                <th style={{ padding: '10px 12px' }}>Free</th>
+                <th style={{ padding: '10px 12px', color: '#ffd700' }}>Gold Monthly</th>
+                <th style={{ padding: '10px 12px', color: '#ffd700' }}>Gold Yearly</th>
+                <th style={{ padding: '10px 12px', color: '#a855f7' }}>Platinum Monthly</th>
+                <th style={{ padding: '10px 12px', color: '#a855f7' }}>Platinum Yearly</th>
+                <th style={{ padding: '10px 12px', fontWeight: 'bold' }}>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(timeframeAnalytics[timeframeTab] || []).length === 0 ? (
+                <tr>
+                  <td colSpan={7} style={{ padding: '20px', textAlign: 'center', color: '#555' }}>
+                    No subscription events recorded for this timeframe.
+                  </td>
+                </tr>
+              ) : (
+                timeframeAnalytics[timeframeTab].map((row, idx) => (
+                  <tr key={idx} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                    <td style={{ padding: '10px 12px', fontWeight: 'bold' }}>{row.period}</td>
+                    <td style={{ padding: '10px 12px', color: '#aaa' }}>{row.free}</td>
+                    <td style={{ padding: '10px 12px', color: '#ffd700' }}>{row.goldMonthly}</td>
+                    <td style={{ padding: '10px 12px', color: '#ffd700', fontWeight: 'bold' }}>{row.goldYearly}</td>
+                    <td style={{ padding: '10px 12px', color: '#a855f7' }}>{row.platinumMonthly}</td>
+                    <td style={{ padding: '10px 12px', color: '#a855f7', fontWeight: 'bold' }}>{row.platinumYearly}</td>
+                    <td style={{ padding: '10px 12px', fontWeight: 900, color: 'var(--primary)' }}>{row.total}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* GRAPHIC OVERLAYS ROW */}
