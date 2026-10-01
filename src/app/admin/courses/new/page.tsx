@@ -125,6 +125,12 @@ export default function AddCoursePage() {
           <input type="url" name="thumbnailUrl" required placeholder="https://path-to-cloud-storage.jpg" style={{ width: '100%', padding: '14px', background: '#000', border: '1px solid #333', color: 'white', borderRadius: '8px' }} />
         </div>
 
+        <div style={{ marginBottom: '25px' }}>
+          <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.7rem', color: '#f26422', fontWeight: 'bold', textTransform: 'uppercase' }}>🎬 DEMO URL</label>
+          <input type="text" name="trailerUrl" placeholder="e.g. Direct MP4 Link, HTML Demo Page URL, or YouTube Link" style={{ width: '100%', padding: '14px', background: '#000', border: '1px solid #333', color: 'white', borderRadius: '8px', fontSize: '0.95rem' }} />
+          <p style={{ fontSize: '0.7rem', color: '#666', marginTop: '4px' }}>Activates interactive "View Demo" cinema preview mode on frontend (supports HTML, MP4, Web, YouTube).</p>
+        </div>
+
         <div style={{ marginBottom: '35px', padding: '25px', background: 'rgba(0,0,0,0.2)', border: '1px dashed #444', borderRadius: '12px' }}>
           <h3 style={{ fontSize: '1.05rem', marginBottom: '15px', color: '#fff', fontWeight: 800, borderBottom: '1px solid #222', paddingBottom: '10px' }}>🔍 SEO & Marketing Metadata</h3>
           

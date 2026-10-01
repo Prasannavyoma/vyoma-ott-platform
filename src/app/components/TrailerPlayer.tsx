@@ -40,10 +40,15 @@ export default function TrailerPlayer({ trailerUrl, title }: TrailerPlayerProps)
   }
 
   const ytEmbedUrl = getYouTubeEmbedUrl(trailerUrl);
+  const isDirectVideo = /\.(mp4|webm|m3u8|mov|ogg|avi|mkv)(\?.*)?$/i.test(trailerUrl);
+  const isHtmlOrWebPage = !ytEmbedUrl && (
+    /\.html?(\?.*)?$/i.test(trailerUrl) || 
+    !isDirectVideo
+  );
 
   return (
     <>
-      {/* Elegant Trailer Button */}
+      {/* Elegant View Demo Button */}
       <button
         onClick={() => setIsOpen(true)}
         style={{
@@ -74,7 +79,7 @@ export default function TrailerPlayer({ trailerUrl, title }: TrailerPlayerProps)
           e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.25)';
         }}
       >
-        <span style={{ fontSize: '1.2rem' }}>🎬</span> Watch Trailer
+        <span style={{ fontSize: '1.2rem' }}>🎬</span> View Demo
       </button>
 
       {/* Fullscreen Cinema Overlay Modal */}
@@ -137,7 +142,7 @@ export default function TrailerPlayer({ trailerUrl, title }: TrailerPlayerProps)
               zIndex: 10
             }}>
               <h4 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800, textShadow: '0 2px 10px rgba(0,0,0,0.8)' }}>
-                 📽️ Trailer: {title}
+                 📽️ Demo Preview: {title}
               </h4>
               <button 
                 onClick={() => setIsOpen(false)}
@@ -169,7 +174,14 @@ export default function TrailerPlayer({ trailerUrl, title }: TrailerPlayerProps)
                 <iframe
                   src={ytEmbedUrl}
                   style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+                  allowFullScreen
+                />
+              ) : isHtmlOrWebPage ? (
+                <iframe
+                  src={trailerUrl}
+                  style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none', background: '#fff' }}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
                   allowFullScreen
                 />
               ) : (

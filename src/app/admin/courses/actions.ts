@@ -7,6 +7,7 @@ export async function createCourse(formData: FormData) {
   const title = formData.get('title') as string;
   const description = formData.get('description') as string;
   const thumbnailUrl = formData.get('thumbnailUrl') as string;
+  const trailerUrl = formData.get('trailerUrl') as string;
   const category = formData.get('category') as string;
   const contentType = formData.get('contentType') as string || 'VIDEO';
   const accessLevel = formData.get('accessLevel') as string;
@@ -29,6 +30,7 @@ export async function createCourse(formData: FormData) {
       title,
       description,
       thumbnailUrl,
+      trailerUrl,
       category,
       contentType,
       accessLevel,

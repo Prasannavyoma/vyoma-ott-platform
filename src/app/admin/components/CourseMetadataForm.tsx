@@ -125,9 +125,9 @@ export default function CourseMetadataForm({
          </div>
 
          <div>
-           <label style={{ display: 'block', fontSize: '0.7rem', color: '#f26422', fontWeight: 'bold', textTransform: 'uppercase', marginBottom: '5px' }}>🎬 Cinematic Trailer URL</label>
-           <input type="text" name="trailerUrl" defaultValue={course.trailerUrl || ''} placeholder="e.g. Direct MP4 Link or Streaming Trailer URL" style={{ width: '100%', padding: '10px', background: '#000', border: '1px solid #333', borderRadius: '6px', color: '#fff' }} />
-           <p style={{ fontSize: '0.7rem', color: '#666', marginTop: '4px' }}>Activates Netflix/Prime style "Watch Trailer" cinema mode on frontend.</p>
+           <label style={{ display: 'block', fontSize: '0.7rem', color: '#f26422', fontWeight: 'bold', textTransform: 'uppercase', marginBottom: '5px' }}>🎬 DEMO URL</label>
+           <input type="text" name="trailerUrl" defaultValue={course.trailerUrl || ''} placeholder="e.g. Direct MP4 Link, HTML Demo Page URL, or YouTube Link" style={{ width: '100%', padding: '10px', background: '#000', border: '1px solid #333', borderRadius: '6px', color: '#fff' }} />
+           <p style={{ fontSize: '0.7rem', color: '#666', marginTop: '4px' }}>Activates interactive "View Demo" cinema preview mode on frontend (supports HTML, MP4, Web, YouTube).</p>
          </div>
 
          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
