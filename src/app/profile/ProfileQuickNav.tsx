@@ -25,7 +25,7 @@ export default function ProfileQuickNav() {
 
   useEffect(() => {
     const handleScroll = () => {
-      const scrollPos = window.scrollY + 200;
+      const scrollPos = window.scrollY + 250;
 
       for (const item of NAV_ITEMS) {
         const el = document.getElementById(item.id);
@@ -48,101 +48,116 @@ export default function ProfileQuickNav() {
     setActiveSection(id);
     const el = document.getElementById(id);
     if (el) {
-      const yOffset = -120; // Account for fixed Navbar + QuickNav bar
+      const yOffset = -180; // Clearance for navbar + quicknav bar
       const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset;
       window.scrollTo({ top: y, behavior: 'smooth' });
     }
   };
 
   return (
-    <div
-      style={{
-        position: 'sticky',
-        top: '70px',
-        zIndex: 90,
-        background: 'rgba(5, 5, 10, 0.88)',
-        backdropFilter: 'blur(16px)',
-        WebkitBackdropFilter: 'blur(16px)',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-        boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
-        padding: '12px 20px',
-        margin: '0 -20px 30px -20px',
-      }}
-    >
-      <div
-        style={{
-          maxWidth: '1200px',
-          margin: '0 auto',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-          overflowX: 'auto',
-          scrollbarWidth: 'none',
-          msOverflowStyle: 'none',
-        }}
-      >
-        <span
-          style={{
-            fontSize: '0.75rem',
-            fontWeight: 800,
-            color: 'var(--primary, #f26422)',
-            textTransform: 'uppercase',
-            letterSpacing: '1px',
-            whiteSpace: 'nowrap',
-            marginRight: '10px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-          }}
-        >
-          <span>⚡ QUICK JUMP:</span>
-        </span>
+    <>
+      <style jsx>{`
+        .profile-quick-nav-container {
+          position: sticky;
+          top: 115px;
+          z-index: 800;
+          background: rgba(10, 10, 16, 0.95);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          border: 1px solid rgba(242, 100, 34, 0.3);
+          border-radius: 16px;
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 15px rgba(242, 100, 34, 0.15);
+          padding: 10px 16px;
+          margin-bottom: 35px;
+          transition: top 0.3s ease;
+        }
 
-        {NAV_ITEMS.map((item) => {
-          const isActive = activeSection === item.id;
-          return (
-            <button
-              key={item.id}
-              onClick={() => scrollTo(item.id)}
-              style={{
-                background: isActive
-                  ? 'linear-gradient(135deg, #f26422 0%, #ff8c53 100%)'
-                  : 'rgba(255,255,255,0.04)',
-                border: isActive
-                  ? '1px solid #f26422'
-                  : '1px solid rgba(255,255,255,0.08)',
-                color: isActive ? '#fff' : '#aaa',
-                padding: '6px 14px',
-                borderRadius: '20px',
-                fontSize: '0.8rem',
-                fontWeight: isActive ? 800 : 600,
-                cursor: 'pointer',
-                whiteSpace: 'nowrap',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-                transition: 'all 0.2s ease',
-                boxShadow: isActive ? '0 4px 15px rgba(242,100,34,0.3)' : 'none',
-              }}
-              onMouseEnter={(e) => {
-                if (!isActive) {
-                  e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
-                  e.currentTarget.style.color = '#fff';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!isActive) {
-                  e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
-                  e.currentTarget.style.color = '#aaa';
-                }
-              }}
-            >
-              <span>{item.icon}</span>
-              <span>{item.label}</span>
-            </button>
-          );
-        })}
+        @media (max-width: 900px) {
+          .profile-quick-nav-container {
+            top: 65px;
+            margin-bottom: 25px;
+          }
+        }
+
+        .profile-quick-nav-scroll {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          overflow-x: auto;
+          scrollbar-width: none;
+          -ms-overflow-style: none;
+          padding: 2px 0;
+        }
+
+        .profile-quick-nav-scroll::-webkit-scrollbar {
+          display: none;
+        }
+
+        .quick-nav-btn {
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          color: #bbb;
+          padding: 8px 16px;
+          border-radius: 20px;
+          font-size: 0.82rem;
+          font-weight: 600;
+          cursor: pointer;
+          white-space: nowrap;
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .quick-nav-btn:hover {
+          background: rgba(255, 255, 255, 0.12);
+          color: #fff;
+          transform: translateY(-1px);
+        }
+
+        .quick-nav-btn.active {
+          background: linear-gradient(135deg, #f26422 0%, #ff8c53 100%);
+          border-color: #f26422;
+          color: #fff;
+          font-weight: 800;
+          box-shadow: 0 5px 15px rgba(242, 100, 34, 0.4);
+        }
+      `}</style>
+
+      <div className="profile-quick-nav-container">
+        <div className="profile-quick-nav-scroll">
+          <span
+            style={{
+              fontSize: '0.75rem',
+              fontWeight: 900,
+              color: 'var(--primary, #f26422)',
+              textTransform: 'uppercase',
+              letterSpacing: '1px',
+              whiteSpace: 'nowrap',
+              marginRight: '6px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+            }}
+          >
+            <span>⚡ QUICK JUMP:</span>
+          </span>
+
+          {NAV_ITEMS.map((item) => {
+            const isActive = activeSection === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => scrollTo(item.id)}
+                className={`quick-nav-btn ${isActive ? 'active' : ''}`}
+              >
+                <span>{item.icon}</span>
+                <span>{item.label}</span>
+              </button>
+            );
+          })}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
