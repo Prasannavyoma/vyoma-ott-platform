@@ -10,6 +10,7 @@ import { getCurrentUser, clearSession } from '@/lib/auth';
 import SkillConstellation from './SkillConstellation';
 import SanskritStreakWidget from '@/app/components/SanskritStreakWidget';
 import OfflineDownloadsManager from './OfflineDownloadsManager';
+import ProfileQuickNav from './ProfileQuickNav';
 
 export default async function ProfilePage() {
   // 1. Secure Context Validation
@@ -242,7 +243,8 @@ export default async function ProfilePage() {
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '100px 20px' }}>
          
          {/* 1. BIOMETRIC IDENTITY STRIP */}
-         <div style={{ display: 'grid', gridTemplateColumns: '3fr 1.5fr', gap: '30px', marginBottom: '40px' }}>
+         <ProfileQuickNav />
+         <div id="overview" style={{ display: 'grid', gridTemplateColumns: '3fr 1.5fr', gap: '30px', marginBottom: '40px' }}>
             
             <div style={{ background: '#111', border: '1px solid #222', borderRadius: '20px', padding: '40px', display: 'flex', alignItems: 'center', gap: '30px' }}>
                <div style={{ position: 'relative' }}>
@@ -322,16 +324,18 @@ export default async function ProfilePage() {
 
           {/* 🎁 DAILY SANSKRIT LEARNING STREAK & SCHOLAR REWARDS WIDGET */}
         {streaksEnabled && (
-          <div style={{ marginBottom: '40px' }}>
+          <div id="streaks" style={{ marginBottom: '40px' }}>
             <SanskritStreakWidget isEnabled={streaksEnabled} />
           </div>
         )}
 
         {/* 📥 YOUTUBE-STYLE OFFLINE DOWNLOADS MANAGER */}
-        <OfflineDownloadsManager />
+        <div id="offline">
+          <OfflineDownloadsManager />
+        </div>
 
         {/* 🎁 VYOMA REFERRAL & REWARD CENTER */}
-          <div style={{ 
+          <div id="referrals" style={{ 
             background: 'linear-gradient(135deg, rgba(242,100,34,0.05) 0%, rgba(15,22,36,0.6) 100%)', 
             border: '1px solid rgba(242,100,34,0.2)', 
             borderRadius: '24px', 
@@ -402,7 +406,7 @@ export default async function ProfilePage() {
           </div>
 
           {/* 2. ADVANCED ACADEMY ANALYTICS MATRIX */}
-          <div style={{ marginBottom: '40px' }}>
+          <div id="matrix" style={{ marginBottom: '40px' }}>
             <h2 style={{ fontSize: '1.5rem', fontWeight: 900, color: '#fff', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
                📊 Academic Engagement Matrix
             </h2>
@@ -520,7 +524,7 @@ export default async function ProfilePage() {
          <div style={{ display: 'grid', gridTemplateColumns: '1.8fr 1fr', gap: '40px' }}>
             
             {/* EDITABLE BIO SETTINGS */}
-            <div style={{ background: '#0d0d0d', borderRadius: '20px', border: '1px solid #1a1a1a', overflow: 'hidden' }}>
+            <div id="dossier" style={{ background: '#0d0d0d', borderRadius: '20px', border: '1px solid #1a1a1a', overflow: 'hidden' }}>
                <div style={{ borderBottom: '1px solid #1a1a1a', padding: '20px 30px', background: '#111' }}>
                   <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800 }}>⚙️ Personal Dossier Settings</h3>
                </div>
@@ -593,7 +597,7 @@ export default async function ProfilePage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                
                {/* WALLET CARTRIDGE */}
-               <div style={{ background: 'linear-gradient(135deg, #f26422 0%, #8a3b14 100%)', padding: '25px', borderRadius: '20px', boxShadow: '0 20px 50px rgba(242,100,34,0.2)' }}>
+               <div id="wallet" style={{ background: 'linear-gradient(135deg, #f26422 0%, #8a3b14 100%)', padding: '25px', borderRadius: '20px', boxShadow: '0 20px 50px rgba(242,100,34,0.2)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                      <div>
                         <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem', fontWeight: 800 }}>💰 WALLET BALANCE</div>
@@ -616,7 +620,7 @@ export default async function ProfilePage() {
                </div>
 
                {/* ACADEMY CERTIFICATES */}
-               <div style={{ background: '#111', border: '1px solid #222', borderRadius: '20px', padding: '25px' }}>
+               <div id="certificates" style={{ background: '#111', border: '1px solid #222', borderRadius: '20px', padding: '25px' }}>
                   <h4 style={{ margin: '0 0 15px 0', fontSize: '1rem', fontWeight: 800 }}>🎓 Validated Certificates ({user.certificates.length})</h4>
                   {user.certificates.length === 0 ? (
                      <div style={{ color: '#555', fontSize: '0.8rem', padding: '20px', border: '1px dashed #333', borderRadius: '8px', textAlign: 'center' }}>No credentials earned.</div>
@@ -639,7 +643,7 @@ export default async function ProfilePage() {
                </div>
 
                {/* RECENT INVOICES */}
-               <div style={{ background: '#111', border: '1px solid #222', borderRadius: '20px', padding: '25px' }}>
+               <div id="invoices" style={{ background: '#111', border: '1px solid #222', borderRadius: '20px', padding: '25px' }}>
                   <h4 style={{ margin: '0 0 15px 0', fontSize: '1rem', fontWeight: 800 }}>🧾 Payment history</h4>
                   {(user.purchases as any[]).length === 0 ? (
                      <div style={{ color: '#555', fontSize: '0.8rem', padding: '20px', border: '1px dashed #333', borderRadius: '8px', textAlign: 'center' }}>No purchases found.</div>
