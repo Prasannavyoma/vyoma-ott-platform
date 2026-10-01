@@ -47,74 +47,30 @@ export default function CourseEngagement({ courseId, children }: { courseId: str
   }
 
   return (
-    <div style={{ marginTop: '30px', borderTop: '1px solid #222', paddingTop: '25px' }}>
+    <div style={{ marginTop: '25px', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '20px' }}>
       
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '30px', alignItems: 'center' }}>
-         {/* 1. Like/Favorite Toggle */}
-         <button 
-           onClick={() => setLiked(!liked)} 
-           style={{ 
-             background: liked ? 'rgba(255,0,0,0.1)' : 'rgba(255,255,255,0.03)', 
-             color: liked ? '#ff3b30' : '#fff', 
-             border: liked ? '1px solid rgba(255,59,48,0.4)' : '1px solid rgba(255,255,255,0.08)', 
-             padding: '12px 20px', 
-             borderRadius: '30px', 
-             cursor: 'pointer', 
-             fontWeight: 800,
-             fontSize: '0.9rem',
-             display: 'flex',
-             alignItems: 'center',
-             gap: '8px',
-             transition: 'all 0.2s'
-           }}
-         >
-            <span style={{ fontSize: '1.1rem' }}>{liked ? '❤️' : '🤍'}</span> 
-            {liked ? 'Favorited' : 'Favorite'}
-         </button>
-         
-         {/* 2. Watchlist Toggle (Requested replacement for Bookmark) */}
-         <button 
-           onClick={() => setBookmarked(!bookmarked)} 
-           style={{ 
-             background: bookmarked ? 'rgba(242,100,34,0.12)' : 'rgba(255,255,255,0.04)', 
-             color: bookmarked ? 'var(--primary)' : '#fff', 
-             border: bookmarked ? '1px solid rgba(242,100,34,0.4)' : '1px solid rgba(255,255,255,0.08)', 
-             padding: '12px 24px', 
-             borderRadius: '30px', 
-             cursor: 'pointer', 
-             fontWeight: 800,
-             fontSize: '0.9rem',
-             display: 'flex',
-             alignItems: 'center',
-             gap: '8px',
-             transition: 'all 0.2s',
-             boxShadow: '0 4px 10px rgba(0,0,0,0.1)'
-           }}
-         >
-            <span style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>{bookmarked ? '✓' : '＋'}</span> 
-            {bookmarked ? 'In Watchlist' : 'Watchlist'}
-         </button>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'center' }}>
+         {children}
 
-         <div style={{ height: '30px', width: '1px', background: 'rgba(255,255,255,0.1)', margin: '0 5px' }} className="engagement-divider"></div>
-
-         {/* 3. Unified Dropdown Share Control */}
+         {/* Unified Dropdown Share Control */}
          <div ref={dropdownRef} style={{ position: 'relative' }}>
             <button 
               onClick={() => setShowDropdown(!showDropdown)}
               style={{
-                background: showDropdown ? 'var(--primary)' : 'rgba(255,255,255,0.03)',
-                color: '#fff',
-                border: '1px solid rgba(255,255,255,0.08)',
-                padding: '12px 22px',
-                borderRadius: '30px',
-                cursor: 'pointer',
-                fontWeight: 900,
-                fontSize: '0.9rem',
-                display: 'flex',
+                display: 'inline-flex',
                 alignItems: 'center',
                 gap: '8px',
+                padding: '12px 22px',
+                background: showDropdown ? 'var(--primary)' : 'rgba(255, 255, 255, 0.08)',
+                border: '1px solid rgba(255, 255, 255, 0.15)',
+                borderRadius: '30px',
+                color: '#fff',
+                fontWeight: 800,
+                fontSize: '0.95rem',
+                cursor: 'pointer',
                 transition: 'all 0.25s ease',
-                boxShadow: showDropdown ? '0 8px 20px rgba(242,100,34,0.3)' : 'none'
+                backdropFilter: 'blur(10px)',
+                boxShadow: showDropdown ? '0 8px 20px rgba(242,100,34,0.3)' : '0 4px 15px rgba(0,0,0,0.2)'
               }}
             >
                <span style={{ fontSize: '1.1rem' }}>🔗</span>
@@ -277,11 +233,7 @@ export default function CourseEngagement({ courseId, children }: { courseId: str
               </div>
             )}
           </div>
-          {children}
        </div>
-
-
-
     </div>
   );
 }
