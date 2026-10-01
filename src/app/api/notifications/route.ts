@@ -20,7 +20,12 @@ export async function GET() {
       where: { userId: user.id, read: false }
     });
 
-    return NextResponse.json({ notifications, unreadCount });
+    const mappedNotifications = notifications.map(n => ({
+      ...n,
+      link: n.linkUrl || (n as any).link || '/profile#certificates'
+    }));
+
+    return NextResponse.json({ notifications: mappedNotifications, unreadCount });
   } catch (e: any) {
     return NextResponse.json(
       { notifications: [], unreadCount: 0, error: e.message },

@@ -7,7 +7,8 @@ interface Notification {
   type: 'COURSE_COMPLETE' | 'CERTIFICATE_ISSUED' | 'NEW_COURSE' | 'COIN_EARNED';
   title: string;
   message: string;
-  link: string;
+  linkUrl?: string;
+  link?: string;
   read: boolean;
   createdAt: string;
 }
@@ -92,9 +93,13 @@ export default function NotificationBell() {
     }
   }
 
-  function handleNotificationClick(link: string) {
+  function handleNotificationClick(link?: string, linkUrl?: string) {
     setIsOpen(false);
-    window.location.href = link;
+    let target = linkUrl || link;
+    if (!target || target === 'undefined' || target.includes('undefined')) {
+      target = '/profile#certificates';
+    }
+    window.location.href = target;
   }
 
   return (
@@ -380,7 +385,7 @@ export default function NotificationBell() {
                 <div
                   key={notif.id}
                   className="notif-item"
-                  onClick={() => handleNotificationClick(notif.link)}
+                  onClick={() => handleNotificationClick(notif.link, notif.linkUrl)}
                   style={{
                     display: 'flex',
                     gap: '14px',

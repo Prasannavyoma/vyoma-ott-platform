@@ -70,8 +70,9 @@ export async function POST(request: Request) {
             const existingCert = await prisma.certificate.findFirst({
               where: { userId: user.id, courseId: episode.courseId }
             });
+            let certCode = existingCert?.code || existingCert?.id;
             if (!existingCert) {
-              const certCode = 'VYOMA-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+              certCode = 'VYOMA-' + Math.random().toString(36).substring(2, 8).toUpperCase();
               await prisma.certificate.create({
                 data: {
                   userId: user.id,
@@ -79,19 +80,20 @@ export async function POST(request: Request) {
                   code: certCode
                 }
               });
-
-              // 🔔 Create notification for certificate
-              const course = await prisma.course.findUnique({ where: { id: episode.courseId }, select: { title: true } });
-              await prisma.notification.create({
-                data: {
-                  userId: user.id,
-                  type: 'CERTIFICATE_ISSUED',
-                  title: '🎓 Certificate Earned!',
-                  message: `Congratulations! You completed "${course?.title || 'a course'}" — your certificate is ready.`,
-                  linkUrl: `/certificate/${certCode}`
-                }
-              });
             }
+
+            // 🔔 Create notification for certificate
+            const course = await prisma.course.findUnique({ where: { id: episode.courseId }, select: { title: true } });
+            const validLink = certCode ? `/certificate/${certCode}` : '/profile#certificates';
+            await prisma.notification.create({
+              data: {
+                userId: user.id,
+                type: 'CERTIFICATE_ISSUED',
+                title: '🎓 Certificate Earned!',
+                message: `Congratulations! You completed "${course?.title || 'a course'}" — your certificate is ready.`,
+                linkUrl: validLink
+              }
+            });
           } catch (certErr) {
             console.error("Auto-cert generation failed:", certErr);
           }
