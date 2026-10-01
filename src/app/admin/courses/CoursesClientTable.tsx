@@ -225,17 +225,17 @@ export default function CoursesClientTable({ initialCourses }: { initialCourses:
         </div>
       </div>
 
-      {/* COURSES TABLE */}
-      <div style={{ background: 'var(--card-bg, #0b121e)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 10px 30px rgba(0,0,0,0.3)' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+      {/* COURSES TABLE CONTAINER WITH HORIZONTAL SCROLL SAFETY */}
+      <div style={{ background: 'var(--card-bg, #0b121e)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', overflowX: 'auto', boxShadow: '0 10px 30px rgba(0,0,0,0.3)' }}>
+        <table style={{ width: '100%', minWidth: '900px', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ background: 'rgba(255,255,255,0.05)', borderBottom: '1px solid rgba(255,255,255,0.1)', textAlign: 'left' }}>
-              <th style={{ padding: '15px' }}>Thumbnail</th>
-              <th style={{ padding: '15px' }}>Title</th>
-              <th style={{ padding: '15px' }}>Category</th>
-              <th style={{ padding: '15px' }}>Access Tier</th>
-              <th style={{ padding: '15px' }}>Modules</th>
-              <th style={{ padding: '15px' }}>Actions</th>
+              <th style={{ padding: '15px 12px', whiteSpace: 'nowrap', width: '90px' }}>Thumbnail</th>
+              <th style={{ padding: '15px 12px', whiteSpace: 'nowrap' }}>Title</th>
+              <th style={{ padding: '15px 12px', whiteSpace: 'nowrap' }}>Category</th>
+              <th style={{ padding: '15px 12px', whiteSpace: 'nowrap' }}>Access Tier</th>
+              <th style={{ padding: '15px 12px', whiteSpace: 'nowrap' }}>Modules</th>
+              <th style={{ padding: '15px 20px 15px 12px', whiteSpace: 'nowrap', textAlign: 'right' }}>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -265,16 +265,16 @@ export default function CoursesClientTable({ initialCourses }: { initialCourses:
             ) : (
               filteredCourses.map((course) => (
                 <tr key={course.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', transition: 'background 0.2s' }}>
-                  <td style={{ padding: '10px 15px' }}>
+                  <td style={{ padding: '10px 12px' }}>
                     {course.thumbnailUrl ? (
                       <img src={course.thumbnailUrl} alt="" style={{ width: '70px', height: '40px', objectFit: 'cover', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.1)' }} />
                     ) : (
                       <div style={{ width: '70px', height: '40px', background: '#222', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', color: '#555' }}>No Banner</div>
                     )}
                   </td>
-                  <td style={{ padding: '15px', fontWeight: 'bold' }}>{course.title}</td>
-                  <td style={{ padding: '15px', color: '#aaa' }}>{course.category || 'Uncategorized'}</td>
-                  <td style={{ padding: '15px' }}>
+                  <td style={{ padding: '15px 12px', fontWeight: 'bold', minWidth: '180px' }}>{course.title}</td>
+                  <td style={{ padding: '15px 12px', color: '#aaa', minWidth: '140px' }}>{course.category || 'Uncategorized'}</td>
+                  <td style={{ padding: '15px 12px', whiteSpace: 'nowrap' }}>
                     <span 
                       style={{ 
                         background: course.accessLevel === 'PLATINUM' || course.accessLevel === 'PLATINUM_YEARLY' ? '#e50914' : course.accessLevel === 'GOLD' || course.accessLevel === 'GOLD_YEARLY' ? '#ffd700' : 'var(--primary, #f26422)',
@@ -283,17 +283,19 @@ export default function CoursesClientTable({ initialCourses }: { initialCourses:
                         borderRadius: '12px',
                         fontSize: '0.75rem',
                         fontWeight: 900,
-                        letterSpacing: '0.5px'
+                        letterSpacing: '0.5px',
+                        display: 'inline-block',
+                        whiteSpace: 'nowrap'
                       }}
                     >
                       {course.accessLevel}
                     </span>
                   </td>
-                  <td style={{ padding: '15px', fontWeight: 'bold', color: '#46d369' }}>{course._count?.episodes || 0}</td>
-                  <td style={{ padding: '15px' }}>
-                    <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                  <td style={{ padding: '15px 12px', fontWeight: 'bold', color: '#46d369' }}>{course._count?.episodes || 0}</td>
+                  <td style={{ padding: '15px 20px 15px 12px', whiteSpace: 'nowrap' }}>
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center', justifyContent: 'flex-end', flexWrap: 'nowrap' }}>
                       <BroadcastButton courseId={course.id} courseTitle={course.title} />
-                      <Link href={`/admin/courses/${course.id}`} style={{ background: 'rgba(70,211,105,0.1)', border: '1px solid rgba(70,211,105,0.3)', color: '#46d369', padding: '5px 12px', borderRadius: '6px', cursor: 'pointer', textDecoration: 'none', fontSize: '0.8rem', fontWeight: 'bold' }}>
+                      <Link href={`/admin/courses/${course.id}`} style={{ background: 'rgba(70,211,105,0.1)', border: '1px solid rgba(70,211,105,0.3)', color: '#46d369', padding: '6px 14px', borderRadius: '6px', cursor: 'pointer', textDecoration: 'none', fontSize: '0.8rem', fontWeight: 'bold', whiteSpace: 'nowrap' }}>
                         ✎ Edit
                       </Link>
                       
@@ -301,9 +303,9 @@ export default function CoursesClientTable({ initialCourses }: { initialCourses:
                         if (!confirm(`Are you sure you want to delete "${course.title}"?`)) {
                           e.preventDefault();
                         }
-                      }}>
+                      }} style={{ margin: 0 }}>
                           <input type="hidden" name="courseId" value={course.id} />
-                          <button style={{ background: 'rgba(229,9,20,0.1)', border: '1px solid rgba(229,9,20,0.3)', color: '#e50914', padding: '5px 10px', borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 'bold' }} type="submit">
+                          <button style={{ background: 'rgba(229,9,20,0.1)', border: '1px solid rgba(229,9,20,0.3)', color: '#e50914', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 'bold', whiteSpace: 'nowrap' }} type="submit">
                             ✕ Trash
                           </button>
                       </form>
