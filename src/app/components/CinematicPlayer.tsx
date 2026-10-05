@@ -981,7 +981,7 @@ export default function CinematicPlayer({
         setCount(prev => {
           if (prev <= 1) {
             if (timerRef.current) clearInterval(timerRef.current);
-            router.push(finalNextUrl);
+            window.location.href = finalNextUrl;
             return 0;
           }
           return prev - 1;
@@ -1819,7 +1819,7 @@ export default function CinematicPlayer({
                 <button onClick={() => { if(timerRef.current) clearInterval(timerRef.current); setShowCountdown(false); }} style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#fff', padding: '12px 30px', borderRadius: '30px', cursor: 'pointer', fontWeight: 800, backdropFilter: 'blur(5px)' }}>
                    ✕ CANCEL
                 </button>
-                <button onClick={() => router.push(finalNextUrl!)} style={{ background: 'linear-gradient(135deg, #f26422 0%, #ff8c53 100%)', border: 'none', color: '#fff', padding: '12px 35px', borderRadius: '30px', cursor: 'pointer', fontWeight: 900, boxShadow: '0 10px 30px rgba(242,100,34,0.3)' }}>
+                <button onClick={() => { if(timerRef.current) clearInterval(timerRef.current); window.location.href = finalNextUrl!; }} style={{ background: 'linear-gradient(135deg, #f26422 0%, #ff8c53 100%)', border: 'none', color: '#fff', padding: '12px 35px', borderRadius: '30px', cursor: 'pointer', fontWeight: 900, boxShadow: '0 10px 30px rgba(242,100,34,0.3)' }}>
                    ▶ PLAY NOW
                 </button>
              </div>

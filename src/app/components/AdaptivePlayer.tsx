@@ -284,7 +284,7 @@ export default function AdaptivePlayer({
         setCount((prev) => {
           if (prev <= 1) {
             if (timerRef.current) clearInterval(timerRef.current);
-            router.push(nextEpisodeUrl);
+            window.location.href = nextEpisodeUrl;
             return 0;
           }
           return prev - 1;
