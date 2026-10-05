@@ -166,6 +166,20 @@ export default async function ProfilePage() {
     const interests = fd.get('interests') as string;
     const avatarUrl = fd.get('avatarUrl') as string;
 
+    // Validate & format phone number (10 to 15 digits, non-dummy sequence)
+    let validatedPhone: string | null = null;
+    let isPhoneValid = false;
+    if (phone && phone.trim() !== '') {
+      const rawPhone = phone.trim();
+      const cleanDigits = rawPhone.replace(/[\+\s\-\(\)]/g, '');
+      const isDummySequence = /^(\d)\1+$/.test(cleanDigits);
+      
+      if (/^[0-9]{10,15}$/.test(cleanDigits) && !isDummySequence) {
+        isPhoneValid = true;
+        validatedPhone = rawPhone.startsWith('+') ? '+' + cleanDigits : cleanDigits;
+      }
+    }
+
     const freshUser = await prisma.user.findUnique({ where: { id: user!.id } });
     if (!freshUser) return;
 
@@ -190,7 +204,7 @@ export default async function ProfilePage() {
 
     const isProfileFull = !!(
       name && name.trim() !== '' &&
-      phone && phone.trim() !== '' &&
+      isPhoneValid &&
       address && address.trim() !== '' &&
       gender && gender.trim() !== '' &&
       age !== null &&
@@ -207,7 +221,7 @@ export default async function ProfilePage() {
       where: { id: user!.id },
       data: { 
         name, 
-        phone,
+        phone: validatedPhone || (freshUser.phone ?? null),
         address, 
         gender, 
         age, 
@@ -563,7 +577,18 @@ export default async function ProfilePage() {
                   </div>
                   <div>
                      <label style={labelStyle}>Phone / Mobile Number</label>
-                     <input type="tel" name="phone" defaultValue={user.phone || ''} placeholder="e.g. +91 9876543210" style={inputStyle} />
+                     <input 
+                        type="tel" 
+                        name="phone" 
+                        defaultValue={user.phone || ''} 
+                        placeholder="e.g. +91 9876543210" 
+                        pattern="^[\+]?[0-9\s\-\(\)]{10,18}$"
+                        title="Please enter a valid 10-15 digit mobile number (e.g. +91 9876543210 or 9876543210)"
+                        style={inputStyle} 
+                     />
+                     <span style={{ color: '#777', fontSize: '0.72rem', marginTop: '4px', display: 'block' }}>
+                        Must be 10–15 digits with optional country code (+91) for WhatsApp updates.
+                     </span>
                   </div>
                   <div>
                      <label style={labelStyle}>Geographic Address</label>
