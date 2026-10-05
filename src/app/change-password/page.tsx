@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { Eye, EyeOff } from 'lucide-react';
 import { changePassword } from '../actions/auth';
 
 export default function ChangePasswordPage() {
@@ -12,6 +13,8 @@ export default function ChangePasswordPage() {
   const [success, setSuccess] = useState(false);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // Password strength logic
   const getPasswordStrength = (pwd: string) => {
@@ -122,26 +125,39 @@ export default function ChangePasswordPage() {
           <form onSubmit={onSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <label style={{ fontSize: '0.85rem', color: '#ccc', fontWeight: 600 }}>New Password</label>
-              <input 
-                type="password" 
-                name="password" 
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter password" 
-                required
-                style={{
-                  padding: '14px 18px',
-                  backgroundColor: 'rgba(0,0,0,0.3)',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: '8px',
-                  color: 'white',
-                  fontSize: '1rem',
-                  outline: 'none',
-                  transition: 'border-color 0.2s'
-                }}
-                onFocus={e => e.currentTarget.style.borderColor = 'var(--primary)'}
-                onBlur={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'}
-              />
+              <div style={{ position: 'relative' }}>
+                <input 
+                  type={showPassword ? 'text' : 'password'} 
+                  name="password" 
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter password" 
+                  required
+                  style={{
+                    width: '100%',
+                    padding: '14px 45px 14px 18px',
+                    backgroundColor: 'rgba(0,0,0,0.3)',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    borderRadius: '8px',
+                    color: 'white',
+                    fontSize: '1rem',
+                    outline: 'none',
+                    transition: 'border-color 0.2s'
+                  }}
+                  onFocus={e => e.currentTarget.style.borderColor = 'var(--primary)'}
+                  onBlur={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{
+                    position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#8f98a9', cursor: 'pointer', padding: '5px', display: 'flex', alignItems: 'center', justifyContent: 'center'
+                  }}
+                  title={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
+                </button>
+              </div>
             </div>
 
             {/* Password strength meter */}
@@ -159,25 +175,38 @@ export default function ChangePasswordPage() {
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <label style={{ fontSize: '0.85rem', color: '#ccc', fontWeight: 600 }}>Confirm New Password</label>
-              <input 
-                type="password" 
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Re-enter password" 
-                required
-                style={{
-                  padding: '14px 18px',
-                  backgroundColor: 'rgba(0,0,0,0.3)',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: '8px',
-                  color: 'white',
-                  fontSize: '1rem',
-                  outline: 'none',
-                  transition: 'border-color 0.2s'
-                }}
-                onFocus={e => e.currentTarget.style.borderColor = 'var(--primary)'}
-                onBlur={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'}
-              />
+              <div style={{ position: 'relative' }}>
+                <input 
+                  type={showConfirmPassword ? 'text' : 'password'} 
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Re-enter password" 
+                  required
+                  style={{
+                    width: '100%',
+                    padding: '14px 45px 14px 18px',
+                    backgroundColor: 'rgba(0,0,0,0.3)',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    borderRadius: '8px',
+                    color: 'white',
+                    fontSize: '1rem',
+                    outline: 'none',
+                    transition: 'border-color 0.2s'
+                  }}
+                  onFocus={e => e.currentTarget.style.borderColor = 'var(--primary)'}
+                  onBlur={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  style={{
+                    position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#8f98a9', cursor: 'pointer', padding: '5px', display: 'flex', alignItems: 'center', justifyContent: 'center'
+                  }}
+                  title={showConfirmPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showConfirmPassword ? <Eye size={18} /> : <EyeOff size={18} />}
+                </button>
+              </div>
             </div>
 
             <button 
