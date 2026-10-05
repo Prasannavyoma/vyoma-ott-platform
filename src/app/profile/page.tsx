@@ -11,6 +11,7 @@ import SkillConstellation from './SkillConstellation';
 import SanskritStreakWidget from '@/app/components/SanskritStreakWidget';
 import OfflineDownloadsManager from './OfflineDownloadsManager';
 import ProfileQuickNav from './ProfileQuickNav';
+import ProfileDossierForm from './ProfileDossierForm';
 
 export default async function ProfilePage() {
   // 1. Secure Context Validation
@@ -541,91 +542,14 @@ export default async function ProfilePage() {
          <div style={{ display: 'grid', gridTemplateColumns: '1.8fr 1fr', gap: '40px' }}>
             
             {/* EDITABLE BIO SETTINGS */}
-            <div id="dossier" style={{ background: '#0d0d0d', borderRadius: '20px', border: '1px solid #1a1a1a', overflow: 'hidden' }}>
-               <div style={{ borderBottom: '1px solid #1a1a1a', padding: '20px 30px', background: '#111' }}>
-                  <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800 }}>⚙️ Personal Dossier Settings</h3>
-               </div>
-               
-               <form action={updateProfile} style={{ padding: '30px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                  <div style={{ gridColumn: 'span 2', background: 'rgba(242, 100, 34, 0.05)', border: '1px solid rgba(242, 100, 34, 0.15)', padding: '20px', borderRadius: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <span style={{ fontSize: '1.4rem' }}>🏆</span>
-                      <strong style={{ color: '#fff', fontSize: '0.95rem' }}>Profile Gamification Quests</strong>
-                    </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', fontSize: '0.8rem', marginTop: '5px' }}>
-                      <div style={{ background: 'rgba(0,0,0,0.3)', padding: '10px 15px', borderRadius: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: '1px solid rgba(255,255,255,0.03)' }}>
-                        <span style={{ color: '#aaa' }}>✏️ Add Display Name</span>
-                        <strong style={{ color: user.nameRewardGiven ? '#46d369' : '#ffd700' }}>
-                          {user.nameRewardGiven ? `✅ Earned +${uiCoinsNameReward}` : `💰 +${uiCoinsNameReward} Coin`}
-                        </strong>
-                      </div>
-                      <div style={{ background: 'rgba(0,0,0,0.3)', padding: '10px 15px', borderRadius: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: '1px solid rgba(255,255,255,0.03)' }}>
-                        <span style={{ color: '#aaa' }}>📋 Complete Full Profile</span>
-                        <strong style={{ color: user.profileRewardGiven ? '#46d369' : '#ffd700' }}>
-                          {user.profileRewardGiven ? `✅ Earned +${uiCoinsProfileReward}` : `💰 +${uiCoinsProfileReward} Coins`}
-                        </strong>
-                      </div>
-                    </div>
-                  </div>
-                  <div style={{ gridColumn: 'span 2' }}>
-                     <label style={labelStyle}>Personal Identity Photo</label>
-                     <AvatarUploader currentUrl={user.avatarUrl || ''} />
-                  </div>
-                  <div>
-                     <label style={labelStyle}>Display Name</label>
-                     <input required type="text" name="name" defaultValue={user.name || ''} style={inputStyle} />
-                  </div>
-                  <div>
-                     <label style={labelStyle}>Phone / Mobile Number</label>
-                     <input 
-                        type="tel" 
-                        name="phone" 
-                        defaultValue={user.phone || ''} 
-                        placeholder="e.g. +91 9876543210" 
-                        pattern="^[\+]?[0-9\s\-\(\)]{10,18}$"
-                        title="Please enter a valid 10-15 digit mobile number (e.g. +91 9876543210 or 9876543210)"
-                        style={inputStyle} 
-                     />
-                     <span style={{ color: '#777', fontSize: '0.72rem', marginTop: '4px', display: 'block' }}>
-                        Must be 10–15 digits with optional country code (+91) for WhatsApp updates.
-                     </span>
-                  </div>
-                  <div>
-                     <label style={labelStyle}>Geographic Address</label>
-                     <input type="text" name="address" defaultValue={user.address || ''} placeholder="City, State" style={inputStyle} />
-                  </div>
-                  <div>
-                     <label style={labelStyle}>Gender Identity</label>
-                     <select name="gender" defaultValue={user.gender || ''} style={inputStyle}>
-                        <option value="">Select...</option>
-                        <option value="MALE">Male</option>
-                        <option value="FEMALE">Female</option>
-                        <option value="OTHER">Prefer not to say</option>
-                     </select>
-                  </div>
-                  <div>
-                     <label style={labelStyle}>Current Age <span style={{color: '#f26422'}}>*</span></label>
-                     <input required type="number" name="age" defaultValue={user.age || ''} min="1" max="120" style={inputStyle} />
-                  </div>
-                  <div style={{ gridColumn: 'span 2' }}>
-                     <label style={labelStyle}>Personal Interests / Focus Areas</label>
-                     <textarea name="interests" defaultValue={user.interests || ''} rows={2} placeholder="Veda, Sanskrit Grammar, Historical Epics..." style={{ ...inputStyle, fontFamily: 'inherit', resize: 'none' }}></textarea>
-                  </div>
-                  <div style={{ gridColumn: 'span 2', display: 'flex', alignItems: 'flex-start', gap: '10px', marginTop: '10px' }}>
-                     <input type="checkbox" id="consent" name="consent" required style={{ width: '18px', height: '18px', cursor: 'pointer', marginTop: '2px', accentColor: '#f26422' }} />
-                     <label htmlFor="consent" style={{ color: '#999', fontSize: '0.85rem', cursor: 'pointer', lineHeight: '1.4' }}>
-                        I consent to saving my profile information and acknowledge that my details will be stored securely in accordance with the platform's terms of service and privacy policy.
-                     </label>
-                  </div>
-                  <div style={{ gridColumn: 'span 2', borderTop: '1px solid #1a1a1a', paddingTop: '20px', textAlign: 'right' }}>
-                     <button type="submit" style={{ background: '#fff', color: '#000', padding: '12px 30px', borderRadius: '8px', fontWeight: 900, border: 'none', cursor: 'pointer', transition: '0.2s', boxShadow: '0 4px 15px rgba(255,255,255,0.1)' }}>
-                        SAVE PROFILE MODIFICATIONS
-                     </button>
-                  </div>
-               </form>
-            </div>
+             <ProfileDossierForm 
+                user={user} 
+                uiCoinsNameReward={uiCoinsNameReward} 
+                uiCoinsProfileReward={uiCoinsProfileReward} 
+                updateProfile={updateProfile} 
+             />
 
-            {/* ASSET DRAWER COLUMN */}
+             {/* ASSET DRAWER COLUMN */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                
                {/* WALLET CARTRIDGE */}
