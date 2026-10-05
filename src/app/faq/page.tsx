@@ -11,7 +11,7 @@ export default function FAQPage() {
   return (
     <main style={{ minHeight: '100vh', background: 'var(--background)' }}>
       <NavBar />
-      <div style={{ padding: '120px 5% 50px', maxWidth: '1000px', margin: '0 auto', color: 'white' }}>
+      <div style={{ padding: '160px 5% 50px', maxWidth: '1000px', margin: '0 auto', color: 'white' }}>
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
           <h1 style={{ fontSize: '3rem', fontWeight: '800', marginBottom: '10px', background: 'linear-gradient(to right, #fff, #aaa)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
             OTT 2.0 User Guide

@@ -255,7 +255,7 @@ export default function GiftClientPage({ initialPlans }: { initialPlans: RealPla
         }
       `}} />
 
-      <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '120px 20px 80px 20px', zIndex: 1, position: 'relative' }}>
+      <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '160px 20px 80px 20px', zIndex: 1, position: 'relative' }}>
         
         {/* HEADER */}
         <div style={{ textAlign: 'center', marginBottom: '50px' }}>

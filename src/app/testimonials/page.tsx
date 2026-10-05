@@ -13,7 +13,7 @@ export default async function TestimonialsPage() {
   return (
     <main style={{ minHeight: '100vh', background: 'var(--background)' }}>
       <NavBar />
-      <div style={{ padding: '120px 5% 50px', maxWidth: '1200px', margin: '0 auto' }}>
+      <div style={{ padding: '160px 5% 50px', maxWidth: '1200px', margin: '0 auto' }}>
         
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '40px', flexWrap: 'wrap', gap: '20px' }}>
           <div>

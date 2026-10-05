@@ -13,7 +13,7 @@ export default async function BlogListingPage() {
   return (
     <main style={{ minHeight: '100vh', background: 'var(--background)' }}>
       <NavBar />
-      <div style={{ padding: '120px 5% 50px', maxWidth: '1000px', margin: '0 auto' }}>
+      <div style={{ padding: '160px 5% 50px', maxWidth: '1000px', margin: '0 auto' }}>
         
         <div style={{ textAlign: 'center', marginBottom: '50px' }}>
           <h1 style={{ fontSize: '3rem', fontWeight: 900, marginBottom: '10px' }}>Vyoma Insights</h1>

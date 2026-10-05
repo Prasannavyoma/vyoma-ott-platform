@@ -102,7 +102,7 @@ export default async function QuizPage(props: { params: Promise<{ id: string }> 
     <main style={{ minHeight: '100vh', background: '#000', color: '#fff' }}>
       <NavBar />
       
-      <div style={{ maxWidth: '800px', margin: '0 auto', padding: '100px 20px' }}>
+      <div style={{ maxWidth: '800px', margin: '0 auto', padding: '160px 20px 60px 20px' }}>
          <div style={{ marginBottom: '40px', textAlign: 'center' }}>
             <span style={{ color: 'var(--primary)', fontSize: '0.9rem', fontWeight: 'bold', letterSpacing: '2px', textTransform: 'uppercase' }}>FINAL EVALUATION</span>
             <h1 style={{ fontSize: '2.5rem', fontWeight: 900, marginTop: '10px' }}>{course.title}</h1>

@@ -173,7 +173,7 @@ export default function ShlokaMemorizerPage() {
     return (
       <div style={{ minHeight: '100vh', background: '#0b0f19', color: '#fff', fontFamily: 'var(--font-geist-sans), sans-serif' }}>
         <NavBar />
-        <div style={{ maxWidth: '600px', margin: '120px auto 40px auto', padding: '40px', background: 'rgba(30, 41, 59, 0.45)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '24px', textAlign: 'center', backdropFilter: 'blur(20px)' }}>
+        <div style={{ maxWidth: '600px', margin: '160px auto 40px auto', padding: '40px', background: 'rgba(30, 41, 59, 0.45)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '24px', textAlign: 'center', backdropFilter: 'blur(20px)' }}>
           <span style={{ fontSize: '3.5rem', display: 'block', marginBottom: '20px' }}>🔒</span>
           <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#f26422', marginBottom: '12px' }}>Memorizer Game Offline</h2>
           <p style={{ color: '#94a3b8', fontSize: '0.95rem', lineHeight: 1.6, marginBottom: '25px' }}>
@@ -191,7 +191,7 @@ export default function ShlokaMemorizerPage() {
     <div style={{ minHeight: '100vh', background: '#0b0f19', color: '#fff', fontFamily: 'var(--font-geist-sans), sans-serif' }}>
       <NavBar />
 
-      <div style={{ maxWidth: '900px', margin: '40px auto', padding: '80px 20px 40px 20px' }}>
+      <div style={{ maxWidth: '900px', margin: '0 auto', padding: '160px 20px 40px 20px' }}>
         
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '20px', marginBottom: '35px' }}>

@@ -273,7 +273,7 @@ export default async function ProfilePage() {
     <main style={{ minHeight: '100vh', background: '#050505', color: '#fff', fontFamily: 'system-ui, sans-serif' }}>
       <NavBar />
       
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '125px 20px 60px' }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '160px 20px 60px' }}>
          
          {/* 1. BIOMETRIC IDENTITY STRIP */}
          <ProfileQuickNav />

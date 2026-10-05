@@ -137,7 +137,7 @@ export default function ExploreClient({ initialCourses }: { initialCourses: any[
   }, [initialCourses, selectedCategory, selectedAccess, selectedContentType, selectedSort, searchQuery]);
 
   return (
-    <div style={{ padding: '120px 5% 80px', display: 'flex', gap: '40px', flexDirection: 'column', minHeight: '100vh', background: 'var(--background)' }}>
+    <div style={{ padding: '160px 5% 80px', display: 'flex', gap: '40px', flexDirection: 'column', minHeight: '100vh', background: 'var(--background)' }}>
       
       {/* PAGE HEADER */}
       <div style={{ marginBottom: '10px' }}>

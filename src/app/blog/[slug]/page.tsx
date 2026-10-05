@@ -18,13 +18,13 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
       <NavBar />
       
       {blog.thumbnailUrl && (
-        <div style={{ width: '100%', height: '400px', position: 'relative', marginTop: '80px' }}>
+        <div style={{ width: '100%', height: '400px', position: 'relative', marginTop: '135px' }}>
           <img src={blog.thumbnailUrl} alt={blog.title} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.5 }} />
           <div style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', height: '100%', background: 'linear-gradient(0deg, var(--background) 0%, transparent 100%)' }} />
         </div>
       )}
 
-      <div style={{ padding: blog.thumbnailUrl ? '0 5% 50px' : '120px 5% 50px', maxWidth: '800px', margin: '0 auto', position: 'relative', zIndex: 10 }}>
+      <div style={{ padding: blog.thumbnailUrl ? '0 5% 50px' : '160px 5% 50px', maxWidth: '800px', margin: '0 auto', position: 'relative', zIndex: 10 }}>
         <h1 style={{ fontSize: '3rem', fontWeight: 900, marginBottom: '20px', lineHeight: 1.2 }}>{blog.title}</h1>
         
         <div style={{ display: 'flex', gap: '20px', alignItems: 'center', color: '#888', fontSize: '1rem', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '30px', marginBottom: '40px' }}>

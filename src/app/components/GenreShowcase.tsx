@@ -45,7 +45,7 @@ export default async function GenreShowcase({ contentType, title, description }:
     <div style={{ minHeight: '100vh', background: '#030b17', color: '#fff', fontFamily: "'Outfit', 'Inter', system-ui, sans-serif" }}>
       <NavBar />
 
-      <main style={{ maxWidth: '1280px', margin: '0 auto', padding: '120px 24px 80px 24px' }}>
+      <main style={{ maxWidth: '1280px', margin: '0 auto', padding: '160px 24px 80px 24px' }}>
         {/* HEADER BLOCK */}
         <div style={{ marginBottom: '40px' }}>
           <Link 

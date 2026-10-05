@@ -155,7 +155,7 @@ export default async function ProgressTrackerPage() {
     <main style={{ minHeight: '100vh', background: '#030b17', color: '#fff', fontFamily: 'Outfit, system-ui, sans-serif' }}>
       <NavBar />
 
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '120px 20px 60px 20px' }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '160px 20px 60px 20px' }}>
         
         {/* HEADER SECTION */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '30px' }}>

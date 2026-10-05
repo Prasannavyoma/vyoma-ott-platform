@@ -437,7 +437,7 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
         </Link>
       </nav>
 
-      <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '70px 24px', zIndex: 1, position: 'relative' }}>
+      <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '160px 24px 70px 24px', zIndex: 1, position: 'relative' }}>
         
         {/* Title Section */}
         <div style={{ textAlign: 'center', marginBottom: '50px', animation: 'fadeIn 0.8s ease' }}>

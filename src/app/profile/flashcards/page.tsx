@@ -23,7 +23,7 @@ export default async function FlashcardsPage() {
     <div style={{ minHeight: '100vh', background: '#07090e', color: '#fff', fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
       <NavBar />
       
-      <main style={{ maxWidth: '1000px', margin: '0 auto', padding: '40px 20px' }}>
+      <main style={{ maxWidth: '1000px', margin: '0 auto', padding: '160px 20px 40px 20px' }}>
         
         {/* Navigation Breadcrumb */}
         <div style={{ marginBottom: '30px', display: 'flex', alignItems: 'center', gap: '8px' }}>

@@ -40,7 +40,7 @@ export default function RedeemPage() {
     <main style={{ minHeight: '100vh', background: '#050505', color: '#fff', fontFamily: 'system-ui, sans-serif' }}>
       <NavBar />
 
-      <div style={{ maxWidth: '550px', margin: '0 auto', padding: '150px 20px 100px' }}>
+      <div style={{ maxWidth: '550px', margin: '0 auto', padding: '165px 20px 100px' }}>
          
          {status !== 'success' ? (
             <div style={{ background: '#0d0d0d', border: '1px solid #222', borderRadius: '24px', padding: '40px', textAlign: 'center', boxShadow: '0 20px 50px rgba(0,0,0,0.5)' }}>

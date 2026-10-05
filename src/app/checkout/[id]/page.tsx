@@ -68,7 +68,7 @@ export default async function CheckoutPage(props: { params: Promise<{ id: string
   }
 
   return (
-    <main style={{ minHeight: '100vh', background: '#050505', color: '#fff', fontFamily: 'system-ui, sans-serif', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px' }}>
+    <main style={{ minHeight: '100vh', background: '#050505', color: '#fff', fontFamily: 'system-ui, sans-serif', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '140px 40px 40px 40px' }}>
        
        <div style={{ maxWidth: '900px', width: '100%', display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '40px', background: '#111', border: '1px solid #222', borderRadius: '24px', overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.6)' }}>
           
