@@ -159,6 +159,7 @@ export default async function ProfilePage() {
   async function updateProfile(fd: FormData) {
     "use server";
     const name = fd.get('name') as string;
+    const phone = fd.get('phone') as string;
     const address = fd.get('address') as string;
     const gender = fd.get('gender') as string;
     const age = parseInt(fd.get('age') as string) || null;
@@ -189,6 +190,7 @@ export default async function ProfilePage() {
 
     const isProfileFull = !!(
       name && name.trim() !== '' &&
+      phone && phone.trim() !== '' &&
       address && address.trim() !== '' &&
       gender && gender.trim() !== '' &&
       age !== null &&
@@ -205,6 +207,7 @@ export default async function ProfilePage() {
       where: { id: user!.id },
       data: { 
         name, 
+        phone,
         address, 
         gender, 
         age, 
@@ -557,6 +560,10 @@ export default async function ProfilePage() {
                   <div>
                      <label style={labelStyle}>Display Name</label>
                      <input required type="text" name="name" defaultValue={user.name || ''} style={inputStyle} />
+                  </div>
+                  <div>
+                     <label style={labelStyle}>Phone / Mobile Number</label>
+                     <input type="tel" name="phone" defaultValue={user.phone || ''} placeholder="e.g. +91 9876543210" style={inputStyle} />
                   </div>
                   <div>
                      <label style={labelStyle}>Geographic Address</label>
