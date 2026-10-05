@@ -37,6 +37,19 @@ export default async function ProfilePage() {
 
     const sSetting = await prisma.systemSetting.findUnique({ where: { key: 'FEATURE_GAMIFICATION_STREAKS' } });
     if (sSetting) streaksEnabled = sSetting.value === 'true';
+
+    // Auto-grant Display Name reward if name is already populated
+    if (user.name && user.name.trim() !== '' && !user.nameRewardGiven) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          coins: { increment: uiCoinsNameReward },
+          nameRewardGiven: true
+        }
+      });
+      user.nameRewardGiven = true;
+      user.coins += uiCoinsNameReward;
+    }
   } catch (e) {}
 
   // 2. Subscription Lifetime Tracker
@@ -198,7 +211,9 @@ export default async function ProfilePage() {
       if (pSetting) coinsProfileReward = parseInt(pSetting.value) || 0;
     } catch (e) {}
 
-    if (name && name.trim() !== '' && !nameRewardGiven) {
+    const effectiveName = (name && name.trim() !== '') ? name.trim() : (freshUser.name && freshUser.name.trim() !== '' ? freshUser.name.trim() : '');
+
+    if (effectiveName !== '' && !nameRewardGiven) {
       coinsToAdd += coinsNameReward;
       nameRewardGiven = true;
     }

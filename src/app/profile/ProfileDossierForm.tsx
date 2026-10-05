@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import AvatarUploader from '@/app/components/AvatarUploader';
 
 interface ProfileDossierFormProps {
@@ -28,6 +29,7 @@ export default function ProfileDossierForm({
   uiCoinsProfileReward,
   updateProfile
 }: ProfileDossierFormProps) {
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [statusMsg, setStatusMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [justSaved, setJustSaved] = useState(false);
@@ -41,6 +43,7 @@ export default function ProfileDossierForm({
     startTransition(async () => {
       try {
         await updateProfile(formData);
+        router.refresh();
         setStatusMsg({ type: 'success', text: '🎉 Profile modifications saved successfully!' });
         setJustSaved(true);
         setTimeout(() => setJustSaved(false), 4000);
