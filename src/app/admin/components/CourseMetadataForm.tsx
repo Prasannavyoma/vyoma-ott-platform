@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function CourseMetadataForm({ 
   course, 
@@ -11,15 +12,73 @@ export default function CourseMetadataForm({
   categories: any[], 
   updateCourseAction: (fd: FormData) => Promise<void> 
 }) {
+  const router = useRouter();
+
   // Interactive Toggle States for Custom Inputs
   const [showCustomCategory, setShowCustomCategory] = useState(false);
   const [showCustomContentType, setShowCustomContentType] = useState(false);
   const [showCustomAccessLevel, setShowCustomAccessLevel] = useState(false);
 
+  // Status & Notification States
+  const [isPending, startTransition] = useTransition();
+  const [statusMsg, setStatusMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [justSaved, setJustSaved] = useState(false);
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setStatusMsg(null);
+    const fd = new FormData(e.currentTarget);
+
+    startTransition(async () => {
+      try {
+        await updateCourseAction(fd);
+        router.refresh();
+        setStatusMsg({ type: 'success', text: '🎉 Core definitions & course metadata saved successfully!' });
+        setJustSaved(true);
+        setTimeout(() => setJustSaved(false), 4000);
+      } catch (err: any) {
+        setStatusMsg({ type: 'error', text: err?.message || '❌ Failed to save core definitions. Please try again.' });
+      }
+    });
+  };
+
   return (
     <div style={{ background: 'var(--card-bg, #111)', padding: '25px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
-      <h3 style={{ marginBottom: '20px', fontSize: '1.1rem', fontWeight: 800, color: '#fff', borderBottom: '1px solid #222', paddingBottom: '10px' }}>Global Course Definitions</h3>
-      <form action={updateCourseAction} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '1px solid #222', paddingBottom: '10px' }}>
+        <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800, color: '#fff' }}>Global Course Definitions</h3>
+        {justSaved && (
+          <span style={{ color: '#46d369', fontSize: '0.85rem', fontWeight: 800, background: 'rgba(70, 211, 105, 0.1)', padding: '4px 12px', borderRadius: '20px', border: '1px solid rgba(70, 211, 105, 0.3)' }}>
+            ✅ Saved
+          </span>
+        )}
+      </div>
+
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+         {statusMsg && (
+            <div style={{
+              background: statusMsg.type === 'success' ? 'rgba(70, 211, 105, 0.12)' : 'rgba(239, 68, 68, 0.12)',
+              border: `1px solid ${statusMsg.type === 'success' ? 'rgba(70, 211, 105, 0.4)' : 'rgba(239, 68, 68, 0.4)'}`,
+              color: statusMsg.type === 'success' ? '#46d369' : '#ef4444',
+              padding: '14px 20px',
+              borderRadius: '10px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              fontWeight: 800,
+              fontSize: '0.9rem',
+              boxShadow: statusMsg.type === 'success' ? '0 4px 20px rgba(70, 211, 105, 0.15)' : 'none'
+            }}>
+              <span>{statusMsg.text}</span>
+              <button 
+                type="button" 
+                onClick={() => setStatusMsg(null)} 
+                style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', fontSize: '1.1rem', fontWeight: 900, padding: '0 5px' }}
+              >
+                ✕
+              </button>
+            </div>
+         )}
+
          <div>
            <label style={{ display: 'block', fontSize: '0.7rem', color: '#888', fontWeight: 'bold', textTransform: 'uppercase', marginBottom: '5px' }}>Main Title</label>
            <input required type="text" name="title" defaultValue={course.title} style={{ width: '100%', padding: '10px', background: '#000', border: '1px solid #333', borderRadius: '6px', color: '#fff' }} />
@@ -48,7 +107,6 @@ export default function CourseMetadataForm({
                  <option value="PLATINUM_MONTHLY">Platinum Monthly</option>
                  <option value="PLATINUM_YEARLY">Platinum Yearly</option>
                  <option value="PAID">Individual Purchase</option>
-                 {/* Show current category option if it's not standard */}
                  {!['FREE', 'GOLD_MONTHLY', 'GOLD_YEARLY', 'PLATINUM_MONTHLY', 'PLATINUM_YEARLY', 'PAID'].includes(course.accessLevel) && (
                    <option value={course.accessLevel}>{course.accessLevel}</option>
                  )}
@@ -101,7 +159,6 @@ export default function CourseMetadataForm({
                  {categories.map((c: any) => (
                    <option key={c.id} value={c.name}>{c.name}</option>
                  ))}
-                 {/* Display current value if not inside categories database */}
                  {course.category && !categories.some(c => c.name === course.category) && (
                    <option value={course.category}>{course.category}</option>
                  )}
@@ -167,10 +224,32 @@ export default function CourseMetadataForm({
              </div>
           </div>
 
-          <button type="submit" style={{ marginTop: '10px', padding: '14px', background: 'linear-gradient(135deg, #f26422 0%, #ff8c53 100%)', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 900, cursor: 'pointer', boxShadow: '0 4px 15px rgba(242,100,34,0.2)' }}>
-           COMMIT CORE DEFINITIONS
-         </button>
-      </form>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '15px', marginTop: '10px' }}>
+            {justSaved && (
+              <span style={{ color: '#46d369', fontWeight: 800, fontSize: '0.85rem' }}>
+                ✅ Saved Successfully!
+              </span>
+            )}
+            <button 
+              type="submit" 
+              disabled={isPending}
+              style={{ 
+                marginTop: '10px', 
+                padding: '14px 28px', 
+                background: isPending ? '#333' : justSaved ? '#46d369' : 'linear-gradient(135deg, #f26422 0%, #ff8c53 100%)', 
+                color: '#fff', 
+                border: 'none', 
+                borderRadius: '6px', 
+                fontWeight: 900, 
+                cursor: isPending ? 'not-allowed' : 'pointer', 
+                boxShadow: justSaved ? '0 4px 15px rgba(70,211,105,0.4)' : '0 4px 15px rgba(242,100,34,0.2)',
+                transition: 'all 0.3s ease'
+              }}
+            >
+              {isPending ? '⏳ SAVING CORE DEFINITIONS...' : justSaved ? '✅ CORE DEFINITIONS SAVED!' : 'COMMIT CORE DEFINITIONS'}
+            </button>
+          </div>
+       </form>
     </div>
   );
 }
