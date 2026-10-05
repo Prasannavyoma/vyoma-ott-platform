@@ -623,6 +623,8 @@ export default function AiChatWidget({ contactSettings, aiEnabled = true }: { co
                 {contactSettings?.emailEnabled && (
                   <a
                     href={`mailto:${contactSettings.emailAddress}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     style={{
                       display: 'flex',
                       alignItems: 'center',

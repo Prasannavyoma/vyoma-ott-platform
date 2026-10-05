@@ -131,6 +131,8 @@ export default function ContactWidget({ settings }: { settings: ContactSettings 
         {settings.emailEnabled && (
           <a
             href={emailUrl}
+            target="_blank"
+            rel="noopener noreferrer"
             title="Email Support"
             className="vyoma-contact-btn"
             style={{
