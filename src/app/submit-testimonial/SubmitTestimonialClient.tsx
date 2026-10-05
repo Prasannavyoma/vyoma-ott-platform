@@ -6,18 +6,23 @@ import { submitTestimonial } from '@/app/actions/testimonials';
 export default function SubmitTestimonialClient() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setLoading(true);
+    setErrorMsg(null);
     try {
       const fd = new FormData(e.currentTarget);
-      await submitTestimonial(fd);
-      setSuccess(true);
-      e.currentTarget.reset();
-    } catch (e) {
+      const res = await submitTestimonial(fd);
+      if (res && res.success) {
+        setSuccess(true);
+      } else {
+        setErrorMsg(res?.error || 'Failed to submit testimonial. Please try again.');
+      }
+    } catch (e: any) {
       console.error(e);
-      alert('Something went wrong. Please try again.');
+      setErrorMsg(e?.message || 'Something went wrong. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -28,7 +33,7 @@ export default function SubmitTestimonialClient() {
       <div style={{ background: 'rgba(70, 211, 105, 0.1)', border: '1px solid rgba(70, 211, 105, 0.3)', padding: '40px', borderRadius: '16px', textAlign: 'center' }}>
         <h2 style={{ color: '#46d369', margin: '0 0 10px 0', fontSize: '2rem' }}>🎉 Thank You!</h2>
         <p style={{ color: '#ccc', fontSize: '1.1rem' }}>Your testimonial has been successfully submitted and is pending review by our team.</p>
-        <button onClick={() => setSuccess(false)} style={{ marginTop: '20px', padding: '10px 20px', background: 'transparent', border: '1px solid #46d369', color: '#46d369', borderRadius: '8px', cursor: 'pointer' }}>
+        <button onClick={() => setSuccess(false)} style={{ marginTop: '20px', padding: '10px 20px', background: 'transparent', border: '1px solid #46d369', color: '#46d369', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}>
           Submit Another
         </button>
       </div>
@@ -37,6 +42,12 @@ export default function SubmitTestimonialClient() {
 
   return (
     <form onSubmit={handleSubmit} style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%)', border: '1px solid rgba(255,255,255,0.1)', padding: '40px', borderRadius: '24px', boxShadow: '0 20px 40px rgba(0,0,0,0.5)' }}>
+      {errorMsg && (
+        <div style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid #ef4444', color: '#f87171', padding: '12px 20px', borderRadius: '10px', marginBottom: '20px', fontWeight: 600 }}>
+          ⚠️ {errorMsg}
+        </div>
+      )}
+
       <div style={{ marginBottom: '20px' }}>
         <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Your Name *</label>
         <input name="name" required placeholder="John Doe" style={{ width: '100%', padding: '15px', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', color: 'white', fontSize: '1rem' }} />
@@ -63,7 +74,7 @@ export default function SubmitTestimonialClient() {
         </select>
       </div>
 
-      <button type="submit" disabled={loading} className="btn btn-primary premium-glow-btn" style={{ width: '100%', padding: '15px', fontSize: '1.2rem', borderRadius: '12px' }}>
+      <button type="submit" disabled={loading} className="btn btn-primary premium-glow-btn" style={{ width: '100%', padding: '15px', fontSize: '1.2rem', borderRadius: '12px', cursor: loading ? 'not-allowed' : 'pointer' }}>
         {loading ? 'Submitting...' : 'Submit Testimonial'}
       </button>
     </form>
