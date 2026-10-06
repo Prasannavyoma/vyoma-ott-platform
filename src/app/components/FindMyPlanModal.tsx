@@ -183,20 +183,20 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
       justifyContent: 'center',
       background: 'rgba(0, 0, 0, 0.88)',
       backdropFilter: 'blur(16px)',
-      padding: '20px',
+      padding: '60px 20px 20px 20px',
       animation: 'fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
     }}>
       <div style={{
         position: 'relative',
         width: '100%',
         maxWidth: '1020px',
-        maxHeight: '92vh',
+        maxHeight: '88vh',
         overflowY: 'auto',
         background: 'linear-gradient(135deg, #0e1424 0%, #050811 100%)',
         borderRadius: '24px',
         border: '1px solid rgba(255, 255, 255, 0.1)',
         boxShadow: '0 30px 80px rgba(0, 0, 0, 0.8), 0 0 40px rgba(242, 100, 34, 0.15)',
-        padding: '36px',
+        padding: '50px 36px 36px 36px',
         color: '#fff'
       }}>
         {/* Close Button */}
@@ -226,7 +226,7 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
         </button>
 
         {/* Modal Header */}
-        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '24px', paddingTop: '15px' }}>
           <span style={{
             display: 'inline-flex',
             alignItems: 'center',
@@ -244,7 +244,7 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
           }}>
             <ShieldCheck size={14} /> FIND MY PLAN &amp; DIRECT CHECKOUT
           </span>
-          <h2 style={{ fontSize: '2.2rem', fontWeight: 950, letterSpacing: '-0.8px', margin: 0 }}>
+          <h2 style={{ fontSize: '2.2rem', fontWeight: 950, letterSpacing: '-0.8px', margin: 0, paddingTop: '6px' }}>
             Your Membership &amp; Pricing Telemetry
           </h2>
           <p style={{ color: '#aaa', fontSize: '1rem', marginTop: '8px', margin: '8px 0 0' }}>
