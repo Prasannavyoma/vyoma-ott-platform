@@ -98,7 +98,7 @@ export default function HeroSlider({ items }: { items: SliderItem[] }) {
                   opacity: isActive ? 1 : 0,
                   transition: 'all 1.0s cubic-bezier(0.25, 1, 0.5, 1)',
                   transitionDelay: '0.15s',
-                  padding: '0 4%', 
+                  padding: '150px 4% 40px 4%', 
                   maxWidth: 'min(100%, 600px)'
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '12px', color: '#c4c4c4', fontSize: '0.85rem', fontWeight: 600, letterSpacing: '0.5px' }}>
@@ -168,7 +168,7 @@ export default function HeroSlider({ items }: { items: SliderItem[] }) {
             </div>
 
             {/* --- MOBILE SLIDER (Netflix Poster Style) --- */}
-            <div className="mobile-only" style={{ height: '75vh', width: '100%', position: 'relative', overflow: 'hidden' }}>
+            <div className="mobile-only" style={{ height: '80vh', minHeight: '560px', width: '100%', position: 'relative', overflow: 'hidden' }}>
               {/* Blurred atmospheric background */}
               <div style={{
                 position: 'absolute',
@@ -183,10 +183,10 @@ export default function HeroSlider({ items }: { items: SliderItem[] }) {
               {/* Uncropped sharp foreground image centered in top half */}
               <div style={{
                 position: 'absolute',
-                top: '12%',
+                top: '140px',
                 left: '5%',
                 right: '5%',
-                height: '40%',
+                height: '35%',
                 backgroundImage: `url('${bgImg}')`,
                 backgroundSize: 'contain',
                 backgroundPosition: 'center',

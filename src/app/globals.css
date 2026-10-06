@@ -442,20 +442,20 @@ a {
 
 /* Improved Hero Styling for WOW Factor */
 .hero-slider-wrapper {
-  height: 85vh;
-  min-height: 650px;
+  height: calc(85vh + 60px);
+  min-height: 700px;
 }
 
 .hero {
   position: relative;
-  height: 85vh; /* Slightly adjusted for tighter fit */
-  min-height: 650px;
+  height: 100%;
+  min-height: 700px;
   background-size: cover;
   background-position: center top; /* Critical fix for better face/art visibility */
   background-repeat: no-repeat;
   display: flex;
   align-items: center;
-  padding: 0 6%;
+  padding: 140px 6% 60px 6%;
 }
 
 .hero::before {
@@ -471,7 +471,7 @@ a {
   position: relative;
   z-index: 10;
   max-width: 650px; /* Tightened container ensuring text doesn't bleed into right-hand subject art */
-  padding: 40px 0;
+  padding: 140px 0 40px 0;
   margin-left: 0;
   display: flex;
   flex-direction: column;
