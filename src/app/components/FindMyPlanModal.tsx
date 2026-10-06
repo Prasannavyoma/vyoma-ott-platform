@@ -177,7 +177,7 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
       left: 0,
       right: 0,
       bottom: 0,
-      zIndex: 2000,
+      zIndex: 9999999,
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
