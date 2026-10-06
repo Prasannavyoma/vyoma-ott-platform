@@ -171,70 +171,74 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
   };
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      zIndex: 9999999,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      background: 'rgba(0, 0, 0, 0.88)',
-      backdropFilter: 'blur(16px)',
-      padding: '60px 20px 20px 20px',
-      animation: 'fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
-    }}>
-      <div style={{
-        position: 'relative',
-        width: '100%',
-        maxWidth: '1020px',
-        maxHeight: '88vh',
+    <div 
+      onClick={onClose}
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        zIndex: 9999999,
+        display: 'flex',
+        alignItems: 'flex-start',
+        justifyContent: 'center',
+        background: 'rgba(0, 0, 0, 0.92)',
+        backdropFilter: 'blur(16px)',
         overflowY: 'auto',
-        background: 'linear-gradient(135deg, #0e1424 0%, #050811 100%)',
-        borderRadius: '24px',
-        border: '1px solid rgba(255, 255, 255, 0.1)',
-        boxShadow: '0 30px 80px rgba(0, 0, 0, 0.8), 0 0 40px rgba(242, 100, 34, 0.15)',
-        padding: '50px 36px 36px 36px',
-        color: '#fff'
-      }}>
-        {/* Close Button */}
-        <button
-          onClick={onClose}
-          title="Close Modal"
-          style={{
-            position: 'absolute',
-            top: '20px',
-            right: '20px',
-            background: '#f26422',
-            border: '2px solid #ffffff',
-            color: '#ffffff',
-            borderRadius: '50%',
-            width: '40px',
-            height: '40px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease',
-            zIndex: 50,
-            boxShadow: '0 4px 15px rgba(242, 100, 34, 0.6)'
-          }}
-          onMouseEnter={e => {
-            e.currentTarget.style.transform = 'scale(1.1)';
-            e.currentTarget.style.background = '#ef4444';
-          }}
-          onMouseLeave={e => {
-            e.currentTarget.style.transform = 'scale(1)';
-            e.currentTarget.style.background = '#f26422';
-          }}
-        >
-          <X size={22} strokeWidth={3} />
-        </button>
+        padding: '140px 20px 40px 20px',
+        animation: 'fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
+      }}
+    >
+      {/* Floating Screen Close Button (Always visible at top-right at 100% zoom) */}
+      <button
+        onClick={onClose}
+        title="Close Modal (Esc)"
+        style={{
+          position: 'fixed',
+          top: '25px',
+          right: '25px',
+          background: 'linear-gradient(135deg, #f26422 0%, #ff4444 100%)',
+          border: '2px solid #ffffff',
+          color: '#ffffff',
+          borderRadius: '50%',
+          width: '46px',
+          height: '46px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          cursor: 'pointer',
+          transition: 'all 0.2s ease',
+          zIndex: 10000000,
+          boxShadow: '0 6px 20px rgba(242, 100, 34, 0.8)'
+        }}
+        onMouseEnter={e => {
+          e.currentTarget.style.transform = 'scale(1.15)';
+        }}
+        onMouseLeave={e => {
+          e.currentTarget.style.transform = 'scale(1)';
+        }}
+      >
+        <X size={26} strokeWidth={3} />
+      </button>
 
+      <div 
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          position: 'relative',
+          width: '100%',
+          maxWidth: '1020px',
+          background: 'linear-gradient(135deg, #0e1424 0%, #050811 100%)',
+          borderRadius: '24px',
+          border: '1px solid rgba(255, 255, 255, 0.1)',
+          boxShadow: '0 30px 80px rgba(0, 0, 0, 0.8), 0 0 40px rgba(242, 100, 34, 0.15)',
+          padding: '40px 36px 36px 36px',
+          color: '#fff',
+          margin: '0 auto'
+        }}
+      >
         {/* Modal Header */}
-        <div style={{ textAlign: 'center', marginBottom: '24px', paddingTop: '15px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
           <span style={{
             display: 'inline-flex',
             alignItems: 'center',
