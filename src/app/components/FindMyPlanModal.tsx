@@ -202,27 +202,35 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
         {/* Close Button */}
         <button
           onClick={onClose}
+          title="Close Modal"
           style={{
             position: 'absolute',
             top: '20px',
             right: '20px',
-            background: 'rgba(255, 255, 255, 0.08)',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
-            color: '#fff',
+            background: '#f26422',
+            border: '2px solid #ffffff',
+            color: '#ffffff',
             borderRadius: '50%',
-            width: '36px',
-            height: '36px',
+            width: '40px',
+            height: '40px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             cursor: 'pointer',
-            transition: 'all 0.2s',
-            zIndex: 10
+            transition: 'all 0.2s ease',
+            zIndex: 50,
+            boxShadow: '0 4px 15px rgba(242, 100, 34, 0.6)'
           }}
-          onMouseEnter={e => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)'}
-          onMouseLeave={e => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)'}
+          onMouseEnter={e => {
+            e.currentTarget.style.transform = 'scale(1.1)';
+            e.currentTarget.style.background = '#ef4444';
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.transform = 'scale(1)';
+            e.currentTarget.style.background = '#f26422';
+          }}
         >
-          <X size={18} />
+          <X size={22} strokeWidth={3} />
         </button>
 
         {/* Modal Header */}

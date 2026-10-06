@@ -90,20 +90,30 @@ export default function LogoutConfirmationModal({
             position: 'absolute',
             top: '20px',
             right: '20px',
-            background: 'rgba(255, 255, 255, 0.06)',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
-            color: '#94a3b8',
-            width: '32px',
-            height: '32px',
+            background: '#f26422',
+            border: '2px solid #ffffff',
+            color: '#ffffff',
+            width: '36px',
+            height: '36px',
             borderRadius: '50%',
             cursor: isLoggingOut ? 'not-allowed' : 'pointer',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            transition: 'all 0.2s ease'
+            transition: 'all 0.2s ease',
+            boxShadow: '0 4px 12px rgba(242,100,34,0.5)',
+            zIndex: 10
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'scale(1.1)';
+            e.currentTarget.style.background = '#ef4444';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'scale(1)';
+            e.currentTarget.style.background = '#f26422';
           }}
         >
-          <X size={16} />
+          <X size={18} strokeWidth={3} />
         </button>
 
         {/* LOGOUT ICON BADGE */}

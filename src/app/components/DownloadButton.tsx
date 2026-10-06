@@ -184,6 +184,7 @@ export default function DownloadButton({
         >
           <div
             style={{
+              position: 'relative',
               background: '#0b121e',
               border: '1px solid rgba(255, 255, 255, 0.15)',
               borderRadius: '16px',
@@ -196,6 +197,41 @@ export default function DownloadButton({
             }}
             onClick={(e) => e.stopPropagation()}
           >
+            {/* Top Right Close Button */}
+            <button
+              onClick={cancelClear}
+              title="Close"
+              style={{
+                position: 'absolute',
+                top: '14px',
+                right: '14px',
+                background: '#f26422',
+                border: '2px solid #ffffff',
+                color: '#ffffff',
+                borderRadius: '50%',
+                width: '32px',
+                height: '32px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                fontSize: '1rem',
+                fontWeight: 'bold',
+                transition: 'all 0.2s',
+                zIndex: 10,
+                boxShadow: '0 4px 12px rgba(242,100,34,0.5)'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'scale(1.1)';
+                e.currentTarget.style.background = '#ef4444';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'scale(1)';
+                e.currentTarget.style.background = '#f26422';
+              }}
+            >
+              ✕
+            </button>
             <div style={{ fontSize: '2.5rem', marginBottom: '12px' }}>🗑️</div>
             <h3 style={{ fontSize: '1.25rem', fontWeight: 900, marginBottom: '10px' }}>
               Clear Offline Download?
