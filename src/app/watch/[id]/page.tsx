@@ -296,6 +296,40 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
   });
   extractedChapters.sort((a, b) => a.timestamp - b.timestamp);
 
+  // 🌟 GUARANTEE PRE-BUILT CHAPTERS FOR ALL VIDEOS & AUDIOS ACROSS THE ENTIRE PLATFORM
+  if (extractedChapters.length === 0) {
+    const isAudioContent = course.contentType === 'PODCAST' || course.contentType === 'AUDIOBOOK' || !!activeEpisode?.audioUrl;
+    const epName = activeEpisode?.title || course.title || 'Lesson';
+    const cleanEpTitle = epName.replace(/^\d+[\s.\-_]+/, '').trim();
+
+    const smartChapters = isAudioContent ? [
+      { id: 'ch_0', timestamp: 0, timeStr: '00:00', title: `Introduction & Mangalacharanam (मङ्गलाचरणम्)` },
+      { id: 'ch_1', timestamp: 45, timeStr: '00:45', title: `${cleanEpTitle}: Chanting & Recitation (सस्वर-गानम्)` },
+      { id: 'ch_2', timestamp: 120, timeStr: '02:00', title: `Word Segmentation & Padacheda (पदच्छेदः)` },
+      { id: 'ch_3', timestamp: 240, timeStr: '04:00', title: `Meaning & Core Teaching (भावार्थविवरणम्)` },
+      { id: 'ch_4', timestamp: 390, timeStr: '06:30', title: `Repetition & Memory Practice (पुनरावृत्ति-अभ्यासः)` }
+    ] : [
+      { id: 'ch_0', timestamp: 0, timeStr: '00:00', title: `Introduction & Topic Overview: ${cleanEpTitle}` },
+      { id: 'ch_1', timestamp: 45, timeStr: '00:45', title: `Shloka / Concept Presentation (विषयोपस्थापनम्)` },
+      { id: 'ch_2', timestamp: 120, timeStr: '02:00', title: `Detailed Explanation & Anvaya (अन्वयः व्याख्यानम्)` },
+      { id: 'ch_3', timestamp: 240, timeStr: '04:00', title: `Grammar, Padavibhaga & Meaning (पदविभागः)` },
+      { id: 'ch_4', timestamp: 390, timeStr: '06:30', title: `Key Takeaways & Summary (सारसङ्ग्रहः)` }
+    ];
+
+    extractedChapters.push(...smartChapters);
+
+    // Also populate combinedMarkers so timeline ticks and tooltips show on the player seekbar
+    smartChapters.forEach(ch => {
+      combinedMarkers.push({
+        id: ch.id,
+        episodeId: activeEpisode?.id || '',
+        timestamp: ch.timestamp,
+        type: 'CHAPTER',
+        payload: JSON.stringify({ title: ch.title })
+      });
+    });
+  }
+
   return (
     <div style={{ 
       background: '#030b17', 
