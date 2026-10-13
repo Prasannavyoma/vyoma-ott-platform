@@ -3,6 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { FileText, Bookmark, Download, Cloud } from 'lucide-react';
+import { useGlobalPlayer } from './GlobalPlayerProvider';
+import { formatTimestamp, seekToTimestamp } from '@/lib/timestamps';
+import InteractiveTimestampText from './InteractiveTimestampText';
 
 interface Bookmark {
   id: string;
@@ -17,6 +20,7 @@ interface WatchNotesManagerProps {
 
 export default function WatchNotesManager({ courseId, initialNote }: { courseId: string, initialNote?: string }) {
   const router = useRouter();
+  const { currentTime } = useGlobalPlayer();
   const [activeTab, setActiveTab] = useState<'notes' | 'bookmarks'>('notes');
   const [note, setNote] = useState(initialNote || '');
   const [saving, setSaving] = useState(false);
@@ -113,6 +117,7 @@ export default function WatchNotesManager({ courseId, initialNote }: { courseId:
   };
 
   const seekToBookmark = (time: number) => {
+    seekToTimestamp(time);
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new CustomEvent('video-seek-request', { detail: { time } }));
     }
@@ -226,15 +231,43 @@ export default function WatchNotesManager({ courseId, initialNote }: { courseId:
             <span style={{ fontSize: '0.75rem', color: '#8f98a9', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
               Notebook desk
             </span>
-            <span style={{ fontSize: '0.7rem', color: '#f26422', fontWeight: 'bold' }}>
-              {saving ? 'Syncing...' : savedTime ? `Synced: ${savedTime}` : 'Autosaved locally'}
-            </span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <button
+                type="button"
+                onClick={() => {
+                  const currentSec = Math.floor(currentTime || videoTime || 0);
+                  const stamp = `[${formatTimestamp(currentSec)}] `;
+                  const updated = note ? `${note}\n${stamp}` : stamp;
+                  handleNoteChange(updated);
+                }}
+                style={{
+                  background: 'rgba(242, 100, 34, 0.15)',
+                  border: '1px solid rgba(242, 100, 34, 0.4)',
+                  color: '#f26422',
+                  padding: '3px 8px',
+                  borderRadius: '6px',
+                  fontSize: '0.72rem',
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  transition: 'all 0.2s'
+                }}
+                title="Insert current video timestamp into note"
+              >
+                ⏱️ + Stamp ({formatTimestamp(currentTime || videoTime || 0)})
+              </button>
+              <span style={{ fontSize: '0.7rem', color: '#f26422', fontWeight: 'bold' }}>
+                {saving ? 'Syncing...' : savedTime ? `Synced: ${savedTime}` : 'Autosaved locally'}
+              </span>
+            </div>
           </div>
 
           <textarea
             value={note}
             onChange={(e) => handleNoteChange(e.target.value)}
-            placeholder="Jot down notes, grammar formulas, or shloka highlights from this class module here..."
+            placeholder="Jot down notes, grammar formulas, or shloka highlights from this class module here... You can use timestamps like [02:15] to create clickable bookmarks!"
             style={{
               width: '100%',
               minHeight: '200px',
@@ -270,6 +303,21 @@ export default function WatchNotesManager({ courseId, initialNote }: { courseId:
               <Cloud size={14} style={{ display: 'inline-block', verticalAlign: 'text-bottom', marginRight: '4px' }} /> Cloud Sync
             </button>
           </div>
+
+          {note && /(?:\d{1,2}:\d{2})/.test(note) && (
+            <div style={{
+              marginTop: '15px',
+              padding: '12px',
+              background: 'rgba(255, 255, 255, 0.02)',
+              borderRadius: '8px',
+              border: '1px solid rgba(255, 255, 255, 0.05)'
+            }}>
+              <div style={{ fontSize: '0.75rem', color: '#aaa', fontWeight: 800, marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span>🎯 Interactive Timestamp Review:</span>
+              </div>
+              <InteractiveTimestampText text={note} style={{ fontSize: '0.85rem', color: '#ccc' }} />
+            </div>
+          )}
         </div>
       )}
 

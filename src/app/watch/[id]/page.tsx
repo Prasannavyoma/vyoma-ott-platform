@@ -26,6 +26,9 @@ import LikeDislikeSystem from '@/app/components/LikeDislikeSystem';
 import SanskritScriptSwitcher from '@/app/components/SanskritScriptSwitcher';
 import AiPronunciationAssistant from '@/app/components/AiPronunciationAssistant';
 import SanskritStreakWidget from '@/app/components/SanskritStreakWidget';
+import InteractiveTimestampText from '@/app/components/InteractiveTimestampText';
+import VideoChaptersList from '@/app/components/VideoChaptersList';
+import { extractChaptersFromText, parseTimestamp, formatTimestamp } from '@/lib/timestamps';
 import { getWatchlistStatus, getCourseLikeStatus, getCourseLikesCount } from '@/app/actions/ott';
 import { getCurrentUser } from '@/lib/auth';
 
@@ -73,13 +76,14 @@ export async function generateMetadata(props: { params: Promise<{ id: string }> 
   };
 }
 
-export default async function WatchPage(props: { params: Promise<{ id: string }>, searchParams: Promise<{ ep?: string }> }) {
+export default async function WatchPage(props: { params: Promise<{ id: string }>, searchParams: Promise<{ ep?: string; t?: string; room?: string }> }) {
   const params = await props.params;
   const searchParams = await props.searchParams;
   
   const courseId = params.id;
   const currentEpId = searchParams.ep;
   const room = (searchParams as any).room || null;
+  const tParam = searchParams.t;
 
   // Fetch authentic user context for tier checks
   const user = await getCurrentUser();
@@ -169,6 +173,14 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
         initialPosition = activeProgress.position || 0;
       }
     }
+
+    // YouTube-style deep link timestamp support: ?t=120 or ?t=2m00s overrides saved progress
+    if (tParam) {
+      const deepLinkPosition = parseTimestamp(tParam);
+      if (deepLinkPosition !== null && deepLinkPosition > 0) {
+        initialPosition = deepLinkPosition;
+      }
+    }
   }
 
 // Identify the next episode in the sequence for AutoPlay Countdown
@@ -247,6 +259,43 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
     });
   }
 
+  // ⏱️ Auto-extract YouTube-style chapters from Episode/Course Description
+  const rawDescription = activeEpisode?.description || course.description || "";
+  const extractedChapters = extractChaptersFromText(rawDescription);
+
+  // Merge extracted text chapters into video markers so CinematicPlayer timeline ticks show them
+  const combinedMarkers = [...markers];
+  extractedChapters.forEach(ch => {
+    if (!combinedMarkers.some(m => Math.abs(m.timestamp - ch.timestamp) < 2)) {
+      combinedMarkers.push({
+        id: ch.id,
+        episodeId: activeEpisode?.id || '',
+        timestamp: ch.timestamp,
+        type: 'CHAPTER',
+        payload: JSON.stringify({ title: ch.title })
+      });
+    }
+  });
+
+  // Also include any DB CHAPTER markers into extractedChapters for the chapters panel
+  markers.filter(m => m.type === 'CHAPTER').forEach(m => {
+    if (!extractedChapters.some(c => Math.abs(c.timestamp - m.timestamp) < 2)) {
+      let title = `Chapter at ${formatTimestamp(m.timestamp)}`;
+      try {
+        const parsed = JSON.parse(m.payload);
+        if (parsed.title) title = parsed.title;
+        else if (typeof parsed === 'string') title = parsed;
+      } catch (e) {}
+      extractedChapters.push({
+        id: m.id,
+        timestamp: m.timestamp,
+        timeStr: formatTimestamp(m.timestamp),
+        title
+      });
+    }
+  });
+  extractedChapters.sort((a, b) => a.timestamp - b.timestamp);
+
   return (
     <div style={{ 
       background: '#030b17', 
@@ -290,7 +339,7 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
           <div className="watch-grid">
            
            {/* MAIN PLAYER AREA / OTT LOCK GATEWAY */}
-           <div>
+           <div id="player-container">
              
              {isLocked ? (
                 /* PREMIUM OTT DYNAMIC LOCK OVERLAY WITH EPISODE POSTER REVEAL */
@@ -372,7 +421,7 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
                  poster={activeEpisode?.thumbnailUrl || course.thumbnailUrl || undefined} 
                  episodeId={activeEpisode?.id}
                  courseId={course.id}
-                 markers={markers}
+                 markers={combinedMarkers}
                  nextEpisodeUrl={nextEpUrl}
                  nextEpisodeTitle={nextEpTitle}
                  initialPosition={initialPosition}
@@ -471,20 +520,59 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
                   </h3>
                 )}
 
-                <p className="watch-description" style={{ 
-                  color: 'rgba(255,255,255,0.7)', 
-                  lineHeight: '1.7', 
-                  maxWidth: '850px', 
-                  fontSize: '1.12rem',
-                  fontWeight: 500,
-                  marginTop: '20px',
-                  marginBottom: '30px',
-                  wordWrap: 'break-word',
-                  overflowWrap: 'break-word',
-                  wordBreak: 'break-word'
-                }}>
-                  {course.description ? course.description.replace(/&amp;/g, '&') : ''}
-                </p>
+                {/* EPISODE SYNOPSIS & TIMESTAMPS */}
+                {activeEpisode?.description && (
+                  <div style={{
+                    marginTop: '20px',
+                    marginBottom: '20px',
+                    padding: '16px 20px',
+                    background: 'rgba(255, 255, 255, 0.02)',
+                    borderRadius: '12px',
+                    border: '1px solid rgba(255, 255, 255, 0.06)'
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                      <div style={{ fontSize: '0.78rem', color: '#f26422', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.8px' }}>
+                        📋 Episode Details & Timestamps
+                      </div>
+                      {user?.role === 'ADMIN' && activeEpisode?.id && (
+                        <Link 
+                          href={`/admin/episodes/${activeEpisode.id}`} 
+                          target="_blank"
+                          style={{ fontSize: '0.75rem', color: '#aaa', textDecoration: 'none', background: 'rgba(255,255,255,0.06)', padding: '3px 8px', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.1)' }}
+                        >
+                          ✏️ Edit Timestamps
+                        </Link>
+                      )}
+                    </div>
+                    <InteractiveTimestampText
+                      text={activeEpisode.description.replace(/&amp;/g, '&')}
+                      style={{ color: 'rgba(255,255,255,0.85)', fontSize: '1rem', lineHeight: '1.7' }}
+                    />
+                  </div>
+                )}
+
+                {/* YOUTUBE-STYLE CHAPTERS & KEY MOMENTS PANEL */}
+                {extractedChapters.length > 0 && (
+                  <VideoChaptersList chapters={extractedChapters} courseTitle={course.title} />
+                )}
+
+                {/* COURSE OVERVIEW DESCRIPTION */}
+                {course.description && (
+                  <div className="watch-description" style={{ 
+                    color: 'rgba(255,255,255,0.7)', 
+                    lineHeight: '1.7', 
+                    maxWidth: '850px', 
+                    fontSize: '1.05rem',
+                    fontWeight: 500,
+                    marginTop: '20px',
+                    marginBottom: '30px',
+                    wordWrap: 'break-word',
+                    overflowWrap: 'break-word',
+                    wordBreak: 'break-word'
+                  }}>
+                    <InteractiveTimestampText text={course.description.replace(/&amp;/g, '&')} />
+                  </div>
+                )}
                 
                 <CourseEngagement courseId={course.id} initialNote={noteContent}>
                   <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '12px' }}>

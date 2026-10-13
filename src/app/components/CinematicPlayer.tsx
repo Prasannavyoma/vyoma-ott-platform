@@ -13,6 +13,7 @@ import {
   sendStudyRoomMessage, 
   getClientUser 
 } from '@/app/actions/learning-ott';
+import { parseTimestamp, formatTimestamp } from '@/lib/timestamps';
 
 interface SubtitleCue {
   startTime: number;
@@ -348,6 +349,46 @@ export default function CinematicPlayer({
     };
   }, []);
 
+  const [copiedTimeToast, setCopiedTimeToast] = useState<string | null>(null);
+
+  const copyLinkAtCurrentTime = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (typeof window === 'undefined') return;
+    const currentSecs = Math.floor(videoRef.current?.currentTime || localTime || 0);
+    const urlObj = new URL(window.location.href);
+    urlObj.searchParams.set('t', String(currentSecs));
+    navigator.clipboard.writeText(urlObj.toString());
+    const formatted = formatTimestamp(currentSecs);
+    setCopiedTimeToast(`Link copied at ${formatted}!`);
+    setTimeout(() => setCopiedTimeToast(null), 3000);
+  };
+
+  // External YouTube-style seek listener (triggers from descriptions, chapters panel, notes)
+  useEffect(() => {
+    const handleCustomSeek = (e: any) => {
+      const time = e.detail?.time;
+      if (typeof time !== 'number' || isNaN(time)) return;
+
+      if (isNonNativeVideo && !isAudioFormat) {
+        setLocalTime(time);
+        updateTime(time);
+        navigateIframeToTime(time);
+      } else if (videoRef.current) {
+        videoRef.current.currentTime = time;
+        updateTime(time);
+        if (e.detail?.play !== false) {
+          videoRef.current.play().catch(() => {});
+          setPlaying(true);
+        }
+      }
+    };
+
+    window.addEventListener('vyoma:seek' as any, handleCustomSeek);
+    return () => {
+      window.removeEventListener('vyoma:seek' as any, handleCustomSeek);
+    };
+  }, [isNonNativeVideo, isAudioFormat]);
+
   // Format time (seconds to MM:SS)
   const formatTime = (seconds: number) => {
     if (isNaN(seconds)) return "00:00";
@@ -550,6 +591,25 @@ export default function CinematicPlayer({
     if (room) {
       setStudyRoomId(room);
       setShowStudyRoomSidebar(true);
+    }
+
+    // Support YouTube-style deep link timestamp: ?t=120 or ?t=2m00s
+    const tParam = params.get('t');
+    if (tParam) {
+      const parsedSeconds = parseTimestamp(tParam);
+      if (parsedSeconds && parsedSeconds > 0) {
+        setTimeout(() => {
+          if (videoRef.current) {
+            videoRef.current.currentTime = parsedSeconds;
+            updateTime(parsedSeconds);
+            videoRef.current.play().catch(() => {});
+            setPlaying(true);
+          } else {
+            setLocalTime(parsedSeconds);
+            updateTime(parsedSeconds);
+          }
+        }, 600);
+      }
     }
     
     getClientUser()
@@ -1740,6 +1800,36 @@ export default function CinematicPlayer({
                     </svg>
                   </button>
                 )}
+
+                {/* ⏱️ YouTube-style Copy Link at Current Timestamp */}
+                <button
+                  onClick={copyLinkAtCurrentTime}
+                  style={{ ...btnStyle, position: 'relative' }}
+                  title="Copy video link at current timestamp"
+                >
+                  <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  {copiedTimeToast && (
+                    <span style={{
+                      position: 'absolute',
+                      bottom: '140%',
+                      right: 0,
+                      background: '#f26422',
+                      color: '#fff',
+                      padding: '6px 12px',
+                      borderRadius: '8px',
+                      fontSize: '0.75rem',
+                      fontWeight: 800,
+                      whiteSpace: 'nowrap',
+                      boxShadow: '0 4px 15px rgba(242,100,34,0.4)',
+                      zIndex: 100,
+                      pointerEvents: 'none'
+                    }}>
+                      ✓ {copiedTimeToast}
+                    </span>
+                  )}
+                </button>
 
                 {/* Fullscreen Trigger */}
                 <button onClick={toggleFullscreen} style={btnStyle} title="Full Screen">

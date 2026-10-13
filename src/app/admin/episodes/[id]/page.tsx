@@ -86,8 +86,20 @@ export default async function EpisodeEditorPage(props: any) {
            </div>
 
            <div>
-              <label style={{ display: 'block', fontSize: '0.75rem', color: '#aaa', fontWeight: 'bold', textTransform: 'uppercase', marginBottom: '6px' }}>Episode Synopsis / Short Description</label>
-              <textarea name="description" defaultValue={episode.description || ''} rows={3} style={{ width: '100%', padding: '12px', background: '#000', border: '1px solid #333', borderRadius: '8px', color: '#fff', fontFamily: 'inherit' }} />
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                <label style={{ fontSize: '0.75rem', color: '#aaa', fontWeight: 'bold', textTransform: 'uppercase' }}>Episode Synopsis & YouTube-style Chapters</label>
+                <span style={{ fontSize: '0.7rem', color: '#f26422', fontWeight: 'bold' }}>💡 YouTube timestamps supported</span>
+              </div>
+              <textarea 
+                name="description" 
+                defaultValue={episode.description || ''} 
+                rows={6} 
+                placeholder="Enter module summary. You can also write YouTube-style chapters here, e.g.:&#10;00:00 Introduction&#10;02:15 Mangalacharanam&#10;05:40 Verse 1 Recitation&#10;11:20 Meaning & Grammar"
+                style={{ width: '100%', padding: '12px', background: '#000', border: '1px solid #333', borderRadius: '8px', color: '#fff', fontFamily: 'inherit' }} 
+              />
+              <p style={{ margin: '6px 0 0 0', fontSize: '0.75rem', color: '#888' }}>
+                Any timestamps typed in format <code style={{ color: '#f26422' }}>00:00 Chapter Title</code> or <code style={{ color: '#f26422' }}>01:25</code> will automatically become interactive chapter markers on the player seekbar and clickable buttons for students!
+              </p>
            </div>
 
            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>

@@ -16,6 +16,7 @@ interface GlobalPlayerContextType {
   setPlaying: (playing: boolean) => void;
   isMinimized: boolean;
   videoRef: React.RefObject<HTMLVideoElement | null>;
+  seekTo: (time: number, autoPlay?: boolean) => void;
 }
 
 const GlobalPlayerContext = createContext<GlobalPlayerContextType | undefined>(undefined);
@@ -85,6 +86,20 @@ export function GlobalPlayerProvider({ children }: { children: React.ReactNode }
     }
   };
 
+  const seekTo = (time: number, autoPlay: boolean = true) => {
+    setCurrentTime(time);
+    if (videoRef.current) {
+      videoRef.current.currentTime = time;
+      if (autoPlay) {
+        videoRef.current.play().catch(() => {});
+        setIsPlaying(true);
+      }
+    }
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('vyoma:seek', { detail: { time, play: autoPlay } }));
+    }
+  };
+
   // Format check helper
   const getIsDocument = (urlStr: string | null) => {
     if (!urlStr) return false;
@@ -117,7 +132,7 @@ export function GlobalPlayerProvider({ children }: { children: React.ReactNode }
   return (
     <GlobalPlayerContext.Provider value={{
       activeEpisodeId, activeCourseId, videoUrl, currentTime, isPlaying, 
-      playEpisode, stopEpisode, updateTime, setPlaying, isMinimized, videoRef
+      playEpisode, stopEpisode, updateTime, setPlaying, isMinimized, videoRef, seekTo
     }}>
       {children}
 

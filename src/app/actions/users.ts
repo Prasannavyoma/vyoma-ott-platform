@@ -64,6 +64,27 @@ export async function adminDeleteUser(targetUserId: string) {
     await prisma.$executeRawUnsafe(`DELETE FROM WatchlistItem WHERE userId = ?`, targetUserId);
     await prisma.$executeRawUnsafe(`DELETE FROM CourseLike WHERE userId = ?`, targetUserId);
 
+    // Fetch user details for audit & telemetry capture prior to deletion
+    const victim = await prisma.user.findUnique({ where: { id: targetUserId } });
+    if (victim) {
+      await prisma.telemetryEvent.create({
+        data: {
+          eventType: 'ACCOUNT_CANCELLED',
+          sourceId: victim.email,
+          userId: victim.id,
+          metadata: JSON.stringify({
+            userId: victim.id,
+            email: victim.email,
+            name: victim.name,
+            plan: victim.plan,
+            country: victim.country || 'IN',
+            deletedBy: actor.email,
+            timestamp: new Date().toISOString()
+          })
+        }
+      }).catch(e => console.error("Telemetry error:", e));
+    }
+
     // 4. Trigger cascading database erasure (Deletes purchases, certificates, and identity)
     await prisma.user.delete({
       where: { id: targetUserId }

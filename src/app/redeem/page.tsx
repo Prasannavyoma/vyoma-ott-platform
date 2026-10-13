@@ -1,16 +1,25 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import NavBar from '@/app/components/NavBar';
 import { redeemVoucherCode } from '@/app/actions/gift';
 
-export default function RedeemPage() {
+function RedeemContent() {
+  const searchParams = useSearchParams();
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
   
   const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
   const [redeemedMeta, setRedeemedMeta] = useState<any>(null);
+
+  useEffect(() => {
+    const urlCode = searchParams.get('code');
+    if (urlCode) {
+      setCode(urlCode.trim().toUpperCase());
+    }
+  }, [searchParams]);
 
   async function handleRedeem(e: React.FormEvent) {
     e.preventDefault();
@@ -151,5 +160,17 @@ export default function RedeemPage() {
 
       </div>
     </main>
+  );
+}
+
+export default function RedeemPage() {
+  return (
+    <Suspense fallback={
+      <main style={{ minHeight: '100vh', background: '#050505', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <p>Loading Gift Activation...</p>
+      </main>
+    }>
+      <RedeemContent />
+    </Suspense>
   );
 }

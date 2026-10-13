@@ -20,10 +20,13 @@ interface GiftParams {
   recipientName: string;
   recipientEmail: string;
   relationship: string;
+  occasion?: string;
   personalMessage: string;
   planName: 'GOLD' | 'PLATINUM';
   months: number;
   quantity: number;
+  amount?: number;
+  currency?: string;
 }
 
 /**
@@ -36,6 +39,7 @@ export async function purchaseGiftVoucher(params: GiftParams) {
   }
 
   const codes: string[] = [];
+  const occasionText = params.occasion || 'Spiritual Wisdom';
   
   try {
     // 1. Atomically Loop and mint distinct voucher slots for the bulk bundle
@@ -47,7 +51,7 @@ export async function purchaseGiftVoucher(params: GiftParams) {
           code: uniqueCode,
           plan: params.planName,
           months: params.months,
-          sponsoredBy: `Gift Bundle from ${buyer.name || buyer.email} (${params.relationship})`,
+          sponsoredBy: `Gift from ${buyer.name || buyer.email} to ${params.recipientName} (${params.relationship} • ${occasionText})`,
           isUsed: false
         }
       });
@@ -55,7 +59,35 @@ export async function purchaseGiftVoucher(params: GiftParams) {
       codes.push(uniqueCode);
     }
 
-    // 2. Dispatch Dynamic Gift E-Card email automatically
+    // 2. Log Telemetry Event for Gift Tracking & Analytics
+    const calculatedAmount = params.amount || (params.planName === 'GOLD' ? (params.months === 12 ? 390 : 39) * params.quantity : (params.months === 12 ? 490 : 49) * params.quantity);
+    
+    await prisma.telemetryEvent.create({
+      data: {
+        eventType: 'GIFT_PURCHASED',
+        sourceId: `GIFT:${params.planName}:${params.months}M`,
+        userId: buyer.id,
+        metadata: JSON.stringify({
+          senderName: buyer.name || buyer.email,
+          senderEmail: buyer.email,
+          senderId: buyer.id,
+          recipientName: params.recipientName,
+          recipientEmail: params.recipientEmail,
+          relationship: params.relationship,
+          occasion: occasionText,
+          personalMessage: params.personalMessage,
+          planName: params.planName,
+          months: params.months,
+          quantity: params.quantity,
+          codes: codes,
+          amount: calculatedAmount,
+          currency: params.currency || 'INR',
+          timestamp: new Date().toISOString()
+        })
+      }
+    }).catch(e => console.error("Gift telemetry error:", e));
+
+    // 3. Dispatch Dynamic Gift E-Card email automatically
     sendGiftVoucherEmail(
       params.recipientEmail,
       params.recipientName,
@@ -67,13 +99,14 @@ export async function purchaseGiftVoucher(params: GiftParams) {
       params.personalMessage
     ).catch(e => console.error("Gift email dispatch failed:", e));
 
-    // 3. Simulated Bulk Email Confirmation Trigger
+    // 4. Simulated Bulk Email Confirmation Trigger
     console.log(`
       -----------------------------------------------------
       📧 SIMULATED BULK GIFT EMAILS COMMENCED 📧
       Count: ${params.quantity}
       From: Vyoma Academy <gifts@vyoma.org>
       To: ${params.recipientEmail} (${params.recipientName})
+      Occasion: ${occasionText}
       
       Dispatched ${params.quantity} separate secure Activation Keys 
       to target recipient inbox for distribution.
@@ -144,6 +177,25 @@ export async function redeemVoucherCode(rawCode: string) {
         }
       })
     ]);
+
+    // 4. Log Telemetry Event for Gift Redemption
+    await prisma.telemetryEvent.create({
+      data: {
+        eventType: 'GIFT_REDEEMED',
+        sourceId: `VOUCHER:${cleanCode}`,
+        userId: user.id,
+        metadata: JSON.stringify({
+          code: cleanCode,
+          redeemedByEmail: user.email,
+          redeemedByName: user.name || "Subscriber",
+          redeemedById: user.id,
+          plan: voucher.plan,
+          months: voucher.months,
+          sponsoredBy: voucher.sponsoredBy,
+          timestamp: new Date().toISOString()
+        })
+      }
+    }).catch(e => console.error("Gift redemption telemetry error:", e));
 
     revalidatePath('/profile');
     return { 
