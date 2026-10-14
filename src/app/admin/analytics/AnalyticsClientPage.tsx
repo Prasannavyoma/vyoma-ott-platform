@@ -99,6 +99,17 @@ export interface GiftItem {
   createdAt: string;
 }
 
+export interface OfflineDownloadRecord {
+  id: string;
+  email: string;
+  name: string;
+  plan: string;
+  courseTitle: string;
+  episodeTitle: string;
+  ip: string;
+  date: string;
+}
+
 export interface GiftAnalytics {
   totalGiftsCount: number;
   totalGiftRevenue: number;
@@ -128,6 +139,7 @@ interface AnalyticsClientPageProps {
   regionalAnalytics: RegionalAnalytics;
   subscriptionTelemetry: SubscriptionTelemetry;
   giftAnalytics: GiftAnalytics;
+  offlineDownloads?: OfflineDownloadRecord[];
 }
 
 export default function AnalyticsClientPage({
@@ -148,12 +160,14 @@ export default function AnalyticsClientPage({
   regionalAnalytics,
   subscriptionTelemetry,
   giftAnalytics,
+  offlineDownloads = [],
 }: AnalyticsClientPageProps) {
   const router = useRouter();
-  const [activeSection, setActiveSection] = useState<'overview' | 'upgrades' | 'renewals' | 'churn_failures' | 'gifts'>('overview');
+  const [activeSection, setActiveSection] = useState<'overview' | 'upgrades' | 'renewals' | 'churn_failures' | 'gifts' | 'downloads'>('overview');
   const [timeframeTab, setTimeframeTab] = useState<'daily' | 'weekly' | 'monthly' | 'yearly'>('monthly');
   const [giftSearch, setGiftSearch] = useState('');
   const [giftStatusFilter, setGiftStatusFilter] = useState<'ALL' | 'REDEEMED' | 'PENDING'>('ALL');
+  const [downloadSearch, setDownloadSearch] = useState('');
 
   
   // SVG Chart Dimensions & Computations
@@ -306,6 +320,7 @@ export default function AnalyticsClientPage({
           { id: 'renewals', label: '🔄 Auto-Renewals & Mandates' },
           { id: 'churn_failures', label: '⚠️ Churn, Cancellations & Payment Failures' },
           { id: 'gifts', label: '🎁 Gift Wisdom & Vouchers Ledger' },
+          { id: 'downloads', label: `📥 Offline Downloads Audit (${offlineDownloads.length})` },
         ].map((sec) => (
           <button
             key={sec.id}
@@ -1438,6 +1453,113 @@ export default function AnalyticsClientPage({
         );
       })()}
 
+      {/* ========================================================================= */}
+      {/* SECTION 6: OFFLINE DOWNLOADS AUDIT & TELEMETRY                           */}
+      {/* ========================================================================= */}
+      {activeSection === 'downloads' && (() => {
+        const filteredDownloads = (offlineDownloads || []).filter((d) => {
+          if (!downloadSearch) return true;
+          const q = downloadSearch.toLowerCase();
+          return (
+            d.email.toLowerCase().includes(q) ||
+            d.name.toLowerCase().includes(q) ||
+            d.courseTitle.toLowerCase().includes(q) ||
+            d.episodeTitle.toLowerCase().includes(q) ||
+            d.ip.toLowerCase().includes(q)
+          );
+        });
+
+        return (
+          <div style={{ background: '#0e131f', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', padding: '25px', boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px', marginBottom: '25px' }}>
+              <div>
+                <h3 style={{ margin: 0, fontSize: '1.4rem', fontWeight: 900, color: '#fff', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <span>📥</span> Offline Video Downloads Audit Log
+                </h3>
+                <p style={{ margin: '4px 0 0 0', color: '#aaa', fontSize: '0.85rem' }}>
+                  Audited records of verified logged-in users who initiated 30-day offline video downloads.
+                </p>
+              </div>
+              <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                <input
+                  type="text"
+                  placeholder="Search user, course, IP..."
+                  value={downloadSearch}
+                  onChange={(e) => setDownloadSearch(e.target.value)}
+                  style={{
+                    background: 'rgba(255,255,255,0.06)',
+                    border: '1px solid rgba(255,255,255,0.15)',
+                    borderRadius: '8px',
+                    color: '#fff',
+                    padding: '8px 14px',
+                    fontSize: '0.85rem',
+                    minWidth: '240px'
+                  }}
+                />
+                <span style={{ background: 'rgba(70,211,105,0.15)', border: '1px solid rgba(70,211,105,0.3)', color: '#46d369', padding: '8px 16px', borderRadius: '8px', fontWeight: 800, fontSize: '0.85rem' }}>
+                  Total: {offlineDownloads.length} Downloads
+                </span>
+              </div>
+            </div>
+
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.85rem' }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', color: '#888' }}>
+                    <th style={{ padding: '12px 10px' }}>USER ACCOUNT</th>
+                    <th style={{ padding: '12px 10px' }}>PLAN</th>
+                    <th style={{ padding: '12px 10px' }}>CONTENT DOWNLOADED</th>
+                    <th style={{ padding: '12px 10px' }}>IP ADDRESS</th>
+                    <th style={{ padding: '12px 10px', textAlign: 'right' }}>DATE & TIME</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredDownloads.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
+                        No offline downloads recorded matching your search.
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredDownloads.map((d) => (
+                      <tr key={d.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                        <td style={{ padding: '12px 10px' }}>
+                          <div style={{ fontWeight: 700, color: '#fff' }}>{d.name}</div>
+                          <div style={{ fontSize: '0.75rem', color: '#888' }}>{d.email}</div>
+                        </td>
+                        <td style={{ padding: '12px 10px' }}>
+                          <span style={{
+                            background: d.plan === 'PLATINUM' ? 'rgba(168,85,247,0.15)' : d.plan === 'GOLD' ? 'rgba(255,215,0,0.15)' : 'rgba(255,255,255,0.08)',
+                            color: d.plan === 'PLATINUM' ? '#a855f7' : d.plan === 'GOLD' ? '#ffd700' : '#aaa',
+                            padding: '3px 8px',
+                            borderRadius: '4px',
+                            fontSize: '0.72rem',
+                            fontWeight: 800
+                          }}>
+                            {d.plan}
+                          </span>
+                        </td>
+                        <td style={{ padding: '12px 10px' }}>
+                          <div style={{ fontWeight: 700, color: '#f26422' }}>{d.courseTitle}</div>
+                          {d.episodeTitle && (
+                            <div style={{ fontSize: '0.75rem', color: '#bbb' }}>{d.episodeTitle}</div>
+                          )}
+                        </td>
+                        <td style={{ padding: '12px 10px', fontFamily: 'monospace', color: '#888', fontSize: '0.75rem' }}>
+                          {d.ip}
+                        </td>
+                        <td style={{ padding: '12px 10px', textAlign: 'right', color: '#aaa', fontSize: '0.78rem' }}>
+                          {d.date}
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }

@@ -252,12 +252,13 @@ export default async function AnalyticsDashboardPage(props: { searchParams: Prom
           'SUBSCRIPTION_PAYMENT_FAILED',
           'AUTO_RENEWAL',
           'GIFT_PURCHASED',
-          'GIFT_REDEEMED'
+          'GIFT_REDEEMED',
+          'OFFLINE_DOWNLOAD'
         ]
       }
     },
     orderBy: { createdAt: 'desc' },
-    take: 300
+    take: 500
   });
 
   // 9. Fetch All Subscription Vouchers & Redemption User Accounts
@@ -298,6 +299,9 @@ export default async function AnalyticsDashboardPage(props: { searchParams: Prom
   let autoRenewalsCount = 0;
   const autoRenewalsByDate: { [dateKey: string]: number } = {};
   const autoRenewalsList: Array<{ id: string; email: string; plan: string; interval: string; amount: number; date: string }> = [];
+
+  // Offline Downloads Audit
+  const offlineDownloadsList: Array<{ id: string; email: string; name: string; plan: string; courseTitle: string; episodeTitle: string; ip: string; date: string }> = [];
 
   rawEvents.forEach((ev) => {
     let meta: any = {};
@@ -379,6 +383,17 @@ export default async function AnalyticsDashboardPage(props: { searchParams: Prom
       if (meta.code) {
         giftRedeemedEventsMap.set(meta.code, { ...meta, createdAt: ev.createdAt });
       }
+    } else if (ev.eventType === 'OFFLINE_DOWNLOAD') {
+      offlineDownloadsList.push({
+        id: ev.id,
+        email: meta.userEmail || 'Subscriber',
+        name: meta.userName || 'Learner',
+        plan: meta.userPlan || 'FREE',
+        courseTitle: meta.courseTitle || 'Course Video',
+        episodeTitle: meta.episodeTitle || '',
+        ip: meta.ip || 'Unknown',
+        date: dateStr
+      });
     }
   });
 
@@ -527,6 +542,7 @@ export default async function AnalyticsDashboardPage(props: { searchParams: Prom
         platinumGiftsCount,
         giftLedger
       }}
+      offlineDownloads={offlineDownloadsList}
     />
   );
 }

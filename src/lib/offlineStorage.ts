@@ -7,6 +7,8 @@ export interface OfflineItemMeta {
   courseId?: string;
   episodeId?: string;
   thumbnailUrl?: string;
+  userId?: string;
+  userEmail?: string;
   downloadedAt: number;
   expiresAt: number;
 }

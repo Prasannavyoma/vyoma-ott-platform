@@ -17,6 +17,7 @@ interface DownloadButtonProps {
   episodeId?: string;
   thumbnailUrl?: string;
   compact?: boolean;
+  isLoggedIn?: boolean;
 }
 
 export default function DownloadButton({
@@ -27,6 +28,7 @@ export default function DownloadButton({
   episodeId,
   thumbnailUrl,
   compact = false,
+  isLoggedIn = true,
 }: DownloadButtonProps) {
   const [status, setStatus] = useState<'IDLE' | 'DOWNLOADING' | 'CACHED' | 'ERROR'>('IDLE');
   const [progress, setProgress] = useState(0);
@@ -34,7 +36,7 @@ export default function DownloadButton({
   const [showClearModal, setShowClearModal] = useState(false);
 
   useEffect(() => {
-    if (!videoUrl || typeof window === 'undefined' || !('caches' in window)) return;
+    if (!videoUrl || typeof window === 'undefined' || !('caches' in window) || isLoggedIn === false) return;
 
     // Check if cached and valid
     getOfflineDownloads().then((downloads) => {
@@ -46,7 +48,12 @@ export default function DownloadButton({
         setStatus('IDLE');
       }
     });
-  }, [videoUrl]);
+  }, [videoUrl, isLoggedIn]);
+
+  // NEVER show or render download button if user is not authenticated
+  if (isLoggedIn === false) {
+    return null;
+  }
 
   const handleDownload = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -65,14 +72,27 @@ export default function DownloadButton({
     try {
       const cache = await caches.open('vyoma-offline-video-v1');
 
-      // Bypass CORS via edge proxy if remote URL
-      let fetchUrl = videoUrl;
-      if (videoUrl.startsWith('http://') || videoUrl.startsWith('https://')) {
-        fetchUrl = `/api/offline-proxy?url=${encodeURIComponent(videoUrl)}`;
-      }
+      // Route through server-authenticated edge/node proxy to verify login session & audit event
+      const queryParams = new URLSearchParams({
+        url: videoUrl,
+        courseId: courseId || '',
+        episodeId: episodeId || '',
+        courseTitle: courseTitle || '',
+        episodeTitle: episodeTitle || '',
+      });
+      const fetchUrl = `/api/offline-proxy?${queryParams.toString()}`;
 
       setProgress(15);
       const response = await fetch(fetchUrl);
+      
+      if (response.status === 401) {
+        alert('Authentication required: Please log in to download videos for offline viewing.');
+        window.location.href = `/login?redirect=${encodeURIComponent(window.location.pathname)}`;
+        setStatus('IDLE');
+        setProgress(0);
+        return;
+      }
+
       if (!response.ok) throw new Error('Network failed or proxy rejected');
 
       const contentLength = response.headers.get('content-length');

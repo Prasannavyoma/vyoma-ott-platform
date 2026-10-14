@@ -617,8 +617,8 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
                      {/* DYNAMIC SENTIMENT TRACKING */}
                      <LikeDislikeSystem courseId={course.id} initialStatus={isLiked} initialLikesCount={likesCount} />
 
-                     {/* COMPILING DOWNSTREAM TRIGGERS */}
-                     {!isLocked && (
+                     {/* COMPILING DOWNSTREAM TRIGGERS - ONLY SHOWN WHEN LOGGED IN */}
+                     {!isLocked && user && (
                        <div style={{ marginLeft: 'auto' }}>
                          <DownloadButton 
                             videoUrl={playUrl} 
@@ -627,6 +627,7 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
                             courseId={course.id}
                             episodeId={activeEpisode?.id}
                             thumbnailUrl={activePosterUrl}
+                            isLoggedIn={true}
                           />
                        </div>
                      )}
@@ -653,6 +654,7 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
                          courseId={courseId} 
                          courseThumbnail={course.thumbnailUrl} 
                          room={room}
+                         isLoggedIn={!!user}
                        />
                     </div>
                   );
