@@ -1,5 +1,6 @@
 "use client";
 
+import { getPasswordStrength, validatePassword } from '@/lib/passwordValidation';
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -16,29 +17,17 @@ export default function ChangePasswordPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // Password strength logic
-  const getPasswordStrength = (pwd: string) => {
-    if (!pwd) return { label: '', color: '', percent: 0, isValid: false };
-    if (pwd.length < 6) return { label: 'Weak (Too Short)', color: '#ef4444', percent: 25, isValid: false };
-    
-    let score = 0;
-    if (pwd.length >= 8) score++;
-    if (/[A-Z]/.test(pwd)) score++;
-    if (/[a-z]/.test(pwd)) score++;
-    if (/[0-9]/.test(pwd)) score++;
-    if (/[^A-Za-z0-9]/.test(pwd)) score++;
-    
-    if (score >= 4) return { label: 'Strong Password', color: '#22c55e', percent: 100, isValid: true };
-    if (score >= 2) return { label: 'Medium Password', color: '#ffb020', percent: 65, isValid: true };
-    return { label: 'Weak Password', color: '#ef4444', percent: 35, isValid: false };
-  };
-
   const strength = getPasswordStrength(password);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    const pwdCheck = validatePassword(password);
+    if (!pwdCheck.isValid) {
+      setError(pwdCheck.error || 'Password cannot start with a space or be blank.');
+      return;
+    }
     if (!strength.isValid) {
-      setError('Please choose a medium or strong password.');
+      setError(strength.error || 'Please choose a medium or strong password.');
       return;
     }
     if (password !== confirmPassword) {
@@ -130,8 +119,26 @@ export default function ChangePasswordPage() {
                   type={showPassword ? 'text' : 'password'} 
                   name="password" 
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter password" 
+                  onKeyDown={(e) => {
+                    if (e.key === ' ' && (e.currentTarget.selectionStart === 0 || password.length === 0)) {
+                      e.preventDefault();
+                      setError('Password cannot start with a space or be blank.');
+                    }
+                  }}
+                  onChange={(e) => {
+                    let val = e.target.value;
+                    if (val.startsWith(' ')) {
+                      val = val.replace(/^\s+/, '');
+                      setError('Password cannot start with a space.');
+                    } else if (val.includes(' ')) {
+                      val = val.replace(/\s+/g, '');
+                      setError('Password cannot contain spaces.');
+                    } else if (error && (error.includes('space') || error.includes('blank'))) {
+                      setError('');
+                    }
+                    setPassword(val);
+                  }}
+                  placeholder="Enter password (no spaces)" 
                   required
                   style={{
                     width: '100%',
@@ -179,7 +186,25 @@ export default function ChangePasswordPage() {
                 <input 
                   type={showConfirmPassword ? 'text' : 'password'} 
                   value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === ' ' && (e.currentTarget.selectionStart === 0 || confirmPassword.length === 0)) {
+                      e.preventDefault();
+                      setError('Confirm password cannot start with a space.');
+                    }
+                  }}
+                  onChange={(e) => {
+                    let val = e.target.value;
+                    if (val.startsWith(' ')) {
+                      val = val.replace(/^\s+/, '');
+                      setError('Confirm password cannot start with a space.');
+                    } else if (val.includes(' ')) {
+                      val = val.replace(/\s+/g, '');
+                      setError('Confirm password cannot contain spaces.');
+                    } else if (error && (error.includes('space') || error.includes('blank'))) {
+                      setError('');
+                    }
+                    setConfirmPassword(val);
+                  }}
                   placeholder="Re-enter password" 
                   required
                   style={{
@@ -212,7 +237,7 @@ export default function ChangePasswordPage() {
             <button 
               type="submit" 
               className="btn btn-primary" 
-              disabled={isPending || (password !== '' && !strength.isValid)}
+              disabled={isPending || !password.trim() || !strength.isValid || !confirmPassword.trim() || confirmPassword !== password}
               style={{ 
                 marginTop: '10px', 
                 padding: '15px', 

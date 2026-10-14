@@ -1,5 +1,7 @@
 'use server';
 
+import { validatePassword } from '@/lib/passwordValidation';
+
 import { prisma } from '@/lib/prisma';
 import { redirect } from 'next/navigation';
 import { sendWelcomeEmail, sendPasswordResetEmail } from '@/lib/mail';
@@ -31,6 +33,11 @@ export async function registerUser(formData: FormData) {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(rawEmail)) {
     return { error: 'Please enter a valid Email address.' };
+  }
+
+  const passwordCheck = validatePassword(password);
+  if (!passwordCheck.isValid) {
+    return { error: passwordCheck.error || 'Password cannot start with a space or be blank.' };
   }
 
   const normalizedEmail = rawEmail.toLowerCase();
@@ -209,8 +216,9 @@ export async function changePassword(formData: FormData) {
   }
 
   const password = formData.get('password') as string;
-  if (!password || password.length < 6) {
-    return { error: 'Password must be at least 6 characters long.' };
+  const passwordCheck = validatePassword(password);
+  if (!passwordCheck.isValid) {
+    return { error: passwordCheck.error || 'Password cannot start with a space or be blank.' };
   }
 
   try {
@@ -405,8 +413,11 @@ export async function resetPasswordWithToken(formData: FormData) {
   const token = formData.get('token') as string;
   const password = formData.get('password') as string;
 
-  if (!token || !password) return { error: 'Missing required fields' };
-  if (password.length < 6) return { error: 'Password must be at least 6 characters long.' };
+  if (!token) return { error: 'Missing reset token.' };
+  const passwordCheck = validatePassword(password);
+  if (!passwordCheck.isValid) {
+    return { error: passwordCheck.error || 'Password cannot start with a space or be blank.' };
+  }
 
   try {
     const user = await prisma.user.findFirst({

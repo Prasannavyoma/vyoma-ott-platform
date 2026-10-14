@@ -1,4 +1,5 @@
 'use client';
+import { getPasswordStrength, validatePassword } from '@/lib/passwordValidation';
 import { useState, useTransition, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { resetPasswordWithToken } from '@/app/actions/auth';
@@ -16,6 +17,9 @@ function ResetPasswordForm() {
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [password, setPassword] = useState('');
+  const [confirm, setConfirm] = useState('');
+  const strength = getPasswordStrength(password);
 
   useEffect(() => {
     if (!token) {
@@ -28,16 +32,15 @@ function ResetPasswordForm() {
     setError('');
     
     const formData = new FormData(e.currentTarget);
-    const password = formData.get('password') as string;
-    const confirm = formData.get('confirm') as string;
     
-    if (password !== confirm) {
-      setError('Passwords do not match');
+    const pwdCheck = validatePassword(password);
+    if (!pwdCheck.isValid) {
+      setError(pwdCheck.error || 'Password cannot start with a space or be blank.');
       return;
     }
     
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters long');
+    if (password !== confirm) {
+      setError('Passwords do not match. Please verify your confirmation password.');
       return;
     }
     
@@ -76,6 +79,27 @@ function ResetPasswordForm() {
                 <input 
                   type={showPassword ? 'text' : 'password'} 
                   name="password" 
+                  value={password}
+                  onKeyDown={(e) => {
+                    if (e.key === ' ' && (e.currentTarget.selectionStart === 0 || password.length === 0)) {
+                      e.preventDefault();
+                      setError('Password cannot start with a space or be blank.');
+                    }
+                  }}
+                  onChange={(e) => {
+                    let val = e.target.value;
+                    if (val.startsWith(' ')) {
+                      val = val.replace(/^\s+/, '');
+                      setError('Password cannot start with a space.');
+                    } else if (val.includes(' ')) {
+                      val = val.replace(/\s+/g, '');
+                      setError('Password cannot contain spaces.');
+                    } else if (error && (error.includes('space') || error.includes('blank'))) {
+                      setError('');
+                    }
+                    setPassword(val);
+                  }}
+                  placeholder="New Password (no spaces)"
                   required
                   disabled={!token}
                   style={{ width: '100%', padding: '14px 45px 14px 14px', background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', color: '#fff', fontSize: '1rem', outline: 'none' }} 
@@ -99,6 +123,27 @@ function ResetPasswordForm() {
                 <input 
                   type={showConfirmPassword ? 'text' : 'password'} 
                   name="confirm" 
+                  value={confirm}
+                  onKeyDown={(e) => {
+                    if (e.key === ' ' && (e.currentTarget.selectionStart === 0 || confirm.length === 0)) {
+                      e.preventDefault();
+                      setError('Confirm password cannot start with a space.');
+                    }
+                  }}
+                  onChange={(e) => {
+                    let val = e.target.value;
+                    if (val.startsWith(' ')) {
+                      val = val.replace(/^\s+/, '');
+                      setError('Confirm password cannot start with a space.');
+                    } else if (val.includes(' ')) {
+                      val = val.replace(/\s+/g, '');
+                      setError('Confirm password cannot contain spaces.');
+                    } else if (error && (error.includes('space') || error.includes('blank'))) {
+                      setError('');
+                    }
+                    setConfirm(val);
+                  }}
+                  placeholder="Confirm New Password"
                   required
                   disabled={!token}
                   style={{ width: '100%', padding: '14px 45px 14px 14px', background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', color: '#fff', fontSize: '1rem', outline: 'none' }} 
@@ -118,7 +163,7 @@ function ResetPasswordForm() {
             
             <button 
               type="submit" 
-              disabled={isPending || !token}
+              disabled={isPending || !token || !password.trim() || !confirm.trim() || password !== confirm}
               style={{ width: '100%', padding: '16px', background: 'linear-gradient(135deg, #f26422 0%, #ff8c53 100%)', border: 'none', borderRadius: '12px', color: '#fff', fontWeight: 'bold', fontSize: '1.05rem', cursor: (isPending || !token) ? 'not-allowed' : 'pointer', opacity: (isPending || !token) ? 0.7 : 1, transition: 'all 0.3s ease', marginTop: '10px' }}
             >
               {isPending ? 'Updating...' : 'Set Password'}
