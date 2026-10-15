@@ -508,38 +508,115 @@ export default function GiftClientPage({ initialPlans }: { initialPlans: RealPla
                      </div>
                   </div>
 
-                  {/* SHLOKA INSPIRATION PRESETS */}
-                  <div style={{ marginBottom: '14px' }}>
-                     <label style={labelStyle}>🪔 Auspicious Blessing Quote (Optional)</label>
-                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
-                       {SHLOKA_PRESETS.map((sh, idx) => (
-                         <button
-                           key={idx}
-                           type="button"
-                           onClick={() => setMsg(sh.text)}
-                           style={{
-                             background: 'rgba(255,255,255,0.03)',
-                             border: '1px solid rgba(255,255,255,0.08)',
-                             color: '#cbd5e1',
-                             padding: '4px 9px',
-                             borderRadius: '10px',
-                             fontSize: '0.72rem',
-                             cursor: 'pointer',
-                             fontWeight: 600,
-                             transition: 'all 0.2s'
-                           }}
-                           onMouseEnter={(e) => { e.currentTarget.style.borderColor = activeThemeObj.primary; e.currentTarget.style.color = activeThemeObj.primary; }}
-                           onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = '#cbd5e1'; }}
-                         >
-                           {sh.label}
-                         </button>
-                       ))}
+                  {/* AUSPICIOUS BLESSING QUOTE OR CUSTOM QUOTE */}
+                  <div style={{ marginBottom: '18px' }}>
+                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                       <label style={{ ...labelStyle, marginBottom: 0 }}>🪔 Auspicious Blessing Quote (Optional)</label>
+                       <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>Pick a shloka or write your own</span>
                      </div>
-                  </div>
 
-                  <div style={{ marginBottom: '20px' }}>
-                     <label style={labelStyle}>Personalized Blessing / Greeting Message</label>
-                     <textarea value={msg} onChange={e => setMsg(e.target.value)} rows={2} placeholder="May this sacred journey into Sanskrit bring peace and wisdom." style={{ ...inputStyle, fontFamily: 'inherit', resize: 'none' }}></textarea>
+                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '10px' }}>
+                       {SHLOKA_PRESETS.map((sh, idx) => {
+                         const isSelected = msg === sh.text;
+                         return (
+                           <button
+                             key={idx}
+                             type="button"
+                             onClick={() => setMsg(sh.text)}
+                             style={{
+                               background: isSelected ? activeThemeObj.primary : 'rgba(255,255,255,0.04)',
+                               border: isSelected ? `1px solid ${activeThemeObj.primary}` : '1px solid rgba(255,255,255,0.08)',
+                               color: isSelected ? '#000' : '#cbd5e1',
+                               padding: '5px 11px',
+                               borderRadius: '10px',
+                               fontSize: '0.74rem',
+                               cursor: 'pointer',
+                               fontWeight: isSelected ? 800 : 600,
+                               transition: 'all 0.2s',
+                               display: 'inline-flex',
+                               alignItems: 'center',
+                               gap: '5px'
+                             }}
+                             title={sh.text}
+                           >
+                             <span>🪔</span> {sh.label}
+                           </button>
+                         );
+                       })}
+
+                       {/* WRITE YOUR OWN OPTION */}
+                       <button
+                         type="button"
+                         onClick={() => {
+                           const isPreset = SHLOKA_PRESETS.some(sh => sh.text === msg);
+                           if (isPreset) {
+                             setMsg('');
+                           }
+                           const inputEl = document.getElementById('gift-custom-blessing-input');
+                           if (inputEl) inputEl.focus();
+                         }}
+                         style={{
+                           background: (!SHLOKA_PRESETS.some(sh => sh.text === msg)) ? 'rgba(255,215,0,0.15)' : 'rgba(255,255,255,0.04)',
+                           border: (!SHLOKA_PRESETS.some(sh => sh.text === msg)) ? '1px solid #ffd700' : '1px dashed rgba(255,255,255,0.2)',
+                           color: (!SHLOKA_PRESETS.some(sh => sh.text === msg)) ? '#ffd700' : '#cbd5e1',
+                           padding: '5px 12px',
+                           borderRadius: '10px',
+                           fontSize: '0.74rem',
+                           cursor: 'pointer',
+                           fontWeight: 800,
+                           transition: 'all 0.2s',
+                           display: 'inline-flex',
+                           alignItems: 'center',
+                           gap: '5px'
+                         }}
+                       >
+                         <span>✍️</span> Write Your Own Quote
+                       </button>
+
+                       {msg && (
+                         <button
+                           type="button"
+                           onClick={() => setMsg('')}
+                           style={{
+                             background: 'transparent',
+                             border: 'none',
+                             color: '#64748b',
+                             fontSize: '0.7rem',
+                             cursor: 'pointer',
+                             padding: '4px 6px',
+                             textDecoration: 'underline'
+                           }}
+                           title="Clear quote"
+                         >
+                           Clear
+                         </button>
+                       )}
+                     </div>
+
+                     <div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                           <label htmlFor="gift-custom-blessing-input" style={{ ...labelStyle, marginBottom: 0 }}>
+                             {!SHLOKA_PRESETS.some(sh => sh.text === msg) 
+                               ? '✍️ Your Custom Blessing Quote / Message' 
+                               : 'Selected Blessing Quote (Editable below)'}
+                           </label>
+                           <span style={{ fontSize: '0.68rem', color: '#64748b' }}>{msg.length} / 300 characters</span>
+                        </div>
+                        <textarea 
+                          id="gift-custom-blessing-input"
+                          value={msg} 
+                          onChange={e => setMsg(e.target.value.slice(0, 300))} 
+                          rows={2} 
+                          placeholder="Type your own Sanskrit quote, blessing, or heartfelt message for the card..." 
+                          style={{ 
+                            ...inputStyle, 
+                            fontFamily: 'inherit', 
+                            resize: 'none',
+                            lineHeight: '1.5',
+                            borderColor: (!SHLOKA_PRESETS.some(sh => sh.text === msg) && msg.length > 0) ? 'rgba(255,215,0,0.4)' : '#1e293b'
+                          }}
+                        />
+                     </div>
                   </div>
 
                   <button type="submit" disabled={!activeRelationship || !name || !email} style={{
