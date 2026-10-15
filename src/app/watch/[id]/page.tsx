@@ -298,8 +298,8 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
   });
   extractedChapters.sort((a, b) => a.timestamp - b.timestamp);
 
-  // 🌟 GUARANTEE PRE-BUILT CHAPTERS FOR ALL VIDEOS & AUDIOS ACROSS THE ENTIRE PLATFORM
-  if (extractedChapters.length === 0) {
+  // 🌟 GUARANTEE PRE-BUILT CHAPTERS FOR ALL VIDEOS & AUDIOS ACROSS THE ENTIRE PLATFORM (EXCEPT INTERACTIVE GAMES)
+  if (!isGameContent && extractedChapters.length === 0) {
     const isAudioContent = course.contentType === 'PODCAST' || course.contentType === 'AUDIOBOOK' || !!activeEpisode?.audioUrl;
     const epName = activeEpisode?.title || course.title || 'Lesson';
     const cleanEpTitle = epName.replace(/^\d+[\s.\-_]+/, '').trim();
@@ -551,13 +551,13 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
                       color: '#fff',
                       textShadow: 'none',
                       boxShadow: '0 4px 10px rgba(242,100,34,0.2)'
-                    }}>EPISODE</span>
+                    }}>{isGameContent ? 'ACTIVITY' : 'EPISODE'}</span>
                     {activeEpisode.title ? activeEpisode.title.replace(/&amp;/g, '&') : ''}
                   </h3>
                 )}
 
-                {/* EPISODE SYNOPSIS & TIMESTAMPS */}
-                {activeEpisode?.description && (
+                {/* EPISODE SYNOPSIS & TIMESTAMPS (REMOVED FOR GAMES / INTERACTIVE MODULES) */}
+                {!isGameContent && activeEpisode?.description && activeEpisode.description.trim() !== 'Lesson episode module.' && (
                   <div style={{
                     marginTop: '20px',
                     marginBottom: '20px',
@@ -587,8 +587,8 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
                   </div>
                 )}
 
-                {/* YOUTUBE-STYLE CHAPTERS & KEY MOMENTS PANEL */}
-                {extractedChapters.length > 0 && (
+                {/* YOUTUBE-STYLE CHAPTERS & KEY MOMENTS PANEL (REMOVED FOR GAMES / INTERACTIVE MODULES) */}
+                {!isGameContent && extractedChapters.length > 0 && (
                   <VideoChaptersList chapters={extractedChapters} courseTitle={course.title} />
                 )}
 
@@ -672,7 +672,7 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
                   return (
                     <div style={{ marginTop: '40px', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '30px', marginBottom: '40px' }}>
                        <h3 style={{ fontSize: '1.6rem', fontWeight: 900, marginBottom: '25px', color: '#fff', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                          <span>📺</span> Episodes ({course.episodes.length})
+                          <span>{isGameContent ? '🎮' : '📺'}</span> {isGameContent ? 'Game Activities' : 'Episodes'} ({course.episodes.length})
                        </h3>
                        
                        <EpisodeListExpander 

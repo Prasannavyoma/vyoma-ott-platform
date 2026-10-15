@@ -45,6 +45,11 @@ export default function EpisodeListExpander({ episodes, courseId, courseThumbnai
       <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
         {visibleEpisodes.map((ep) => {
           const epThumb = ep.thumbnailUrl || courseThumbnail || '/assets/Ayodhyakanda.jpg';
+          const isInteractiveEp = isInteractiveGame(ep.videoUrl);
+          const cleanDesc = ep.description ? ep.description.replace(/&amp;/g, '&').trim() : '';
+          const displayDesc = isInteractiveEp
+            ? (cleanDesc && cleanDesc !== 'Lesson episode module.' ? cleanDesc : 'Interactive game-based learning activity.')
+            : (cleanDesc && cleanDesc !== 'Lesson episode module.' ? cleanDesc : 'Detailed conceptual module anchored inside the broader curriculum syllabus.');
 
           return (
             <Link 
@@ -90,7 +95,7 @@ export default function EpisodeListExpander({ episodes, courseId, courseThumbnai
                 )}
                 
                 <div style={{ position: 'absolute', bottom: '8px', left: '8px', background: 'rgba(0,0,0,0.8)', padding: '4px 8px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 900, letterSpacing: '0.5px', border: '1px solid rgba(255,255,255,0.1)' }}>
-                  EPISODE {ep.order}
+                  {isInteractiveEp ? 'ACTIVITY' : 'EPISODE'} {ep.order}
                 </div>
               </div>
 
@@ -106,7 +111,7 @@ export default function EpisodeListExpander({ episodes, courseId, courseThumbnai
                 </div>
                 
                 <p style={{ color: '#999', fontSize: '0.92rem', margin: '0 0 15px 0', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', lineHeight: '1.5' }}>
-                  {ep.description ? ep.description.replace(/&amp;/g, '&') : 'Detailed conceptual module anchored inside the broader curriculum syllabus.'}
+                  {displayDesc}
                 </p>
 
                 <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
