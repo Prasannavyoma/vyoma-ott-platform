@@ -317,6 +317,18 @@ export default function GiftClientPage({ initialPlans }: { initialPlans: RealPla
           transform: translateY(-2px);
           box-shadow: 0 6px 15px rgba(0,0,0,0.3);
         }
+        .gift-page-wrapper {
+          max-width: 1360px;
+          margin: 0 auto;
+          padding: 145px 24px 40px 24px;
+          position: relative;
+          z-index: 1;
+        }
+        @media (max-width: 768px) {
+          .gift-page-wrapper {
+            padding: 125px 16px 40px 16px;
+          }
+        }
         @media (max-width: 960px) {
           .gift-main-grid {
             grid-template-columns: 1fr !important;
@@ -341,7 +353,7 @@ export default function GiftClientPage({ initialPlans }: { initialPlans: RealPla
         }
       `}} />
 
-      <div style={{ maxWidth: '1360px', margin: '0 auto', padding: '95px 24px 40px 24px', zIndex: 1, position: 'relative' }}>
+      <div className="gift-page-wrapper">
         
         {/* COMPACT EXECUTIVE HEADER BAR */}
         <div style={{ 
@@ -349,39 +361,40 @@ export default function GiftClientPage({ initialPlans }: { initialPlans: RealPla
           justifyContent: 'space-between', 
           alignItems: 'center', 
           flexWrap: 'wrap', 
-          gap: '12px', 
-          marginBottom: '20px',
-          borderBottom: '1px solid rgba(255,255,255,0.06)',
-          paddingBottom: '14px'
+          gap: '14px', 
+          marginBottom: '24px',
+          borderBottom: '1px solid rgba(255,255,255,0.08)',
+          paddingBottom: '16px'
         }}>
           <div>
             <h1 style={{ 
-              fontSize: '1.85rem', 
+              fontSize: '2.1rem', 
               fontWeight: 900, 
-              background: 'linear-gradient(to right, #ffffff, #ffd700)',
-              WebkitBackgroundClip: 'text', 
-              WebkitTextFillColor: 'transparent',
-              margin: '0 0 4px 0',
-              letterSpacing: '-0.8px',
+              color: '#ffffff',
+              margin: '0 0 6px 0',
+              letterSpacing: '-0.5px',
               display: 'flex',
               alignItems: 'center',
-              gap: '10px'
+              gap: '12px'
             }}>
-              <span>🎁</span> Gift Sacred Wisdom
+              <span>🎁</span>
+              <span>
+                Gift Sacred <span style={{ color: '#ffd700', textShadow: '0 0 25px rgba(255,215,0,0.3)' }}>Wisdom</span>
+              </span>
             </h1>
-            <p style={{ color: '#8f98a9', margin: 0, fontSize: '0.9rem', lineHeight: '1.3' }}>
+            <p style={{ color: '#94a3b8', margin: 0, fontSize: '0.92rem', lineHeight: '1.4' }}>
               Personalize a Vedic digital E-card with 1-click unboxing and instant course access.
             </p>
           </div>
 
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
-            <span style={{ background: 'rgba(255,215,0,0.08)', border: '1px solid rgba(255,215,0,0.25)', padding: '5px 12px', borderRadius: '20px', color: '#ffd700', fontSize: '0.74rem', fontWeight: 800 }}>
+            <span style={{ background: 'rgba(255,215,0,0.08)', border: '1px solid rgba(255,215,0,0.25)', padding: '6px 14px', borderRadius: '20px', color: '#ffd700', fontSize: '0.76rem', fontWeight: 800 }}>
               💳 Razorpay ({currency})
             </span>
-            <span style={{ background: 'rgba(70,211,105,0.08)', border: '1px solid rgba(70,211,105,0.25)', padding: '5px 12px', borderRadius: '20px', color: '#46d369', fontSize: '0.74rem', fontWeight: 800 }}>
+            <span style={{ background: 'rgba(70,211,105,0.08)', border: '1px solid rgba(70,211,105,0.25)', padding: '6px 14px', borderRadius: '20px', color: '#46d369', fontSize: '0.76rem', fontWeight: 800 }}>
               ✨ 1-Click Unboxing
             </span>
-            <span style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', padding: '5px 12px', borderRadius: '20px', color: '#cbd5e1', fontSize: '0.74rem', fontWeight: 800 }}>
+            <span style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', padding: '6px 14px', borderRadius: '20px', color: '#cbd5e1', fontSize: '0.76rem', fontWeight: 800 }}>
               📄 Printable PDF
             </span>
           </div>
@@ -541,7 +554,7 @@ export default function GiftClientPage({ initialPlans }: { initialPlans: RealPla
             </div>
             
             {/* E-CARD LIVE PREVIEW COLUMN */}
-            <div className="gift-sticky-col" style={{ position: 'sticky', top: '90px' }}>
+            <div className="gift-sticky-col" style={{ position: 'sticky', top: '135px' }}>
                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                  <div style={{ color: '#8f98a9', fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 700 }}>
                    Live E-Card Preview
