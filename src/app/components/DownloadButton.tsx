@@ -8,6 +8,7 @@ import {
   getRemainingDays,
   OfflineItemMeta
 } from '@/lib/offlineStorage';
+import { isNonDownloadableMedia } from '@/lib/mediaTypes';
 
 interface DownloadButtonProps {
   videoUrl: string | null | undefined;
@@ -36,7 +37,7 @@ export default function DownloadButton({
   const [showClearModal, setShowClearModal] = useState(false);
 
   useEffect(() => {
-    if (!videoUrl || typeof window === 'undefined' || !('caches' in window) || isLoggedIn === false) return;
+    if (!videoUrl || typeof window === 'undefined' || !('caches' in window) || isLoggedIn === false || isNonDownloadableMedia(videoUrl)) return;
 
     // Check if cached and valid
     getOfflineDownloads().then((downloads) => {
@@ -50,8 +51,8 @@ export default function DownloadButton({
     });
   }, [videoUrl, isLoggedIn]);
 
-  // NEVER show or render download button if user is not authenticated
-  if (isLoggedIn === false) {
+  // NEVER show or render download button if user is not authenticated OR media is an interactive game/iframe
+  if (isLoggedIn === false || isNonDownloadableMedia(videoUrl)) {
     return null;
   }
 
@@ -59,8 +60,8 @@ export default function DownloadButton({
     e.preventDefault();
     e.stopPropagation();
 
-    if (!videoUrl) {
-      alert('Video source is not available for offline download.');
+    if (!videoUrl || isNonDownloadableMedia(videoUrl)) {
+      alert('Interactive games and HTML5 modules are played live in the browser and cannot be downloaded as offline video files.');
       return;
     }
 

@@ -10,6 +10,7 @@ import AssessmentGate from '@/app/components/AssessmentGate';
 import CohortIndicator from '@/app/components/CohortIndicator';
 import EpisodeListExpander from '@/app/components/EpisodeListExpander';
 import TrailerPlayer from '@/app/components/TrailerPlayer';
+import { isInteractiveGame } from '@/lib/mediaTypes';
 
 // 🚀 LAZY LOAD HEAVY CLIENT COMPONENTS TO SPEED UP INITIAL PAGE LOAD
 const CinematicPlayer = dynamic(() => import('@/app/components/CinematicPlayer'), { 
@@ -250,6 +251,7 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
   // Final playback determination
   const playUrl = activeEpisode?.videoUrl || activeEpisode?.audioUrl || "https://digitalsanskrit.b-cdn.net/Videos/Raghuveera_Gadyam_Chanting/01_Balakanda.mp4"; // Fallback
   const displayTitle = activeEpisode ? `${course.title} - ${activeEpisode.title}` : course.title;
+  const isGameContent = isInteractiveGame(playUrl, course.contentType, course.category);
 
   // Fetch interactive markers for WOW features
   let markers: any[] = [];
@@ -617,19 +619,43 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
                      {/* DYNAMIC SENTIMENT TRACKING */}
                      <LikeDislikeSystem courseId={course.id} initialStatus={isLiked} initialLikesCount={likesCount} />
 
-                     {/* COMPILING DOWNSTREAM TRIGGERS - ONLY SHOWN WHEN LOGGED IN */}
-                     {!isLocked && user && (
+                     {/* COMPILING DOWNSTREAM TRIGGERS - ONLY SHOWN WHEN LOGGED IN (OR LIVE GAME BADGE) */}
+                     {isGameContent ? (
                        <div style={{ marginLeft: 'auto' }}>
-                         <DownloadButton 
-                            videoUrl={playUrl} 
-                            courseTitle={course.title}
-                            episodeTitle={activeEpisode?.title}
-                            courseId={course.id}
-                            episodeId={activeEpisode?.id}
-                            thumbnailUrl={activePosterUrl}
-                            isLoggedIn={true}
-                          />
+                         <div 
+                           style={{ 
+                             display: 'inline-flex', 
+                             alignItems: 'center', 
+                             gap: '8px', 
+                             padding: '8px 18px', 
+                             borderRadius: '24px', 
+                             background: 'linear-gradient(135deg, rgba(147, 51, 234, 0.18) 0%, rgba(79, 70, 229, 0.22) 100%)', 
+                             border: '1px solid rgba(147, 51, 234, 0.4)', 
+                             color: '#d8b4fe', 
+                             fontSize: '0.82rem', 
+                             fontWeight: 800, 
+                             letterSpacing: '0.5px',
+                             boxShadow: '0 4px 15px rgba(147, 51, 234, 0.2)' 
+                           }} 
+                           title="Interactive HTML5 Learning Game - Played live in browser"
+                         >
+                           <span style={{ fontSize: '1rem' }}>🎮</span> Live Interactive Game (Online Play)
+                         </div>
                        </div>
+                     ) : (
+                       !isLocked && user && (
+                         <div style={{ marginLeft: 'auto' }}>
+                           <DownloadButton 
+                              videoUrl={playUrl} 
+                              courseTitle={course.title}
+                              episodeTitle={activeEpisode?.title}
+                              courseId={course.id}
+                              episodeId={activeEpisode?.id}
+                              thumbnailUrl={activePosterUrl}
+                              isLoggedIn={true}
+                            />
+                         </div>
+                       )
                      )}
                   </div>
                 </CourseEngagement>

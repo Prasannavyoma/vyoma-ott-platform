@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import DownloadButton from '@/app/components/DownloadButton';
+import { isInteractiveGame } from '@/lib/mediaTypes';
 
 interface ExpanderEpisode {
   id: string;
@@ -118,17 +119,38 @@ export default function EpisodeListExpander({ episodes, courseId, courseThumbnai
                       <span style={{ background: 'rgba(70, 211, 105, 0.12)', border: '1px solid rgba(70,211,105,0.2)', color: '#46d369', padding: '4px 10px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 'bold', letterSpacing: '0.5px' }}>
                         ● ACCESS GRANTED
                       </span>
-                      {isLoggedIn && ep.videoUrl && (
-                        <DownloadButton
-                          compact
-                          videoUrl={ep.videoUrl}
-                          courseTitle="Vyoma Course"
-                          episodeTitle={ep.title}
-                          courseId={courseId}
-                          episodeId={ep.id}
-                          thumbnailUrl={epThumb}
-                          isLoggedIn={isLoggedIn}
-                        />
+                      {isInteractiveGame(ep.videoUrl) ? (
+                        <span 
+                          style={{ 
+                            background: 'rgba(147, 51, 234, 0.15)', 
+                            border: '1px solid rgba(147, 51, 234, 0.3)', 
+                            color: '#c084fc', 
+                            padding: '4px 10px', 
+                            borderRadius: '4px', 
+                            fontSize: '0.7rem', 
+                            fontWeight: '800', 
+                            letterSpacing: '0.5px',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '5px'
+                          }}
+                          title="Interactive Game Module - Play in browser"
+                        >
+                          🎮 INTERACTIVE
+                        </span>
+                      ) : (
+                        isLoggedIn && ep.videoUrl && (
+                          <DownloadButton
+                            compact
+                            videoUrl={ep.videoUrl}
+                            courseTitle="Vyoma Course"
+                            episodeTitle={ep.title}
+                            courseId={courseId}
+                            episodeId={ep.id}
+                            thumbnailUrl={epThumb}
+                            isLoggedIn={isLoggedIn}
+                          />
+                        )
                       )}
                     </>
                   )}

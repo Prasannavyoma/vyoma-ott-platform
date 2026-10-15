@@ -13,6 +13,8 @@ export interface OfflineItemMeta {
   expiresAt: number;
 }
 
+import { isNonDownloadableMedia } from '@/lib/mediaTypes';
+
 const CACHE_NAME = 'vyoma-offline-video-v1';
 const METADATA_KEY = 'vyoma_offline_downloads_index_v1';
 const EXPIRY_DURATION_MS = 30 * 24 * 60 * 60 * 1000; // 30 Days in milliseconds (YouTube-style 1-month auto clear)
@@ -56,8 +58,8 @@ export async function getOfflineDownloads(): Promise<OfflineItemMeta[]> {
   for (const url of Object.keys(map)) {
     const item = map[url];
 
-    // Auto-clear if download is past 30-day expiration date OR no longer present in browser cache
-    if (now >= item.expiresAt || !cachedUrls.has(url)) {
+    // Auto-clear if download is past 30-day expiration date, missing from cache, or is non-downloadable game/iframe
+    if (now >= item.expiresAt || !cachedUrls.has(url) || isNonDownloadableMedia(url)) {
       try {
         await cache.delete(url);
       } catch (e) {}
@@ -70,6 +72,13 @@ export async function getOfflineDownloads(): Promise<OfflineItemMeta[]> {
 
   // Also check if cache has items missing in metadata (sync metadata)
   for (const req of keys) {
+    if (isNonDownloadableMedia(req.url)) {
+      try {
+        await cache.delete(req);
+      } catch (e) {}
+      continue;
+    }
+
     if (!map[req.url]) {
       const nowTs = Date.now();
       const meta: OfflineItemMeta = {

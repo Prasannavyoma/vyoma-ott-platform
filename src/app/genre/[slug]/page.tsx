@@ -119,9 +119,9 @@ export default async function GenrePage({ params }: { params: Promise<{ slug: st
                       borderRadius: '8px', 
                       fontSize: '0.65rem', 
                       fontWeight: 800, 
-                      color: '#fbbf24' 
+                      color: course.contentType === 'GAME' ? '#c084fc' : '#fbbf24' 
                     }}>
-                      🛡️ {course.accessLevel?.replace('_', ' ')}
+                      {course.contentType === 'GAME' ? '🎮 GAME' : `🛡️ ${course.accessLevel?.replace('_', ' ')}`}
                     </div>
                   </div>
 
@@ -137,8 +137,10 @@ export default async function GenrePage({ params }: { params: Promise<{ slug: st
                     </div>
 
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px', fontSize: '0.78rem', color: '#94a3b8', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '14px' }}>
-                      <span>{course.episodes?.length || 0} Units</span>
-                      <span style={{ color: 'var(--primary, #f26422)', fontWeight: 800 }}>EXPLORE →</span>
+                      <span>{course.episodes?.length || 0} {course.contentType === 'GAME' ? 'Activities' : 'Units'}</span>
+                      <span style={{ color: course.contentType === 'GAME' ? '#c084fc' : 'var(--primary, #f26422)', fontWeight: 800 }}>
+                        {course.contentType === 'GAME' ? 'PLAY NOW 🎮' : 'EXPLORE →'}
+                      </span>
                     </div>
                   </div>
                 </div>

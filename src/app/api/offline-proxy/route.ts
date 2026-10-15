@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth';
 import prisma from '@/lib/prisma';
+import { isNonDownloadableMedia } from '@/lib/mediaTypes';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,6 +18,14 @@ export async function GET(request: NextRequest) {
   const url = request.nextUrl.searchParams.get('url');
   if (!url) {
     return new NextResponse('Missing URL parameter', { status: 400 });
+  }
+
+  // Reject interactive games and embedded web modules gracefully
+  if (isNonDownloadableMedia(url)) {
+    return NextResponse.json(
+      { error: 'Interactive games and embedded web modules are played live in the browser and cannot be downloaded as offline video files.' },
+      { status: 400 }
+    );
   }
 
   // 2. Audit Telemetry: Record who downloaded which video/course/episode
