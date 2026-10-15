@@ -27,6 +27,7 @@ interface GiftParams {
   quantity: number;
   amount?: number;
   currency?: string;
+  cardTheme?: 'SWARNA' | 'UTSAV' | 'GURUKULA' | 'PADMA';
 }
 
 /**
@@ -40,6 +41,7 @@ export async function purchaseGiftVoucher(params: GiftParams) {
 
   const codes: string[] = [];
   const occasionText = params.occasion || 'Spiritual Wisdom';
+  const theme = params.cardTheme || 'SWARNA';
   
   try {
     // 1. Atomically Loop and mint distinct voucher slots for the bulk bundle
@@ -82,6 +84,7 @@ export async function purchaseGiftVoucher(params: GiftParams) {
           codes: codes,
           amount: calculatedAmount,
           currency: params.currency || 'INR',
+          cardTheme: theme,
           timestamp: new Date().toISOString()
         })
       }
@@ -96,7 +99,8 @@ export async function purchaseGiftVoucher(params: GiftParams) {
       params.planName,
       params.months,
       codes,
-      params.personalMessage
+      params.personalMessage,
+      theme
     ).catch(e => console.error("Gift email dispatch failed:", e));
 
     // 4. Simulated Bulk Email Confirmation Trigger
@@ -208,5 +212,78 @@ export async function redeemVoucherCode(rawCode: string) {
   } catch (e: any) {
     console.error("Voucher redemption failed:", e);
     return { success: false, error: e.message || "Systems level verification failure." };
+  }
+}
+
+/**
+ * Server Action: Inspects voucher claim details for interactive unboxing recipient page.
+ */
+export async function getVoucherClaimDetails(rawCode: string) {
+  const cleanCode = (rawCode || '').trim().toUpperCase();
+  const currentUser = await getCurrentUser();
+
+  try {
+    const voucher = await prisma.subscriptionVoucher.findUnique({
+      where: { code: cleanCode }
+    });
+
+    if (!voucher) {
+      return { success: false, error: "Invalid activation code. Please verify your link or code." };
+    }
+
+    // Try to find the telemetry purchase event that includes this voucher code
+    let giftMeta: any = null;
+    try {
+      const event = await prisma.telemetryEvent.findFirst({
+        where: {
+          eventType: 'GIFT_PURCHASED',
+          metadata: { contains: cleanCode }
+        },
+        orderBy: { createdAt: 'desc' }
+      });
+      if (event?.metadata) {
+        giftMeta = JSON.parse(event.metadata);
+      }
+    } catch (e) {}
+
+    // Fallback: parse from sponsoredBy if telemetry not found
+    let senderName = giftMeta?.senderName || 'A generous well-wisher';
+    let recipientName = giftMeta?.recipientName || 'Dear Learner';
+    let relationship = giftMeta?.relationship || 'Loved One';
+    let occasion = giftMeta?.occasion || 'Sacred Wisdom';
+    let personalMessage = giftMeta?.personalMessage || 'Wishing you peace, enlightenment, and joyful Sanskrit learning on this auspicious path.';
+    let cardTheme = giftMeta?.cardTheme || 'SWARNA';
+
+    if (!giftMeta && voucher.sponsoredBy) {
+      const match = voucher.sponsoredBy.match(/Gift from (.*?) to (.*?) \((.*?) • (.*?)\)/);
+      if (match) {
+        senderName = match[1];
+        recipientName = match[2];
+        relationship = match[3];
+        occasion = match[4];
+      }
+    }
+
+    return {
+      success: true,
+      code: voucher.code,
+      plan: voucher.plan,
+      months: voucher.months,
+      isUsed: voucher.isUsed,
+      usedById: voucher.usedById,
+      createdAt: voucher.createdAt,
+      senderName,
+      recipientName,
+      relationship,
+      occasion,
+      personalMessage,
+      cardTheme,
+      isLoggedIn: !!currentUser,
+      currentUserEmail: currentUser?.email || null,
+      currentUserName: currentUser?.name || null
+    };
+  } catch (err: any) {
+    console.error("Failed to load voucher claim details:", err);
+    return { success: false, error: "Failed to load gift details." };
   }
 }

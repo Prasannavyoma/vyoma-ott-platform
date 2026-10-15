@@ -287,7 +287,8 @@ export async function sendGiftVoucherEmail(
   planName: string,
   months: number,
   codes: string[],
-  personalMessage: string
+  personalMessage: string,
+  cardTheme: string = 'SWARNA'
 ) {
   const transporter = await getDynamicTransporter();
   if (!transporter) {
@@ -296,6 +297,10 @@ export async function sendGiftVoucherEmail(
   }
 
   const durationStr = months >= 12 ? '1 Year' : `${months} Month${months > 1 ? 's' : ''}`;
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://vyoma-ott-platform.vercel.app';
+  const primaryCode = codes[0] || '';
+  const claimUrl = `${baseUrl}/gift/claim/${primaryCode}?theme=${encodeURIComponent(cardTheme)}`;
+
   const keysListHtml = codes.map((c, i) => `
     <div style="background: #111; padding: 15px; border-radius: 8px; margin: 10px 0; border: 1px solid #ffd700; font-family: monospace; font-size: 18px; color: #ffd700; text-align: center; letter-spacing: 1px;">
       <strong>${c}</strong>
@@ -303,22 +308,22 @@ export async function sendGiftVoucherEmail(
   `).join('');
 
   const html = getLuxuryWrap(`
-    <h1 style="color: #ffd700; text-align: center;">🎁 A Gift of Wisdom for You!</h1>
+    <h1 style="color: #ffd700; text-align: center;">🎁 A Sacred Gift of Wisdom for You!</h1>
     <p>Pranam, <strong>${recipientName}</strong>!</p>
     <p>We are delighted to share that <strong>${buyerName}</strong> (${relationship}) has gifted you <strong>${durationStr} of ${planName} Access</strong> on Vyoma Sanskrit OTT!</p>
     
     <div style="background: #161a22; border-left: 4px solid #ffd700; padding: 15px 20px; margin: 25px 0; border-radius: 4px;">
       <p style="font-style: italic; margin: 0; color: #e2e8f0;">
-        "${personalMessage || 'Wishing you knowledge, peace, and spiritual growth.'}"
+        "${personalMessage || 'Wishing you knowledge, peace, and spiritual growth on this auspicious path.'}"
       </p>
     </div>
 
-    <p>Below are your Activation Keys:</p>
+    <p>Below ${codes.length > 1 ? 'are your Activation Keys' : 'is your Activation Key'}:</p>
     ${keysListHtml}
 
-    <p style="margin-top: 25px;">To redeem your gift and begin your Sanskrit learning journey, simply click the button below, sign up or log in, and enter your Activation Key:</p>
+    <p style="margin-top: 25px;">To open your digital greeting card and activate your access in 1 click, simply click the button below:</p>
     <div style="text-align: center; margin: 30px 0;">
-      <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/redeem" class="btn" style="background: linear-gradient(135deg, #ffd700, #ffa500); color: #000; border: none; font-weight: bold; border-radius: 8px; padding: 15px 30px; text-decoration: none;">Redeem Your Gift</a>
+      <a href="${claimUrl}" class="btn" style="background: linear-gradient(135deg, #ffd700, #ffa500); color: #000; border: none; font-weight: bold; border-radius: 30px; padding: 16px 36px; text-decoration: none; font-size: 16px; display: inline-block; box-shadow: 0 8px 25px rgba(255,215,0,0.3);">✨ Open Your Gift & Activate Access</a>
     </div>
   `, `Gift from ${buyerName}: ${durationStr} of Vyoma Premium Access`);
 
