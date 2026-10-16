@@ -54,7 +54,7 @@ export default async function ProfilePage() {
 
   // 2. Subscription Lifetime Tracker
   function getDaysRemaining() {
-    if (!user || user.plan === 'FREE') return 'N/A (Free Tier)';
+    if (!user || user.plan === 'FREE') return 'N/A (Free Plan)';
     
     let end: Date;
     if (user.planExpiresAt) {
@@ -301,7 +301,7 @@ export default async function ProfilePage() {
             <div style={{ background: 'linear-gradient(145deg, #151515, #090909)', border: '1px solid rgba(255,255,255,0.06)', padding: '25px', borderRadius: '20px', display: 'flex', flexDirection: 'column', justifyContent: 'center', boxShadow: '0 10px 30px rgba(0,0,0,0.3)' }}>
                
                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                  <span style={{ color: '#777', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1.5px' }}>Active Tier</span>
+                  <span style={{ color: '#777', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1.5px' }}>Active Plan</span>
                   <span style={{ 
                     background: user.plan === 'PLATINUM' ? '#e50914' : user.plan === 'GOLD' ? '#f26422' : '#333',
                     color: '#fff', fontSize: '0.7rem', fontWeight: 900, padding: '3px 8px', borderRadius: '4px'
@@ -328,7 +328,7 @@ export default async function ProfilePage() {
                         </a>
                         <form action={downgradePlan}>
                            <button type="submit" style={{ width: '100%', background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: '#777', padding: '8px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}>
-                              ⬇️ Downgrade to Free Tier
+                              ⬇️ Downgrade to Free Plan
                            </button>
                         </form>
                      </>
@@ -341,7 +341,7 @@ export default async function ProfilePage() {
                         </div>
                         <form action={downgradePlan}>
                            <button type="submit" style={{ width: '100%', background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: '#777', padding: '8px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}>
-                              ⬇️ Switch back to Gold Tier
+                              ⬇️ Switch back to Gold Plan
                            </button>
                         </form>
                      </>

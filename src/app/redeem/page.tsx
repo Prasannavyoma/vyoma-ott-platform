@@ -144,7 +144,7 @@ function RedeemContent() {
                </div>
 
                <p style={{ color: '#aaa', fontSize: '0.95rem', lineHeight: '1.6', marginBottom: '35px' }}>
-                  Your account has been successfully elevated to the premium tier! You now have full access to premium courses, games, and certified learning workflows.
+                  Your account has been successfully elevated to the premium plan! You now have full access to premium courses, games, and certified learning workflows.
                </p>
 
                <div style={{ display: 'flex', gap: '15px' }}>

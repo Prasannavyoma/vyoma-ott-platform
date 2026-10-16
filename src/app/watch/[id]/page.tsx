@@ -419,7 +419,7 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
                     </h3>
                     
                     <p style={{ maxWidth: '450px', color: '#eee', fontSize: '0.95rem', lineHeight: '1.5', marginBottom: '25px', fontWeight: 500, textShadow: '0 2px 10px rgba(0,0,0,0.9)' }}>
-                      This content is restricted to <strong style={{ color: 'var(--primary)' }}>{displayRequiredLevel?.replace('_', ' ')}</strong> Tier Members. 
+                      This content is restricted to <strong style={{ color: 'var(--primary)' }}>{displayRequiredLevel?.replace('_', ' ')}</strong> Plan Members. 
                       {displayRequiredLevel === 'PAID' ? ' You can purchase absolute individual lifetime access below.' : ' Upgrade your plan instantly to unlock access.'}
                     </p>
 

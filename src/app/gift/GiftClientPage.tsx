@@ -839,10 +839,10 @@ export default function GiftClientPage({ initialPlans }: { initialPlans: RealPla
                         ? `${window.location.origin}/gift/claim/${code}?theme=${cardTheme}` 
                         : `https://vyoma-ott-platform.vercel.app/gift/claim/${code}?theme=${cardTheme}`;
                       
-                      const indWhatsappMsg = `🎁 *Vyoma Gift of Wisdom* 🎁\n\nDear *${name}*,\n\nI have gifted you a *${activePkg.name} Tier* subscription (${activePkg.months} Months) to Vyoma Sanskrit OTT for ${activeOccasionObj.label}!\n\n💬 Message: _"${msg || 'Wishing you knowledge, peace, and spiritual growth.'}"_\n\n🔑 *Activation Key*: *${code}*\n\n👉 *Open Your Gift & Activate*: ${claimUrl}\n\nEnjoy your learning journey! 🪔`;
+                      const indWhatsappMsg = `🎁 *Vyoma Gift of Wisdom* 🎁\n\nDear *${name}*,\n\nI have gifted you a *${activePkg.name} Plan* subscription (${activePkg.months} Months) to Vyoma Sanskrit OTT for ${activeOccasionObj.label}!\n\n💬 Message: _"${msg || 'Wishing you knowledge, peace, and spiritual growth.'}"_\n\n🔑 *Activation Key*: *${code}*\n\n👉 *Open Your Gift & Activate*: ${claimUrl}\n\nEnjoy your learning journey! 🪔`;
                       const indWhatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(indWhatsappMsg)}`;
                       const indEmailSubject = `🎁 Gift of Wisdom: Your Vyoma Sanskrit Subscription Key (${activeOccasionObj.label})!`;
-                      const indEmailBody = `Dear ${name},\n\nI have gifted you a ${activePkg.name} Tier subscription (${activePkg.months} Months) to Vyoma Sanskrit OTT for ${activeOccasionObj.label}!\n\nMessage: "${msg || 'Wishing you knowledge, peace, and spiritual growth.'}"\n\nYour Activation Key: ${code}\n\nOpen Your Gift & Activate in 1 Click: ${claimUrl}\n\nEnjoy your learning journey!\n\nVyoma Academy`;
+                      const indEmailBody = `Dear ${name},\n\nI have gifted you a ${activePkg.name} Plan subscription (${activePkg.months} Months) to Vyoma Sanskrit OTT for ${activeOccasionObj.label}!\n\nMessage: "${msg || 'Wishing you knowledge, peace, and spiritual growth.'}"\n\nYour Activation Key: ${code}\n\nOpen Your Gift & Activate in 1 Click: ${claimUrl}\n\nEnjoy your learning journey!\n\nVyoma Academy`;
                       const indEmailUrl = `mailto:${email}?subject=${encodeURIComponent(indEmailSubject)}&body=${encodeURIComponent(indEmailBody)}`;
                       
                       return (
@@ -941,7 +941,7 @@ export default function GiftClientPage({ initialPlans }: { initialPlans: RealPla
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px dashed #ccc', paddingTop: '18px', marginTop: '20px' }}>
               <div>
                 <div style={{ fontSize: '0.72rem', color: '#666' }}>MEMBERSHIP ACCESS</div>
-                <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#111' }}>{activePkg?.name} Tier ({activePkg?.interval === 'YEARLY' ? '1 Full Year' : '1 Month'})</div>
+                <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#111' }}>{activePkg?.name} Plan ({activePkg?.interval === 'YEARLY' ? '1 Full Year' : '1 Month'})</div>
                 <div style={{ fontSize: '0.72rem', color: '#888', marginTop: '4px' }}>Activation Key: <strong style={{ color: '#b8860b', fontFamily: 'monospace' }}>{printCode}</strong></div>
               </div>
 

@@ -430,7 +430,7 @@ export default function ExploreClient({ initialCourses }: { initialCourses: any[
 
           {/* ACCESS PILLS */}
           <div>
-            <h4 style={{ fontSize: '0.9rem', color: '#888', marginBottom: '15px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>Access Tier</h4>
+            <h4 style={{ fontSize: '0.9rem', color: '#888', marginBottom: '15px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>Access Plan</h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {accessLevels.map(lvl => {
                  const isActive = selectedAccess === lvl;

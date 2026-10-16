@@ -246,8 +246,8 @@ export default async function SubscriptionManagementPage() {
         <p style={{ color: '#aaa', fontSize: '0.85rem', marginBottom: '20px' }}>Inject a brand new tier or custom billing period into the regional pricing matrix.</p>
         <form action={addPlan} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr auto', gap: '15px', alignItems: 'flex-end' }}>
           <div>
-            <label style={{ display: 'block', color: '#aaa', fontSize: '0.8rem', marginBottom: '5px' }}>Plan Name (e.g. VIP, GOLD, BASIC)</label>
-            <input required type="text" name="name" placeholder="VIP" style={{ width: '100%', padding: '10px', background: '#000', border: '1px solid #333', borderRadius: '5px', color: '#fff', fontWeight: 'bold' }} />
+            <label style={{ display: 'block', color: '#aaa', fontSize: '0.8rem', marginBottom: '5px' }}>Plan Name (e.g. MEMBERSHIP, GOLD, BASIC)</label>
+            <input required type="text" name="name" placeholder="MEMBERSHIP" style={{ width: '100%', padding: '10px', background: '#000', border: '1px solid #333', borderRadius: '5px', color: '#fff', fontWeight: 'bold' }} />
           </div>
           <div>
             <label style={{ display: 'block', color: '#aaa', fontSize: '0.8rem', marginBottom: '5px' }}>Billing Cycle</label>

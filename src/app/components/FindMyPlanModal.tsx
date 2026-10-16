@@ -716,7 +716,7 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
                 )}
               </div>
 
-              {/* TIER 3: PLATINUM VIP */}
+              {/* PLAN 3: PLATINUM MEMBERSHIP */}
               <div style={{
                 background: currentPlan === 'PLATINUM' ? 'rgba(59, 130, 246, 0.15)' : 'linear-gradient(135deg, rgba(242, 100, 34, 0.15) 0%, rgba(168, 85, 247, 0.15) 100%)',
                 border: `1px solid ${currentPlan === 'PLATINUM' ? '#e5e4e2' : 'var(--primary)'}`,
@@ -729,13 +729,13 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
                 position: 'relative'
               }}>
                 <span style={{ position: 'absolute', top: '-12px', right: '20px', background: 'var(--primary)', color: '#fff', padding: '3px 10px', borderRadius: '12px', fontSize: '0.65rem', fontWeight: 900 }}>
-                  {currentPlan === 'PLATINUM' ? 'YOUR ACTIVE VIP PLAN' : 'RECOMMENDED UPGRADE'}
+                  {currentPlan === 'PLATINUM' ? 'YOUR ACTIVE MEMBERSHIP' : 'RECOMMENDED UPGRADE'}
                 </span>
                 <div>
                   <div style={{ fontSize: '0.75rem', color: '#c084fc', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <Sparkles size={14} /> Ultimate VIP Access
+                    <Sparkles size={14} /> Ultimate Membership Access
                   </div>
-                  <h3 style={{ fontSize: '1.5rem', fontWeight: 900, marginTop: '4px', margin: '4px 0 10px' }}>Platinum VIP</h3>
+                  <h3 style={{ fontSize: '1.5rem', fontWeight: 900, marginTop: '4px', margin: '4px 0 10px' }}>Platinum Membership</h3>
                   
                   {/* BOTH MONTHLY & YEARLY PRICES DISPLAYED TOGETHER (NO SWITCH NEEDED) */}
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', background: 'rgba(0,0,0,0.3)', padding: '12px 14px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.06)' }}>
@@ -778,7 +778,7 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
                       cursor: 'not-allowed'
                     }}
                   >
-                    Active VIP Subscribed Plan
+                    Active Subscribed Membership
                   </button>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>

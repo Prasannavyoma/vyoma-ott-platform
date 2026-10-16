@@ -92,7 +92,7 @@ export function getDefaultBody(key: string): string {
     case 'WELCOME':
       return `<h1>Auspicious Beginnings, {{name}}!</h1>
 <p>Your global key to deep Vedic insights and curated curricular streams has been provisioned successfully.</p>
-<p>You now hold unfettered access to our fundamental knowledge tier. Begin iterating through your chosen taxonomy path immediately.</p>
+<p>You now hold unfettered access to our fundamental knowledge plan. Begin iterating through your chosen taxonomy path immediately.</p>
 <a href="{{platform_url}}" class="btn">Enter Platform</a>`;
     case 'WINBACK':
       return `<h1>Pranam, {{name}}!</h1>
@@ -106,7 +106,7 @@ export function getDefaultBody(key: string): string {
 <a href="{{platform_url}}/subscribe" class="btn">Renew Subscription Now</a>`;
     case 'UPGRADE':
       return `<h1>Unlock the Full Horizon, {{name}}!</h1>
-<p>You are currently on our free tier. Did you know that Premium Gold & Platinum learners get access to unlimited audiobooks, interactive Sanskrit grammar quizzes, and digital certifications?</p>
+<p>You are currently on our free plan. Did you know that Premium Gold & Platinum learners get access to unlimited audiobooks, interactive Sanskrit grammar quizzes, and digital certifications?</p>
 <p>Upgrade today and take your learning to the next level.</p>
 <a href="{{platform_url}}/subscribe" class="btn">View Premium Plans</a>`;
     default:
@@ -191,13 +191,13 @@ export async function sendPurchaseSuccess(to: string, planName: string, amount: 
 
   const html = getLuxuryWrap(`
     <h1 style="color: #46d369;">Transactional Capture Complete</h1>
-    <p>Liquidity fulfilled. Your access elevation to <strong>${planName}</strong> tier is now fully solidified.</p>
+    <p>Liquidity fulfilled. Your access elevation to <strong>${planName}</strong> plan is now fully solidified.</p>
     <div style="background: #111; padding: 20px; border-radius: 8px; margin: 20px 0; border: 1px dashed #333;">
       <strong>Settlement Amount:</strong> ₹${amount} <br />
-      <strong>New Privilege Tier:</strong> ${planName} Unlimited Access
+      <strong>New Privilege Plan:</strong> ${planName} Unlimited Access
     </div>
     <p>Full invoices and static consumption records are cached permanently in your 'Billing Profile' tab on our platform.</p>
-  `, `Payment Success: Tier upgrade to ${planName}`);
+  `, `Payment Success: Plan upgrade to ${planName}`);
 
   await transporter.sendMail({
     from: `"Vyoma Accounts" <${(transporter.options as any).auth?.user}>`,
@@ -217,7 +217,7 @@ export async function sendPurchaseSuccess(to: string, planName: string, amount: 
       <div style="background: #111; padding: 20px; border-radius: 8px; margin: 20px 0; border: 1px dashed #333;">
         <strong>Customer Email:</strong> ${to} <br />
         <strong>Settlement Amount:</strong> ₹${amount} <br />
-        <strong>Purchased Tier:</strong> ${planName}
+        <strong>Purchased Plan:</strong> ${planName}
       </div>
       <p>View the full transaction details in the Vyoma Admin Dashboard.</p>
     `, `Admin Alert: New Order for ${planName}`);

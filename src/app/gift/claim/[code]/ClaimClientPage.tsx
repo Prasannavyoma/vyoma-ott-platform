@@ -198,7 +198,7 @@ export default function ClaimClientPage({ initialData }: { initialData: VoucherC
           </h1>
           <p style={{ color: '#8f98a9', fontSize: '1.05rem', margin: 0, maxWidth: '600px', marginInline: 'auto', lineHeight: '1.5' }}>
             {isOpen 
-              ? `${initialData.senderName} has blessed you with ${durationText} of ${initialData.plan} Tier Sanskrit learning on Vyoma OTT.`
+              ? `${initialData.senderName} has blessed you with ${durationText} of ${initialData.plan} Plan Sanskrit learning on Vyoma OTT.`
               : `Tap the ceremonial gift envelope below to unwrap your personalized blessing.`}
           </p>
         </div>
@@ -341,7 +341,7 @@ export default function ClaimClientPage({ initialData }: { initialData: VoucherC
                 </p>
               </div>
 
-              {/* PLAN TIER & ACTIVATION CODE */}
+              {/* PLAN & ACTIVATION CODE */}
               <div style={{
                 display: 'flex',
                 justifyContent: 'space-between',
@@ -354,7 +354,7 @@ export default function ClaimClientPage({ initialData }: { initialData: VoucherC
                 <div>
                   <div style={{ fontSize: '0.7rem', color: '#8f98a9', textTransform: 'uppercase' }}>MEMBERSHIP ACCESS</div>
                   <div style={{ fontSize: '1.1rem', fontWeight: 900, color: '#fff' }}>
-                    {initialData.plan} Tier • {durationText}
+                    {initialData.plan} Plan • {durationText}
                   </div>
                 </div>
 
@@ -600,7 +600,7 @@ export default function ClaimClientPage({ initialData }: { initialData: VoucherC
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px dashed #ccc', paddingTop: '20px', marginTop: '25px' }}>
               <div>
                 <div style={{ fontSize: '0.75rem', color: '#666' }}>MEMBERSHIP ACCESS</div>
-                <div style={{ fontSize: '1.2rem', fontWeight: 900, color: '#111' }}>{initialData.plan} Tier ({durationText})</div>
+                <div style={{ fontSize: '1.2rem', fontWeight: 900, color: '#111' }}>{initialData.plan} Plan ({durationText})</div>
                 <div style={{ fontSize: '0.75rem', color: '#888', marginTop: '4px' }}>Activation Key: <strong style={{ color: '#b8860b', fontFamily: 'monospace' }}>{initialData.code}</strong></div>
               </div>
 

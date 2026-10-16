@@ -170,7 +170,7 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
       };
 
       const res = await createRazorpaySubscription({
-         name: `Vyoma ${targetPlan.name} Tier`,
+         name: `Vyoma ${targetPlan.name} Plan`,
          description: `Auto-renewing ${targetPlan.interval} mandate`,
          amount: amountToCharge,
          currency: region === 'INDIA' ? 'INR' : 'USD',
@@ -564,7 +564,7 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
             <div className="price-text" key={`free-${billingPeriod}`} style={{ animation: 'scalePop 0.4s ease-out', zIndex: 2 }}>
               ₹0 / $0
             </div>
-            <div className="price-sub" style={{ zIndex: 2 }}>Free Lifetime Tier</div>
+            <div className="price-sub" style={{ zIndex: 2 }}>Free Lifetime Plan</div>
 
             <div style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', margin: '0 0 25px 0', zIndex: 2 }}></div>
 
@@ -606,13 +606,13 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
             </Link>
           </div>
 
-          {/* CARD 2: GOLD TIER */}
+          {/* CARD 2: GOLD PLAN */}
           <div className="sub-card" style={{ animationDelay: '0.2s' }}>
             <div className="card-shimmer-overlay"></div>
             
             <div style={{ textAlign: 'left', marginBottom: '25px', zIndex: 2 }}>
               <div style={{ fontSize: '0.8rem', fontWeight: 800, textTransform: 'uppercase', color: '#f26422', letterSpacing: '1.5px' }}>Intermediate Mastery</div>
-              <h3 style={{ fontSize: '1.9rem', fontWeight: 900, marginTop: '5px', color: '#f26422' }}>Gold Tier</h3>
+              <h3 style={{ fontSize: '1.9rem', fontWeight: 900, marginTop: '5px', color: '#f26422' }}>Gold Plan</h3>
             </div>
             
             <div style={{ zIndex: 2 }}>
@@ -705,7 +705,7 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
             </div>
           </div>
 
-          {/* CARD 3: PLATINUM TIER */}
+          {/* CARD 3: PLATINUM PLAN */}
           <div className="sub-card recommended" style={{ animationDelay: '0.3s' }}>
             <div className="card-shimmer-overlay"></div>
             
@@ -729,7 +729,7 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
             
             <div style={{ textAlign: 'left', marginBottom: '25px', zIndex: 2 }}>
               <div style={{ fontSize: '0.8rem', fontWeight: 800, textTransform: 'uppercase', color: '#ff8c53', letterSpacing: '1.5px' }}>Unlimited Authority</div>
-              <h3 style={{ fontSize: '1.9rem', fontWeight: 900, marginTop: '5px', color: '#ff8c53' }}>Platinum Tier</h3>
+              <h3 style={{ fontSize: '1.9rem', fontWeight: 900, marginTop: '5px', color: '#ff8c53' }}>Platinum Plan</h3>
             </div>
             
             <div style={{ zIndex: 2 }}>
@@ -922,8 +922,8 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
                 <tr>
                   <th>Features & Capabilities</th>
                   <th>Free Path</th>
-                  <th style={{ color: '#f26422', fontWeight: 800 }}>Gold Tier</th>
-                  <th style={{ color: '#ff8c53', fontWeight: 800 }}>Platinum Tier</th>
+                  <th style={{ color: '#f26422', fontWeight: 800 }}>Gold Plan</th>
+                  <th style={{ color: '#ff8c53', fontWeight: 800 }}>Platinum Plan</th>
                 </tr>
               </thead>
               <tbody>
@@ -1067,7 +1067,7 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
                    <RazorpayCheckoutButton 
                      amount={parseFloat(calc.netDue.toString()) > 0 ? parseFloat(calc.netDue.toString()) : 1}
                      currency={region === 'INDIA' ? 'INR' : 'USD'}
-                     name={`Vyoma ${targetPlan.name} Tier`}
+                     name={`Vyoma ${targetPlan.name} Plan`}
                      description={`Auto-renewing ${targetPlan.interval} mandate`}
                      subscriptionId={subData.subscriptionId}
                      publicKey={subData.publicKey as string}
