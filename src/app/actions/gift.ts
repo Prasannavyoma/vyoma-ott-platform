@@ -27,7 +27,7 @@ interface GiftParams {
   quantity: number;
   amount?: number;
   currency?: string;
-  cardTheme?: 'SWARNA' | 'UTSAV' | 'GURUKULA' | 'PADMA';
+  cardTheme?: 'SWARNA' | 'UTSAV' | 'GURUKULA' | 'PADMA' | string;
 }
 
 /**

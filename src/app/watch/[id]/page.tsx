@@ -626,20 +626,39 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
                            style={{ 
                              display: 'inline-flex', 
                              alignItems: 'center', 
+                             flexWrap: 'wrap',
                              gap: '8px', 
-                             padding: '8px 18px', 
+                             padding: '7px 16px', 
                              borderRadius: '24px', 
-                             background: 'linear-gradient(135deg, rgba(147, 51, 234, 0.18) 0%, rgba(79, 70, 229, 0.22) 100%)', 
-                             border: '1px solid rgba(147, 51, 234, 0.4)', 
-                             color: '#d8b4fe', 
-                             fontSize: '0.82rem', 
-                             fontWeight: 800, 
-                             letterSpacing: '0.5px',
+                             background: 'linear-gradient(135deg, rgba(147, 51, 234, 0.16) 0%, rgba(79, 70, 229, 0.2) 100%)', 
+                             border: '1px solid rgba(147, 51, 234, 0.45)', 
                              boxShadow: '0 4px 15px rgba(147, 51, 234, 0.2)' 
                            }} 
-                           title="Interactive HTML5 Learning Game - Played live in browser"
+                           title="Live interactive game (online play) cannot be downloaded (In-app download)"
                          >
-                           <span style={{ fontSize: '1rem' }}>🎮</span> Live Interactive Game (Online Play)
+                           <span style={{ 
+                             display: 'inline-flex', 
+                             alignItems: 'center', 
+                             gap: '6px', 
+                             color: '#e9d5ff', 
+                             fontSize: '0.82rem', 
+                             fontWeight: 800, 
+                             letterSpacing: '0.3px' 
+                           }}>
+                             <span style={{ fontSize: '1rem' }}>🎮</span> Live Interactive Game (Online Play)
+                           </span>
+                           <span style={{ 
+                             color: 'rgba(240, 231, 255, 0.95)', 
+                             background: 'rgba(0, 0, 0, 0.35)', 
+                             border: '1px solid rgba(168, 85, 247, 0.35)', 
+                             padding: '2px 9px', 
+                             borderRadius: '12px', 
+                             fontSize: '0.73rem', 
+                             fontWeight: 600, 
+                             letterSpacing: '0.2px' 
+                           }}>
+                             Cannot be downloaded (In-app download)
+                           </span>
                          </div>
                        </div>
                      ) : (

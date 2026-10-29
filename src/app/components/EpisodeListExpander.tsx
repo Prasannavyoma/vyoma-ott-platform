@@ -139,7 +139,7 @@ export default function EpisodeListExpander({ episodes, courseId, courseThumbnai
                             alignItems: 'center',
                             gap: '5px'
                           }}
-                          title="Interactive Game Module - Play in browser"
+                          title="Live interactive game (online play) - cannot be downloaded (in-app download)"
                         >
                           🎮 INTERACTIVE
                         </span>

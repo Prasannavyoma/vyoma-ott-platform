@@ -33,6 +33,7 @@ const OCCASIONS = [
   { key: 'Diwali', label: '🪔 Diwali (दीपावली)' },
   { key: 'Sanskrit Day', label: '📜 Sanskrit Day (संस्कृतदिवसः)' },
   { key: 'Spiritual Growth', label: '🕉️ Sadhana (साधना)' },
+  { key: 'Others', label: '✏️ Others (Custom Event)' }
 ];
 
 const CARD_THEMES = [
@@ -108,10 +109,12 @@ export default function GiftClientPage({ initialPlans }: { initialPlans: RealPla
   const [region, setRegion] = useState<'INDIA' | 'ABROAD'>('INDIA');
   
   // Form States
-  const [cardTheme, setCardTheme] = useState<'SWARNA' | 'UTSAV' | 'GURUKULA' | 'PADMA'>('SWARNA');
+  const [cardTheme, setCardTheme] = useState<'SWARNA' | 'UTSAV' | 'GURUKULA' | 'PADMA' | 'CUSTOM'>('SWARNA');
+  const [customColor, setCustomColor] = useState('#f59e0b');
   const [rel, setRel] = useState('Friend');
   const [customRelInput, setCustomRelInput] = useState('');
   const [occasion, setOccasion] = useState('General');
+  const [customOccasionInput, setCustomOccasionInput] = useState('');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [msg, setMsg] = useState('Wishing you peace, enlightenment, and joyful Sanskrit learning on this auspicious path.');
@@ -162,9 +165,22 @@ export default function GiftClientPage({ initialPlans }: { initialPlans: RealPla
   }, [giftPackages]);
 
   const activePkg = giftPackages.find(p => p.id === selectedPlanId) || giftPackages[0];
-  const activeRelationship = rel === 'Others' ? customRelInput : rel;
+  const activeRelationship = rel === 'Others' ? (customRelInput.trim() || 'Honored Loved One') : rel;
   const activeOccasionObj = OCCASIONS.find(o => o.key === occasion) || OCCASIONS[0];
-  const activeThemeObj = CARD_THEMES.find(t => t.key === cardTheme) || CARD_THEMES[0];
+  const activeOccasionLabel = occasion === 'Others' 
+    ? (customOccasionInput.trim() || 'Special Occasion') 
+    : (activeOccasionObj?.label || 'Sacred Gift');
+  const activeThemeObj = cardTheme === 'CUSTOM' ? {
+    key: 'CUSTOM',
+    name: '🎨 Custom Palette',
+    primary: customColor,
+    secondary: customColor,
+    bg: `linear-gradient(135deg, ${customColor}22 0%, #080a0f 100%)`,
+    border: customColor,
+    glow: `${customColor}40`,
+    icon: '🎨',
+    accentBg: `${customColor}20`
+  } : (CARD_THEMES.find(t => t.key === cardTheme) || CARD_THEMES[0]);
   
   const unitCost = activePkg?.price || 0;
   const totalDue = unitCost * quantity;
@@ -239,14 +255,14 @@ export default function GiftClientPage({ initialPlans }: { initialPlans: RealPla
         recipientName: name,
         recipientEmail: email,
         relationship: finalRel,
-        occasion: activeOccasionObj.label,
+        occasion: activeOccasionLabel,
         personalMessage: msg || "Wishing you knowledge and spiritual growth.",
         planName: activePkg.name as any,
         months: activePkg.months,
         quantity: quantity,
         amount: totalDue,
         currency: currency,
-        cardTheme: cardTheme
+        cardTheme: cardTheme === 'CUSTOM' ? customColor : cardTheme
       });
 
       if (res.success) {
@@ -417,8 +433,11 @@ export default function GiftClientPage({ initialPlans }: { initialPlans: RealPla
                   
                   {/* 1. CARD THEME SELECTOR */}
                   <div style={{ marginBottom: '16px' }}>
-                    <label style={labelStyle}>🎨 1. Select Card Theme & Aesthetic</label>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                      <label style={{ ...labelStyle, marginBottom: 0 }}>🎨 1. Select Card Theme & Aesthetic</label>
+                      <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>Choose preset or custom palette</span>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: '8px' }}>
                       {CARD_THEMES.map(th => {
                         const isSelected = cardTheme === th.key;
                         return (
@@ -447,7 +466,94 @@ export default function GiftClientPage({ initialPlans }: { initialPlans: RealPla
                           </button>
                         );
                       })}
+
+                      {/* 5th OPTION: CUSTOM COLOR */}
+                      <button
+                        type="button"
+                        onClick={() => setCardTheme('CUSTOM')}
+                        style={{
+                          background: cardTheme === 'CUSTOM' ? `${customColor}22` : '#0d131f',
+                          border: cardTheme === 'CUSTOM' ? `2px solid ${customColor}` : '1px solid #1e293b',
+                          color: cardTheme === 'CUSTOM' ? customColor : '#94a3b8',
+                          padding: '8px 6px',
+                          borderRadius: '10px',
+                          fontWeight: 800,
+                          fontSize: '0.75rem',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '5px',
+                          boxShadow: cardTheme === 'CUSTOM' ? `0 2px 10px ${customColor}40` : 'none'
+                        }}
+                      >
+                        <span>🎨</span> Custom Color
+                      </button>
                     </div>
+
+                    {cardTheme === 'CUSTOM' && (
+                      <div style={{
+                        marginTop: '10px',
+                        background: 'rgba(255,255,255,0.02)',
+                        border: '1px solid rgba(255,255,255,0.08)',
+                        borderRadius: '12px',
+                        padding: '10px 14px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '12px',
+                        flexWrap: 'wrap'
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <label style={{ fontSize: '0.74rem', color: '#cbd5e1', fontWeight: 700 }}>Pick Color:</label>
+                          <input 
+                            type="color" 
+                            value={customColor} 
+                            onChange={e => setCustomColor(e.target.value)} 
+                            style={{
+                              width: '36px',
+                              height: '30px',
+                              padding: 0,
+                              border: 'none',
+                              borderRadius: '6px',
+                              cursor: 'pointer',
+                              background: 'transparent'
+                            }}
+                          />
+                        </div>
+
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                          <span style={{ fontSize: '0.7rem', color: '#64748b' }}>Palettes:</span>
+                          {[
+                            { color: '#f26422', name: 'Saffron' },
+                            { color: '#ffd700', name: 'Gold' },
+                            { color: '#06b6d4', name: 'Teal' },
+                            { color: '#3b82f6', name: 'Sapphire' },
+                            { color: '#a855f7', name: 'Amethyst' },
+                            { color: '#f43f5e', name: 'Ruby' },
+                            { color: '#10b981', name: 'Emerald' }
+                          ].map(sw => (
+                            <button
+                              key={sw.color}
+                              type="button"
+                              onClick={() => setCustomColor(sw.color)}
+                              style={{
+                                width: '22px',
+                                height: '22px',
+                                borderRadius: '50%',
+                                background: sw.color,
+                                border: customColor.toLowerCase() === sw.color.toLowerCase() ? '2px solid #fff' : '1px solid rgba(255,255,255,0.2)',
+                                cursor: 'pointer',
+                                padding: 0,
+                                transition: 'transform 0.15s',
+                                transform: customColor.toLowerCase() === sw.color.toLowerCase() ? 'scale(1.2)' : 'scale(1)'
+                              }}
+                              title={sw.name}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   {/* 2. OCCASION SELECTOR */}
@@ -468,6 +574,20 @@ export default function GiftClientPage({ initialPlans }: { initialPlans: RealPla
                         </button>
                       ))}
                     </div>
+
+                    {occasion === 'Others' && (
+                      <div style={{ marginTop: '10px' }}>
+                        <label style={labelStyle}>Specify Custom Occasion / Event</label>
+                        <input 
+                          required 
+                          type="text" 
+                          value={customOccasionInput} 
+                          onChange={e => setCustomOccasionInput(e.target.value)} 
+                          placeholder="e.g. Upanayanam, Shashti Poorthi, Griha Pravesham, Arangetram..." 
+                          style={inputStyle} 
+                        />
+                      </div>
+                    )}
                   </div>
 
                   {/* 3. RELATIONSHIP SELECTOR */}
@@ -497,21 +617,10 @@ export default function GiftClientPage({ initialPlans }: { initialPlans: RealPla
                      </div>
                   )}
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '16px' }}>
-                     <div>
-                        <label style={labelStyle}>Recipient Full Name</label>
-                        <input required type="text" value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Savithri Devi" style={inputStyle} />
-                     </div>
-                     <div>
-                        <label style={labelStyle}>Recipient Email Address</label>
-                        <input required type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="recipient@example.com" style={inputStyle} />
-                     </div>
-                  </div>
-
-                  {/* AUSPICIOUS BLESSING QUOTE OR CUSTOM QUOTE */}
-                  <div style={{ marginBottom: '18px' }}>
+                  {/* 4. AUSPICIOUS BLESSING QUOTE OR CUSTOM QUOTE */}
+                  <div style={{ marginBottom: '20px' }}>
                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                       <label style={{ ...labelStyle, marginBottom: 0 }}>🪔 Auspicious Blessing Quote (Optional)</label>
+                       <label style={{ ...labelStyle, marginBottom: 0 }}>🪔 4. Auspicious Blessing Quote / Message</label>
                        <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>Pick a shloka or write your own</span>
                      </div>
 
@@ -619,7 +728,62 @@ export default function GiftClientPage({ initialPlans }: { initialPlans: RealPla
                      </div>
                   </div>
 
-                  <button type="submit" disabled={!activeRelationship || !name || !email} style={{
+                  {/* 5. HIGHLIGHTED RECIPIENT DELIVERY DETAILS (MOVED DOWN) */}
+                  <div style={{
+                     background: 'linear-gradient(145deg, rgba(255,215,0,0.03) 0%, rgba(242,100,34,0.03) 100%)',
+                     border: `1.5px solid ${activeThemeObj.primary}`,
+                     borderRadius: '16px',
+                     padding: '16px 18px',
+                     marginBottom: '20px',
+                     boxShadow: `0 6px 25px ${activeThemeObj.glow}`
+                  }}>
+                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                       <label style={{ ...labelStyle, color: activeThemeObj.primary, fontSize: '0.8rem', marginBottom: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                         <span>🎯</span> 5. Recipient Delivery Details
+                       </label>
+                       <span style={{ fontSize: '0.68rem', color: '#94a3b8' }}>
+                         Instant digital delivery to recipient
+                       </span>
+                     </div>
+
+                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+                        <div>
+                           <label style={{ ...labelStyle, color: '#f1f5f9' }}>Recipient Full Name *</label>
+                           <input 
+                             required 
+                             type="text" 
+                             value={name} 
+                             onChange={e => setName(e.target.value)} 
+                             placeholder="e.g. Savithri Devi" 
+                             style={{ 
+                               ...inputStyle, 
+                               background: 'rgba(5, 10, 20, 0.85)', 
+                               borderColor: name ? activeThemeObj.primary : '#334155' 
+                             }} 
+                           />
+                        </div>
+                        <div>
+                           <label style={{ ...labelStyle, color: '#f1f5f9' }}>Recipient Email Address *</label>
+                           <input 
+                             required 
+                             type="email" 
+                             value={email} 
+                             onChange={e => setEmail(e.target.value)} 
+                             placeholder="recipient@example.com" 
+                             style={{ 
+                               ...inputStyle, 
+                               background: 'rgba(5, 10, 20, 0.85)', 
+                               borderColor: email ? activeThemeObj.primary : '#334155' 
+                             }} 
+                           />
+                        </div>
+                     </div>
+                     <div style={{ fontSize: '0.68rem', color: '#64748b', marginTop: '8px' }}>
+                       ✨ The recipient will receive their interactive E-Card with 1-click unboxing ceremony at this email address.
+                     </div>
+                  </div>
+
+                  <button type="submit" disabled={!activeRelationship || (occasion === 'Others' && !customOccasionInput.trim()) || (rel === 'Others' && !customRelInput.trim()) || !name || !email} style={{
                      width: '100%', padding: '13px', background: `linear-gradient(135deg, ${activeThemeObj.primary}, ${activeThemeObj.secondary})`,
                      color: '#000', border: 'none', borderRadius: '10px', fontWeight: 900, fontSize: '0.95rem',
                      cursor: 'pointer', boxShadow: `0 8px 25px ${activeThemeObj.glow}`, opacity: (!activeRelationship || !name || !email) ? 0.6 : 1,

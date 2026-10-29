@@ -106,8 +106,17 @@ export default function ClaimClientPage({ initialData }: { initialData: VoucherC
   const [claimError, setClaimError] = useState<string | null>(null);
   const [showPrintModal, setShowPrintModal] = useState(false);
 
-  const themeKey = (initialData.cardTheme && THEME_CONFIG[initialData.cardTheme]) ? initialData.cardTheme : 'SWARNA';
-  const theme = THEME_CONFIG[themeKey];
+  const isCustomHex = initialData.cardTheme?.startsWith('#');
+  const theme = isCustomHex ? {
+    name: 'Custom Theme',
+    primary: initialData.cardTheme,
+    secondary: initialData.cardTheme,
+    background: `linear-gradient(135deg, ${initialData.cardTheme}22 0%, #080a0f 100%)`,
+    border: `2px solid ${initialData.cardTheme}`,
+    glow: `${initialData.cardTheme}35`,
+    icon: '🎨',
+    accentBg: `${initialData.cardTheme}18`
+  } : (THEME_CONFIG[initialData.cardTheme || 'SWARNA'] || THEME_CONFIG.SWARNA);
   const durationText = initialData.months >= 12 ? '1 Full Year' : `${initialData.months} Month${initialData.months > 1 ? 's' : ''}`;
 
   const handleOpenEnvelope = () => {
