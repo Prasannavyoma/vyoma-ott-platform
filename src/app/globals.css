@@ -43,40 +43,51 @@ a {
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  padding: 0 4%;
-  gap: 30px;
+  padding: 0 clamp(12px, 3vw, 4%);
+  gap: clamp(8px, 1.4vw, 22px);
   z-index: 1001;
   border-bottom: 1px solid rgba(255,255,255,0.05);
   box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.top-utility-bar::-webkit-scrollbar {
+  display: none;
 }
 .top-utility-bar a {
   color: #a0aec0;
-  font-size: 0.75rem;
+  font-size: clamp(0.68rem, 0.75vw, 0.75rem);
   font-weight: 800;
   text-decoration: none;
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 4px 12px;
+  gap: 6px;
+  padding: 4px clamp(7px, 0.85vw, 12px);
   border-radius: 20px;
   background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.03);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 .top-utility-bar a:hover {
   color: #fff;
   transform: translateY(-2px);
   background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.15);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5), inset 0 0 10px rgba(255,255,255,0.02);
 }
 .top-utility-bar a .icon-wrapper {
+  display: inline-flex;
+  align-items: center;
   transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 .top-utility-bar a:hover .icon-wrapper {
-  transform: scale(1.3) rotate(8deg);
+  transform: scale(1.2) rotate(8deg);
 }
 
 .navbar {
@@ -1575,18 +1586,71 @@ a {
    🚀 MOBILE RESPONSIVENESS & WOW FACTOR ENHANCEMENTS 
    ======================================================== */
 @media (max-width: 1400px) {
+  .top-utility-bar {
+    padding: 0 2%;
+    gap: 12px;
+  }
+  .top-utility-bar a {
+    font-size: 0.7rem;
+    padding: 3px 8px;
+    letter-spacing: 0.03em;
+  }
+  .nav-left-group {
+    gap: 16px !important;
+  }
+  .nav-brand img {
+    height: 48px !important;
+  }
+  .nav-links {
+    gap: 14px !important;
+  }
+  .nav-links a {
+    font-size: 15px !important;
+  }
   .nav-actions {
-    gap: 8px !important;
+    gap: 10px !important;
   }
   .progress-text, .profile-text, .gift-text {
     display: none !important;
   }
+}
+
+@media (max-width: 1200px) {
+  .top-utility-bar {
+    padding: 0 16px;
+    gap: 8px;
+    justify-content: flex-end;
+  }
+  .top-utility-bar a {
+    font-size: 0.67rem;
+    padding: 2.5px 7px;
+    gap: 4px;
+    letter-spacing: 0.02em;
+  }
   .nav-links {
-    gap: 20px;
+    gap: 10px !important;
+  }
+  .nav-links a {
+    font-size: 13.5px !important;
+  }
+  .nav-brand img {
+    height: 42px !important;
+  }
+  .navbar {
+    padding: 10px 2.5% !important;
   }
 }
 
 @media (max-width: 1024px) {
+  .top-utility-bar {
+    justify-content: flex-start;
+    padding: 0 12px;
+    gap: 6px;
+  }
+  .top-utility-bar a {
+    font-size: 0.65rem;
+    padding: 2px 7px;
+  }
   .hero-title {
     font-size: 3rem;
   }

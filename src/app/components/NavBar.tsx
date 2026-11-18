@@ -58,25 +58,25 @@ export default function NavBar() {
 
         {features.shortsEnabled && (
           <Link href="/shorts" title="Shorts">
-            <span className="icon-wrapper" style={{ marginRight: '4px', color: '#ff4d4d', verticalAlign: 'text-bottom' }}><PlaySquare size={16} /></span> Shorts
+            <span className="icon-wrapper" style={{ marginRight: '5px', color: '#ff4d4d' }}><PlaySquare size={14} /></span> Shorts
           </Link>
         )}
         {features.blogEnabled && (
           <Link href="/blog" title="Vyoma Insights Blog">
-            <span className="icon-wrapper" style={{ marginRight: '4px', verticalAlign: 'text-bottom' }}><FileText size={16} /></span> Blog
+            <span className="icon-wrapper" style={{ marginRight: '5px' }}><FileText size={14} /></span> Blog
           </Link>
         )}
         <Link href="/testimonials" title="Community Testimonials">
-          <span className="icon-wrapper" style={{ marginRight: '4px', color: '#ffb300', verticalAlign: 'text-bottom' }}><Star size={16} /></span> Testimonials
+          <span className="icon-wrapper" style={{ marginRight: '5px', color: '#ffb300' }}><Star size={14} /></span> Testimonials
         </Link>
         <Link href="/faq" title="Help / FAQ">
-          <span className="icon-wrapper" style={{ marginRight: '4px', color: '#00d2ff', verticalAlign: 'text-bottom' }}><HelpCircle size={16} /></span> Help
+          <span className="icon-wrapper" style={{ marginRight: '5px', color: '#00d2ff' }}><HelpCircle size={14} /></span> Help
         </Link>
         <Link href="/gift" title="Gift Wisdom">
-          <span className="icon-wrapper" style={{ marginRight: '4px', verticalAlign: 'text-bottom' }}><Gift size={16} /></span> Gift
+          <span className="icon-wrapper" style={{ marginRight: '5px' }}><Gift size={14} /></span> Gift
         </Link>
         <Link href="/progress" title="Progress">
-          <span className="icon-wrapper" style={{ marginRight: '4px', verticalAlign: 'text-bottom' }}><TrendingUp size={16} /></span> Progress
+          <span className="icon-wrapper" style={{ marginRight: '5px' }}><TrendingUp size={14} /></span> Progress
         </Link>
       </div>
 

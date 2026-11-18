@@ -350,14 +350,14 @@ export default function GiftClientPage({ initialPlans }: { initialPlans: RealPla
           backdrop-filter: blur(25px);
           border: 1px solid rgba(255,255,255,0.08);
           border-radius: 24px;
-          padding: 28px 30px;
+          padding: clamp(18px, 2.5vw, 28px);
           box-shadow: 0 20px 45px rgba(0,0,0,0.45);
         }
         .ecard-preview {
           background: ${activeThemeObj.bg};
           border: 2px solid ${activeThemeObj.border};
           border-radius: 22px;
-          padding: 26px 28px;
+          padding: clamp(18px, 2vw, 26px);
           position: relative;
           overflow: hidden;
           box-shadow: 0 20px 50px ${activeThemeObj.glow};
@@ -389,48 +389,59 @@ export default function GiftClientPage({ initialPlans }: { initialPlans: RealPla
           z-index: 1;
         }
         .theme-card-btn {
-          border-radius: 14px;
-          padding: 12px 14px;
+          border-radius: 12px;
+          padding: 10px 12px;
           font-weight: 800;
-          font-size: 0.82rem;
+          font-size: 0.8rem;
           cursor: pointer;
           transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
           display: flex;
           align-items: center;
-          gap: 10px;
+          gap: 8px;
           border: 1px solid #1e293b;
           background: #0d131f;
           text-align: left;
+          white-space: nowrap;
         }
         .theme-card-btn:hover {
           transform: translateY(-1px);
         }
         .chip-button {
-          padding: 6px 12px;
+          padding: 5px 11px;
           border-radius: 20px;
           font-weight: 700;
-          font-size: 0.76rem;
+          font-size: 0.74rem;
           cursor: pointer;
           transition: all 0.2s ease;
           display: inline-flex;
           align-items: center;
-          gap: 6px;
+          gap: 5px;
           border: 1px solid #1e293b;
           background: #0d131f;
+          white-space: nowrap;
         }
         .chip-button:hover {
           border-color: rgba(255,255,255,0.25);
         }
         .step-pill {
-          display: flex;
+          display: inline-flex;
           align-items: center;
-          gap: 10px;
-          padding: 10px 20px;
+          gap: 8px;
+          padding: 8px 18px;
           border-radius: 30px;
-          font-size: 0.84rem;
+          font-size: 0.82rem;
           font-weight: 800;
           cursor: pointer;
           transition: all 0.25s ease;
+          white-space: nowrap;
+        }
+        @media (max-width: 640px) {
+          .step-pill {
+            flex: 1;
+            justify-content: center;
+            font-size: 0.75rem;
+            padding: 8px 10px;
+          }
         }
         @media (max-width: 960px) {
           .gift-main-grid {
@@ -503,14 +514,14 @@ export default function GiftClientPage({ initialPlans }: { initialPlans: RealPla
           </div>
 
           {/* TRUST BADGES */}
-          <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
-            <span style={{ background: 'rgba(70,211,105,0.08)', border: '1px solid rgba(70,211,105,0.25)', padding: '7px 16px', borderRadius: '24px', color: '#46d369', fontSize: '0.78rem', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+            <span style={{ background: 'rgba(70,211,105,0.08)', border: '1px solid rgba(70,211,105,0.25)', padding: '5px 12px', borderRadius: '20px', color: '#46d369', fontSize: '0.74rem', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: '5px', whiteSpace: 'nowrap' }}>
               <span>✨</span> 1-Click Unboxing
             </span>
-            <span style={{ background: 'rgba(255,215,0,0.08)', border: '1px solid rgba(255,215,0,0.25)', padding: '7px 16px', borderRadius: '24px', color: '#ffd700', fontSize: '0.78rem', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{ background: 'rgba(255,215,0,0.08)', border: '1px solid rgba(255,215,0,0.25)', padding: '5px 12px', borderRadius: '20px', color: '#ffd700', fontSize: '0.74rem', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: '5px', whiteSpace: 'nowrap' }}>
               <span>📜</span> Certified Membership
             </span>
-            <span style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', padding: '7px 16px', borderRadius: '24px', color: '#cbd5e1', fontSize: '0.78rem', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', padding: '5px 12px', borderRadius: '20px', color: '#cbd5e1', fontSize: '0.74rem', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: '5px', whiteSpace: 'nowrap' }}>
               <span>🔒</span> Encrypted Checkout
             </span>
           </div>
