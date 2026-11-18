@@ -1,7 +1,14 @@
 import prisma from '@/lib/prisma';
+import { getCurrentUser } from '@/lib/auth';
+import { redirect } from 'next/navigation';
 import GiftClientPage from './GiftClientPage';
 
 export default async function GiftPage() {
+  const user = await getCurrentUser();
+  if (!user) {
+    redirect('/login?redirect=/gift');
+  }
+
   // 1. Fetch Authentic, Authoritative Dynamic Pricing from SQLite
   const rawPlans = await prisma.plan.findMany();
   
@@ -13,6 +20,12 @@ export default async function GiftPage() {
     { name: 'PLATINUM', interval: 'YEARLY', priceINR: 499, priceUSD: 100 },
   ];
 
-  // 3. Pass real dynamic plan payloads to the localized client wrapper
-  return <GiftClientPage initialPlans={plans as any} />;
+  const currentUser = {
+    id: user.id,
+    name: user.name || '',
+    email: user.email,
+  };
+
+  // 3. Pass real dynamic plan payloads & verified buyer identity to the localized client wrapper
+  return <GiftClientPage initialPlans={plans as any} currentUser={currentUser} />;
 }

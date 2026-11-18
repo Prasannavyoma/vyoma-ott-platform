@@ -28,6 +28,7 @@ interface GiftParams {
   amount?: number;
   currency?: string;
   cardTheme?: 'SWARNA' | 'UTSAV' | 'GURUKULA' | 'PADMA' | string;
+  senderDisplayName?: string;
 }
 
 /**
@@ -39,6 +40,7 @@ export async function purchaseGiftVoucher(params: GiftParams) {
     throw new Error("AUTHENTICATION_REQUIRED: Please sign in to gift subscriptions.");
   }
 
+  const senderName = params.senderDisplayName?.trim() || buyer.name || buyer.email;
   const codes: string[] = [];
   const occasionText = params.occasion || 'Spiritual Wisdom';
   const theme = params.cardTheme || 'SWARNA';
@@ -53,7 +55,7 @@ export async function purchaseGiftVoucher(params: GiftParams) {
           code: uniqueCode,
           plan: params.planName,
           months: params.months,
-          sponsoredBy: `Gift from ${buyer.name || buyer.email} to ${params.recipientName} (${params.relationship} • ${occasionText})`,
+          sponsoredBy: `Gift from ${senderName} to ${params.recipientName} (${params.relationship} • ${occasionText})`,
           isUsed: false
         }
       });
@@ -70,7 +72,7 @@ export async function purchaseGiftVoucher(params: GiftParams) {
         sourceId: `GIFT:${params.planName}:${params.months}M`,
         userId: buyer.id,
         metadata: JSON.stringify({
-          senderName: buyer.name || buyer.email,
+          senderName: senderName,
           senderEmail: buyer.email,
           senderId: buyer.id,
           recipientName: params.recipientName,
@@ -94,7 +96,7 @@ export async function purchaseGiftVoucher(params: GiftParams) {
     sendGiftVoucherEmail(
       params.recipientEmail,
       params.recipientName,
-      buyer.name || buyer.email,
+      senderName,
       params.relationship,
       params.planName,
       params.months,

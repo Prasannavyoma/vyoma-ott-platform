@@ -104,10 +104,21 @@ function loadRazorpayScript(): Promise<boolean> {
   });
 }
 
-export default function GiftClientPage({ initialPlans }: { initialPlans: RealPlan[] }) {
+export default function GiftClientPage({ 
+  initialPlans, 
+  currentUser 
+}: { 
+  initialPlans: RealPlan[];
+  currentUser?: { id: string; name: string; email: string };
+}) {
   const [step, setStep] = useState<'compose' | 'checkout' | 'success'>('compose');
   const [region, setRegion] = useState<'INDIA' | 'ABROAD'>('INDIA');
   
+  // Gifter Identity State
+  const [senderName, setSenderName] = useState(
+    currentUser?.name?.trim() || (currentUser?.email ? currentUser.email.split('@')[0] : 'A Well-Wisher')
+  );
+
   // Form States
   const [cardTheme, setCardTheme] = useState<'SWARNA' | 'UTSAV' | 'GURUKULA' | 'PADMA' | 'CUSTOM'>('SWARNA');
   const [customColor, setCustomColor] = useState('#f59e0b');
@@ -250,8 +261,8 @@ export default function GiftClientPage({ initialPlans }: { initialPlans: RealPla
           await finalizeVoucherCreation(finalRel);
         },
         prefill: {
-          name: name || "Patron",
-          email: email || "gifts@vyoma.com"
+          name: currentUser?.name || senderName || "Patron",
+          email: currentUser?.email || "gifts@vyoma.org"
         },
         theme: {
           color: activeThemeObj.primary
@@ -297,7 +308,8 @@ export default function GiftClientPage({ initialPlans }: { initialPlans: RealPla
         quantity: quantity,
         amount: totalDue,
         currency: currency,
-        cardTheme: cardTheme === 'CUSTOM' ? customColor : cardTheme
+        cardTheme: cardTheme === 'CUSTOM' ? customColor : cardTheme,
+        senderDisplayName: senderName
       });
 
       if (res.success) {
@@ -326,6 +338,7 @@ export default function GiftClientPage({ initialPlans }: { initialPlans: RealPla
   };
 
   const isFormValid = Boolean(
+    senderName.trim() &&
     name.trim() && 
     email.trim() && 
     activeRelationship && 
@@ -614,6 +627,61 @@ export default function GiftClientPage({ initialPlans }: { initialPlans: RealPla
                   
                   <form onSubmit={(e) => { e.preventDefault(); setStep('checkout'); }}>
                     
+                    {/* SENDER IDENTITY (VERIFIED BUYER) */}
+                    <div style={{
+                      background: 'linear-gradient(135deg, rgba(255,215,0,0.06) 0%, rgba(255,170,0,0.02) 100%)',
+                      border: '1px solid rgba(255,215,0,0.22)',
+                      borderRadius: '16px',
+                      padding: '16px 20px',
+                      marginBottom: '22px'
+                    }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px', marginBottom: '10px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <span style={{ fontSize: '1.1rem' }}>🪔</span>
+                          <span style={{ fontSize: '0.84rem', fontWeight: 800, color: '#ffd700' }}>
+                            Gifter (You) • Verified Account
+                          </span>
+                          <span style={{ 
+                            background: 'rgba(70,211,105,0.15)', 
+                            color: '#46d369', 
+                            border: '1px solid rgba(70,211,105,0.3)', 
+                            borderRadius: '20px', 
+                            padding: '2px 8px', 
+                            fontSize: '0.68rem', 
+                            fontWeight: 800 
+                          }}>
+                            ✓ Logged In
+                          </span>
+                        </div>
+                        {currentUser?.email && (
+                          <span style={{ fontSize: '0.74rem', color: '#94a3b8' }}>
+                            Account: <strong style={{ color: '#e2e8f0' }}>{currentUser.email}</strong>
+                          </span>
+                        )}
+                      </div>
+
+                      <div>
+                        <label style={{ ...labelStyle, fontSize: '0.76rem', color: '#f1f5f9', marginBottom: '6px' }}>
+                          Your Name on Gift Card & Email (Signature) *
+                        </label>
+                        <input
+                          required
+                          type="text"
+                          value={senderName}
+                          onChange={e => setSenderName(e.target.value)}
+                          placeholder="e.g. Grandma & Grandpa, Ravi Sharma, Your Loving Brother..."
+                          style={{
+                            ...inputStyle,
+                            background: 'rgba(5, 10, 20, 0.85)',
+                            borderColor: senderName.trim() ? '#ffd700' : '#ef4444'
+                          }}
+                        />
+                        <div style={{ fontSize: '0.7rem', color: '#94a3b8', marginTop: '5px' }}>
+                          💡 This signature will be featured on the recipient's digital E-Card, claim unboxing page, and activation notification email.
+                        </div>
+                      </div>
+                    </div>
+
                     {/* 1. CARD THEME SELECTOR */}
                     <div style={{ marginBottom: '22px' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
@@ -1114,7 +1182,11 @@ export default function GiftClientPage({ initialPlans }: { initialPlans: RealPla
                   {/* ORDER SUMMARY */}
                   <div style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '16px', padding: '18px 22px', marginBottom: '22px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '0.85rem', color: '#8f98a9' }}>
-                      <span>Recipient</span>
+                      <span>Gifter (From)</span>
+                      <span style={{ color: '#ffd700', fontWeight: 700 }}>{senderName} {currentUser?.email ? `(${currentUser.email})` : ''}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '0.85rem', color: '#8f98a9' }}>
+                      <span>Recipient (To)</span>
                       <span style={{ color: '#fff', fontWeight: 700 }}>{name} ({email})</span>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '0.85rem', color: '#8f98a9' }}>
@@ -1271,8 +1343,13 @@ export default function GiftClientPage({ initialPlans }: { initialPlans: RealPla
 
                 {/* CARD BODY */}
                 <div style={{ minHeight: '120px' }}>
-                  <div style={{ color: '#8f98a9', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '1px' }}>HONORING</div>
-                  <h2 style={{ fontSize: '1.65rem', fontWeight: 900, color: '#fff', margin: '3px 0 6px 0', letterSpacing: '-0.3px', wordBreak: 'break-word' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                    <div style={{ color: '#8f98a9', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '1px' }}>HONORING</div>
+                    <div style={{ color: '#8f98a9', fontSize: '0.7rem', fontWeight: 750 }}>
+                      FROM: <span style={{ color: activeThemeObj.primary }}>{senderName || 'Well-Wisher'}</span>
+                    </div>
+                  </div>
+                  <h2 style={{ fontSize: '1.65rem', fontWeight: 900, color: '#fff', margin: '2px 0 6px 0', letterSpacing: '-0.3px', wordBreak: 'break-word' }}>
                     {name || 'Dear Recipient'}
                   </h2>
                   <div style={{ color: activeThemeObj.primary, fontWeight: 800, fontSize: '0.82rem', marginTop: '2px' }}>
@@ -1281,6 +1358,9 @@ export default function GiftClientPage({ initialPlans }: { initialPlans: RealPla
                   <p style={{ fontStyle: 'italic', color: '#cbd5e1', fontSize: '0.86rem', marginTop: '14px', borderLeft: `3px solid ${activeThemeObj.primary}`, paddingLeft: '14px', lineHeight: '1.6', margin: '14px 0 0 0' }}>
                     "{msg || 'Wishing you peace, enlightenment, and joyful Sanskrit learning on this auspicious path.'}"
                   </p>
+                  <div style={{ textAlign: 'right', marginTop: '10px', fontSize: '0.76rem', color: '#94a3b8' }}>
+                    — With Blessings, <strong style={{ color: '#fff' }}>{senderName || 'Well-Wisher'}</strong>
+                  </div>
                 </div>
 
                 {/* CARD FOOTER WITH SELECTED PLAN (INCLUDED IN PREVIEW) */}
@@ -1316,7 +1396,7 @@ export default function GiftClientPage({ initialPlans }: { initialPlans: RealPla
               <div style={{ background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.25)', borderRadius: '12px', padding: '14px 18px', color: '#93c5fd', fontSize: '0.88rem', marginBottom: '26px', textAlign: 'left', display: 'flex', gap: '12px', alignItems: 'center' }}>
                 <span style={{ fontSize: '1.4rem' }}>📧</span>
                 <div>
-                  <strong>Automated E-Card Sent:</strong> Delivered to <strong style={{ color: '#fff' }}>{email}</strong> with 1-click unboxing ceremony.
+                  <strong>Automated E-Card Sent:</strong> Delivered to <strong style={{ color: '#fff' }}>{email}</strong> from <strong style={{ color: '#ffd700' }}>{senderName}</strong> with 1-click unboxing ceremony. Order logged under your account ({currentUser?.email ? <strong style={{ color: '#fff' }}>{currentUser.email}</strong> : 'Verified Gifter'}).
                 </div>
               </div>
 
@@ -1339,7 +1419,12 @@ export default function GiftClientPage({ initialPlans }: { initialPlans: RealPla
                   </div>
                 </div>
                 <div style={{ minHeight: '110px' }}>
-                  <div style={{ color: '#8f98a9', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '1px' }}>PREPARED EXCLUSIVELY FOR</div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ color: '#8f98a9', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '1px' }}>PREPARED EXCLUSIVELY FOR</div>
+                    <div style={{ color: '#8f98a9', fontSize: '0.7rem', fontWeight: 750 }}>
+                      FROM: <span style={{ color: activeThemeObj.primary }}>{senderName}</span>
+                    </div>
+                  </div>
                   <h2 style={{ fontSize: '1.75rem', fontWeight: 900, color: '#fff', margin: '3px 0 6px 0' }}>{name}</h2>
                   <div style={{ color: activeThemeObj.primary, fontWeight: 800, fontSize: '0.84rem' }}>
                     {activeRelationship ? `Relationship: ${activeRelationship}` : 'Honored Loved One'} • <span style={{ color: '#fff', opacity: 0.85 }}>{activeOccasionLabel}</span>
@@ -1347,6 +1432,9 @@ export default function GiftClientPage({ initialPlans }: { initialPlans: RealPla
                   <p style={{ fontStyle: 'italic', color: '#cbd5e1', fontSize: '0.88rem', marginTop: '14px', borderLeft: `3px solid ${activeThemeObj.primary}`, paddingLeft: '14px', lineHeight: '1.6' }}>
                     "{msg || 'Wishing you knowledge, peace, and spiritual growth through the eternal nectar of Sanskrit.'}"
                   </p>
+                  <div style={{ textAlign: 'right', marginTop: '10px', fontSize: '0.78rem', color: '#94a3b8' }}>
+                    — With Blessings, <strong style={{ color: '#fff' }}>{senderName}</strong>
+                  </div>
                 </div>
                 <div style={{ marginTop: '24px', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
                   <div>
@@ -1368,10 +1456,10 @@ export default function GiftClientPage({ initialPlans }: { initialPlans: RealPla
                     ? `${window.location.origin}/gift/claim/${code}?theme=${cardTheme}` 
                     : `https://vyoma-ott-platform.vercel.app/gift/claim/${code}?theme=${cardTheme}`;
                   
-                  const indWhatsappMsg = `🎁 *Vyoma Gift of Wisdom* 🎁\n\nDear *${name}*,\n\nI have gifted you a *${activePkg.name} Plan* subscription (${activePkg.months} Months) to Vyoma Sanskrit OTT for ${activeOccasionLabel}!\n\n💬 Message: _"${msg || 'Wishing you knowledge, peace, and spiritual growth.'}"_\n\n🔑 *Activation Key*: *${code}*\n\n👉 *Open Your Gift & Activate*: ${claimUrl}\n\nEnjoy your learning journey! 🪔`;
+                  const indWhatsappMsg = `🎁 *Vyoma Gift of Wisdom* 🎁\n\nDear *${name}*,\n\nI (*${senderName}*) have gifted you a *${activePkg.name} Plan* subscription (${activePkg.months} Months) to Vyoma Sanskrit OTT for ${activeOccasionLabel}!\n\n💬 Message: _"${msg || 'Wishing you knowledge, peace, and spiritual growth.'}"_\n\n🔑 *Activation Key*: *${code}*\n\n👉 *Open Your Gift & Activate*: ${claimUrl}\n\nEnjoy your learning journey! 🪔`;
                   const indWhatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(indWhatsappMsg)}`;
-                  const indEmailSubject = `🎁 Gift of Wisdom: Your Vyoma Sanskrit Subscription Key (${activeOccasionLabel})!`;
-                  const indEmailBody = `Dear ${name},\n\nI have gifted you a ${activePkg.name} Plan subscription (${activePkg.months} Months) to Vyoma Sanskrit OTT for ${activeOccasionLabel}!\n\nMessage: "${msg || 'Wishing you knowledge, peace, and spiritual growth.'}"\n\nYour Activation Key: ${code}\n\nOpen Your Gift & Activate in 1 Click: ${claimUrl}\n\nEnjoy your learning journey!\n\nVyoma Academy`;
+                  const indEmailSubject = `🎁 Gift of Wisdom from ${senderName}: Your Vyoma Sanskrit Subscription Key (${activeOccasionLabel})!`;
+                  const indEmailBody = `Dear ${name},\n\nI (${senderName}) have gifted you a ${activePkg.name} Plan subscription (${activePkg.months} Months) to Vyoma Sanskrit OTT for ${activeOccasionLabel}!\n\nMessage: "${msg || 'Wishing you knowledge, peace, and spiritual growth.'}"\n\nYour Activation Key: ${code}\n\nOpen Your Gift & Activate in 1 Click: ${claimUrl}\n\nEnjoy your learning journey!\n\nWith love,\n${senderName}\nVyoma Academy`;
                   const indEmailUrl = `mailto:${email}?subject=${encodeURIComponent(indEmailSubject)}&body=${encodeURIComponent(indEmailBody)}`;
                   
                   return (
@@ -1459,7 +1547,7 @@ export default function GiftClientPage({ initialPlans }: { initialPlans: RealPla
               <div style={{ fontSize: '0.75rem', color: '#888', textTransform: 'uppercase' }}>THIS SACRED GIFT HONORS</div>
               <div style={{ fontSize: '1.9rem', fontWeight: 900, color: '#111', marginTop: '4px' }}>{name}</div>
               <div style={{ fontSize: '0.85rem', color: '#b8860b', fontWeight: 700, marginTop: '4px' }}>
-                Presented with love by a generous well-wisher ({activeRelationship} • {activeOccasionLabel})
+                Presented with love by {senderName} ({activeRelationship} • {activeOccasionLabel})
               </div>
             </div>
 
