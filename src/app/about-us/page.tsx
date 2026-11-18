@@ -556,90 +556,225 @@ export default function AboutUsPage() {
             </div>
           </div>
 
-          {/* Section 5: New Content Icons / Content Access Guide */}
+          {/* Section 5: Content Access Icons & Badges Guide (Updated for Vyoma OTT 2.0) */}
           <div style={{ 
             background: 'rgba(15, 22, 36, 0.7)', 
             border: '1px solid rgba(255, 255, 255, 0.1)', 
             borderRadius: '24px', 
-            padding: '40px', 
+            padding: 'clamp(24px, 4vw, 40px)', 
             backdropFilter: 'blur(20px)',
             boxShadow: '0 15px 40px rgba(0, 0, 0, 0.45)',
             marginBottom: '60px'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px', paddingBottom: '16px', borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}>
-              <Sparkles size={22} color="var(--primary, #f26422)" />
-              <h3 style={{ fontSize: '1.5rem', fontWeight: 900, margin: 0, color: '#fff' }}>
-                New Content Icons !
-              </h3>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', marginBottom: '24px', paddingBottom: '16px', borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <Sparkles size={22} color="var(--primary, #f26422)" />
+                <h3 style={{ fontSize: '1.5rem', fontWeight: 900, margin: 0, color: '#fff' }}>
+                  New Content Icons !
+                </h3>
+              </div>
+              <span style={{ 
+                background: 'rgba(242, 100, 34, 0.12)', 
+                border: '1px solid rgba(242, 100, 34, 0.3)', 
+                color: 'var(--primary, #f26422)', 
+                padding: '4px 12px', 
+                borderRadius: '20px', 
+                fontSize: '0.75rem', 
+                fontWeight: 800, 
+                letterSpacing: '0.5px' 
+              }}>
+                Vyoma OTT 2.0 Access System
+              </span>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              
-              {/* Platinum Tier */}
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '18px' }}>
-                <img 
-                  src="https://digitalsanskrit.com/wp-content/uploads/2025/08/iconplatinum.png" 
-                  alt="Platinum Icon" 
-                  style={{ width: '36px', height: '36px', objectFit: 'contain', flexShrink: 0 }} 
-                />
-                <div>
-                  <div style={{ fontSize: '1.05rem', fontWeight: 800, color: '#e2e8f0', marginBottom: '4px' }}>
-                    Platinum
-                  </div>
-                  <p style={{ color: '#94a3b8', fontSize: '0.92rem', lineHeight: 1.6, margin: 0 }}>
-                    If the content has this icon, it means it is available only for <strong style={{ color: '#fff' }}>Platinum subscribers</strong>.
-                  </p>
-                </div>
-              </div>
-
-              {/* Gold Tier */}
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '18px' }}>
-                <img 
-                  src="https://digitalsanskrit.com/wp-content/uploads/2025/08/G_black.png" 
-                  alt="Gold Icon" 
-                  style={{ width: '28px', height: '28px', objectFit: 'contain', flexShrink: 0, margin: '4px 4px 0 4px' }} 
-                />
-                <div>
-                  <div style={{ fontSize: '1.05rem', fontWeight: 800, color: '#e2e8f0', marginBottom: '4px' }}>
-                    Gold
-                  </div>
-                  <p style={{ color: '#94a3b8', fontSize: '0.92rem', lineHeight: 1.6, margin: 0 }}>
-                    If a content has this icon, it means it is available only for <strong style={{ color: '#fff' }}>Gold subscribers</strong>.
-                  </p>
-                </div>
-              </div>
-
-              {/* Free Tier */}
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '18px' }}>
-                <div style={{ 
-                  width: '36px', 
-                  height: '36px', 
-                  borderRadius: '50%', 
-                  background: 'rgba(70, 211, 105, 0.15)', 
-                  border: '1px solid rgba(70, 211, 105, 0.35)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#46d369',
-                  flexShrink: 0
-                }}>
-                  <Check size={18} />
-                </div>
-                <div>
-                  <div style={{ fontSize: '1.05rem', fontWeight: 800, color: '#46d369', marginBottom: '4px' }}>
-                    Free
-                  </div>
-                  <p style={{ color: '#94a3b8', fontSize: '0.92rem', lineHeight: 1.6, margin: 0 }}>
-                    If no icon is shown, the content is free for everyone.
-                  </p>
-                </div>
-              </div>
-
-            </div>
-
-            <p style={{ marginTop: '25px', paddingTop: '16px', borderTop: '1px solid rgba(255, 255, 255, 0.05)', fontSize: '0.9rem', color: '#94a3b8', lineHeight: 1.6, margin: '20px 0 0' }}>
-              Under podcasts and videos, there will be at least one free collection, while other collections may be restricted to Gold or Platinum subscribers as indicated by their respective icons.
+            <p style={{ color: '#94a3b8', fontSize: '0.96rem', lineHeight: 1.6, margin: '0 0 28px 0' }}>
+              Every course, video series, audio track, and shastra edition displays an authoritative access badge. Here is how to easily identify content available for your membership:
             </p>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '20px', marginBottom: '25px' }}>
+              
+              {/* Platinum Tier Badge Card */}
+              <div style={{ 
+                background: 'linear-gradient(145deg, rgba(229, 228, 226, 0.06) 0%, rgba(15, 22, 36, 0.6) 100%)', 
+                border: '1px solid rgba(229, 228, 226, 0.25)', 
+                borderRadius: '18px', 
+                padding: '24px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '14px',
+                boxShadow: '0 8px 25px rgba(0, 0, 0, 0.3)',
+                transition: 'all 0.3s ease'
+              }} className="about-feature-card">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  {/* Native OTT 2.0 Platinum Badge */}
+                  <span style={{
+                    background: 'linear-gradient(135deg, #ffffff 0%, #e5e4e2 50%, #b0b0b0 100%)',
+                    color: '#000',
+                    padding: '4px 12px',
+                    borderRadius: '6px',
+                    fontSize: '0.78rem',
+                    fontWeight: 900,
+                    letterSpacing: '0.8px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    boxShadow: '0 2px 12px rgba(229, 228, 226, 0.35)',
+                    border: '1px solid rgba(255,255,255,0.6)'
+                  }}>
+                    <span>💎</span> PLATINUM
+                  </span>
+                  <span style={{ fontSize: '0.72rem', color: '#cbd5e1', fontWeight: 700, textTransform: 'uppercase' }}>VIP All-Access</span>
+                </div>
+                <div>
+                  <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#fff', marginBottom: '6px' }}>
+                    Platinum Membership
+                  </div>
+                  <p style={{ color: '#94a3b8', fontSize: '0.88rem', lineHeight: 1.6, margin: 0 }}>
+                    If content displays the <strong style={{ color: '#e5e4e2' }}>💎 PLATINUM</strong> badge, it is reserved exclusively for <strong style={{ color: '#fff' }}>Platinum subscribers</strong>. Includes live masterclasses, advanced shastra courses, and certification programs.
+                  </p>
+                </div>
+              </div>
+
+              {/* Gold Tier Badge Card */}
+              <div style={{ 
+                background: 'linear-gradient(145deg, rgba(255, 215, 0, 0.06) 0%, rgba(15, 22, 36, 0.6) 100%)', 
+                border: '1px solid rgba(255, 215, 0, 0.25)', 
+                borderRadius: '18px', 
+                padding: '24px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '14px',
+                boxShadow: '0 8px 25px rgba(0, 0, 0, 0.3)',
+                transition: 'all 0.3s ease'
+              }} className="about-feature-card">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  {/* Native OTT 2.0 Gold Badge */}
+                  <span style={{
+                    background: 'linear-gradient(135deg, #ffd700 0%, #ffaa00 50%, #b8860b 100%)',
+                    color: '#000',
+                    padding: '4px 12px',
+                    borderRadius: '6px',
+                    fontSize: '0.78rem',
+                    fontWeight: 900,
+                    letterSpacing: '0.8px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    boxShadow: '0 2px 12px rgba(255, 215, 0, 0.35)',
+                    border: '1px solid rgba(255,235,100,0.6)'
+                  }}>
+                    <span>👑</span> GOLD
+                  </span>
+                  <span style={{ fontSize: '0.72rem', color: '#ffd700', fontWeight: 700, textTransform: 'uppercase' }}>Standard Tier</span>
+                </div>
+                <div>
+                  <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#fff', marginBottom: '6px' }}>
+                    Gold Membership
+                  </div>
+                  <p style={{ color: '#94a3b8', fontSize: '0.88rem', lineHeight: 1.6, margin: 0 }}>
+                    If content displays the <strong style={{ color: '#ffd700' }}>👑 GOLD</strong> badge, it is available to all <strong style={{ color: '#fff' }}>Gold & Platinum subscribers</strong>. Unlocks full curated video lessons, comprehensive e-books, and stotra audio recitation tracks.
+                  </p>
+                </div>
+              </div>
+
+              {/* Free Tier Badge Card */}
+              <div style={{ 
+                background: 'linear-gradient(145deg, rgba(70, 211, 105, 0.06) 0%, rgba(15, 22, 36, 0.6) 100%)', 
+                border: '1px solid rgba(70, 211, 105, 0.25)', 
+                borderRadius: '18px', 
+                padding: '24px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '14px',
+                boxShadow: '0 8px 25px rgba(0, 0, 0, 0.3)',
+                transition: 'all 0.3s ease'
+              }} className="about-feature-card">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  {/* Native OTT 2.0 Free Badge */}
+                  <span style={{
+                    background: 'rgba(70, 211, 105, 0.15)',
+                    border: '1px solid rgba(70, 211, 105, 0.45)',
+                    color: '#46d369',
+                    padding: '4px 12px',
+                    borderRadius: '6px',
+                    fontSize: '0.78rem',
+                    fontWeight: 900,
+                    letterSpacing: '0.8px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px'
+                  }}>
+                    <span>🔓</span> FREE
+                  </span>
+                  <span style={{ fontSize: '0.72rem', color: '#46d369', fontWeight: 700, textTransform: 'uppercase' }}>Lifetime Access</span>
+                </div>
+                <div>
+                  <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#fff', marginBottom: '6px' }}>
+                    Free Starter Path
+                  </div>
+                  <p style={{ color: '#94a3b8', fontSize: '0.88rem', lineHeight: 1.6, margin: 0 }}>
+                    Content marked with <strong style={{ color: '#46d369' }}>🔓 FREE</strong> (or with no subscription restriction) is 100% free for everyone. Simply sign in to stream foundational lectures, games, and podcasts at zero cost.
+                  </p>
+                </div>
+              </div>
+
+              {/* Newly Added Ribbon Card */}
+              <div style={{ 
+                background: 'linear-gradient(145deg, rgba(242, 100, 34, 0.06) 0%, rgba(15, 22, 36, 0.6) 100%)', 
+                border: '1px solid rgba(242, 100, 34, 0.25)', 
+                borderRadius: '18px', 
+                padding: '24px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '14px',
+                boxShadow: '0 8px 25px rgba(0, 0, 0, 0.3)',
+                transition: 'all 0.3s ease'
+              }} className="about-feature-card">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  {/* Native OTT 2.0 Newly Added Ribbon */}
+                  <span style={{
+                    background: 'linear-gradient(135deg, #f26422 0%, #ff8c53 100%)',
+                    color: '#ffffff',
+                    padding: '4px 12px',
+                    borderRadius: '0 6px 6px 0',
+                    fontSize: '0.75rem',
+                    fontWeight: 900,
+                    letterSpacing: '0.8px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '5px',
+                    boxShadow: '0 2px 10px rgba(242, 100, 34, 0.4)'
+                  }}>
+                    <span>🔥</span> NEWLY ADDED
+                  </span>
+                  <span style={{ fontSize: '0.72rem', color: '#ff8c53', fontWeight: 700, textTransform: 'uppercase' }}>Recent Release</span>
+                </div>
+                <div>
+                  <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#fff', marginBottom: '6px' }}>
+                    Fresh Content Releases
+                  </div>
+                  <p style={{ color: '#94a3b8', fontSize: '0.88rem', lineHeight: 1.6, margin: 0 }}>
+                    The orange <strong style={{ color: '#f26422' }}>NEWLY ADDED</strong> ribbon highlights brand new courses, newly uploaded audio episodes, or fresh stotra releases added to the library in the last 30 days.
+                  </p>
+                </div>
+              </div>
+
+            </div>
+
+            <div style={{ 
+              background: 'rgba(255, 255, 255, 0.02)', 
+              border: '1px solid rgba(255, 255, 255, 0.06)', 
+              borderRadius: '14px', 
+              padding: '16px 20px', 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '12px' 
+            }}>
+              <span style={{ fontSize: '1.3rem' }}>💡</span>
+              <p style={{ fontSize: '0.9rem', color: '#94a3b8', lineHeight: 1.6, margin: 0 }}>
+                <strong style={{ color: '#fff' }}>Podcast & Video Collection Rule:</strong> Across podcasts and videos, there is always at least one free collection open to all learners, while advanced thematic collections require Gold or Platinum membership as designated by their badge.
+              </p>
+            </div>
           </div>
 
           {/* Call to Action Bar */}

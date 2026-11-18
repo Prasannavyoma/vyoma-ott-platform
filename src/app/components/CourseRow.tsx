@@ -80,6 +80,35 @@ export default function CourseRow({ title, courses, icon }: CourseRowProps) {
                 {course.showRibbon && (
                    <div className="new-ribbon">Newly Added</div>
                 )}
+
+                {/* ACCESS TIER BADGE ON TOP-RIGHT */}
+                {course.tag && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '8px',
+                    right: '8px',
+                    background: course.tag === 'PLATINUM' 
+                      ? 'linear-gradient(135deg, #ffffff 0%, #e5e4e2 50%, #b0b0b0 100%)' 
+                      : course.tag === 'GOLD'
+                        ? 'linear-gradient(135deg, #ffd700 0%, #ffaa00 50%, #b8860b 100%)'
+                        : 'rgba(70, 211, 105, 0.2)',
+                    color: (course.tag === 'PLATINUM' || course.tag === 'GOLD') ? '#000' : '#46d369',
+                    border: course.tag === 'FREE' ? '1px solid rgba(70, 211, 105, 0.4)' : 'none',
+                    padding: '2px 7px',
+                    borderRadius: '4px',
+                    fontSize: '0.62rem',
+                    fontWeight: 900,
+                    letterSpacing: '0.4px',
+                    zIndex: 10,
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.6)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}>
+                    <span>{course.tag === 'PLATINUM' ? '💎' : course.tag === 'GOLD' ? '👑' : '🔓'}</span>
+                    <span>{course.tag}</span>
+                  </div>
+                )}
                 
                 {/* GLOWING PROGRESS TRACK FOR IN-PROGRESS VIDEOS */}
                 {course.progressPercent !== undefined && (
@@ -104,7 +133,20 @@ export default function CourseRow({ title, courses, icon }: CourseRowProps) {
                     {course.durationLeftStr ? (
                        <span className="poster-tag" style={{ background: '#f26422' }}>{course.durationLeftStr}</span>
                     ) : (
-                       <span className="poster-tag">{course.tag}</span>
+                       <span className="poster-tag" style={{
+                         background: course.tag === 'PLATINUM' 
+                           ? 'linear-gradient(135deg, #e5e4e2, #b0b0b0)' 
+                           : course.tag === 'GOLD' 
+                             ? 'linear-gradient(135deg, #ffd700, #b8860b)' 
+                             : course.tag === 'FREE' 
+                               ? 'rgba(70,211,105,0.18)' 
+                               : 'var(--primary)',
+                         color: (course.tag === 'PLATINUM' || course.tag === 'GOLD') ? '#000' : (course.tag === 'FREE' ? '#46d369' : '#fff'),
+                         border: course.tag === 'FREE' ? '1px solid rgba(70,211,105,0.4)' : 'none',
+                         fontWeight: 800
+                       }}>
+                         {course.tag === 'PLATINUM' ? '💎 PLATINUM' : course.tag === 'GOLD' ? '👑 GOLD' : course.tag === 'FREE' ? '🔓 FREE' : course.tag}
+                       </span>
                     )}
                   </div>
                 </div>
