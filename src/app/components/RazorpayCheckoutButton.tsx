@@ -12,6 +12,7 @@ interface CheckoutProps {
   description: string;
   onSuccess: (response: any) => void;
   onError: (error: any) => void;
+  onDismiss?: () => void;
   buttonText?: string;
 }
 
@@ -55,6 +56,13 @@ export default function RazorpayCheckoutButton(props: CheckoutProps) {
       },
       theme: {
         color: '#f26422'
+      },
+      modal: {
+        ondismiss: function () {
+          if (props.onDismiss) {
+            props.onDismiss();
+          }
+        }
       }
     };
 

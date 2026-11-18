@@ -44,7 +44,7 @@ const CARD_THEMES = [
     secondary: '#ffaa00', 
     bg: 'linear-gradient(135deg, #1c140a 0%, #080a0f 100%)', 
     border: '#ffd700', 
-    glow: 'rgba(255,215,0,0.18)', 
+    glow: 'rgba(255,215,0,0.22)', 
     icon: '🪔',
     accentBg: 'rgba(255,215,0,0.1)'
   },
@@ -55,7 +55,7 @@ const CARD_THEMES = [
     secondary: '#f26422', 
     bg: 'linear-gradient(135deg, #2b0c0c 0%, #0d0608 100%)', 
     border: '#ff7b54', 
-    glow: 'rgba(255,123,84,0.22)', 
+    glow: 'rgba(255,123,84,0.25)', 
     icon: '✨',
     accentBg: 'rgba(255,123,84,0.12)'
   },
@@ -66,7 +66,7 @@ const CARD_THEMES = [
     secondary: '#d4a373', 
     bg: 'linear-gradient(135deg, #22190f 0%, #0d0a06 100%)', 
     border: '#d4a373', 
-    glow: 'rgba(212,163,115,0.22)', 
+    glow: 'rgba(212,163,115,0.25)', 
     icon: '📜',
     accentBg: 'rgba(233,196,106,0.12)'
   },
@@ -77,7 +77,7 @@ const CARD_THEMES = [
     secondary: '#e879f9', 
     bg: 'linear-gradient(135deg, #200d2d 0%, #080310 100%)', 
     border: '#c084fc', 
-    glow: 'rgba(192,132,252,0.22)', 
+    glow: 'rgba(192,132,252,0.25)', 
     icon: '🌸',
     accentBg: 'rgba(192,132,252,0.12)'
   }
@@ -125,6 +125,7 @@ export default function GiftClientPage({ initialPlans }: { initialPlans: RealPla
   // Dynamic Plan States
   const [selectedPlanId, setSelectedPlanId] = useState('');
   const [loading, setLoading] = useState(false);
+  const [paymentCancelled, setPaymentCancelled] = useState(false);
   const [resultCodes, setResultCodes] = useState<string[]>([]);
   
   // Printable modal state
@@ -153,9 +154,14 @@ export default function GiftClientPage({ initialPlans }: { initialPlans: RealPla
       interval: p.interval,
       months: p.interval === 'YEARLY' ? 12 : 1,
       price: (p as any)[priceField] || 0,
-      desc: `${p.interval === 'YEARLY' ? '1 Full Year' : '1 Month'} of ${p.name} learning.`
+      desc: `${p.interval === 'YEARLY' ? '1 Full Year' : '1 Month'} of uninterrupted ${p.name} Sanskrit learning.`
     }))
-    .sort((a,b) => a.price - b.price);
+    .sort((a,b) => {
+      // Prioritize Platinum Yearly first, then Gold Yearly, then Monthly
+      if (a.interval === 'YEARLY' && b.interval !== 'YEARLY') return -1;
+      if (b.interval === 'YEARLY' && a.interval !== 'YEARLY') return 1;
+      return b.price - a.price;
+    });
 
   useEffect(() => {
     if (giftPackages.length && !selectedPlanId) {
@@ -170,6 +176,7 @@ export default function GiftClientPage({ initialPlans }: { initialPlans: RealPla
   const activeOccasionLabel = occasion === 'Others' 
     ? (customOccasionInput.trim() || 'Special Occasion') 
     : (activeOccasionObj?.label || 'Sacred Gift');
+
   const activeThemeObj = cardTheme === 'CUSTOM' ? {
     key: 'CUSTOM',
     name: '🎨 Custom Palette',
@@ -185,17 +192,35 @@ export default function GiftClientPage({ initialPlans }: { initialPlans: RealPla
   const unitCost = activePkg?.price || 0;
   const totalDue = unitCost * quantity;
 
-  async function executeCheckout(e: React.FormEvent) {
-    e.preventDefault();
+  // Instant refresh / reset function when changing plans, quantity, or recovering from cancellation
+  const resetPaymentState = () => {
+    setLoading(false);
+    setPaymentCancelled(false);
+  };
+
+  const handleSelectPlan = (planId: string) => {
+    setSelectedPlanId(planId);
+    resetPaymentState();
+  };
+
+  const handleQuantityChange = (newQty: number) => {
+    setQuantity(newQty);
+    resetPaymentState();
+  };
+
+  async function executeCheckout(e?: React.FormEvent) {
+    if (e) e.preventDefault();
     if (!activePkg || totalDue <= 0) return;
 
     const finalRel = rel === 'Others' ? customRelInput : rel;
     if (!finalRel || !name || !email) {
       alert("Please fulfill recipient details before checking out.");
+      setStep('compose');
       return;
     }
 
     setLoading(true);
+    setPaymentCancelled(false);
 
     try {
       const orderPayload = await createRazorpayOrder({
@@ -217,7 +242,7 @@ export default function GiftClientPage({ initialPlans }: { initialPlans: RealPla
         amount: orderPayload.amount,
         currency: orderPayload.currency,
         name: "Vyoma Academy",
-        description: `Gifting ${quantity}x ${activePkg.name} Access Bundle (${activeOccasionObj.label})`,
+        description: `Gifting ${quantity}x ${activePkg.name} Access (${activeOccasionLabel})`,
         image: "/assets/logo-200-x-70-px.png",
         order_id: orderPayload.orderId,
         handler: async function (response: any) {
@@ -230,22 +255,32 @@ export default function GiftClientPage({ initialPlans }: { initialPlans: RealPla
         },
         theme: {
           color: activeThemeObj.primary
+        },
+        modal: {
+          ondismiss: function () {
+            console.log("Razorpay checkout modal closed/cancelled by user.");
+            setLoading(false);
+            setPaymentCancelled(true);
+          }
         }
       };
 
       const rzp = new (window as any).Razorpay(options);
       
       rzp.on('payment.failed', function (failResponse: any) {
-        alert(`❌ Transaction Refused: ${failResponse.error.description}`);
+        console.error("Payment failed event:", failResponse);
+        alert(`❌ Payment Refused: ${failResponse.error?.description || 'Transaction was declined.'}`);
         setLoading(false);
+        setPaymentCancelled(true);
       });
 
       rzp.open();
 
     } catch (err: any) {
       console.error("Checkout Orchestrator Error:", err);
-      alert(`⚠️ System Failure: ${err.message}`);
+      alert(`⚠️ Payment Gateway Notice: ${err.message}`);
       setLoading(false);
+      setPaymentCancelled(true);
     }
   }
 
@@ -272,7 +307,12 @@ export default function GiftClientPage({ initialPlans }: { initialPlans: RealPla
         alert(`🚨 Database Commit Failure: ${res.error}`);
       }
     } catch (actionErr: any) {
-      alert(`🚨 Session Authentication Lost: Please re-authenticate.`);
+      if (actionErr?.message?.includes("AUTHENTICATION_REQUIRED")) {
+        alert("Please sign in or register to finalize and track your gift order.");
+        window.location.href = `/login?redirect=${encodeURIComponent('/gift')}`;
+        return;
+      }
+      alert(`🚨 Session Error: ${actionErr.message}`);
     } finally {
       setLoading(false);
     }
@@ -284,6 +324,14 @@ export default function GiftClientPage({ initialPlans }: { initialPlans: RealPla
       window.print();
     }, 300);
   };
+
+  const isFormValid = Boolean(
+    name.trim() && 
+    email.trim() && 
+    activeRelationship && 
+    (occasion !== 'Others' || customOccasionInput.trim()) &&
+    (rel !== 'Others' || customRelInput.trim())
+  );
 
   return (
     <div style={{ 
@@ -297,22 +345,22 @@ export default function GiftClientPage({ initialPlans }: { initialPlans: RealPla
       <NavBar />
 
       <style dangerouslySetInnerHTML={{__html: `
-        .compose-container {
-          background: rgba(10, 18, 32, 0.6);
+        .studio-card {
+          background: rgba(10, 18, 32, 0.7);
           backdrop-filter: blur(25px);
-          border: 1px solid rgba(255,255,255,0.06);
-          border-radius: 20px;
-          padding: 24px 26px;
-          box-shadow: 0 15px 35px rgba(0,0,0,0.35);
+          border: 1px solid rgba(255,255,255,0.08);
+          border-radius: 24px;
+          padding: 28px 30px;
+          box-shadow: 0 20px 45px rgba(0,0,0,0.45);
         }
         .ecard-preview {
           background: ${activeThemeObj.bg};
           border: 2px solid ${activeThemeObj.border};
-          border-radius: 20px;
-          padding: 22px 24px;
+          border-radius: 22px;
+          padding: 26px 28px;
           position: relative;
           overflow: hidden;
-          box-shadow: 0 18px 45px ${activeThemeObj.glow};
+          box-shadow: 0 20px 50px ${activeThemeObj.glow};
           transition: all 0.35s ease;
         }
         .share-btn {
@@ -334,16 +382,55 @@ export default function GiftClientPage({ initialPlans }: { initialPlans: RealPla
           box-shadow: 0 6px 15px rgba(0,0,0,0.3);
         }
         .gift-page-wrapper {
-          max-width: 1360px;
+          max-width: 1400px;
           margin: 0 auto;
-          padding: 145px 24px 40px 24px;
+          padding: 135px 24px 60px 24px;
           position: relative;
           z-index: 1;
         }
-        @media (max-width: 768px) {
-          .gift-page-wrapper {
-            padding: 125px 16px 40px 16px;
-          }
+        .theme-card-btn {
+          border-radius: 14px;
+          padding: 12px 14px;
+          font-weight: 800;
+          font-size: 0.82rem;
+          cursor: pointer;
+          transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          border: 1px solid #1e293b;
+          background: #0d131f;
+          text-align: left;
+        }
+        .theme-card-btn:hover {
+          transform: translateY(-1px);
+        }
+        .chip-button {
+          padding: 6px 12px;
+          border-radius: 20px;
+          font-weight: 700;
+          font-size: 0.76rem;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          border: 1px solid #1e293b;
+          background: #0d131f;
+        }
+        .chip-button:hover {
+          border-color: rgba(255,255,255,0.25);
+        }
+        .step-pill {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          padding: 10px 20px;
+          border-radius: 30px;
+          font-size: 0.84rem;
+          font-weight: 800;
+          cursor: pointer;
+          transition: all 0.25s ease;
         }
         @media (max-width: 960px) {
           .gift-main-grid {
@@ -351,6 +438,7 @@ export default function GiftClientPage({ initialPlans }: { initialPlans: RealPla
           }
           .gift-sticky-col {
             position: static !important;
+            margin-top: 24px;
           }
         }
         @media print {
@@ -371,668 +459,934 @@ export default function GiftClientPage({ initialPlans }: { initialPlans: RealPla
 
       <div className="gift-page-wrapper">
         
-        {/* COMPACT EXECUTIVE HEADER BAR */}
+        {/* EXECUTIVE HERO HEADER */}
         <div style={{ 
           display: 'flex', 
           justifyContent: 'space-between', 
           alignItems: 'center', 
           flexWrap: 'wrap', 
-          gap: '14px', 
-          marginBottom: '24px',
+          gap: '20px', 
+          marginBottom: '28px',
           borderBottom: '1px solid rgba(255,255,255,0.08)',
-          paddingBottom: '16px'
+          paddingBottom: '22px'
         }}>
           <div>
+            <div style={{ 
+              display: 'inline-flex', 
+              alignItems: 'center', 
+              gap: '6px', 
+              background: 'rgba(255,215,0,0.1)', 
+              border: '1px solid rgba(255,215,0,0.3)', 
+              color: '#ffd700', 
+              padding: '4px 12px', 
+              borderRadius: '20px', 
+              fontSize: '0.72rem', 
+              fontWeight: 900, 
+              letterSpacing: '1px',
+              textTransform: 'uppercase',
+              marginBottom: '10px'
+            }}>
+              <span>🎁</span> Sacred Gifting Studio
+            </div>
             <h1 style={{ 
-              fontSize: '2.1rem', 
+              fontSize: '2.4rem', 
               fontWeight: 900, 
               color: '#ffffff',
-              margin: '0 0 6px 0',
-              letterSpacing: '-0.5px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px'
+              margin: '0 0 8px 0',
+              letterSpacing: '-0.8px'
             }}>
-              <span>🎁</span>
-              <span>
-                Gift Sacred <span style={{ color: '#ffd700', textShadow: '0 0 25px rgba(255,215,0,0.3)' }}>Wisdom</span>
-              </span>
+              Gift Sacred <span style={{ color: activeThemeObj.primary, textShadow: `0 0 30px ${activeThemeObj.glow}` }}>Wisdom</span>
             </h1>
-            <p style={{ color: '#94a3b8', margin: 0, fontSize: '0.92rem', lineHeight: '1.4' }}>
-              Personalize a Vedic digital E-card with 1-click unboxing and instant course access.
+            <p style={{ color: '#94a3b8', margin: 0, fontSize: '0.96rem', lineHeight: '1.5', maxWidth: '650px' }}>
+              Personalize a Vedic digital E-Card with 1-click unboxing ceremony, blessed shloka, and full course streaming membership for your loved ones.
             </p>
           </div>
 
-          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
-            <span style={{ background: 'rgba(255,215,0,0.08)', border: '1px solid rgba(255,215,0,0.25)', padding: '6px 14px', borderRadius: '20px', color: '#ffd700', fontSize: '0.76rem', fontWeight: 800 }}>
-              💳 Razorpay ({currency})
+          {/* TRUST BADGES */}
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+            <span style={{ background: 'rgba(70,211,105,0.08)', border: '1px solid rgba(70,211,105,0.25)', padding: '7px 16px', borderRadius: '24px', color: '#46d369', fontSize: '0.78rem', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+              <span>✨</span> 1-Click Unboxing
             </span>
-            <span style={{ background: 'rgba(70,211,105,0.08)', border: '1px solid rgba(70,211,105,0.25)', padding: '6px 14px', borderRadius: '20px', color: '#46d369', fontSize: '0.76rem', fontWeight: 800 }}>
-              ✨ 1-Click Unboxing
+            <span style={{ background: 'rgba(255,215,0,0.08)', border: '1px solid rgba(255,215,0,0.25)', padding: '7px 16px', borderRadius: '24px', color: '#ffd700', fontSize: '0.78rem', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+              <span>📜</span> Certified Membership
             </span>
-            <span style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', padding: '6px 14px', borderRadius: '20px', color: '#cbd5e1', fontSize: '0.76rem', fontWeight: 800 }}>
-              📄 Printable PDF
+            <span style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', padding: '7px 16px', borderRadius: '24px', color: '#cbd5e1', fontSize: '0.78rem', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+              <span>🔒</span> Encrypted Checkout
             </span>
           </div>
         </div>
 
-        {step === 'compose' && (
-          <div className="gift-main-grid" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.35fr) minmax(0, 1fr)', gap: '26px', alignItems: 'start' }}>
-            
-            {/* STEP A: COMPOSE */}
-            <div className="compose-container">
-               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
-                 <h3 style={{ fontSize: '1.15rem', fontWeight: 800, margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                   <span style={{ background: activeThemeObj.primary, color: '#000', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', fontSize: '0.75rem', fontWeight: 900 }}>1</span>
-                   Personalize Your Gift
-                 </h3>
-                 <span style={{ fontSize: '0.75rem', color: '#8f98a9', fontWeight: 700 }}>Step 1 of 2</span>
-               </div>
-               
-               <form onSubmit={(e) => { e.preventDefault(); setStep('checkout'); }}>
-                  
-                  {/* 1. CARD THEME SELECTOR */}
-                  <div style={{ marginBottom: '16px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                      <label style={{ ...labelStyle, marginBottom: 0 }}>🎨 1. Select Card Theme & Aesthetic</label>
-                      <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>Choose preset or custom palette</span>
-                    </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: '8px' }}>
-                      {CARD_THEMES.map(th => {
-                        const isSelected = cardTheme === th.key;
-                        return (
-                          <button
-                            key={th.key}
-                            type="button"
-                            onClick={() => setCardTheme(th.key as any)}
-                            style={{
-                              background: isSelected ? th.accentBg : '#0d131f',
-                              border: isSelected ? `2px solid ${th.primary}` : '1px solid #1e293b',
-                              color: isSelected ? th.primary : '#94a3b8',
-                              padding: '8px 6px',
-                              borderRadius: '10px',
-                              fontWeight: 800,
-                              fontSize: '0.75rem',
-                              cursor: 'pointer',
-                              transition: 'all 0.2s',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              gap: '5px',
-                              boxShadow: isSelected ? `0 2px 10px ${th.glow}` : 'none'
-                            }}
-                          >
-                            <span>{th.icon}</span> {th.name.split(' ')[1]}
-                          </button>
-                        );
-                      })}
+        {/* INTERACTIVE 2-STEP BREADCRUMB */}
+        {step !== 'success' && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '28px', flexWrap: 'wrap' }}>
+            <button
+              type="button"
+              onClick={() => setStep('compose')}
+              className="step-pill"
+              style={{
+                background: step === 'compose' ? 'rgba(255,255,255,0.08)' : 'transparent',
+                border: step === 'compose' ? `1.5px solid ${activeThemeObj.primary}` : '1px solid rgba(255,255,255,0.1)',
+                color: step === 'compose' ? '#fff' : '#64748b'
+              }}
+            >
+              <span style={{
+                width: '24px',
+                height: '24px',
+                borderRadius: '50%',
+                background: step === 'compose' ? activeThemeObj.primary : (isFormValid ? '#22c55e' : '#334155'),
+                color: step === 'compose' ? '#000' : '#fff',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '0.75rem',
+                fontWeight: 900
+              }}>
+                {isFormValid && step === 'checkout' ? '✓' : '1'}
+              </span>
+              <span>1. Personalize E-Card</span>
+            </button>
 
-                      {/* 5th OPTION: CUSTOM COLOR */}
-                      <button
-                        type="button"
-                        onClick={() => setCardTheme('CUSTOM')}
-                        style={{
-                          background: cardTheme === 'CUSTOM' ? `${customColor}22` : '#0d131f',
-                          border: cardTheme === 'CUSTOM' ? `2px solid ${customColor}` : '1px solid #1e293b',
-                          color: cardTheme === 'CUSTOM' ? customColor : '#94a3b8',
-                          padding: '8px 6px',
-                          borderRadius: '10px',
-                          fontWeight: 800,
-                          fontSize: '0.75rem',
-                          cursor: 'pointer',
-                          transition: 'all 0.2s',
+            <span style={{ color: '#475569', fontSize: '1rem' }}>→</span>
+
+            <button
+              type="button"
+              onClick={() => {
+                if (isFormValid) {
+                  setStep('checkout');
+                } else {
+                  alert("Please enter Recipient Full Name and Email Address in Step 1 first.");
+                }
+              }}
+              className="step-pill"
+              style={{
+                background: step === 'checkout' ? 'rgba(255,255,255,0.08)' : 'transparent',
+                border: step === 'checkout' ? `1.5px solid ${activeThemeObj.primary}` : '1px solid rgba(255,255,255,0.1)',
+                color: step === 'checkout' ? '#fff' : '#64748b',
+                cursor: isFormValid ? 'pointer' : 'not-allowed',
+                opacity: isFormValid ? 1 : 0.6
+              }}
+            >
+              <span style={{
+                width: '24px',
+                height: '24px',
+                borderRadius: '50%',
+                background: step === 'checkout' ? activeThemeObj.primary : '#334155',
+                color: step === 'checkout' ? '#000' : '#fff',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '0.75rem',
+                fontWeight: 900
+              }}>
+                2
+              </span>
+              <span>2. Choose Plan & Gift</span>
+            </button>
+          </div>
+        )}
+
+        {/* MAIN 2-COLUMN LUXURY STUDIO LAYOUT (SHARED ACROSS STEP 1 & 2) */}
+        {step !== 'success' && (
+          <div className="gift-main-grid" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.45fr) minmax(0, 1fr)', gap: '32px', alignItems: 'start' }}>
+            
+            {/* LEFT COLUMN: ACTIVE WORKFLOW (STEP 1 COMPOSE OR STEP 2 CHECKOUT) */}
+            <div>
+              {step === 'compose' ? (
+                <div className="studio-card">
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                    <h3 style={{ fontSize: '1.25rem', fontWeight: 900, margin: 0, display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <span style={{ background: activeThemeObj.primary, color: '#000', width: '26px', height: '26px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', fontSize: '0.8rem', fontWeight: 900 }}>1</span>
+                      Personalize Sacred E-Card
+                    </h3>
+                    <span style={{ fontSize: '0.74rem', color: '#64748b', fontWeight: 700 }}>Step 1 of 2</span>
+                  </div>
+                  
+                  <form onSubmit={(e) => { e.preventDefault(); setStep('checkout'); }}>
+                    
+                    {/* 1. CARD THEME SELECTOR */}
+                    <div style={{ marginBottom: '22px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                        <label style={{ ...labelStyle, marginBottom: 0 }}>🎨 1. Select Card Theme & Aesthetic</label>
+                        <span style={{ fontSize: '0.72rem', color: '#94a3b8' }}>Presets or Custom Color</span>
+                      </div>
+                      
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '10px' }}>
+                        {CARD_THEMES.map(th => {
+                          const isSelected = cardTheme === th.key;
+                          return (
+                            <button
+                              key={th.key}
+                              type="button"
+                              onClick={() => setCardTheme(th.key as any)}
+                              className="theme-card-btn"
+                              style={{
+                                background: isSelected ? th.accentBg : '#090e17',
+                                borderColor: isSelected ? th.primary : '#1e293b',
+                                color: isSelected ? th.primary : '#94a3b8',
+                                boxShadow: isSelected ? `0 4px 18px ${th.glow}` : 'none'
+                              }}
+                            >
+                              <span style={{ 
+                                width: '16px', 
+                                height: '16px', 
+                                borderRadius: '50%', 
+                                background: th.primary, 
+                                display: 'inline-block',
+                                flexShrink: 0,
+                                boxShadow: `0 0 10px ${th.primary}`
+                              }} />
+                              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                {th.name.split(' ')[1]}
+                              </span>
+                            </button>
+                          );
+                        })}
+
+                        {/* CUSTOM COLOR PALETTE BUTTON */}
+                        <button
+                          type="button"
+                          onClick={() => setCardTheme('CUSTOM')}
+                          className="theme-card-btn"
+                          style={{
+                            background: cardTheme === 'CUSTOM' ? `${customColor}25` : '#090e17',
+                            borderColor: cardTheme === 'CUSTOM' ? customColor : '#1e293b',
+                            color: cardTheme === 'CUSTOM' ? customColor : '#94a3b8',
+                            boxShadow: cardTheme === 'CUSTOM' ? `0 4px 18px ${customColor}40` : 'none'
+                          }}
+                        >
+                          <span style={{ 
+                            width: '16px', 
+                            height: '16px', 
+                            borderRadius: '50%', 
+                            background: customColor, 
+                            display: 'inline-block',
+                            flexShrink: 0,
+                            boxShadow: `0 0 10px ${customColor}`
+                          }} />
+                          <span>Custom Color</span>
+                        </button>
+                      </div>
+
+                      {/* EXPANDABLE COLOR PICKER & SWATCHES */}
+                      {cardTheme === 'CUSTOM' && (
+                        <div style={{
+                          marginTop: '12px',
+                          background: 'rgba(255,255,255,0.03)',
+                          border: '1px solid rgba(255,255,255,0.08)',
+                          borderRadius: '14px',
+                          padding: '12px 16px',
                           display: 'flex',
                           alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: '5px',
-                          boxShadow: cardTheme === 'CUSTOM' ? `0 2px 10px ${customColor}40` : 'none'
-                        }}
-                      >
-                        <span>🎨</span> Custom Color
-                      </button>
+                          gap: '16px',
+                          flexWrap: 'wrap'
+                        }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <label style={{ fontSize: '0.78rem', color: '#cbd5e1', fontWeight: 700 }}>Choose Color:</label>
+                            <input 
+                              type="color" 
+                              value={customColor} 
+                              onChange={e => setCustomColor(e.target.value)} 
+                              style={{
+                                width: '38px',
+                                height: '32px',
+                                padding: 0,
+                                border: 'none',
+                                borderRadius: '8px',
+                                cursor: 'pointer',
+                                background: 'transparent'
+                              }} 
+                            />
+                            <span style={{ fontFamily: 'monospace', fontSize: '0.78rem', color: customColor }}>{customColor.toUpperCase()}</span>
+                          </div>
+
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                            <span style={{ fontSize: '0.72rem', color: '#64748b' }}>Swatches:</span>
+                            {[
+                              { color: '#f26422', name: 'Saffron' },
+                              { color: '#ffd700', name: 'Gold' },
+                              { color: '#06b6d4', name: 'Teal' },
+                              { color: '#3b82f6', name: 'Sapphire' },
+                              { color: '#a855f7', name: 'Amethyst' },
+                              { color: '#f43f5e', name: 'Ruby' },
+                              { color: '#10b981', name: 'Emerald' }
+                            ].map(sw => (
+                              <button
+                                key={sw.color}
+                                type="button"
+                                onClick={() => setCustomColor(sw.color)}
+                                style={{
+                                  width: '24px',
+                                  height: '24px',
+                                  borderRadius: '50%',
+                                  background: sw.color,
+                                  border: customColor.toLowerCase() === sw.color.toLowerCase() ? '2px solid #fff' : '1px solid rgba(255,255,255,0.2)',
+                                  cursor: 'pointer',
+                                  padding: 0,
+                                  transition: 'transform 0.15s',
+                                  transform: customColor.toLowerCase() === sw.color.toLowerCase() ? 'scale(1.25)' : 'scale(1)'
+                                }}
+                                title={sw.name}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
 
-                    {cardTheme === 'CUSTOM' && (
-                      <div style={{
-                        marginTop: '10px',
-                        background: 'rgba(255,255,255,0.02)',
-                        border: '1px solid rgba(255,255,255,0.08)',
-                        borderRadius: '12px',
-                        padding: '10px 14px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '12px',
-                        flexWrap: 'wrap'
-                      }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <label style={{ fontSize: '0.74rem', color: '#cbd5e1', fontWeight: 700 }}>Pick Color:</label>
+                    {/* 2. OCCASION SELECTOR */}
+                    <div style={{ marginBottom: '22px' }}>
+                      <label style={labelStyle}>✨ 2. Select Occasion / Purpose</label>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                        {OCCASIONS.map(occ => {
+                          const isSelected = occasion === occ.key;
+                          return (
+                            <button
+                              key={occ.key}
+                              type="button"
+                              onClick={() => setOccasion(occ.key)}
+                              className="chip-button"
+                              style={{
+                                background: isSelected ? activeThemeObj.accentBg : '#090e17',
+                                borderColor: isSelected ? activeThemeObj.primary : '#1e293b',
+                                color: isSelected ? activeThemeObj.primary : '#94a3b8',
+                                boxShadow: isSelected ? `0 2px 10px ${activeThemeObj.glow}` : 'none'
+                              }}
+                            >
+                              {occ.label}
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      {occasion === 'Others' && (
+                        <div style={{ marginTop: '12px' }}>
+                          <label style={labelStyle}>Specify Custom Occasion / Event Name</label>
                           <input 
-                            type="color" 
-                            value={customColor} 
-                            onChange={e => setCustomColor(e.target.value)} 
-                            style={{
-                              width: '36px',
-                              height: '30px',
-                              padding: 0,
-                              border: 'none',
-                              borderRadius: '6px',
-                              cursor: 'pointer',
-                              background: 'transparent'
-                            }}
+                            required 
+                            type="text" 
+                            value={customOccasionInput} 
+                            onChange={e => setCustomOccasionInput(e.target.value)} 
+                            placeholder="e.g. Upanayanam, Shashti Poorthi, Griha Pravesham, Arangetram..." 
+                            style={inputStyle} 
                           />
                         </div>
+                      )}
+                    </div>
 
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-                          <span style={{ fontSize: '0.7rem', color: '#64748b' }}>Palettes:</span>
-                          {[
-                            { color: '#f26422', name: 'Saffron' },
-                            { color: '#ffd700', name: 'Gold' },
-                            { color: '#06b6d4', name: 'Teal' },
-                            { color: '#3b82f6', name: 'Sapphire' },
-                            { color: '#a855f7', name: 'Amethyst' },
-                            { color: '#f43f5e', name: 'Ruby' },
-                            { color: '#10b981', name: 'Emerald' }
-                          ].map(sw => (
+                    {/* 3. RELATIONSHIP SELECTOR */}
+                    <div style={{ marginBottom: '22px' }}>
+                      <label style={labelStyle}>👥 3. Honoring Relationship</label>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                        {RELATIONS.map(r => {
+                          const isSelected = rel === r.key;
+                          return (
                             <button
-                              key={sw.color}
+                              key={r.key}
                               type="button"
-                              onClick={() => setCustomColor(sw.color)}
+                              onClick={() => setRel(r.key)}
+                              className="chip-button"
                               style={{
-                                width: '22px',
-                                height: '22px',
-                                borderRadius: '50%',
-                                background: sw.color,
-                                border: customColor.toLowerCase() === sw.color.toLowerCase() ? '2px solid #fff' : '1px solid rgba(255,255,255,0.2)',
-                                cursor: 'pointer',
-                                padding: 0,
-                                transition: 'transform 0.15s',
-                                transform: customColor.toLowerCase() === sw.color.toLowerCase() ? 'scale(1.2)' : 'scale(1)'
+                                background: isSelected ? 'rgba(242,100,34,0.15)' : '#090e17',
+                                borderColor: isSelected ? '#f26422' : '#1e293b',
+                                color: isSelected ? '#f26422' : '#94a3b8'
                               }}
-                              title={sw.name}
-                            />
-                          ))}
+                            >
+                              {r.label}
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      {rel === 'Others' && (
+                        <div style={{ marginTop: '12px' }}>
+                          <label style={labelStyle}>Specify Custom Relationship</label>
+                          <input 
+                            required 
+                            type="text" 
+                            value={customRelInput} 
+                            onChange={e => setCustomRelInput(e.target.value)} 
+                            placeholder="e.g. Mentor, Cousin, Colleague, Grandparent..." 
+                            style={inputStyle} 
+                          />
                         </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* 2. OCCASION SELECTOR */}
-                  <div style={{ marginBottom: '16px' }}>
-                    <label style={labelStyle}>✨ 2. Select Occasion / Purpose</label>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                      {OCCASIONS.map(occ => (
-                        <button
-                          key={occ.key} type="button" onClick={() => setOccasion(occ.key)}
-                          style={{
-                            background: occasion === occ.key ? activeThemeObj.accentBg : '#0d131f',
-                            border: `1px solid ${occasion === occ.key ? activeThemeObj.primary : '#1e293b'}`,
-                            color: occasion === occ.key ? activeThemeObj.primary : '#94a3b8',
-                            padding: '5px 10px', borderRadius: '16px', fontWeight: 700, fontSize: '0.74rem', cursor: 'pointer', transition: 'all 0.2s'
-                          }}
-                        >
-                          {occ.label}
-                        </button>
-                      ))}
+                      )}
                     </div>
 
-                    {occasion === 'Others' && (
-                      <div style={{ marginTop: '10px' }}>
-                        <label style={labelStyle}>Specify Custom Occasion / Event</label>
-                        <input 
-                          required 
-                          type="text" 
-                          value={customOccasionInput} 
-                          onChange={e => setCustomOccasionInput(e.target.value)} 
-                          placeholder="e.g. Upanayanam, Shashti Poorthi, Griha Pravesham, Arangetram..." 
-                          style={inputStyle} 
-                        />
+                    {/* 4. AUSPICIOUS BLESSING QUOTE */}
+                    <div style={{ marginBottom: '24px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                        <label style={{ ...labelStyle, marginBottom: 0 }}>🪔 4. Auspicious Blessing Quote / Message</label>
+                        <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>Sacred Shlokas or custom prayer</span>
                       </div>
-                    )}
-                  </div>
 
-                  {/* 3. RELATIONSHIP SELECTOR */}
-                  <div style={{ marginBottom: '16px' }}>
-                    <label style={labelStyle}>👥 3. Honoring Relationship</label>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                      {RELATIONS.map(r => (
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '12px' }}>
+                        {SHLOKA_PRESETS.map((sh, idx) => {
+                          const isSelected = msg === sh.text;
+                          return (
+                            <button
+                              key={idx}
+                              type="button"
+                              onClick={() => setMsg(sh.text)}
+                              style={{
+                                background: isSelected ? activeThemeObj.primary : 'rgba(255,255,255,0.04)',
+                                border: isSelected ? `1px solid ${activeThemeObj.primary}` : '1px solid rgba(255,255,255,0.08)',
+                                color: isSelected ? '#000' : '#cbd5e1',
+                                padding: '6px 12px',
+                                borderRadius: '12px',
+                                fontSize: '0.76rem',
+                                cursor: 'pointer',
+                                fontWeight: isSelected ? 800 : 600,
+                                transition: 'all 0.2s',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '6px'
+                              }}
+                              title={sh.text}
+                            >
+                              <span>🪔</span> {sh.label}
+                            </button>
+                          );
+                        })}
+
+                        {/* WRITE YOUR OWN QUOTE BUTTON */}
                         <button
-                          key={r.key} type="button" onClick={() => setRel(r.key)}
+                          type="button"
+                          onClick={() => {
+                            const isPreset = SHLOKA_PRESETS.some(sh => sh.text === msg);
+                            if (isPreset) setMsg('');
+                            const inputEl = document.getElementById('gift-custom-blessing-input');
+                            if (inputEl) inputEl.focus();
+                          }}
                           style={{
-                            background: rel === r.key ? 'rgba(242,100,34,0.15)' : '#0d131f',
-                            border: `1px solid ${rel === r.key ? '#f26422' : '#1e293b'}`,
-                            color: rel === r.key ? '#f26422' : '#94a3b8',
-                            padding: '5px 10px', borderRadius: '16px', fontWeight: 700, fontSize: '0.74rem', cursor: 'pointer', transition: 'all 0.2s'
+                            background: (!SHLOKA_PRESETS.some(sh => sh.text === msg)) ? 'rgba(255,215,0,0.15)' : 'rgba(255,255,255,0.04)',
+                            border: (!SHLOKA_PRESETS.some(sh => sh.text === msg)) ? '1px solid #ffd700' : '1px dashed rgba(255,255,255,0.2)',
+                            color: (!SHLOKA_PRESETS.some(sh => sh.text === msg)) ? '#ffd700' : '#cbd5e1',
+                            padding: '6px 12px',
+                            borderRadius: '12px',
+                            fontSize: '0.76rem',
+                            cursor: 'pointer',
+                            fontWeight: 800,
+                            transition: 'all 0.2s',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '6px'
                           }}
                         >
-                          {r.label}
+                          <span>✍️</span> Write Custom Blessing
                         </button>
-                      ))}
-                    </div>
-                  </div>
+                      </div>
 
-                  {rel === 'Others' && (
-                     <div style={{ marginBottom: '16px' }}>
-                        <label style={labelStyle}>Custom Relationship</label>
-                        <input required type="text" value={customRelInput} onChange={e => setCustomRelInput(e.target.value)} placeholder="e.g. Mentor, Cousin..." style={inputStyle} />
-                     </div>
-                  )}
-
-                  {/* 4. AUSPICIOUS BLESSING QUOTE OR CUSTOM QUOTE */}
-                  <div style={{ marginBottom: '20px' }}>
-                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                       <label style={{ ...labelStyle, marginBottom: 0 }}>🪔 4. Auspicious Blessing Quote / Message</label>
-                       <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>Pick a shloka or write your own</span>
-                     </div>
-
-                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '10px' }}>
-                       {SHLOKA_PRESETS.map((sh, idx) => {
-                         const isSelected = msg === sh.text;
-                         return (
-                           <button
-                             key={idx}
-                             type="button"
-                             onClick={() => setMsg(sh.text)}
-                             style={{
-                               background: isSelected ? activeThemeObj.primary : 'rgba(255,255,255,0.04)',
-                               border: isSelected ? `1px solid ${activeThemeObj.primary}` : '1px solid rgba(255,255,255,0.08)',
-                               color: isSelected ? '#000' : '#cbd5e1',
-                               padding: '5px 11px',
-                               borderRadius: '10px',
-                               fontSize: '0.74rem',
-                               cursor: 'pointer',
-                               fontWeight: isSelected ? 800 : 600,
-                               transition: 'all 0.2s',
-                               display: 'inline-flex',
-                               alignItems: 'center',
-                               gap: '5px'
-                             }}
-                             title={sh.text}
-                           >
-                             <span>🪔</span> {sh.label}
-                           </button>
-                         );
-                       })}
-
-                       {/* WRITE YOUR OWN OPTION */}
-                       <button
-                         type="button"
-                         onClick={() => {
-                           const isPreset = SHLOKA_PRESETS.some(sh => sh.text === msg);
-                           if (isPreset) {
-                             setMsg('');
-                           }
-                           const inputEl = document.getElementById('gift-custom-blessing-input');
-                           if (inputEl) inputEl.focus();
-                         }}
-                         style={{
-                           background: (!SHLOKA_PRESETS.some(sh => sh.text === msg)) ? 'rgba(255,215,0,0.15)' : 'rgba(255,255,255,0.04)',
-                           border: (!SHLOKA_PRESETS.some(sh => sh.text === msg)) ? '1px solid #ffd700' : '1px dashed rgba(255,255,255,0.2)',
-                           color: (!SHLOKA_PRESETS.some(sh => sh.text === msg)) ? '#ffd700' : '#cbd5e1',
-                           padding: '5px 12px',
-                           borderRadius: '10px',
-                           fontSize: '0.74rem',
-                           cursor: 'pointer',
-                           fontWeight: 800,
-                           transition: 'all 0.2s',
-                           display: 'inline-flex',
-                           alignItems: 'center',
-                           gap: '5px'
-                         }}
-                       >
-                         <span>✍️</span> Write Your Own Quote
-                       </button>
-
-                       {msg && (
-                         <button
-                           type="button"
-                           onClick={() => setMsg('')}
-                           style={{
-                             background: 'transparent',
-                             border: 'none',
-                             color: '#64748b',
-                             fontSize: '0.7rem',
-                             cursor: 'pointer',
-                             padding: '4px 6px',
-                             textDecoration: 'underline'
-                           }}
-                           title="Clear quote"
-                         >
-                           Clear
-                         </button>
-                       )}
-                     </div>
-
-                     <div>
+                      <div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                           <label htmlFor="gift-custom-blessing-input" style={{ ...labelStyle, marginBottom: 0 }}>
-                             {!SHLOKA_PRESETS.some(sh => sh.text === msg) 
-                               ? '✍️ Your Custom Blessing Quote / Message' 
-                               : 'Selected Blessing Quote (Editable below)'}
-                           </label>
-                           <span style={{ fontSize: '0.68rem', color: '#64748b' }}>{msg.length} / 300 characters</span>
+                          <span style={{ fontSize: '0.74rem', color: '#94a3b8' }}>
+                            {!SHLOKA_PRESETS.some(sh => sh.text === msg) 
+                              ? '✍️ Your Custom Blessing (Rendered on card):' 
+                              : 'Selected Blessing Text (Editable):'}
+                          </span>
+                          <span style={{ fontSize: '0.7rem', color: '#64748b' }}>{msg.length} / 300</span>
                         </div>
                         <textarea 
                           id="gift-custom-blessing-input"
                           value={msg} 
                           onChange={e => setMsg(e.target.value.slice(0, 300))} 
                           rows={2} 
-                          placeholder="Type your own Sanskrit quote, blessing, or heartfelt message for the card..." 
+                          placeholder="Type your personal Sanskrit blessing or heartfelt note for the recipient..." 
                           style={{ 
                             ...inputStyle, 
                             fontFamily: 'inherit', 
                             resize: 'none',
-                            lineHeight: '1.5',
-                            borderColor: (!SHLOKA_PRESETS.some(sh => sh.text === msg) && msg.length > 0) ? 'rgba(255,215,0,0.4)' : '#1e293b'
+                            lineHeight: '1.6',
+                            borderColor: (!SHLOKA_PRESETS.some(sh => sh.text === msg) && msg.length > 0) ? activeThemeObj.primary : '#1e293b'
                           }}
                         />
-                     </div>
-                  </div>
+                      </div>
+                    </div>
 
-                  {/* 5. HIGHLIGHTED RECIPIENT DELIVERY DETAILS (MOVED DOWN) */}
-                  <div style={{
-                     background: 'linear-gradient(145deg, rgba(255,215,0,0.03) 0%, rgba(242,100,34,0.03) 100%)',
-                     border: `1.5px solid ${activeThemeObj.primary}`,
-                     borderRadius: '16px',
-                     padding: '16px 18px',
-                     marginBottom: '20px',
-                     boxShadow: `0 6px 25px ${activeThemeObj.glow}`
-                  }}>
-                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                       <label style={{ ...labelStyle, color: activeThemeObj.primary, fontSize: '0.8rem', marginBottom: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
-                         <span>🎯</span> 5. Recipient Delivery Details
-                       </label>
-                       <span style={{ fontSize: '0.68rem', color: '#94a3b8' }}>
-                         Instant digital delivery to recipient
-                       </span>
-                     </div>
+                    {/* 5. HIGHLIGHTED RECIPIENT DELIVERY DETAILS */}
+                    <div style={{
+                      background: 'linear-gradient(145deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.01) 100%)',
+                      border: `1.5px solid ${name && email ? activeThemeObj.primary : 'rgba(255,255,255,0.12)'}`,
+                      borderRadius: '18px',
+                      padding: '18px 20px',
+                      marginBottom: '24px',
+                      boxShadow: name && email ? `0 6px 25px ${activeThemeObj.glow}` : 'none',
+                      transition: 'all 0.3s ease'
+                    }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+                        <label style={{ ...labelStyle, color: activeThemeObj.primary, fontSize: '0.82rem', marginBottom: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <span>🎯</span> 5. Recipient Delivery Details
+                        </label>
+                        <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>
+                          Instant digital delivery to recipient
+                        </span>
+                      </div>
 
-                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '14px' }}>
                         <div>
-                           <label style={{ ...labelStyle, color: '#f1f5f9' }}>Recipient Full Name *</label>
-                           <input 
-                             required 
-                             type="text" 
-                             value={name} 
-                             onChange={e => setName(e.target.value)} 
-                             placeholder="e.g. Savithri Devi" 
-                             style={{ 
-                               ...inputStyle, 
-                               background: 'rgba(5, 10, 20, 0.85)', 
-                               borderColor: name ? activeThemeObj.primary : '#334155' 
-                             }} 
-                           />
+                          <label style={{ ...labelStyle, color: '#f1f5f9' }}>Recipient Full Name *</label>
+                          <input 
+                            required 
+                            type="text" 
+                            value={name} 
+                            onChange={e => setName(e.target.value)} 
+                            placeholder="e.g. Savithri Devi" 
+                            style={{ 
+                              ...inputStyle, 
+                              background: 'rgba(5, 10, 20, 0.85)', 
+                              borderColor: name ? activeThemeObj.primary : '#334155' 
+                            }} 
+                          />
                         </div>
                         <div>
-                           <label style={{ ...labelStyle, color: '#f1f5f9' }}>Recipient Email Address *</label>
-                           <input 
-                             required 
-                             type="email" 
-                             value={email} 
-                             onChange={e => setEmail(e.target.value)} 
-                             placeholder="recipient@example.com" 
-                             style={{ 
-                               ...inputStyle, 
-                               background: 'rgba(5, 10, 20, 0.85)', 
-                               borderColor: email ? activeThemeObj.primary : '#334155' 
-                             }} 
-                           />
+                          <label style={{ ...labelStyle, color: '#f1f5f9' }}>Recipient Email Address *</label>
+                          <input 
+                            required 
+                            type="email" 
+                            value={email} 
+                            onChange={e => setEmail(e.target.value)} 
+                            placeholder="recipient@example.com" 
+                            style={{ 
+                              ...inputStyle, 
+                              background: 'rgba(5, 10, 20, 0.85)', 
+                              borderColor: email ? activeThemeObj.primary : '#334155' 
+                            }} 
+                          />
                         </div>
-                     </div>
-                     <div style={{ fontSize: '0.68rem', color: '#64748b', marginTop: '8px' }}>
-                       ✨ The recipient will receive their interactive E-Card with 1-click unboxing ceremony at this email address.
-                     </div>
+                      </div>
+                      <div style={{ fontSize: '0.72rem', color: '#64748b', marginTop: '10px' }}>
+                        ✨ The recipient will receive their interactive E-Card with 1-click unboxing ceremony at this email address.
+                      </div>
+                    </div>
+
+                    {/* CONTINUE BUTTON */}
+                    <button 
+                      type="submit" 
+                      disabled={!isFormValid} 
+                      style={{
+                        width: '100%', 
+                        padding: '16px', 
+                        background: isFormValid 
+                          ? `linear-gradient(135deg, ${activeThemeObj.primary}, ${activeThemeObj.secondary})` 
+                          : '#1e293b',
+                        color: isFormValid ? '#000' : '#64748b', 
+                        border: 'none', 
+                        borderRadius: '12px', 
+                        fontWeight: 900, 
+                        fontSize: '1rem',
+                        cursor: isFormValid ? 'pointer' : 'not-allowed', 
+                        boxShadow: isFormValid ? `0 10px 30px ${activeThemeObj.glow}` : 'none',
+                        transition: 'all 0.3s'
+                      }}
+                    >
+                      {isFormValid ? 'CONTINUE TO PACKAGE SELECTION →' : 'FILL RECIPIENT DETAILS TO CONTINUE →'}
+                    </button>
+                  </form>
+                </div>
+              ) : (
+                /* STEP 2: CHECKOUT STUDIO */
+                <div className="studio-card">
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '22px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <button 
+                        type="button" 
+                        onClick={() => setStep('compose')} 
+                        style={{ 
+                          background: 'rgba(255,255,255,0.05)', 
+                          border: '1px solid rgba(255,255,255,0.1)', 
+                          color: '#cbd5e1', 
+                          cursor: 'pointer', 
+                          fontWeight: 700, 
+                          padding: '7px 14px', 
+                          borderRadius: '20px', 
+                          fontSize: '0.8rem',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '6px'
+                        }}
+                      >
+                        ← Edit Card
+                      </button>
+                      <h3 style={{ fontSize: '1.25rem', fontWeight: 900, margin: 0 }}>
+                        Select Membership Package
+                      </h3>
+                    </div>
+                    <span style={{ fontSize: '0.74rem', color: '#64748b', fontWeight: 700 }}>Step 2 of 2</span>
                   </div>
 
-                  <button type="submit" disabled={!activeRelationship || (occasion === 'Others' && !customOccasionInput.trim()) || (rel === 'Others' && !customRelInput.trim()) || !name || !email} style={{
-                     width: '100%', padding: '13px', background: `linear-gradient(135deg, ${activeThemeObj.primary}, ${activeThemeObj.secondary})`,
-                     color: '#000', border: 'none', borderRadius: '10px', fontWeight: 900, fontSize: '0.95rem',
-                     cursor: 'pointer', boxShadow: `0 8px 25px ${activeThemeObj.glow}`, opacity: (!activeRelationship || !name || !email) ? 0.6 : 1,
-                     transition: 'all 0.3s'
+                  {/* PACKAGE LIST */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '22px' }}>
+                    {giftPackages.map(p => {
+                      const isPlatinumYearly = p.name === 'PLATINUM' && p.interval === 'YEARLY';
+                      const isGoldYearly = p.name === 'GOLD' && p.interval === 'YEARLY';
+                      const isSelected = selectedPlanId === p.id;
+
+                      return (
+                        <div 
+                          key={p.id} 
+                          onClick={() => handleSelectPlan(p.id)}
+                          style={{
+                            background: isSelected ? 'rgba(255,215,0,0.05)' : 'rgba(255,255,255,0.015)',
+                            border: isSelected ? `2px solid ${activeThemeObj.primary}` : '1px solid rgba(255,255,255,0.08)',
+                            padding: '18px 22px', 
+                            borderRadius: '16px', 
+                            cursor: 'pointer', 
+                            display: 'flex', 
+                            flexDirection: 'column', 
+                            gap: '10px', 
+                            transition: 'all 0.2s',
+                            position: 'relative',
+                            boxShadow: isSelected ? `0 6px 25px ${activeThemeObj.glow}` : 'none'
+                          }}
+                        >
+                          {isPlatinumYearly && (
+                            <div style={{ position: 'absolute', top: '-10px', right: '18px', background: 'linear-gradient(135deg, #ffd700, #ff8c00)', color: '#000', fontSize: '0.65rem', fontWeight: 900, padding: '3px 10px', borderRadius: '12px', letterSpacing: '0.5px' }}>
+                              ⭐ MOST POPULAR FOR GIFTING
+                            </div>
+                          )}
+                          {isGoldYearly && (
+                            <div style={{ position: 'absolute', top: '-10px', right: '18px', background: 'rgba(70,211,105,0.18)', border: '1px solid #46d369', color: '#46d369', fontSize: '0.65rem', fontWeight: 900, padding: '3px 10px', borderRadius: '12px', letterSpacing: '0.5px' }}>
+                              BEST VALUE • SAVE 16%
+                            </div>
+                          )}
+
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <span style={{ fontSize: '1.15rem', fontWeight: 900, color: '#fff' }}>{p.name} MEMBERSHIP</span>
+                                <span style={{ background: 'rgba(255,255,255,0.08)', color: '#cbd5e1', fontSize: '0.72rem', fontWeight: 800, padding: '2px 8px', borderRadius: '6px' }}>{p.interval}</span>
+                              </div>
+                              <div style={{ color: '#8f98a9', fontSize: '0.82rem', marginTop: '4px' }}>{p.desc}</div>
+                            </div>
+                            <div style={{ fontSize: '1.5rem', fontWeight: 950, color: isSelected ? activeThemeObj.primary : '#fff' }}>
+                              {currencySymbol}{p.price.toLocaleString()}
+                            </div>
+                          </div>
+
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '6px', fontSize: '0.75rem', color: '#94a3b8', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '10px' }}>
+                            <div>✓ Unlimited HD Sanskrit Streams</div>
+                            <div>✓ Audiobooks & Chanting Decks</div>
+                            <div>✓ Interactive Games & Quizzes</div>
+                            <div>✓ Verified Digital Certificate</div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* MULTI-GIFTING QUANTITY COUNTER */}
+                  <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '16px', padding: '16px 20px', marginBottom: '22px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+                      <div>
+                        <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: 800, color: '#fff' }}>Number of Recipients (Gift Quantity)</h4>
+                        <p style={{ color: '#8f98a9', fontSize: '0.78rem', margin: '3px 0 0 0' }}>Gift to multiple friends or students with individual activation keys.</p>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '14px', background: '#000', border: '1px solid #222', borderRadius: '30px', padding: '6px 14px' }}>
+                        <button 
+                          type="button" 
+                          onClick={() => handleQuantityChange(Math.max(1, quantity - 1))} 
+                          style={{ background: 'none', border: 'none', color: activeThemeObj.primary, fontSize: '1.4rem', cursor: 'pointer', fontWeight: 900 }}
+                        >
+                          −
+                        </button>
+                        <span style={{ fontSize: '1.2rem', fontWeight: 900, minWidth: '28px', textAlign: 'center' }}>{quantity}</span>
+                        <button 
+                          type="button" 
+                          onClick={() => handleQuantityChange(Math.min(50, quantity + 1))} 
+                          style={{ background: 'none', border: 'none', color: activeThemeObj.primary, fontSize: '1.4rem', cursor: 'pointer', fontWeight: 900 }}
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* ORDER SUMMARY */}
+                  <div style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '16px', padding: '18px 22px', marginBottom: '22px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '0.85rem', color: '#8f98a9' }}>
+                      <span>Recipient</span>
+                      <span style={{ color: '#fff', fontWeight: 700 }}>{name} ({email})</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '0.85rem', color: '#8f98a9' }}>
+                      <span>Selected Plan</span>
+                      <span style={{ color: '#fff', fontWeight: 700 }}>{activePkg?.name} ({activePkg?.interval})</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '0.85rem', color: '#8f98a9' }}>
+                      <span>Unit Cost</span>
+                      <span>{currencySymbol}{unitCost.toLocaleString()}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '0.85rem', color: '#8f98a9' }}>
+                      <span>Quantity</span>
+                      <span>× {quantity}</span>
+                    </div>
+                    <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', margin: '10px 0' }}></div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontWeight: 800, fontSize: '1.1rem' }}>Total Investment</span>
+                      <span style={{ fontSize: '1.6rem', fontWeight: 950, color: activeThemeObj.primary }}>
+                        {currencySymbol}{totalDue.toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* PAYMENT METHODS & GATEWAY BADGE */}
+                  <div style={{ 
+                    background: 'rgba(255,255,255,0.02)', 
+                    border: '1px solid rgba(255,255,255,0.06)', 
+                    borderRadius: '14px', 
+                    padding: '12px 18px', 
+                    marginBottom: '20px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    flexWrap: 'wrap',
+                    gap: '10px'
                   }}>
-                     CONTINUE TO PACKAGE SELECTION →
-                  </button>
-               </form>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8rem', color: '#cbd5e1' }}>
+                      <span>🔒</span>
+                      <span><strong>Secure Gateway:</strong> UPI (GPay, PhonePe), Cards & NetBanking</span>
+                    </div>
+                    <span style={{ fontSize: '0.74rem', color: '#64748b' }}>256-bit SSL</span>
+                  </div>
+
+                  {/* CANCELLATION NOTICE & INSTANT REFRESH BANNER (Fixes Defect 2) */}
+                  {paymentCancelled && (
+                    <div style={{
+                      background: 'rgba(234, 179, 8, 0.1)',
+                      border: '1px solid rgba(234, 179, 8, 0.35)',
+                      borderRadius: '12px',
+                      padding: '12px 16px',
+                      marginBottom: '18px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      gap: '12px',
+                      flexWrap: 'wrap'
+                    }}>
+                      <div style={{ fontSize: '0.82rem', color: '#fef08a' }}>
+                        <span>ℹ️</span> Payment session was closed. You can switch packages or click to pay again.
+                      </div>
+                      <button
+                        type="button"
+                        onClick={resetPaymentState}
+                        style={{
+                          background: 'rgba(255,255,255,0.12)',
+                          border: '1px solid rgba(255,255,255,0.25)',
+                          color: '#fff',
+                          padding: '6px 14px',
+                          borderRadius: '8px',
+                          fontSize: '0.78rem',
+                          fontWeight: 800,
+                          cursor: 'pointer',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '6px'
+                        }}
+                      >
+                        <span>🔄</span> Instant Refresh
+                      </button>
+                    </div>
+                  )}
+
+                  {/* SUBMIT BUTTON WITH INSTANT REFRESH & DISMISSAL HANDLING */}
+                  <form onSubmit={executeCheckout}>
+                    <button 
+                      type="submit"
+                      disabled={loading || !activePkg || totalDue <= 0} 
+                      style={{
+                        width: '100%', 
+                        padding: '16px', 
+                        background: loading 
+                          ? '#1e293b' 
+                          : `linear-gradient(135deg, ${activeThemeObj.primary}, ${activeThemeObj.secondary})`, 
+                        color: loading ? '#94a3b8' : '#000',
+                        border: 'none', 
+                        borderRadius: '12px', 
+                        fontWeight: 900, 
+                        fontSize: '1.05rem',
+                        cursor: loading ? 'wait' : 'pointer', 
+                        boxShadow: loading ? 'none' : `0 10px 30px ${activeThemeObj.glow}`,
+                        transition: 'all 0.3s'
+                      }}
+                    >
+                      {loading 
+                        ? '⚡ LAUNCHING SECURE GATEWAY...' 
+                        : `💳 PAY SECURELY (${currencySymbol}${totalDue.toLocaleString()})`
+                      }
+                    </button>
+                  </form>
+
+                  {/* SAFETY RESET LINK */}
+                  <div style={{ textAlign: 'center', marginTop: '12px' }}>
+                    <button
+                      type="button"
+                      onClick={resetPaymentState}
+                      style={{
+                        background: 'transparent',
+                        border: 'none',
+                        color: '#64748b',
+                        fontSize: '0.74rem',
+                        cursor: 'pointer',
+                        textDecoration: 'underline'
+                      }}
+                    >
+                      Payment window closed or stuck? Click here to refresh and try again
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
             
-            {/* E-CARD LIVE PREVIEW COLUMN */}
+            {/* RIGHT COLUMN: PERMANENT LIVE E-CARD PREVIEW (VISIBLE IN BOTH STEP 1 & 2) */}
             <div className="gift-sticky-col" style={{ position: 'sticky', top: '135px' }}>
-               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                 <div style={{ color: '#8f98a9', fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 700 }}>
-                   Live E-Card Preview
-                 </div>
-                 <div style={{ fontSize: '0.72rem', color: activeThemeObj.primary, fontWeight: 800 }}>
-                   {activeThemeObj.name}
-                 </div>
-               </div>
-               
-               <div className="ecard-preview">
-                  <div style={{ position: 'absolute', top: '-40px', right: '-40px', width: '120px', height: '120px', borderRadius: '50%', border: `1px solid ${activeThemeObj.primary}`, opacity: 0.1 }}></div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
-                     <img src="/assets/logo-200-x-70-px.png" alt="Logo" style={{ height: '26px', filter: 'brightness(0) invert(1)' }} />
-                     <div style={{ background: activeThemeObj.accentBg, color: activeThemeObj.primary, border: `1px solid ${activeThemeObj.primary}`, fontSize: '0.62rem', fontWeight: 900, padding: '3px 8px', borderRadius: '16px', letterSpacing: '0.8px' }}>
-                       {activeOccasionObj.label.split(' ')[0]} {activeOccasionObj.label.split(' ')[1] || 'E-CARD'}
-                     </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                <div style={{ color: '#8f98a9', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 800 }}>
+                  Live E-Card Preview
+                </div>
+                <div style={{ fontSize: '0.75rem', color: activeThemeObj.primary, fontWeight: 800 }}>
+                  {activeThemeObj.name}
+                </div>
+              </div>
+              
+              <div className="ecard-preview">
+                {/* AMBIENT GLOW ORB */}
+                <div style={{ position: 'absolute', top: '-50px', right: '-50px', width: '150px', height: '150px', borderRadius: '50%', border: `1px solid ${activeThemeObj.primary}`, opacity: 0.15 }}></div>
+                
+                {/* CARD TOP BAR */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                  <img src="/assets/logo-200-x-70-px.png" alt="Vyoma Logo" style={{ height: '28px', filter: 'brightness(0) invert(1)' }} />
+                  <div style={{ background: activeThemeObj.accentBg, color: activeThemeObj.primary, border: `1px solid ${activeThemeObj.primary}`, fontSize: '0.64rem', fontWeight: 900, padding: '4px 10px', borderRadius: '18px', letterSpacing: '0.8px' }}>
+                    {activeOccasionObj.label.split(' ')[0]} {activeOccasionObj.label.split(' ')[1] || 'E-CARD'}
                   </div>
-                  <div style={{ minHeight: '110px' }}>
-                     <div style={{ color: '#8f98a9', fontSize: '0.68rem', textTransform: 'uppercase', letterSpacing: '1px' }}>HONORING</div>
-                     <h2 style={{ fontSize: '1.5rem', fontWeight: 900, color: '#fff', margin: '2px 0 4px 0', letterSpacing: '-0.3px' }}>{name || 'Dear Recipient'}</h2>
-                     <div style={{ color: activeThemeObj.primary, fontWeight: 800, fontSize: '0.8rem', marginTop: '2px' }}>
-                       {activeRelationship ? `Relationship: ${activeRelationship}` : 'Honored Loved One'} • <span style={{ color: '#fff', opacity: 0.85 }}>{activeOccasionObj.key}</span>
-                     </div>
-                     <p style={{ fontStyle: 'italic', color: '#cbd5e1', fontSize: '0.82rem', marginTop: '14px', borderLeft: `3px solid ${activeThemeObj.primary}`, paddingLeft: '12px', lineHeight: '1.5', margin: '14px 0 0 0' }}>
-                        "{msg || 'Wishing you knowledge, peace, and spiritual growth through the eternal nectar of Sanskrit.'}"
-                     </p>
-                  </div>
-                  <div style={{ marginTop: '22px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '14px' }}>
-                     <div>
-                        <div style={{ fontSize: '0.65rem', color: '#8f98a9', marginBottom: '2px' }}>ACTIVATION KEY</div>
-                        <div style={{ fontFamily: 'monospace', color: activeThemeObj.primary, fontWeight: 800, fontSize: '0.95rem', letterSpacing: '1px' }}>GIFT-VYOM-XXXX-XXXX</div>
-                     </div>
-                     <div style={{ fontSize: '1.8rem' }}>{activeThemeObj.icon}</div>
-                  </div>
-               </div>
+                </div>
 
-               <div style={{ textAlign: 'center', marginTop: '10px', color: '#64748b', fontSize: '0.72rem' }}>
-                 ✨ Automatically delivered with 1-click unboxing ceremony
-               </div>
+                {/* CARD BODY */}
+                <div style={{ minHeight: '120px' }}>
+                  <div style={{ color: '#8f98a9', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '1px' }}>HONORING</div>
+                  <h2 style={{ fontSize: '1.65rem', fontWeight: 900, color: '#fff', margin: '3px 0 6px 0', letterSpacing: '-0.3px', wordBreak: 'break-word' }}>
+                    {name || 'Dear Recipient'}
+                  </h2>
+                  <div style={{ color: activeThemeObj.primary, fontWeight: 800, fontSize: '0.82rem', marginTop: '2px' }}>
+                    {activeRelationship ? `Relationship: ${activeRelationship}` : 'Honored Loved One'} • <span style={{ color: '#fff', opacity: 0.85 }}>{activeOccasionLabel}</span>
+                  </div>
+                  <p style={{ fontStyle: 'italic', color: '#cbd5e1', fontSize: '0.86rem', marginTop: '14px', borderLeft: `3px solid ${activeThemeObj.primary}`, paddingLeft: '14px', lineHeight: '1.6', margin: '14px 0 0 0' }}>
+                    "{msg || 'Wishing you peace, enlightenment, and joyful Sanskrit learning on this auspicious path.'}"
+                  </p>
+                </div>
+
+                {/* CARD FOOTER WITH SELECTED PLAN (INCLUDED IN PREVIEW) */}
+                <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '16px' }}>
+                  <div>
+                    <div style={{ fontSize: '0.68rem', color: '#8f98a9', marginBottom: '2px' }}>
+                      INCLUDES {activePkg?.name} MEMBERSHIP ({activePkg?.interval === 'YEARLY' ? '1 YEAR' : '1 MONTH'})
+                    </div>
+                    <div style={{ fontFamily: 'monospace', color: activeThemeObj.primary, fontWeight: 900, fontSize: '1rem', letterSpacing: '1px' }}>
+                      GIFT-VYOM-XXXX-XXXX
+                    </div>
+                  </div>
+                  <div style={{ fontSize: '2rem' }}>{activeThemeObj.icon}</div>
+                </div>
+              </div>
+
+              <div style={{ textAlign: 'center', marginTop: '12px', color: '#64748b', fontSize: '0.75rem' }}>
+                ✨ Consecrated digital delivery with 1-click unboxing ceremony
+              </div>
             </div>
           </div>
         )}
 
-        {step === 'checkout' && (
-          <div style={{ maxWidth: '820px', margin: '0 auto', background: 'rgba(10, 18, 32, 0.6)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '20px', padding: '28px 32px' }}>
-             <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '22px' }}>
-                <button onClick={() => setStep('compose')} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#aaa', cursor: 'pointer', fontWeight: 'bold', padding: '6px 14px', borderRadius: '16px', fontSize: '0.8rem' }}>← Edit Details</button>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0 }}>Choose Gift Package & Quantity</h3>
-             </div>
+        {/* STEP 3: SUCCESS STATE */}
+        {step === 'success' && (
+          <div style={{ maxWidth: '800px', margin: '0 auto', textAlign: 'center' }}>
+            <div style={{ background: 'rgba(10,18,32,0.7)', border: `2px solid ${activeThemeObj.primary}`, borderRadius: '24px', padding: '40px 32px', boxShadow: `0 25px 60px ${activeThemeObj.glow}` }}>
+              <div style={{ fontSize: '3.8rem', marginBottom: '14px' }}>🏆</div>
+              <h2 style={{ fontSize: '2.2rem', fontWeight: 900, color: activeThemeObj.primary, marginBottom: '8px', letterSpacing: '-0.8px' }}>
+                Wisdom Shared Successfully!
+              </h2>
+              
+              <div style={{ background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.25)', borderRadius: '12px', padding: '14px 18px', color: '#93c5fd', fontSize: '0.88rem', marginBottom: '26px', textAlign: 'left', display: 'flex', gap: '12px', alignItems: 'center' }}>
+                <span style={{ fontSize: '1.4rem' }}>📧</span>
+                <div>
+                  <strong>Automated E-Card Sent:</strong> Delivered to <strong style={{ color: '#fff' }}>{email}</strong> with 1-click unboxing ceremony.
+                </div>
+              </div>
 
-             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '22px' }}>
-                {giftPackages.map(p => {
-                  const isPlatinumYearly = p.name === 'PLATINUM' && p.interval === 'YEARLY';
-                  const isGoldYearly = p.name === 'GOLD' && p.interval === 'YEARLY';
-                  const isSelected = selectedPlanId === p.id;
+              {/* VISUAL E-CARD IN SUCCESS STATE */}
+              <div style={{ 
+                background: activeThemeObj.bg, 
+                border: `2px solid ${activeThemeObj.primary}`, 
+                borderRadius: '22px', 
+                padding: '28px 30px', 
+                margin: '0 auto 28px auto', 
+                maxWidth: '600px', 
+                textAlign: 'left',
+                boxShadow: `0 18px 45px ${activeThemeObj.glow}`,
+                position: 'relative'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                  <img src="/assets/logo-200-x-70-px.png" alt="Logo" style={{ height: '28px', filter: 'brightness(0) invert(1)' }} />
+                  <div style={{ background: activeThemeObj.accentBg, color: activeThemeObj.primary, border: `1px solid ${activeThemeObj.primary}`, fontSize: '0.64rem', fontWeight: 900, padding: '4px 10px', borderRadius: '18px', letterSpacing: '0.8px' }}>
+                    {activeOccasionObj.label.split(' ')[0]} {activeOccasionObj.label.split(' ')[1] || 'WISDOM E-CARD'}
+                  </div>
+                </div>
+                <div style={{ minHeight: '110px' }}>
+                  <div style={{ color: '#8f98a9', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '1px' }}>PREPARED EXCLUSIVELY FOR</div>
+                  <h2 style={{ fontSize: '1.75rem', fontWeight: 900, color: '#fff', margin: '3px 0 6px 0' }}>{name}</h2>
+                  <div style={{ color: activeThemeObj.primary, fontWeight: 800, fontSize: '0.84rem' }}>
+                    {activeRelationship ? `Relationship: ${activeRelationship}` : 'Honored Loved One'} • <span style={{ color: '#fff', opacity: 0.85 }}>{activeOccasionLabel}</span>
+                  </div>
+                  <p style={{ fontStyle: 'italic', color: '#cbd5e1', fontSize: '0.88rem', marginTop: '14px', borderLeft: `3px solid ${activeThemeObj.primary}`, paddingLeft: '14px', lineHeight: '1.6' }}>
+                    "{msg || 'Wishing you knowledge, peace, and spiritual growth through the eternal nectar of Sanskrit.'}"
+                  </p>
+                </div>
+                <div style={{ marginTop: '24px', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                  <div>
+                    <div style={{ fontSize: '0.68rem', color: '#8f98a9', marginBottom: '2px' }}>PRIMARY ACTIVATION KEY</div>
+                    <div style={{ fontSize: '1.4rem', fontFamily: 'monospace', color: activeThemeObj.primary, fontWeight: 900, letterSpacing: '1px' }}>
+                      {resultCodes[0] || 'GIFT-VYOM-XXXX-XXXX'}
+                    </div>
+                  </div>
+                  <div style={{ fontSize: '2rem' }}>{activeThemeObj.icon}</div>
+                </div>
+              </div>
 
+              {/* DISTRIBUTION CONTROLS */}
+              <h4 style={{ textAlign: 'left', fontSize: '1.1rem', fontWeight: 800, marginBottom: '16px' }}>🔑 Gift Key Distribution Center</h4>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '30px' }}>
+                {resultCodes.map((code, idx) => {
+                  const claimUrl = typeof window !== 'undefined' 
+                    ? `${window.location.origin}/gift/claim/${code}?theme=${cardTheme}` 
+                    : `https://vyoma-ott-platform.vercel.app/gift/claim/${code}?theme=${cardTheme}`;
+                  
+                  const indWhatsappMsg = `🎁 *Vyoma Gift of Wisdom* 🎁\n\nDear *${name}*,\n\nI have gifted you a *${activePkg.name} Plan* subscription (${activePkg.months} Months) to Vyoma Sanskrit OTT for ${activeOccasionLabel}!\n\n💬 Message: _"${msg || 'Wishing you knowledge, peace, and spiritual growth.'}"_\n\n🔑 *Activation Key*: *${code}*\n\n👉 *Open Your Gift & Activate*: ${claimUrl}\n\nEnjoy your learning journey! 🪔`;
+                  const indWhatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(indWhatsappMsg)}`;
+                  const indEmailSubject = `🎁 Gift of Wisdom: Your Vyoma Sanskrit Subscription Key (${activeOccasionLabel})!`;
+                  const indEmailBody = `Dear ${name},\n\nI have gifted you a ${activePkg.name} Plan subscription (${activePkg.months} Months) to Vyoma Sanskrit OTT for ${activeOccasionLabel}!\n\nMessage: "${msg || 'Wishing you knowledge, peace, and spiritual growth.'}"\n\nYour Activation Key: ${code}\n\nOpen Your Gift & Activate in 1 Click: ${claimUrl}\n\nEnjoy your learning journey!\n\nVyoma Academy`;
+                  const indEmailUrl = `mailto:${email}?subject=${encodeURIComponent(indEmailSubject)}&body=${encodeURIComponent(indEmailBody)}`;
+                  
                   return (
-                    <div 
-                      key={p.id} onClick={() => setSelectedPlanId(p.id)}
-                      style={{
-                        background: isSelected ? 'rgba(255,215,0,0.04)' : 'rgba(255,255,255,0.015)',
-                        border: isSelected ? `2px solid ${activeThemeObj.primary}` : '1px solid rgba(255,255,255,0.08)',
-                        padding: '18px 22px', borderRadius: '16px', cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: '10px', transition: 'all 0.2s',
-                        position: 'relative'
-                      }}
-                    >
-                      {isPlatinumYearly && (
-                        <div style={{ position: 'absolute', top: '-9px', right: '18px', background: 'linear-gradient(135deg, #ffd700, #ff8c00)', color: '#000', fontSize: '0.65rem', fontWeight: 900, padding: '2px 8px', borderRadius: '10px', letterSpacing: '0.5px' }}>
-                          ⭐ MOST POPULAR FOR GIFTING
-                        </div>
-                      )}
-                      {isGoldYearly && (
-                        <div style={{ position: 'absolute', top: '-9px', right: '18px', background: 'rgba(70,211,105,0.18)', border: '1px solid #46d369', color: '#46d369', fontSize: '0.65rem', fontWeight: 900, padding: '2px 8px', borderRadius: '10px', letterSpacing: '0.5px' }}>
-                          BEST VALUE • SAVE 16%
-                        </div>
-                      )}
-
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <span style={{ fontSize: '1.1rem', fontWeight: 900, color: '#fff' }}>{p.name} MEMBERSHIP</span>
-                            <span style={{ background: 'rgba(255,255,255,0.08)', color: '#cbd5e1', fontSize: '0.7rem', fontWeight: 800, padding: '2px 6px', borderRadius: '4px' }}>{p.interval}</span>
-                          </div>
-                          <div style={{ color: '#8f98a9', fontSize: '0.8rem', marginTop: '3px' }}>{p.desc}</div>
-                        </div>
-                        <div style={{ fontSize: '1.45rem', fontWeight: 900, color: isSelected ? activeThemeObj.primary : '#fff' }}>
-                          {currencySymbol}{p.price}
-                        </div>
+                    <div key={idx} style={{ background: 'rgba(0,0,0,0.35)', padding: '18px 22px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'left' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', flexWrap: 'wrap', gap: '8px' }}>
+                        <span style={{ color: activeThemeObj.primary, fontSize: '0.78rem', fontWeight: 800 }}>KEY #{idx + 1} OF {quantity}</span>
+                        <span style={{ fontSize: '1.25rem', fontFamily: 'monospace', fontWeight: 900, color: '#fff' }}>{code}</span>
                       </div>
-
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '4px', fontSize: '0.74rem', color: '#94a3b8', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '8px' }}>
-                        <div>✓ Unlimited HD Sanskrit Courses</div>
-                        <div>✓ Audiobooks & Offline Storage</div>
-                        <div>✓ Interactive Games & Quizzes</div>
-                        <div>✓ Verified Certificates & Notes</div>
+                      <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                        <button onClick={() => { navigator.clipboard.writeText(code); alert(`Key #${idx + 1} copied!`); }} className="share-btn" style={{ flex: 1, minWidth: '95px', background: 'rgba(255,255,255,0.06)', color: '#fff', border: '1px solid rgba(255,255,255,0.12)' }}>📋 Copy Key</button>
+                        <button onClick={() => { navigator.clipboard.writeText(claimUrl); alert(`Unboxing Claim link copied: ${claimUrl}`); }} className="share-btn" style={{ flex: 1, minWidth: '115px', background: 'rgba(242,100,34,0.15)', color: '#f26422', border: '1px solid rgba(242,100,34,0.3)' }}>🔗 Copy Link</button>
+                        <a href={indWhatsappUrl} target="_blank" rel="noopener noreferrer" className="share-btn" style={{ flex: 1, minWidth: '110px', background: '#25D366', color: '#fff' }}>💬 WhatsApp</a>
+                        <a href={indEmailUrl} className="share-btn" style={{ flex: 1, minWidth: '95px', background: '#3b82f6', color: '#fff' }}>✉️ Email</a>
+                        <button onClick={() => triggerPrintModal(code)} className="share-btn" style={{ flex: 1, minWidth: '120px', background: 'rgba(255,215,0,0.15)', color: '#ffd700', border: '1px solid rgba(255,215,0,0.3)' }}>🖨️ Print PDF</button>
+                        <a href={claimUrl} target="_blank" rel="noopener noreferrer" className="share-btn" style={{ flex: 1, minWidth: '100px', background: 'rgba(255,255,255,0.05)', color: '#cbd5e1', border: '1px solid rgba(255,255,255,0.15)' }}>👁️ Preview</a>
                       </div>
                     </div>
                   );
                 })}
-             </div>
+              </div>
 
-             <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '14px', padding: '16px 20px', marginBottom: '22px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                   <div>
-                      <h4 style={{ margin: 0, fontSize: '0.98rem', fontWeight: 800, color: '#fff' }}>🔢 Multi-Gifting Counter</h4>
-                      <p style={{ color: '#8f98a9', fontSize: '0.76rem', margin: '2px 0 0 0' }}>Specify quantity for bulk gifting to multiple friends or students.</p>
-                   </div>
-                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: '#000', border: '1px solid #222', borderRadius: '25px', padding: '4px 12px' }}>
-                      <button onClick={() => setQuantity(Math.max(1, quantity - 1))} style={{ background: 'none', border: 'none', color: activeThemeObj.primary, fontSize: '1.3rem', cursor: 'pointer', fontWeight: 900 }}>−</button>
-                      <span style={{ fontSize: '1.15rem', fontWeight: 900, width: '25px', textAlign: 'center' }}>{quantity}</span>
-                      <button onClick={() => setQuantity(Math.min(50, quantity + 1))} style={{ background: 'none', border: 'none', color: activeThemeObj.primary, fontSize: '1.3rem', cursor: 'pointer', fontWeight: 900 }}>+</button>
-                   </div>
-                </div>
-             </div>
-
-             <div style={{ background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '12px', padding: '16px 20px', marginBottom: '24px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', fontSize: '0.85rem', color: '#8f98a9' }}>
-                   <span>Selected Theme</span>
-                   <span style={{ color: activeThemeObj.primary, fontWeight: 700 }}>{activeThemeObj.name}</span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', fontSize: '0.85rem', color: '#8f98a9' }}>
-                   <span>Unit Cost ({activePkg?.name} {activePkg?.interval})</span>
-                   <span>{currencySymbol}{unitCost}</span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', fontSize: '0.85rem', color: '#8f98a9' }}>
-                   <span>Quantity</span>
-                   <span>× {quantity}</span>
-                </div>
-                <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', margin: '8px 0' }}></div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 900, fontSize: '1.25rem' }}>
-                   <span>Total Due</span>
-                   <span style={{ color: activeThemeObj.primary }}>{currencySymbol}{totalDue.toLocaleString()}</span>
-                </div>
-             </div>
-
-             <form onSubmit={executeCheckout}>
-                <button disabled={loading || !activePkg} style={{
-                    width: '100%', padding: '14px', background: `linear-gradient(135deg, ${activeThemeObj.primary}, ${activeThemeObj.secondary})`, color: '#000',
-                    border: 'none', borderRadius: '10px', fontWeight: 900, fontSize: '1.02rem',
-                    cursor: loading ? 'not-allowed' : 'pointer', boxShadow: `0 8px 25px ${activeThemeObj.glow}`,
-                    transition: 'all 0.3s'
-                }}>
-                   {loading ? '⚡ LAUNCHING SECURE RAZORPAY GATEWAY...' : `💳 PAY SECURELY (${currencySymbol}${totalDue.toLocaleString()})`}
-                </button>
-             </form>
-          </div>
-        )}
-
-        {step === 'success' && (
-          <div style={{ maxWidth: '780px', margin: '0 auto', textAlign: 'center' }}>
-             <div style={{ background: 'rgba(10,18,32,0.6)', border: `2px solid ${activeThemeObj.primary}`, borderRadius: '24px', padding: '35px 30px', boxShadow: `0 25px 50px ${activeThemeObj.glow}` }}>
-                <div style={{ fontSize: '3.5rem', marginBottom: '12px' }}>🏆</div>
-                <h2 style={{ fontSize: '2.1rem', fontWeight: 900, color: activeThemeObj.primary, marginBottom: '6px', letterSpacing: '-0.8px' }}>Wisdom Shared Successfully!</h2>
-                
-                <div style={{ background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.25)', borderRadius: '10px', padding: '12px 16px', color: '#93c5fd', fontSize: '0.86rem', marginBottom: '25px', textAlign: 'left', display: 'flex', gap: '10px', alignItems: 'center' }}>
-                   <span style={{ fontSize: '1.2rem' }}>📧</span>
-                   <div>
-                      <strong>Automated E-Card Sent:</strong> Delivered to <strong style={{ color: '#fff' }}>{email}</strong> with 1-click unboxing.
-                   </div>
-                </div>
-
-                {/* VISUAL E-CARD IN SUCCESS STATE */}
-                <div style={{ 
-                  background: activeThemeObj.bg, 
-                  border: `2px solid ${activeThemeObj.primary}`, 
-                  borderRadius: '20px', 
-                  padding: '25px 28px', 
-                  margin: '0 auto 25px auto', 
-                  maxWidth: '580px', 
-                  textAlign: 'left',
-                  boxShadow: `0 15px 40px ${activeThemeObj.glow}`,
-                  position: 'relative'
-                }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
-                     <img src="/assets/logo-200-x-70-px.png" alt="Logo" style={{ height: '26px', filter: 'brightness(0) invert(1)' }} />
-                     <div style={{ background: activeThemeObj.accentBg, color: activeThemeObj.primary, border: `1px solid ${activeThemeObj.primary}`, fontSize: '0.62rem', fontWeight: 900, padding: '3px 8px', borderRadius: '16px', letterSpacing: '0.8px' }}>
-                       {activeOccasionObj.label.split(' ')[0]} {activeOccasionObj.label.split(' ')[1] || 'WISDOM E-CARD'}
-                     </div>
-                  </div>
-                  <div style={{ minHeight: '100px' }}>
-                     <div style={{ color: '#8f98a9', fontSize: '0.68rem', textTransform: 'uppercase', letterSpacing: '1px' }}>PREPARED EXCLUSIVELY FOR</div>
-                     <h2 style={{ fontSize: '1.6rem', fontWeight: 900, color: '#fff', margin: '2px 0 4px 0' }}>{name}</h2>
-                     <div style={{ color: activeThemeObj.primary, fontWeight: 800, fontSize: '0.8rem' }}>
-                       {activeRelationship ? `Relationship: ${activeRelationship}` : 'Honored Loved One'} • <span style={{ color: '#fff', opacity: 0.85 }}>{activeOccasionObj.key}</span>
-                     </div>
-                     <p style={{ fontStyle: 'italic', color: '#cbd5e1', fontSize: '0.85rem', marginTop: '14px', borderLeft: `3px solid ${activeThemeObj.primary}`, paddingLeft: '12px', lineHeight: '1.5' }}>
-                        "{msg || 'Wishing you knowledge, peace, and spiritual growth through the eternal nectar of Sanskrit.'}"
-                     </p>
-                  </div>
-                  <div style={{ marginTop: '22px', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '14px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-                     <div>
-                        <div style={{ fontSize: '0.65rem', color: '#8f98a9', marginBottom: '2px' }}>PRIMARY ACTIVATION KEY</div>
-                        <div style={{ fontSize: '1.35rem', fontFamily: 'monospace', color: activeThemeObj.primary, fontWeight: 900, letterSpacing: '1px' }}>{resultCodes[0] || 'GIFT-VYOM-XXXX-XXXX'}</div>
-                     </div>
-                     <div style={{ fontSize: '1.8rem' }}>{activeThemeObj.icon}</div>
-                  </div>
-                </div>
-
-                {/* DISTRIBUTION CONTROLS */}
-                <h4 style={{ textAlign: 'left', fontSize: '1.05rem', fontWeight: 800, marginBottom: '14px' }}>🔑 Gift Key Distribution Center</h4>
-                
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '28px' }}>
-                   {resultCodes.map((code, idx) => {
-                      const claimUrl = typeof window !== 'undefined' 
-                        ? `${window.location.origin}/gift/claim/${code}?theme=${cardTheme}` 
-                        : `https://vyoma-ott-platform.vercel.app/gift/claim/${code}?theme=${cardTheme}`;
-                      
-                      const indWhatsappMsg = `🎁 *Vyoma Gift of Wisdom* 🎁\n\nDear *${name}*,\n\nI have gifted you a *${activePkg.name} Plan* subscription (${activePkg.months} Months) to Vyoma Sanskrit OTT for ${activeOccasionObj.label}!\n\n💬 Message: _"${msg || 'Wishing you knowledge, peace, and spiritual growth.'}"_\n\n🔑 *Activation Key*: *${code}*\n\n👉 *Open Your Gift & Activate*: ${claimUrl}\n\nEnjoy your learning journey! 🪔`;
-                      const indWhatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(indWhatsappMsg)}`;
-                      const indEmailSubject = `🎁 Gift of Wisdom: Your Vyoma Sanskrit Subscription Key (${activeOccasionObj.label})!`;
-                      const indEmailBody = `Dear ${name},\n\nI have gifted you a ${activePkg.name} Plan subscription (${activePkg.months} Months) to Vyoma Sanskrit OTT for ${activeOccasionObj.label}!\n\nMessage: "${msg || 'Wishing you knowledge, peace, and spiritual growth.'}"\n\nYour Activation Key: ${code}\n\nOpen Your Gift & Activate in 1 Click: ${claimUrl}\n\nEnjoy your learning journey!\n\nVyoma Academy`;
-                      const indEmailUrl = `mailto:${email}?subject=${encodeURIComponent(indEmailSubject)}&body=${encodeURIComponent(indEmailBody)}`;
-                      
-                      return (
-                         <div key={idx} style={{ background: 'rgba(0,0,0,0.3)', padding: '16px 20px', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.06)', textAlign: 'left' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
-                               <span style={{ color: activeThemeObj.primary, fontSize: '0.75rem', fontWeight: 800 }}>KEY #{idx + 1} OF {quantity}</span>
-                               <span style={{ fontSize: '1.2rem', fontFamily: 'monospace', fontWeight: 900, color: '#fff' }}>{code}</span>
-                            </div>
-                            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                               <button onClick={() => { navigator.clipboard.writeText(code); alert(`Key #${idx + 1} copied!`); }} className="share-btn" style={{ flex: 1, minWidth: '90px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)' }}>📋 Copy Key</button>
-                               <button onClick={() => { navigator.clipboard.writeText(claimUrl); alert(`Unboxing Claim link copied: ${claimUrl}`); }} className="share-btn" style={{ flex: 1, minWidth: '110px', background: 'rgba(242,100,34,0.15)', color: '#f26422', border: '1px solid rgba(242,100,34,0.3)' }}>🔗 Copy Link</button>
-                               <a href={indWhatsappUrl} target="_blank" rel="noopener noreferrer" className="share-btn" style={{ flex: 1, minWidth: '110px', background: '#25D366', color: '#fff' }}>💬 WhatsApp</a>
-                               <a href={indEmailUrl} className="share-btn" style={{ flex: 1, minWidth: '90px', background: '#3b82f6', color: '#fff' }}>✉️ Email</a>
-                               <button onClick={() => triggerPrintModal(code)} className="share-btn" style={{ flex: 1, minWidth: '120px', background: 'rgba(255,215,0,0.15)', color: '#ffd700', border: '1px solid rgba(255,215,0,0.3)' }}>🖨️ Print PDF</button>
-                               <a href={claimUrl} target="_blank" rel="noopener noreferrer" className="share-btn" style={{ flex: 1, minWidth: '100px', background: 'rgba(255,255,255,0.05)', color: '#cbd5e1', border: '1px solid rgba(255,255,255,0.15)' }}>👁️ Preview</a>
-                            </div>
-                         </div>
-                      );
-                   })}
-                </div>
-
-                <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '20px', display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
-                   <a href="/" style={{ background: 'rgba(255,255,255,0.04)', color: '#fff', border: '1px solid rgba(255,255,255,0.08)', padding: '12px 24px', borderRadius: '10px', fontWeight: 800, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', fontSize: '0.88rem' }}>Return Home</a>
-                   <button onClick={() => { setStep('compose'); setQuantity(1); setName(''); setEmail(''); setMsg('Wishing you peace, enlightenment, and joyful Sanskrit learning on this auspicious path.'); setRel('Friend'); }} style={{ background: `linear-gradient(135deg, ${activeThemeObj.primary}, ${activeThemeObj.secondary})`, color: '#000', border: 'none', padding: '12px 24px', borderRadius: '10px', fontWeight: 800, cursor: 'pointer', fontSize: '0.88rem' }}>🎁 Share Another Gift</button>
-                </div>
-             </div>
+              <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '22px', display: 'flex', gap: '14px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                <a href="/" style={{ background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)', padding: '12px 26px', borderRadius: '12px', fontWeight: 800, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', fontSize: '0.9rem' }}>Return Home</a>
+                <button onClick={() => { setStep('compose'); setQuantity(1); setName(''); setEmail(''); setMsg('Wishing you peace, enlightenment, and joyful Sanskrit learning on this auspicious path.'); setRel('Friend'); }} style={{ background: `linear-gradient(135deg, ${activeThemeObj.primary}, ${activeThemeObj.secondary})`, color: '#000', border: 'none', padding: '12px 26px', borderRadius: '12px', fontWeight: 900, cursor: 'pointer', fontSize: '0.9rem' }}>🎁 Share Another Gift</button>
+              </div>
+            </div>
           </div>
         )}
       </div>
@@ -1094,7 +1448,7 @@ export default function GiftClientPage({ initialPlans }: { initialPlans: RealPla
               <div style={{ fontSize: '0.75rem', color: '#888', textTransform: 'uppercase' }}>THIS SACRED GIFT HONORS</div>
               <div style={{ fontSize: '1.9rem', fontWeight: 900, color: '#111', marginTop: '4px' }}>{name}</div>
               <div style={{ fontSize: '0.85rem', color: '#b8860b', fontWeight: 700, marginTop: '4px' }}>
-                Presented with love by a generous well-wisher ({activeRelationship} • {activeOccasionObj.label})
+                Presented with love by a generous well-wisher ({activeRelationship} • {activeOccasionLabel})
               </div>
             </div>
 
@@ -1142,9 +1496,23 @@ export default function GiftClientPage({ initialPlans }: { initialPlans: RealPla
 }
 
 const labelStyle: React.CSSProperties = {
-  display: 'block', color: '#8f98a9', fontSize: '0.72rem', marginBottom: '6px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.5px'
+  display: 'block', 
+  color: '#8f98a9', 
+  fontSize: '0.74rem', 
+  marginBottom: '8px', 
+  fontWeight: 800, 
+  textTransform: 'uppercase', 
+  letterSpacing: '0.6px'
 };
 
 const inputStyle: React.CSSProperties = {
-  width: '100%', background: '#0d131f', border: '1px solid #1e293b', color: '#fff', padding: '9px 14px', borderRadius: '10px', fontSize: '0.88rem', outline: 'none'
+  width: '100%', 
+  background: '#090e17', 
+  border: '1px solid #1e293b', 
+  color: '#fff', 
+  padding: '11px 16px', 
+  borderRadius: '12px', 
+  fontSize: '0.9rem', 
+  outline: 'none',
+  transition: 'border-color 0.2s'
 };
