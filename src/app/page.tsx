@@ -286,6 +286,7 @@ export default async function HomePage() {
             <CourseRow 
               icon={<PlayCircle size={24} />}
               title="Continue Watching"
+              viewAllHref="/progress"
               courses={continueWatching.map((c: any) => ({
                 id: c.id, 
                 title: c.title, 
@@ -309,6 +310,7 @@ export default async function HomePage() {
             <CourseRow 
               icon={<PlusCircle size={24} />}
               title="My List / Favorites"
+              viewAllHref="/watchlist"
               courses={userWatchlist.map((c: any) => ({
                 id: c.id, 
                 title: c.title, 
@@ -330,6 +332,7 @@ export default async function HomePage() {
             <CourseRow 
               icon={<SearchIcon size={24} />}
               title={`Because you searched for "${lastSearchQuery}"`}
+              viewAllHref={`/explore?search=${encodeURIComponent(lastSearchQuery)}`}
               courses={searchMatchedCourses.map((c: any) => ({
                 id: c.id, 
                 title: c.title, 
@@ -351,6 +354,7 @@ export default async function HomePage() {
             <CourseRow 
               icon={<Sparkles size={24} />}
               title="Inspired by your Interests"
+              viewAllHref="/interests"
               courses={aiRecommended.map((c: any) => ({
                 id: c.id, 
                 title: c.title, 
@@ -371,6 +375,7 @@ export default async function HomePage() {
             <CourseRow 
               icon={<Flame size={24} />}
               title="Trending Now"
+              viewAllHref="/explore?sort=Most+Viewed"
               courses={trendingCourses.map(c => ({
                 id: c.id, title: c.title, image: c.thumbnailUrl || 'https://placehold.co/300x160', match: `${Math.min(100, 95 + c.views)}% Match`, tag: c.accessLevel, createdAt: c.createdAt, showRibbon: c.showRibbon, imageAlt: c.imageAlt, trailerUrl: c.trailerUrl
               }))}
@@ -384,6 +389,7 @@ export default async function HomePage() {
             <CourseRow 
               icon={<CreditCard size={24} />}
               title="Flagship Courses (One-time Buy)"
+              viewAllHref="/explore?access=PAID"
               courses={allCourses.filter(c => c.accessLevel === 'PAID').map(c => ({
                 id: c.id, 
                 title: c.title, 
@@ -416,12 +422,31 @@ export default async function HomePage() {
           
           const cleanTitle = (section.title || '').replace(/📖|🌟|🎙️|📽️|🎮|👶|🌸/g, '').trim();
           let IconToUse = LayoutTemplate;
-          if (cleanTitle.toLowerCase().includes('e-books')) IconToUse = BookOpen;
-          else if (cleanTitle.toLowerCase().includes('epics')) IconToUse = Star;
-          else if (cleanTitle.toLowerCase().includes('podcasts')) IconToUse = Mic;
-          else if (cleanTitle.toLowerCase().includes('videos')) IconToUse = Video;
-          else if (cleanTitle.toLowerCase().includes('games')) IconToUse = Gamepad2;
-          else if (cleanTitle.toLowerCase().includes('kids')) IconToUse = Smile;
+          let rowViewAllHref = `/genre/${encodeURIComponent(cleanTitle.replace(/\s+/g, '-'))}`;
+          
+          const lowerTitle = cleanTitle.toLowerCase();
+          if (lowerTitle.includes('e-book') || lowerTitle.includes('ebook')) {
+            IconToUse = BookOpen;
+            rowViewAllHref = '/ebook';
+          } else if (lowerTitle.includes('epic') || lowerTitle.includes('purana')) {
+            IconToUse = Star;
+            rowViewAllHref = '/genre/Evergreen-Epics-&-Puranas';
+          } else if (lowerTitle.includes('podcast')) {
+            IconToUse = Mic;
+            rowViewAllHref = '/podcast';
+          } else if (lowerTitle.includes('audiobook')) {
+            IconToUse = Headphones;
+            rowViewAllHref = '/audiobook';
+          } else if (lowerTitle.includes('video')) {
+            IconToUse = Video;
+            rowViewAllHref = '/video';
+          } else if (lowerTitle.includes('game')) {
+            IconToUse = Gamepad2;
+            rowViewAllHref = '/game';
+          } else if (lowerTitle.includes('kid')) {
+            IconToUse = Smile;
+            rowViewAllHref = '/genre/Kids';
+          }
           
           if (matching.length > 0) {
             return (
@@ -429,6 +454,7 @@ export default async function HomePage() {
                 key={section.id}
                 icon={<IconToUse size={24} />}
                 title={cleanTitle}
+                viewAllHref={rowViewAllHref}
                 courses={matching.map(c => ({
                   id: c.id, title: c.title, image: c.thumbnailUrl || 'https://placehold.co/300x160', match: 'Recommended', tag: c.accessLevel, createdAt: c.createdAt, showRibbon: c.showRibbon, imageAlt: c.imageAlt, trailerUrl: c.trailerUrl
                 }))}
@@ -440,6 +466,7 @@ export default async function HomePage() {
               key={section.id}
               icon={<IconToUse size={24} />}
               title={cleanTitle}
+              viewAllHref={rowViewAllHref}
               courses={[
                 { id: 'p1', title: 'Curriculum Track 1', image: '/assets/Bala-new.jpg', match: '99%', tag: 'PLATINUM' },
                 { id: 'p2', title: 'Curriculum Track 2', image: '/assets/May-Images-2.jpg', match: '97%', tag: 'GOLD' }

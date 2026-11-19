@@ -8,10 +8,79 @@ interface CourseRowProps {
   title: string;
   courses: any[];
   icon?: React.ReactNode;
+  viewAllHref?: string;
 }
 
-export default function CourseRow({ title, courses, icon }: CourseRowProps) {
+function resolveViewAllHref(title: string, customHref?: string): string {
+  if (customHref) return customHref;
+  const t = (title || '').toLowerCase().trim();
+
+  // 1. Continue Watching
+  if (t.includes('continue watching') || t.includes('watch history')) {
+    return '/progress';
+  }
+
+  // 2. My List / Favorites
+  if (t.includes('my list') || t.includes('favorite') || t.includes('watchlist')) {
+    return '/watchlist';
+  }
+
+  // 3. Inspired by your Interests
+  if (t.includes('interest') || t.includes('inspired')) {
+    return '/interests';
+  }
+
+  // 4. Must Read E-Books
+  if (t.includes('e-book') || t.includes('ebook')) {
+    return '/ebook';
+  }
+
+  // 5. Evergreen Epics & Puranas
+  if (t.includes('epic') || t.includes('purana')) {
+    return '/genre/Evergreen-Epics-&-Puranas';
+  }
+
+  // 6. Featured Podcasts / Audiobooks
+  if (t.includes('podcast')) {
+    return '/podcast';
+  }
+  if (t.includes('audiobook')) {
+    return '/audiobook';
+  }
+
+  // 7. Popular Videos / Video Library
+  if (t.includes('video')) {
+    return '/video';
+  }
+
+  // 8. Interactive Games
+  if (t.includes('game')) {
+    return '/game';
+  }
+
+  // 9. Kids Academy
+  if (t.includes('kid')) {
+    return '/genre/Kids';
+  }
+
+  // 10. Flagship Courses
+  if (t.includes('flagship') || t.includes('paid')) {
+    return '/explore?access=PAID';
+  }
+
+  // 11. Trending Now
+  if (t.includes('trending')) {
+    return '/explore?sort=Most+Viewed';
+  }
+
+  // Default to genre or explore
+  const cleanSlug = title.replace(/📖|🌟|🎙️|📽️|🎮|👶|🌸/g, '').trim().replace(/\s+/g, '-');
+  return `/genre/${encodeURIComponent(cleanSlug)}`;
+}
+
+export default function CourseRow({ title, courses, icon, viewAllHref }: CourseRowProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const targetLink = resolveViewAllHref(title, viewAllHref);
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollRef.current) {
@@ -31,7 +100,7 @@ export default function CourseRow({ title, courses, icon }: CourseRowProps) {
           {icon && <span style={{ color: 'var(--primary)' }}>{icon}</span>}
           {title ? title.replace(/&amp;/g, '&') : ''}
         </h2>
-        <Link href={`/explore?filter=${encodeURIComponent(title)}`} style={{ color: 'var(--primary)', fontSize: '0.9rem', fontWeight: 'bold', textDecoration: 'none' }}>
+        <Link href={targetLink} style={{ color: 'var(--primary)', fontSize: '0.9rem', fontWeight: 'bold', textDecoration: 'none' }}>
           View All →
         </Link>
       </div>

@@ -5,9 +5,10 @@ import Footer from '@/app/components/Footer';
 
 export default async function GenrePage({ params }: { params: Promise<{ slug: string }> }) {
   const unwrappedParams = await params;
-  const slug = unwrappedParams?.slug || '';
+  const rawSlug = unwrappedParams?.slug || '';
+  const slug = decodeURIComponent(rawSlug);
   const categoryName = slug 
-    ? slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+    ? slug.replace(/-/g, ' ').replace(/&amp;/g, '&').replace(/\b\w/g, l => l.toUpperCase())
     : 'Category';
 
   const slugUpper = slug.toUpperCase();
@@ -23,7 +24,9 @@ export default async function GenrePage({ params }: { params: Promise<{ slug: st
   if (slugUpper.includes('GAME')) contentTypesToSearch.push('GAME');
 
   const categoriesToSearch = [categoryName, slug.replace(/-/g, ' ')];
-  if (slugUpper.includes('EPICS')) categoriesToSearch.push('Evergreen Epics &amp; Puranas', 'Epics');
+  if (slugUpper.includes('EPIC') || slugUpper.includes('PURANA')) {
+    categoriesToSearch.push('Evergreen Epics & Puranas', 'Evergreen Epics &amp; Puranas', 'Epics', 'Puranas', 'Purana');
+  }
   if (slugUpper.includes('GAMES-ACTIVITIES') || slugUpper.includes('GAME')) categoriesToSearch.push('Games &amp; Activities', 'Games', 'Game');
   if (slugUpper.includes('STORIES-SUBHASHITAS')) categoriesToSearch.push('Stories &amp; Subhashitas', 'Subhashita');
   if (slugUpper.includes('AUDIOBOOK') || slugUpper.includes('PODCAST')) categoriesToSearch.push('Audiobook', 'Audiobooks', 'Podcast', 'Podcasts');

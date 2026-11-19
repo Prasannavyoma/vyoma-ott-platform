@@ -63,7 +63,15 @@ export default function ExploreClient({ initialCourses }: { initialCourses: any[
         setSelectedCategory(matchCat);
       }
     }
-  }, [initialFilter, categories]);
+    const s = searchParams.get('search');
+    if (s) setSearchQuery(s);
+    const a = searchParams.get('access');
+    if (a && accessLevels.includes(a.toUpperCase())) setSelectedAccess(a.toUpperCase());
+    const sort = searchParams.get('sort');
+    if (sort && sortOptions.includes(sort)) setSelectedSort(sort);
+    const type = searchParams.get('type');
+    if (type && contentTypes.includes(type.toUpperCase())) setSelectedContentType(type.toUpperCase());
+  }, [initialFilter, categories, searchParams]);
 
   // Dynamically compute dynamic counts for Explore Hub Matrix Counter
   const matrixMetrics = useMemo(() => {

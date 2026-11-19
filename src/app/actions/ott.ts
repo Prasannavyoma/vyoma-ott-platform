@@ -151,6 +151,29 @@ export async function getCourseLikeStatus(courseId: string) {
   }
 }
 
+export async function getUserLikedCourses() {
+  const user = await getCurrentUser();
+  if (!user) return [];
+
+  try {
+    const likes = await prisma.courseLike.findMany({
+      where: { userId: user.id, isLike: 1 },
+      orderBy: { createdAt: 'desc' }
+    });
+    if (!likes || likes.length === 0) return [];
+
+    const ids = likes.map(l => l.courseId);
+    const courses = await prisma.course.findMany({
+      where: { id: { in: ids } }
+    });
+    return ids.map(id => courses.find(c => c.id === id)).filter(Boolean);
+  } catch (e) {
+    console.error("Failed to fetch user liked courses:", e);
+    return [];
+  }
+}
+
+
 /**
  * 3. CONTINUE WATCHING LOGIC
  */
