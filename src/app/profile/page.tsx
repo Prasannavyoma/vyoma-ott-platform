@@ -267,6 +267,124 @@ export default async function ProfilePage() {
     revalidatePath('/profile');
   }
 
+  // Complete Multi-Modal Payment History (Subscriptions, Courses, Bundles, Gifts)
+  const bundlePurchases = await prisma.bundlePurchase.findMany({
+    where: { userId: user.id },
+    include: { bundle: true },
+    orderBy: { createdAt: 'desc' }
+  }).catch(() => []);
+
+  const subscriptionEvents = await prisma.telemetryEvent.findMany({
+    where: { 
+      userId: user.id,
+      eventType: { in: ['PLAN_UPGRADE', 'AUTO_RENEWAL'] }
+    },
+    orderBy: { createdAt: 'desc' }
+  }).catch(() => []);
+
+  const giftPurchases = await prisma.telemetryEvent.findMany({
+    where: {
+      userId: user.id,
+      eventType: 'GIFT_PURCHASED'
+    },
+    orderBy: { createdAt: 'desc' }
+  }).catch(() => []);
+
+  interface PaymentHistoryItem {
+    id: string;
+    invoiceUrl: string;
+    title: string;
+    type: 'MEMBERSHIP' | 'COURSE' | 'BUNDLE' | 'GIFT';
+    amount: number;
+    date: Date;
+    status: string;
+  }
+
+  const allPaymentHistory: PaymentHistoryItem[] = [];
+
+  // Add recorded subscription telemetry events
+  for (const event of subscriptionEvents) {
+    let meta: any = null;
+    if (event.metadata) {
+      try { meta = JSON.parse(event.metadata); } catch(e) {}
+    }
+    const planName = meta?.to || meta?.plan || 'PLATINUM';
+    const interval = meta?.interval || 'YEARLY';
+    const isIndia = (user.country || 'IN').toUpperCase() === 'IN';
+    const defaultPrice = planName === 'PLATINUM' ? (interval === 'YEARLY' ? 499 : 49) : (interval === 'YEARLY' ? 399 : 39);
+    const amount = meta?.amount || (isIndia ? defaultPrice : 50);
+
+    allPaymentHistory.push({
+      id: `sub-${event.id}`,
+      invoiceUrl: `/invoices/sub-${event.id}`,
+      title: `Vyoma ${planName} Plan (${interval === 'YEARLY' ? 'Annual Membership' : 'Monthly Access'})`,
+      type: 'MEMBERSHIP',
+      amount: amount,
+      date: event.createdAt,
+      status: 'Paid'
+    });
+  }
+
+  // If user has an active non-free plan and no telemetry events were logged yet, record the current subscription
+  if (user.plan !== 'FREE' && subscriptionEvents.length === 0) {
+    const defaultPrice = user.plan === 'PLATINUM' ? (user.planInterval === 'YEARLY' ? 499 : 49) : (user.planInterval === 'YEARLY' ? 399 : 39);
+    allPaymentHistory.push({
+      id: `sub-${user.id}`,
+      invoiceUrl: `/invoices/sub-${user.id}`,
+      title: `Vyoma ${user.plan} Plan (${user.planInterval === 'YEARLY' ? 'Annual Membership' : 'Monthly Access'})`,
+      type: 'MEMBERSHIP',
+      amount: defaultPrice,
+      date: user.planStartedAt || user.createdAt,
+      status: 'Active'
+    });
+  }
+
+  // Add course purchases
+  for (const p of (user.purchases as any[] || [])) {
+    allPaymentHistory.push({
+      id: p.id,
+      invoiceUrl: `/invoices/${p.id}`,
+      title: p.course?.title || 'Sanskrit OTT Course',
+      type: 'COURSE',
+      amount: p.amount || 0,
+      date: p.createdAt,
+      status: 'Paid'
+    });
+  }
+
+  // Add bundle purchases
+  for (const bp of bundlePurchases) {
+    allPaymentHistory.push({
+      id: bp.id,
+      invoiceUrl: `/invoices/${bp.id}`,
+      title: bp.bundle?.title || 'Course Curricular Bundle',
+      type: 'BUNDLE',
+      amount: bp.amount || 0,
+      date: bp.createdAt,
+      status: 'Paid'
+    });
+  }
+
+  // Add gift voucher purchases
+  for (const gp of giftPurchases) {
+    let meta: any = null;
+    if (gp.metadata) {
+      try { meta = JSON.parse(gp.metadata); } catch(e) {}
+    }
+    allPaymentHistory.push({
+      id: `gift-${gp.id}`,
+      invoiceUrl: `/invoices/gift-${gp.id}`,
+      title: `Gift of Wisdom (${meta?.planName || 'Plan'} - ${meta?.recipientName || meta?.recipientEmail || 'Voucher'})`,
+      type: 'GIFT',
+      amount: meta?.amount || 399,
+      date: gp.createdAt,
+      status: 'Paid'
+    });
+  }
+
+  // Sort descending by date
+  allPaymentHistory.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
   const defaultAvatar = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
 
   return (
@@ -615,20 +733,92 @@ export default async function ProfilePage() {
 
                {/* RECENT INVOICES */}
                <div id="invoices" style={{ background: '#111', border: '1px solid #222', borderRadius: '20px', padding: '25px' }}>
-                  <h4 style={{ margin: '0 0 15px 0', fontSize: '1rem', fontWeight: 800 }}>🧾 Payment history</h4>
-                  {(user.purchases as any[]).length === 0 ? (
-                     <div style={{ color: '#555', fontSize: '0.8rem', padding: '20px', border: '1px dashed #333', borderRadius: '8px', textAlign: 'center' }}>No purchases found.</div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+                     <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: 800 }}>🧾 Payment history</h4>
+                     {allPaymentHistory.length > 0 && (
+                        <span style={{ fontSize: '0.72rem', background: 'rgba(255,255,255,0.08)', padding: '3px 8px', borderRadius: '12px', color: '#aaa', fontWeight: 700 }}>
+                           {allPaymentHistory.length} {allPaymentHistory.length === 1 ? 'Record' : 'Records'}
+                        </span>
+                     )}
+                  </div>
+
+                  {allPaymentHistory.length === 0 ? (
+                     <div style={{ color: '#666', fontSize: '0.85rem', padding: '24px 16px', border: '1px dashed #262626', borderRadius: '12px', textAlign: 'center', lineHeight: '1.5' }}>
+                        No purchases found.<br />
+                        <span style={{ color: '#444', fontSize: '0.75rem' }}>Subscribed plans or course purchases will automatically appear here with GST tax invoices.</span>
+                     </div>
                   ) : (
-                     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                        {(user.purchases as any[]).slice(0, 3).map(p => (
-                           <Link key={p.id} href={`/invoices/${p.id}`} style={{ textDecoration: 'none', background: '#000', padding: '12px', borderRadius: '8px', border: '1px solid #222', fontSize: '0.8rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                              <div>
-                                 <div style={{ fontWeight: 'bold', color: '#fff' }}>{p.course.title}</div>
-                                 <div style={{ color: '#555', fontSize: '0.7rem', marginTop: '2px' }}>Invoice →</div>
+                     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        {allPaymentHistory.map(item => {
+                           const typeColor = item.type === 'MEMBERSHIP' 
+                             ? '#f59e0b' 
+                             : item.type === 'BUNDLE' 
+                             ? '#a855f7' 
+                             : item.type === 'GIFT' 
+                             ? '#10b981' 
+                             : '#3b82f6';
+                           const formattedDate = new Date(item.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+
+                           return (
+                              <div 
+                                 key={item.id} 
+                                 style={{ 
+                                    background: '#0a0a0a', 
+                                    padding: '14px', 
+                                    borderRadius: '12px', 
+                                    border: '1px solid #222', 
+                                    fontSize: '0.85rem'
+                                 }}
+                              >
+                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '10px', marginBottom: '6px' }}>
+                                    <div style={{ fontWeight: 700, color: '#fff', lineHeight: '1.3', flex: 1 }}>
+                                       {item.title}
+                                    </div>
+                                    <div style={{ fontWeight: 900, color: '#fff', fontSize: '0.95rem', whiteSpace: 'nowrap' }}>
+                                       ₹{item.amount}
+                                    </div>
+                                 </div>
+
+                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '10px', paddingTop: '8px', borderTop: '1px solid #1a1a1a' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.72rem', color: '#777' }}>
+                                       <span style={{ 
+                                          padding: '2px 6px', 
+                                          borderRadius: '4px', 
+                                          fontSize: '0.68rem', 
+                                          fontWeight: 800,
+                                          background: `${typeColor}15`,
+                                          color: typeColor,
+                                          border: `1px solid ${typeColor}30`
+                                       }}>
+                                          {item.type}
+                                       </span>
+                                       <span>{formattedDate}</span>
+                                       <span style={{ color: '#10b981', fontWeight: 600 }}>• {item.status}</span>
+                                    </div>
+                                    
+                                    <Link 
+                                       href={item.invoiceUrl} 
+                                       target="_blank"
+                                       style={{ 
+                                          color: '#f26422', 
+                                          textDecoration: 'none', 
+                                          fontSize: '0.75rem', 
+                                          fontWeight: 800,
+                                          display: 'inline-flex',
+                                          alignItems: 'center',
+                                          gap: '4px',
+                                          background: 'rgba(242,100,34,0.1)',
+                                          padding: '4px 10px',
+                                          borderRadius: '6px',
+                                          border: '1px solid rgba(242,100,34,0.2)'
+                                       }}
+                                    >
+                                       📄 View Invoice →
+                                    </Link>
+                                 </div>
                               </div>
-                              <div style={{ fontWeight: 900, color: '#fff' }}>₹{p.amount || 0}</div>
-                           </Link>
-                        ))}
+                           );
+                        })}
                      </div>
                   )}
                </div>

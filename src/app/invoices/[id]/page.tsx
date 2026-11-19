@@ -1,6 +1,7 @@
 import prisma from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import PrintInvoiceButton from '@/components/PrintInvoiceButton';
 
 export default async function PublicInvoicePage({ params }: { params: Promise<{ id: string }> }) {
   const id = (await params).id;
@@ -11,7 +12,7 @@ export default async function PublicInvoicePage({ params }: { params: Promise<{ 
     include: { user: true, course: true }
   }) as any;
 
-  let isBundle = false;
+  let productType = "COURSE";
   let productName = "";
   let category = "";
   let durationText = "1 Year Access";
@@ -23,7 +24,7 @@ export default async function PublicInvoicePage({ params }: { params: Promise<{ 
       include: { user: true, bundle: true }
     });
     if (purchase) {
-      isBundle = true;
+      productType = "BUNDLE";
       productName = purchase.bundle?.title || 'Premium Bundle';
       category = 'Curricular Bundle';
       if (purchase.bundle?.validityDays) {
@@ -33,8 +34,102 @@ export default async function PublicInvoicePage({ params }: { params: Promise<{ 
       }
     }
   } else {
+    productType = "COURSE";
     productName = purchase.course?.title || 'Premium Course';
     category = purchase.course?.category || 'Sanskrit OTT Course';
+  }
+
+  // 3. Fallback to Subscription Membership Invoice
+  if (!purchase) {
+    let targetUserId = id;
+    let specificEvent: any = null;
+
+    if (id.startsWith('sub-')) {
+      const cleanSubId = id.replace('sub-', '');
+      specificEvent = await prisma.telemetryEvent.findUnique({ where: { id: cleanSubId } }).catch(() => null);
+      if (specificEvent) {
+        targetUserId = specificEvent.userId;
+      } else {
+        targetUserId = cleanSubId;
+      }
+    } else {
+      specificEvent = await prisma.telemetryEvent.findUnique({ where: { id } }).catch(() => null);
+      if (specificEvent) targetUserId = specificEvent.userId;
+    }
+
+    const user = await prisma.user.findUnique({ where: { id: targetUserId } });
+    if (user && (user.plan !== 'FREE' || specificEvent)) {
+      let eventMeta: any = null;
+      if (specificEvent?.metadata) {
+        try { eventMeta = JSON.parse(specificEvent.metadata); } catch(e) {}
+      }
+
+      const planName = eventMeta?.to || eventMeta?.plan || user.plan || 'PLATINUM';
+      const planInterval = eventMeta?.interval || user.planInterval || 'YEARLY';
+      const planRecord = await prisma.plan.findFirst({
+        where: { name: planName, interval: planInterval }
+      }).catch(() => null);
+
+      const isIndia = (user.country || 'IN').toUpperCase() === 'IN';
+      const defaultPrice = planName === 'PLATINUM' 
+        ? (planInterval === 'YEARLY' ? 499 : 49) 
+        : (planInterval === 'YEARLY' ? 399 : 39);
+      const calculatedAmount = eventMeta?.amount || (isIndia ? (planRecord?.priceINR || defaultPrice) : (planRecord?.priceUSD || 50));
+      const invoiceDate = specificEvent?.createdAt || user.planStartedAt || user.createdAt;
+
+      purchase = {
+        id: id,
+        amount: calculatedAmount,
+        createdAt: invoiceDate,
+        placeOfSupply: user.state || 'Karnataka (29)',
+        billingAddress: user.address || 'Registered Subscriber Account',
+        razorpayPaymentId: eventMeta?.subscriptionId || user.razorpaySubscriptionId || 'pay_MANDATE_ACTIVE',
+        razorpayOrderId: eventMeta?.subscriptionId || user.razorpaySubscriptionId || `sub_${user.id.slice(0, 8)}`,
+        user: user
+      };
+      productType = "MEMBERSHIP";
+      productName = `Vyoma ${planName} Membership (${planInterval === 'YEARLY' ? 'Annual Plan' : 'Monthly Access'})`;
+      category = 'Sanskrit OTT Streaming Membership';
+      durationText = planInterval === 'YEARLY' ? '1 Year Access' : '1 Month Access';
+    }
+  }
+
+  // 4. Fallback to Gift Voucher Invoice
+  if (!purchase) {
+    const cleanGiftId = id.startsWith('gift-') ? id.replace('gift-', '') : id;
+    const giftEvent = await prisma.telemetryEvent.findFirst({
+      where: {
+        eventType: 'GIFT_PURCHASED',
+        OR: [
+          { id: cleanGiftId },
+          { metadata: { contains: cleanGiftId } }
+        ]
+      }
+    }).catch(() => null);
+
+    if (giftEvent && giftEvent.userId) {
+      const user = await prisma.user.findUnique({ where: { id: giftEvent.userId } });
+      if (user) {
+        let meta: any = null;
+        if (giftEvent.metadata) {
+          try { meta = JSON.parse(giftEvent.metadata); } catch(e) {}
+        }
+        purchase = {
+          id: id,
+          amount: meta?.amount || 399,
+          createdAt: giftEvent.createdAt,
+          placeOfSupply: user.state || 'Karnataka (29)',
+          billingAddress: user.address || 'Registered Patron Account',
+          razorpayPaymentId: 'pay_GIFT_PROCESSED',
+          razorpayOrderId: meta?.codes?.[0] || 'ord_GIFT_MINTED',
+          user: user
+        };
+        productType = "GIFT VOUCHER";
+        productName = `Gift of Sacred Wisdom (${meta?.planName || 'PLATINUM'} Plan • ${meta?.quantity || 1} Recipient${(meta?.quantity || 1) > 1 ? 's' : ''})`;
+        category = `Spiritual Gift Voucher (${meta?.occasion || 'Sacred Occasion'})`;
+        durationText = `${meta?.months || 12} Month${(meta?.months || 12) > 1 ? 's' : ''} Membership Access`;
+      }
+    }
   }
 
   if (!purchase) {
@@ -98,19 +193,22 @@ export default async function PublicInvoicePage({ params }: { params: Promise<{ 
         }
       `}} />
 
-      <div className="no-print" style={{ maxWidth: '800px', margin: '0 auto 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Link href="/profile" style={{ color: '#2563eb', textDecoration: 'none', fontWeight: 600 }}>
-          ← Back to Profile
-        </Link>
-        <button 
-          id="print-trigger"
+      <div className="no-print" style={{ maxWidth: '800px', margin: '0 auto 20px', display: 'flex', justifySelf: 'center', width: '100%', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Link 
+          href="/profile" 
           style={{ 
-            backgroundColor: '#000', color: 'white', padding: '10px 20px', 
-            border: 'none', borderRadius: '6px', fontWeight: 600, cursor: 'pointer'
+            color: '#2563eb', 
+            textDecoration: 'none', 
+            fontWeight: 600,
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            fontSize: '14px'
           }}
         >
-          🖨️ Download Invoice PDF
-        </button>
+          ← Back to Profile
+        </Link>
+        <PrintInvoiceButton label="🖨️ Download Invoice PDF" variant="black" />
       </div>
 
       {/* Actual Tax Invoice Replicated perfectly */}
@@ -179,7 +277,7 @@ export default async function PublicInvoicePage({ params }: { params: Promise<{ 
             <tr>
               <td>
                 <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#111' }}>{productName}</div>
-                <div style={{ color: '#6b7280', fontSize: '12px' }}>Category: {category} | Type: {isBundle ? 'BUNDLE' : 'COURSE'}</div>
+                <div style={{ color: '#6b7280', fontSize: '12px' }}>Category: {category} | Type: {productType}</div>
               </td>
               <td>998439</td>
               <td>{durationText}</td>
@@ -247,13 +345,6 @@ export default async function PublicInvoicePage({ params }: { params: Promise<{ 
           Thank you for subscribing to DigitalSanskrit - The World's First Sanskrit OTT platform.
         </div>
       </div>
-
-      <script dangerouslySetInnerHTML={{ __html: `
-        document.addEventListener('DOMContentLoaded', () => {
-          const btn = document.getElementById('print-trigger');
-          if (btn) btn.onclick = () => window.print();
-        });
-      `}} />
     </div>
   );
 }

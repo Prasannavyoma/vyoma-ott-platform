@@ -93,6 +93,17 @@ export async function activateSubscription(userId: string, newPlan: string, inte
       }
     });
 
+    // Calculate dynamic plan amount
+    const isIndia = (user.country || 'IN').toUpperCase() === 'IN';
+    const planRecord = await prisma.plan.findFirst({
+      where: { name: newPlan, interval: interval }
+    }).catch(() => null);
+
+    const defaultPrice = newPlan === 'PLATINUM' 
+      ? (interval === 'YEARLY' ? 499 : 49) 
+      : (interval === 'YEARLY' ? 399 : 39);
+    const amount = isIndia ? (planRecord?.priceINR || defaultPrice) : (planRecord?.priceUSD || 50);
+
     // Record Telemetry Event for Upgrade / Transition
     await prisma.telemetryEvent.create({
       data: {
@@ -104,6 +115,7 @@ export async function activateSubscription(userId: string, newPlan: string, inte
           to: newPlan,
           interval: interval,
           subscriptionId: razorpaySubscriptionId,
+          amount: amount,
           country: user.country || 'IN',
           email: user.email,
           timestamp: new Date().toISOString()
@@ -111,8 +123,8 @@ export async function activateSubscription(userId: string, newPlan: string, inte
       }
     }).catch(e => console.error("Telemetry error:", e));
 
-    // Fire email confirmation
-    sendPurchaseSuccess(user.email, newPlan, newPlan === 'GOLD' ? 4900 : 8900).catch(e => {});
+    // Fire email confirmation with exact amount
+    sendPurchaseSuccess(user.email, `${newPlan} (${interval})`, amount).catch(e => {});
 
     revalidatePath(`/profile`);
     revalidatePath(`/`);
@@ -121,3 +133,4 @@ export async function activateSubscription(userId: string, newPlan: string, inte
     return { success: false, error: e.message };
   }
 }
+
