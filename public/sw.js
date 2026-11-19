@@ -1,5 +1,5 @@
 // Vyoma OTT Service Worker - Push Notifications, Offline App Shell & Offline Video Caching
-const OFFLINE_APP_CACHE = 'vyoma-offline-app-v3';
+const OFFLINE_APP_CACHE = 'vyoma-offline-app-v4';
 const OFFLINE_VIDEO_CACHE = 'vyoma-offline-video-v1';
 
 // 1. INSTALL: Pre-cache the standalone Offline Player application shell
@@ -71,28 +71,37 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // B. BROWSER PAGE NAVIGATION (Offline Fallback with Instant 0ms Offline Detection & 1s Fast-Race)
+  // B. BROWSER PAGE NAVIGATION (Offline Fallback with Instant 0ms Offline Detection & Fast-Race)
   if (req.mode === 'navigate') {
     event.respondWith(
       (async () => {
-        // 1. Instant check: If device is already offline, return offline.html IMMEDIATELY (0ms delay)
-        if (typeof self.navigator !== 'undefined' && self.navigator.onLine === false) {
+        const reqUrl = new URL(req.url);
+        const isReconnect = reqUrl.searchParams.has('reconnect') || reqUrl.searchParams.has('force');
+
+        // 1. Instant check: If device is reported offline AND this is NOT an explicit reconnect attempt,
+        // return offline.html IMMEDIATELY (0ms delay)
+        if (!isReconnect && typeof self.navigator !== 'undefined' && self.navigator.onLine === false) {
           const appCache = await caches.open(OFFLINE_APP_CACHE);
           const cachedShell = await appCache.match('/offline.html');
           if (cachedShell) return cachedShell;
         }
 
-        // 2. If online or connecting, race network with a fast 1-second timeout
-        // This prevents the browser from hanging for 10 seconds on dead/stalled connections
+        // 2. If online or reconnecting, fetch from network.
+        // We race with a 4-second timeout to handle blackholed/dead TCP connections gracefully
+        // while allowing live Next.js SSR / cold-starts to load the real homepage cleanly.
         try {
           const timeoutPromise = new Promise((_, reject) => {
-            setTimeout(() => reject(new Error('NetworkTimeout')), 1000);
+            setTimeout(() => reject(new Error('NetworkTimeout')), 4000);
           });
           const networkPromise = fetch(req);
 
-          return await Promise.race([networkPromise, timeoutPromise]);
+          const response = await Promise.race([networkPromise, timeoutPromise]);
+          if (response && (response.ok || response.status < 400)) {
+            return response;
+          }
+          return response;
         } catch (networkError) {
-          // Network failed or timed out! Serve Vyoma Offline Library instantly
+          // Network failed or timed out! Serve Vyoma Offline Library fallback
           console.log('[SW] Network unreachable. Serving instant offline fallback shell.');
           const appCache = await caches.open(OFFLINE_APP_CACHE);
           const cachedShell = await appCache.match('/offline.html');

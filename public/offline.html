@@ -397,13 +397,13 @@
       <div id="offlineStatusText">
         📶 <strong>Offline Mode</strong> — Live server is unreachable. Playing downloaded lessons stored on this device.
       </div>
-      <button class="btn-reconnect" onclick="window.location.reload()">
+      <button id="reconnectBtn" class="btn-reconnect" onclick="tryReconnect(this)">
         🔄 Try Reconnecting
       </button>
     </div>
     <!-- Header -->
     <header class="header">
-      <div class="brand">
+      <div class="brand" style="cursor: pointer;" onclick="tryReconnect()" title="Return to Vyoma OTT Home">
         <h1>Vyoma OTT</h1>
         <span class="badge-offline">Offline Library</span>
       </div>
@@ -451,7 +451,7 @@
       <p class="empty-desc">
         You do not have any downloaded videos saved on this browser yet. When you are connected to the internet, open any course and click <strong>"⬇ Download Offline"</strong> to save lessons for 30-day offline study.
       </p>
-      <button class="btn-reconnect" style="font-size: 0.9rem; padding: 8px 18px;" onclick="window.location.reload()">
+      <button class="btn-reconnect" style="font-size: 0.9rem; padding: 8px 18px;" onclick="tryReconnect(this)">
         Check Internet &amp; Return Home
       </button>
     </div>
@@ -466,16 +466,115 @@
     const METADATA_KEY = 'vyoma_offline_downloads_index_v1';
     let currentBlobUrl = null;
 
+    // Active Reconnect Function: Verifies connection and loads Homepage
+    async function tryReconnect(btn) {
+      const button = btn || document.getElementById('reconnectBtn');
+      const text = document.getElementById('offlineStatusText');
+      const bar = document.getElementById('offlineBar');
+
+      if (button) {
+        button.disabled = true;
+        button.innerHTML = '🔄 Checking Connection...';
+        button.style.opacity = '0.85';
+      }
+      if (text) {
+        text.innerHTML = '🔄 <strong>Verifying connection to Vyoma servers...</strong>';
+      }
+
+      // Live connectivity probe
+      let isConnected = false;
+      try {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 3500);
+        const probe = await fetch('/api/auth/status?probe=' + Date.now(), {
+          method: 'GET',
+          cache: 'no-store',
+          signal: controller.signal
+        });
+        clearTimeout(timer);
+        if (probe.ok || probe.status < 500) {
+          isConnected = true;
+        }
+      } catch (err) {
+        // Fallback secondary ping
+        try {
+          const controller2 = new AbortController();
+          const timer2 = setTimeout(() => controller2.abort(), 2000);
+          const ping2 = await fetch('/favicon.ico?probe=' + Date.now(), {
+            method: 'HEAD',
+            cache: 'no-store',
+            signal: controller2.signal
+          });
+          clearTimeout(timer2);
+          if (ping2.ok || ping2.status < 500) {
+            isConnected = true;
+          }
+        } catch (err2) {
+          isConnected = false;
+        }
+      }
+
+      // If probe didn't succeed but browser reports navigator.onLine is true, attempt navigation
+      if (!isConnected && typeof navigator !== 'undefined' && navigator.onLine) {
+        isConnected = true;
+      }
+
+      if (isConnected) {
+        if (bar) {
+          bar.classList.add('online');
+          bar.style.borderColor = 'rgba(74, 222, 128, 0.6)';
+        }
+        if (text) {
+          text.innerHTML = '🟢 <strong>Connected!</strong> Loading Vyoma OTT Homepage...';
+        }
+        if (button) {
+          button.style.background = '#22c55e';
+          button.style.color = '#ffffff';
+          button.innerHTML = '✓ Connected! Loading Home...';
+        }
+        // Redirect directly to the live homepage!
+        setTimeout(() => {
+          window.location.href = '/?reconnect=true';
+        }, 200);
+      } else {
+        // Still offline
+        if (bar) {
+          bar.classList.remove('online');
+        }
+        if (text) {
+          text.innerHTML = '📶 <strong>Still Offline.</strong> Live server unreachable. Please check your Wi-Fi or mobile data.';
+        }
+        if (button) {
+          button.disabled = false;
+          button.style.opacity = '1';
+          button.style.background = '#ffffff';
+          button.style.color = '#000000';
+          button.innerHTML = '🔄 Try Reconnecting';
+        }
+      }
+    }
+
     // Detect Online / Offline events
     function updateOnlineStatus() {
       const bar = document.getElementById('offlineBar');
       const text = document.getElementById('offlineStatusText');
-      if (navigator.onLine) {
-        bar.classList.add('online');
-        text.innerHTML = '🟢 <strong>Internet Connection Restored!</strong> You can resume live streaming.';
+      const btn = document.getElementById('reconnectBtn');
+      if (typeof navigator !== 'undefined' && navigator.onLine) {
+        if (bar) bar.classList.add('online');
+        if (text) text.innerHTML = '🟢 <strong>Internet Connection Restored!</strong> Click Reconnect to return to homepage.';
+        if (btn) {
+          btn.style.background = '#22c55e';
+          btn.style.color = '#ffffff';
+          btn.innerHTML = '🏠 Return to Homepage';
+        }
       } else {
-        bar.classList.remove('online');
-        text.innerHTML = '📶 <strong>Offline Mode (No Internet)</strong> — Playing lessons stored locally in your browser.';
+        if (bar) bar.classList.remove('online');
+        if (text) text.innerHTML = '📶 <strong>Offline Mode (No Internet)</strong> — Playing lessons stored locally in your browser.';
+        if (btn) {
+          btn.style.background = '#ffffff';
+          btn.style.color = '#000000';
+          btn.innerHTML = '🔄 Try Reconnecting';
+        }
       }
     }
     window.addEventListener('online', updateOnlineStatus);

@@ -19,7 +19,8 @@ import {
   WifiOff, 
   Wifi, 
   RefreshCw,
-  HardDrive
+  HardDrive,
+  Home
 } from 'lucide-react';
 
 function OfflinePlayerContent() {
@@ -32,9 +33,37 @@ function OfflinePlayerContent() {
   const [activeBlobUrl, setActiveBlobUrl] = useState<string | null>(null);
   const [isOnline, setIsOnline] = useState<boolean>(true);
   const [playbackRate, setPlaybackRate] = useState<number>(1);
+  const [reconnecting, setReconnecting] = useState<boolean>(false);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const playerContainerRef = useRef<HTMLDivElement>(null);
+
+  const handleReconnect = async () => {
+    setReconnecting(true);
+    // If online, go directly to homepage
+    if (isOnline || (typeof navigator !== 'undefined' && navigator.onLine)) {
+      window.location.href = '/?reconnect=true';
+      return;
+    }
+
+    // Active probe
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 3000);
+      const res = await fetch('/api/auth/status?probe=' + Date.now(), {
+        cache: 'no-store',
+        signal: controller.signal
+      });
+      clearTimeout(timer);
+      if (res.ok || res.status < 500) {
+        window.location.href = '/?reconnect=true';
+        return;
+      }
+    } catch {
+      // Still offline
+    }
+    setReconnecting(false);
+  };
 
   // Monitor online / offline status
   useEffect(() => {
@@ -203,7 +232,8 @@ function OfflinePlayerContent() {
             </div>
 
             <button
-              onClick={() => window.location.reload()}
+              onClick={handleReconnect}
+              disabled={reconnecting}
               style={{
                 background: isOnline ? '#22c55e' : '#ffffff',
                 color: isOnline ? '#ffffff' : '#000000',
@@ -212,14 +242,28 @@ function OfflinePlayerContent() {
                 borderRadius: '20px',
                 fontSize: '0.8rem',
                 fontWeight: 800,
-                cursor: 'pointer',
+                cursor: reconnecting ? 'wait' : 'pointer',
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '6px',
-                flexShrink: 0
+                flexShrink: 0,
+                transition: 'all 0.2s ease',
+                opacity: reconnecting ? 0.8 : 1
               }}
             >
-              <RefreshCw size={14} /> Refresh / Reconnect
+              {reconnecting ? (
+                <>
+                  <RefreshCw size={14} style={{ animation: 'spin 1s linear infinite' }} /> Checking Connection...
+                </>
+              ) : isOnline ? (
+                <>
+                  <Home size={14} /> Return to Homepage
+                </>
+              ) : (
+                <>
+                  <RefreshCw size={14} /> Try Reconnecting
+                </>
+              )}
             </button>
           </div>
           
