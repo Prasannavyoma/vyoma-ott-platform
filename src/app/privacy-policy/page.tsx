@@ -171,7 +171,7 @@ export default function PrivacyPolicyPage() {
                 🛡️ <strong>DPDP Act, 2023 Compliant</strong>
               </span>
               <Link href="/terms-and-conditions" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'rgba(56, 189, 248, 0.1)', color: '#38bdf8', padding: '6px 12px', borderRadius: '8px', textDecoration: 'none', border: '1px solid rgba(56, 189, 248, 0.2)' }}>
-                📜 Terms of Service &rarr;
+                📜 Terms & Conditions &rarr;
               </Link>
             </div>
           </header>
@@ -640,7 +640,7 @@ export default function PrivacyPolicyPage() {
                 <span style={{ color: '#f26422' }}>17.</span> Your Acceptance of These Terms
               </h2>
               <p style={{ marginBottom: '14px' }}>
-                By accessing and using this Site or subscribing to any Vyoma service, you signify your full agreement to this Privacy Policy and the accompanying <Link href="/terms-and-conditions" style={{ color: '#ff8c53', textDecoration: 'underline' }}>Terms of Service</Link>. If you do not agree with this Privacy Policy, please discontinue using the platform.
+                By accessing and using this Site or subscribing to any Vyoma service, you signify your full agreement to this Privacy Policy and the accompanying <Link href="/terms-and-conditions" style={{ color: '#ff8c53', textDecoration: 'underline' }}>Terms & Conditions</Link>. If you do not agree with this Privacy Policy, please discontinue using the platform.
               </p>
               <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', marginTop: '24px' }}>
                 <Link

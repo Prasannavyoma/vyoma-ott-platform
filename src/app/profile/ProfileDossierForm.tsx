@@ -174,7 +174,7 @@ export default function ProfileDossierForm({
         <div style={{ gridColumn: 'span 2', display: 'flex', alignItems: 'flex-start', gap: '10px', marginTop: '10px' }}>
           <input type="checkbox" id="consent" name="consent" required style={{ width: '18px', height: '18px', cursor: 'pointer', marginTop: '2px', accentColor: '#f26422' }} />
           <label htmlFor="consent" style={{ color: '#999', fontSize: '0.85rem', cursor: 'pointer', lineHeight: '1.4' }}>
-            I consent to saving my profile information and acknowledge that my details will be stored securely in accordance with the platform's terms of service and privacy policy.
+            I consent to saving my profile information and acknowledge that my details will be stored securely in accordance with the platform's terms & conditions and privacy policy.
           </label>
         </div>
 

@@ -160,7 +160,7 @@ export default async function HomePage() {
               children: {
                 create: [
                   { label: "Privacy Policy", url: "#", order: 10 },
-                  { label: "Terms of Service", url: "#", order: 20 },
+                  { label: "Terms & Conditions", url: "/terms-and-conditions", order: 20 },
                   { label: "Refund Policy", url: "#", order: 30 }
                 ]
               }

@@ -50,7 +50,7 @@ const faqData = [
   },
   {
     question: "Do you offer refunds?",
-    answer: "Refunds are processed according to our standard terms of service. Generally, subscription fees are non-refundable once content has been accessed, but please contact our support team for specific billing inquiries."
+    answer: "Refunds are processed according to our standard terms & conditions. Generally, subscription fees are non-refundable once content has been accessed, but please contact our support team for specific billing inquiries."
   },
   {
     question: "How can I access the E-Books?",

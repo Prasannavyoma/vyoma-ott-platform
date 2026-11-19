@@ -23,7 +23,7 @@ import Footer from '@/app/components/Footer';
 
 export const metadata: Metadata = {
   title: 'Terms and Conditions | Vyoma Linguistic Labs Foundation',
-  description: 'Official Terms of Service and Conditions governing the use of Vyoma Linguistic Labs Foundation learning platforms, subscription tiers, and OTT digital content.',
+  description: 'Official Terms & Conditions governing the use of Vyoma Linguistic Labs Foundation learning platforms, subscription tiers, and OTT digital content.',
 };
 
 export default function TermsAndConditionsPage() {
@@ -137,7 +137,7 @@ export default function TermsAndConditionsPage() {
             }} />
 
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(242, 100, 34, 0.12)', border: '1px solid rgba(242, 100, 34, 0.3)', padding: '6px 14px', borderRadius: '20px', color: '#ff8c53', fontSize: '0.82rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '16px' }}>
-              <Scale size={16} /> Terms of Service &amp; Conditions
+              <Scale size={16} /> Terms &amp; Conditions
             </div>
 
             <h1 style={{
@@ -157,7 +157,7 @@ export default function TermsAndConditionsPage() {
               lineHeight: 1.6,
               marginBottom: '24px'
             }}>
-              Welcome to <strong>Vyoma Linguistic Labs Foundation</strong>. These Terms of Service govern your access to and use of our digital platforms, streaming OTT resources, courses, e-books, multimedia subscriptions, and interactive tools.
+              Welcome to <strong>Vyoma Linguistic Labs Foundation</strong>. These Terms &amp; Conditions govern your access to and use of our digital platforms, streaming OTT resources, courses, e-books, multimedia subscriptions, and interactive tools.
             </p>
 
             {/* Metadata Badges */}
@@ -243,7 +243,7 @@ export default function TermsAndConditionsPage() {
                 <span style={{ color: '#f26422' }}>1.</span> Introduction &amp; Acceptance
               </h2>
               <p style={{ marginBottom: '14px' }}>
-                Welcome to <strong>Vyoma Linguistic Labs Foundation</strong> (<strong>&ldquo;Company&rdquo; / &ldquo;Vyoma Labs&rdquo; / &ldquo;we&rdquo; / &ldquo;our&rdquo; / &ldquo;us&rdquo;</strong>). These Terms of Service (<strong>&ldquo;Terms&rdquo; / &ldquo;Terms of Service&rdquo;</strong>) govern your access to and use of our web pages and application located at <Link href="/" style={{ color: '#ff8c53', textDecoration: 'underline' }}>digitalsanskrit.com</Link> and associated progressive web applications (together the <strong>&ldquo;Website&rdquo; / &ldquo;Service&rdquo;</strong>) operated by Vyoma Labs.
+                Welcome to <strong>Vyoma Linguistic Labs Foundation</strong> (<strong>&ldquo;Company&rdquo; / &ldquo;Vyoma Labs&rdquo; / &ldquo;we&rdquo; / &ldquo;our&rdquo; / &ldquo;us&rdquo;</strong>). These Terms &amp; Conditions (<strong>&ldquo;Terms&rdquo; / &ldquo;Terms &amp; Conditions&rdquo;</strong>) govern your access to and use of our web pages and application located at <Link href="/" style={{ color: '#ff8c53', textDecoration: 'underline' }}>digitalsanskrit.com</Link> and associated progressive web applications (together the <strong>&ldquo;Website&rdquo; / &ldquo;Service&rdquo;</strong>) operated by Vyoma Labs.
               </p>
               <p style={{ marginBottom: '14px' }}>
                 These Terms have to be read along with our policies governing the use of the Website, including the <Link href="/privacy-policy" style={{ color: '#38bdf8', textDecoration: 'underline' }}>Privacy Policy</Link>, <strong><a href="#section-11" style={{ color: '#38bdf8', textDecoration: 'underline' }}>Intellectual Property Policy</a></strong>, and <strong><a href="#section-6" style={{ color: '#38bdf8', textDecoration: 'underline' }}>Refund Policy</a></strong>. These Terms apply to all visitors, registered users, subscribers, and others who wish to access or use our Service (<strong>&ldquo;User&rdquo; / &ldquo;Users&rdquo;</strong>).

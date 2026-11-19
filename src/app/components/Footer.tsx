@@ -306,7 +306,7 @@ export default function Footer({ userPlanData }: FooterProps) {
               Privacy Policy
             </Link>
             <Link href="/terms-and-conditions" style={{ color: '#94a3b8', textDecoration: 'none' }}>
-              Terms of Service
+              Terms & Conditions
             </Link>
             <Link href="/shipping-and-cancellation-and-refund-policy" style={{ color: '#94a3b8', textDecoration: 'none' }}>
               Refund Policy
