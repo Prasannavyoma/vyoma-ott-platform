@@ -447,14 +447,14 @@ export default function RegisterFormClient({ allowPassword, allowGoogle, googleC
         </div>
         
         <p style={{ marginTop: '20px', color: '#8c8c8c', fontSize: '0.82rem', lineHeight: '1.5', textAlign: 'center' }}>
-          By continuing, you agree to digitalsanskrit.com{' '}
-          <a href="https://www.digitalsanskrit.com/terms-and-conditions" target="_blank" rel="noopener noreferrer" style={{ color: '#fff', textDecoration: 'underline' }}>
+          By continuing, you agree to our{' '}
+          <Link href="/terms-and-conditions" target="_blank" style={{ color: '#fff', textDecoration: 'underline' }}>
             Terms &amp; Conditions
-          </a>{' '}
+          </Link>{' '}
           and{' '}
-          <a href="https://www.digitalsanskrit.com/privacy-policy" target="_blank" rel="noopener noreferrer" style={{ color: '#fff', textDecoration: 'underline' }}>
+          <Link href="/privacy-policy" target="_blank" style={{ color: '#fff', textDecoration: 'underline' }}>
             Privacy Policy
-          </a>.
+          </Link>.
         </p>
       </div>
     </div>

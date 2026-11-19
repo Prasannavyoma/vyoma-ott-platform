@@ -174,12 +174,15 @@ export default function Footer({ userPlanData }: FooterProps) {
               <Link href="/about-us" style={{ color: '#cbd5e1', textDecoration: 'none', fontSize: '0.88rem' }}>
                 About Vyoma Foundation
               </Link>
-              <a href="https://www.digitalsanskrit.com/terms-and-conditions" target="_blank" rel="noopener noreferrer" style={{ color: '#cbd5e1', textDecoration: 'none', fontSize: '0.88rem' }}>
+              <Link href="/terms-and-conditions" style={{ color: '#cbd5e1', textDecoration: 'none', fontSize: '0.88rem' }}>
                 Terms &amp; Conditions
-              </a>
-              <a href="https://www.digitalsanskrit.com/privacy-policy" target="_blank" rel="noopener noreferrer" style={{ color: '#cbd5e1', textDecoration: 'none', fontSize: '0.88rem' }}>
+              </Link>
+              <Link href="/privacy-policy" style={{ color: '#cbd5e1', textDecoration: 'none', fontSize: '0.88rem' }}>
                 Privacy Policy
-              </a>
+              </Link>
+              <Link href="/shipping-and-cancellation-and-refund-policy" style={{ color: '#cbd5e1', textDecoration: 'none', fontSize: '0.88rem' }}>
+                Refund &amp; Cancellation Policy
+              </Link>
               <Link href="/faq" style={{ color: '#cbd5e1', textDecoration: 'none', fontSize: '0.88rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <HelpCircle size={14} color="#38bdf8" /> Help &amp; Support FAQ
               </Link>
@@ -245,17 +248,17 @@ export default function Footer({ userPlanData }: FooterProps) {
           color: '#64748b'
         }}>
           <div>
-            © 2026 Vyoma Linguistic Labs Foundation. All rights reserved. <a href="https://www.digitalsanskrit.com" target="_blank" rel="noopener noreferrer" style={{ color: '#94a3b8', textDecoration: 'underline' }}>digitalsanskrit.com</a>
+            © 2026 Vyoma Linguistic Labs Foundation. All rights reserved. <Link href="/" style={{ color: '#94a3b8', textDecoration: 'underline' }}>digitalsanskrit.com</Link>
           </div>
 
           <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
-            <a href="https://www.digitalsanskrit.com/privacy-policy" target="_blank" rel="noopener noreferrer" style={{ color: '#94a3b8', textDecoration: 'none' }}>
+            <Link href="/privacy-policy" style={{ color: '#94a3b8', textDecoration: 'none' }}>
               Privacy Policy
-            </a>
-            <a href="https://www.digitalsanskrit.com/terms-and-conditions" target="_blank" rel="noopener noreferrer" style={{ color: '#94a3b8', textDecoration: 'none' }}>
+            </Link>
+            <Link href="/terms-and-conditions" style={{ color: '#94a3b8', textDecoration: 'none' }}>
               Terms of Service
-            </a>
-            <Link href="/faq" style={{ color: '#94a3b8', textDecoration: 'none' }}>
+            </Link>
+            <Link href="/shipping-and-cancellation-and-refund-policy" style={{ color: '#94a3b8', textDecoration: 'none' }}>
               Refund Policy
             </Link>
           </div>
