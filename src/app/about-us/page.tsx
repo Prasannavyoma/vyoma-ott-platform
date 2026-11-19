@@ -591,7 +591,7 @@ export default function AboutUsPage() {
               Every course, video series, audio track, and shastra edition displays an authoritative access badge. Here is how to easily identify content available for your membership:
             </p>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '20px', marginBottom: '25px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 270px), 1fr))', gap: '20px', marginBottom: '25px' }}>
               
               {/* Platinum Tier Badge Card */}
               <div style={{ 
@@ -605,7 +605,7 @@ export default function AboutUsPage() {
                 boxShadow: '0 8px 25px rgba(0, 0, 0, 0.3)',
                 transition: 'all 0.3s ease'
               }} className="about-feature-card">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px', rowGap: '6px' }}>
                   {/* Native OTT 2.0 Platinum Badge */}
                   <span style={{
                     background: 'linear-gradient(135deg, #ffffff 0%, #e5e4e2 50%, #b0b0b0 100%)',
@@ -619,11 +619,13 @@ export default function AboutUsPage() {
                     alignItems: 'center',
                     gap: '6px',
                     boxShadow: '0 2px 12px rgba(229, 228, 226, 0.35)',
-                    border: '1px solid rgba(255,255,255,0.6)'
+                    border: '1px solid rgba(255,255,255,0.6)',
+                    whiteSpace: 'nowrap',
+                    flexShrink: 0
                   }}>
                     <span>💎</span> PLATINUM
                   </span>
-                  <span style={{ fontSize: '0.72rem', color: '#cbd5e1', fontWeight: 700, textTransform: 'uppercase' }}>VIP All-Access</span>
+                  <span style={{ fontSize: '0.72rem', color: '#cbd5e1', fontWeight: 700, textTransform: 'uppercase', whiteSpace: 'nowrap' }}>VIP All-Access</span>
                 </div>
                 <div>
                   <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#fff', marginBottom: '6px' }}>
@@ -647,7 +649,7 @@ export default function AboutUsPage() {
                 boxShadow: '0 8px 25px rgba(0, 0, 0, 0.3)',
                 transition: 'all 0.3s ease'
               }} className="about-feature-card">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px', rowGap: '6px' }}>
                   {/* Native OTT 2.0 Gold Badge */}
                   <span style={{
                     background: 'linear-gradient(135deg, #ffd700 0%, #ffaa00 50%, #b8860b 100%)',
@@ -661,11 +663,13 @@ export default function AboutUsPage() {
                     alignItems: 'center',
                     gap: '6px',
                     boxShadow: '0 2px 12px rgba(255, 215, 0, 0.35)',
-                    border: '1px solid rgba(255,235,100,0.6)'
+                    border: '1px solid rgba(255,235,100,0.6)',
+                    whiteSpace: 'nowrap',
+                    flexShrink: 0
                   }}>
                     <span>👑</span> GOLD
                   </span>
-                  <span style={{ fontSize: '0.72rem', color: '#ffd700', fontWeight: 700, textTransform: 'uppercase' }}>Standard Tier</span>
+                  <span style={{ fontSize: '0.72rem', color: '#ffd700', fontWeight: 700, textTransform: 'uppercase', whiteSpace: 'nowrap' }}>Standard Tier</span>
                 </div>
                 <div>
                   <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#fff', marginBottom: '6px' }}>
@@ -689,7 +693,7 @@ export default function AboutUsPage() {
                 boxShadow: '0 8px 25px rgba(0, 0, 0, 0.3)',
                 transition: 'all 0.3s ease'
               }} className="about-feature-card">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px', rowGap: '6px' }}>
                   {/* Native OTT 2.0 Free Badge */}
                   <span style={{
                     background: 'rgba(70, 211, 105, 0.15)',
@@ -702,11 +706,13 @@ export default function AboutUsPage() {
                     letterSpacing: '0.8px',
                     display: 'inline-flex',
                     alignItems: 'center',
-                    gap: '6px'
+                    gap: '6px',
+                    whiteSpace: 'nowrap',
+                    flexShrink: 0
                   }}>
                     <span>🔓</span> FREE
                   </span>
-                  <span style={{ fontSize: '0.72rem', color: '#46d369', fontWeight: 700, textTransform: 'uppercase' }}>Lifetime Access</span>
+                  <span style={{ fontSize: '0.72rem', color: '#46d369', fontWeight: 700, textTransform: 'uppercase', whiteSpace: 'nowrap' }}>Lifetime Access</span>
                 </div>
                 <div>
                   <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#fff', marginBottom: '6px' }}>
@@ -730,7 +736,7 @@ export default function AboutUsPage() {
                 boxShadow: '0 8px 25px rgba(0, 0, 0, 0.3)',
                 transition: 'all 0.3s ease'
               }} className="about-feature-card">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '14px', rowGap: '8px' }}>
                   {/* Native OTT 2.0 Newly Added Ribbon */}
                   <span style={{
                     background: 'linear-gradient(135deg, #f26422 0%, #ff8c53 100%)',
@@ -743,11 +749,26 @@ export default function AboutUsPage() {
                     display: 'inline-flex',
                     alignItems: 'center',
                     gap: '5px',
-                    boxShadow: '0 2px 10px rgba(242, 100, 34, 0.4)'
+                    boxShadow: '0 2px 10px rgba(242, 100, 34, 0.4)',
+                    whiteSpace: 'nowrap',
+                    flexShrink: 0
                   }}>
                     <span>🔥</span> NEWLY ADDED
                   </span>
-                  <span style={{ fontSize: '0.72rem', color: '#ff8c53', fontWeight: 700, textTransform: 'uppercase' }}>Recent Release</span>
+                  <span style={{ 
+                    fontSize: '0.72rem', 
+                    color: '#ff8c53', 
+                    fontWeight: 700, 
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    whiteSpace: 'nowrap',
+                    background: 'rgba(242, 100, 34, 0.12)',
+                    border: '1px solid rgba(242, 100, 34, 0.25)',
+                    padding: '3px 8px',
+                    borderRadius: '6px'
+                  }}>
+                    Recent Release
+                  </span>
                 </div>
                 <div>
                   <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#fff', marginBottom: '6px' }}>
