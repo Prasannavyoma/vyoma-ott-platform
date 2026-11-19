@@ -181,11 +181,9 @@ export default function CourseRow({ title, courses, icon, viewAllHref, sectionId
                     right: '8px',
                     background: course.tag === 'PLATINUM' 
                       ? 'linear-gradient(135deg, #ffffff 0%, #e5e4e2 50%, #b0b0b0 100%)' 
-                      : course.tag === 'GOLD'
-                        ? 'linear-gradient(135deg, #ffd700 0%, #ffaa00 50%, #b8860b 100%)'
-                        : 'rgba(70, 211, 105, 0.2)',
-                    color: (course.tag === 'PLATINUM' || course.tag === 'GOLD') ? '#000' : '#46d369',
-                    border: course.tag === 'FREE' ? '1px solid rgba(70, 211, 105, 0.4)' : 'none',
+                      : 'linear-gradient(135deg, #ffd700 0%, #ffaa00 50%, #b8860b 100%)',
+                    color: '#000',
+                    border: course.tag === 'PLATINUM' ? '1px solid rgba(255,255,255,0.6)' : '1px solid rgba(255,235,100,0.6)',
                     padding: '2px 7px',
                     borderRadius: '4px',
                     fontSize: '0.62rem',

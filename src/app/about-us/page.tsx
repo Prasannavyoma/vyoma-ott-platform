@@ -683,8 +683,8 @@ export default function AboutUsPage() {
 
               {/* Free Tier Badge Card */}
               <div style={{ 
-                background: 'linear-gradient(145deg, rgba(70, 211, 105, 0.06) 0%, rgba(15, 22, 36, 0.6) 100%)', 
-                border: '1px solid rgba(70, 211, 105, 0.25)', 
+                background: 'linear-gradient(145deg, rgba(255, 215, 0, 0.06) 0%, rgba(15, 22, 36, 0.6) 100%)', 
+                border: '1px solid rgba(255, 215, 0, 0.25)', 
                 borderRadius: '18px', 
                 padding: '24px',
                 display: 'flex',
@@ -696,9 +696,8 @@ export default function AboutUsPage() {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px', rowGap: '6px' }}>
                   {/* Native OTT 2.0 Free Badge */}
                   <span style={{
-                    background: 'rgba(70, 211, 105, 0.15)',
-                    border: '1px solid rgba(70, 211, 105, 0.45)',
-                    color: '#46d369',
+                    background: 'linear-gradient(135deg, #ffd700 0%, #ffaa00 50%, #b8860b 100%)',
+                    color: '#000000',
                     padding: '4px 12px',
                     borderRadius: '6px',
                     fontSize: '0.78rem',
@@ -707,19 +706,21 @@ export default function AboutUsPage() {
                     display: 'inline-flex',
                     alignItems: 'center',
                     gap: '6px',
+                    boxShadow: '0 2px 12px rgba(255, 215, 0, 0.35)',
+                    border: '1px solid rgba(255,235,100,0.6)',
                     whiteSpace: 'nowrap',
                     flexShrink: 0
                   }}>
                     <span>🔓</span> FREE
                   </span>
-                  <span style={{ fontSize: '0.72rem', color: '#46d369', fontWeight: 700, textTransform: 'uppercase', whiteSpace: 'nowrap' }}>Lifetime Access</span>
+                  <span style={{ fontSize: '0.72rem', color: '#ffd700', fontWeight: 700, textTransform: 'uppercase', whiteSpace: 'nowrap' }}>Lifetime Access</span>
                 </div>
                 <div>
                   <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#fff', marginBottom: '6px' }}>
                     Free Starter Path
                   </div>
                   <p style={{ color: '#94a3b8', fontSize: '0.88rem', lineHeight: 1.6, margin: 0 }}>
-                    Content marked with <strong style={{ color: '#46d369' }}>🔓 FREE</strong> (or with no subscription restriction) is 100% free for everyone. Simply sign in to stream foundational lectures, games, and podcasts at zero cost.
+                    Content marked with <strong style={{ color: '#ffd700' }}>🔓 FREE</strong> (or with no subscription restriction) is 100% free for everyone. Simply sign in to stream foundational lectures, games, and podcasts at zero cost.
                   </p>
                 </div>
               </div>
