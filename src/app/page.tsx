@@ -12,6 +12,7 @@ import { cookies } from 'next/headers';
 import SubhashitaWidget from './components/SubhashitaWidget';
 import FeatureShowcase from './components/FeatureShowcase';
 import Footer from './components/Footer';
+import HomeScrollRestoration from './components/HomeScrollRestoration';
 import { PlayCircle, PlusCircle, Search as SearchIcon, Sparkles, Flame, CreditCard, LayoutTemplate, Smile, Headphones, Gift, BookOpen, Star, Mic, Video, Gamepad2 } from 'lucide-react';
 
 // Direct safe SQL conduit bypassing Prisma cached TS model definition locks
@@ -247,6 +248,7 @@ export default async function HomePage() {
   return (
     <main>
       <NavBar />
+      <HomeScrollRestoration />
       <HeroSlider items={personalizedFeatured} />
 
 

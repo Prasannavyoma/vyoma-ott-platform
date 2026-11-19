@@ -83,7 +83,15 @@ export default function NavBar() {
       <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
         <div className="nav-left-group" style={{ display: 'flex', alignItems: 'center', gap: '25px' }}>
           <div className="nav-brand">
-            <Link href="/">
+            <Link 
+              href="/"
+              onClick={() => {
+                if (typeof window !== 'undefined') {
+                  sessionStorage.removeItem('vyoma_last_section');
+                  sessionStorage.removeItem('vyoma_scroll_y');
+                }
+              }}
+            >
               <img 
                 src="/assets/logo-200-x-70-px.png" 
                 alt="Vyoma Logo" 

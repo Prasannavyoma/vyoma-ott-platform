@@ -9,6 +9,7 @@ interface CourseRowProps {
   courses: any[];
   icon?: React.ReactNode;
   viewAllHref?: string;
+  sectionId?: string;
 }
 
 function resolveViewAllHref(title: string, customHref?: string): string {
@@ -78,9 +79,21 @@ function resolveViewAllHref(title: string, customHref?: string): string {
   return `/genre/${encodeURIComponent(cleanSlug)}`;
 }
 
-export default function CourseRow({ title, courses, icon, viewAllHref }: CourseRowProps) {
+export default function CourseRow({ title, courses, icon, viewAllHref, sectionId }: CourseRowProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const targetLink = resolveViewAllHref(title, viewAllHref);
+
+  const resolvedSectionId = sectionId || `section-${title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}`;
+
+  const recordPosition = () => {
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('vyoma_last_section', resolvedSectionId);
+      sessionStorage.setItem('vyoma_scroll_y', window.scrollY.toString());
+    }
+  };
+
+  const separator = targetLink.includes('?') ? '&' : '?';
+  const finalViewAllLink = targetLink.includes('from=') ? targetLink : `${targetLink}${separator}from=${resolvedSectionId}`;
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollRef.current) {
@@ -94,13 +107,17 @@ export default function CourseRow({ title, courses, icon, viewAllHref }: CourseR
   };
 
   return (
-    <div className="row" style={{ position: 'relative', overflow: 'visible' }}>
+    <div id={resolvedSectionId} className="row" style={{ position: 'relative', overflow: 'visible', scrollMarginTop: '110px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '10px', paddingRight: '20px' }}>
         <h2 className="row-title" style={{ fontSize: '1.5rem', fontWeight: '700', color: '#fff', zIndex: 1, margin: 0, display: 'flex', alignItems: 'center', gap: '10px' }}>
           {icon && <span style={{ color: 'var(--primary)' }}>{icon}</span>}
           {title ? title.replace(/&amp;/g, '&') : ''}
         </h2>
-        <Link href={targetLink} style={{ color: 'var(--primary)', fontSize: '0.9rem', fontWeight: 'bold', textDecoration: 'none' }}>
+        <Link 
+          href={finalViewAllLink} 
+          onClick={recordPosition}
+          style={{ color: 'var(--primary)', fontSize: '0.9rem', fontWeight: 'bold', textDecoration: 'none' }}
+        >
           View All →
         </Link>
       </div>
@@ -138,7 +155,13 @@ export default function CourseRow({ title, courses, icon, viewAllHref }: CourseR
               : `/watch/${course.id}`;
 
             return (
-              <Link href={watchUrl} key={i} className="poster" style={{ position: 'relative' }}>
+              <Link 
+                href={watchUrl} 
+                key={i} 
+                className="poster" 
+                style={{ position: 'relative' }}
+                onClick={recordPosition}
+              >
                 <HoverVideoPlayer 
                   posterUrl={course.image} 
                   videoUrl={course.trailerUrl} 

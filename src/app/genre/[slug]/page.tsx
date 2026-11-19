@@ -2,6 +2,7 @@ import Link from 'next/link';
 import prisma from '@/lib/prisma';
 import NavBar from '@/app/components/NavBar';
 import Footer from '@/app/components/Footer';
+import BackToHomeButton from '@/app/components/BackToHomeButton';
 
 export default async function GenrePage({ params }: { params: Promise<{ slug: string }> }) {
   const unwrappedParams = await params;
@@ -59,21 +60,7 @@ export default async function GenrePage({ params }: { params: Promise<{ slug: st
       <NavBar />
 
       <main style={{ maxWidth: '1280px', margin: '0 auto', padding: '160px 24px 80px 24px' }}>
-        <Link 
-          href="/" 
-          style={{ 
-            color: 'var(--primary, #f26422)', 
-            display: 'inline-flex', 
-            alignItems: 'center', 
-            gap: '6px', 
-            marginBottom: '24px',
-            textDecoration: 'none',
-            fontSize: '0.85rem',
-            fontWeight: 800
-          }}
-        >
-          ← Back to Home
-        </Link>
+        <BackToHomeButton />
         
         <h1 style={{ fontSize: '2.5rem', fontWeight: 900, marginBottom: '24px', letterSpacing: '-0.5px' }}>
           {categoryName}

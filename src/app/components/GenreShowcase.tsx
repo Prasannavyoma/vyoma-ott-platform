@@ -2,6 +2,7 @@ import Link from 'next/link';
 import prisma from '@/lib/prisma';
 import NavBar from '@/app/components/NavBar';
 import Footer from '@/app/components/Footer';
+import BackToHomeButton from '@/app/components/BackToHomeButton';
 
 interface GenreShowcaseProps {
   contentType: string;
@@ -48,22 +49,7 @@ export default async function GenreShowcase({ contentType, title, description }:
       <main style={{ maxWidth: '1280px', margin: '0 auto', padding: '160px 24px 80px 24px' }}>
         {/* HEADER BLOCK */}
         <div style={{ marginBottom: '40px' }}>
-          <Link 
-            href="/" 
-            style={{ 
-              color: 'var(--primary, #f26422)', 
-              textDecoration: 'none', 
-              fontSize: '0.85rem', 
-              fontWeight: 800, 
-              letterSpacing: '1px',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-              marginBottom: '16px'
-            }}
-          >
-            ← BACK TO HOME
-          </Link>
+          <BackToHomeButton label="← BACK TO HOME" />
           <h1 style={{ fontSize: '2.5rem', fontWeight: 900, margin: '0 0 12px 0', color: '#fff', letterSpacing: '-0.5px' }}>
             {title}
           </h1>

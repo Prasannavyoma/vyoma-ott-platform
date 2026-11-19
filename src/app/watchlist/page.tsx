@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import NavBar from '@/app/components/NavBar';
 import Footer from '@/app/components/Footer';
+import BackToHomeButton from '@/app/components/BackToHomeButton';
 import { getUserWatchlist } from '@/app/actions/ott';
 import { getCurrentUser } from '@/lib/auth';
 import { Bookmark, Sparkles, Compass, Play } from 'lucide-react';
@@ -18,21 +19,7 @@ export default async function WatchlistPage() {
       <main style={{ maxWidth: '1280px', margin: '0 auto', padding: '160px 24px 80px 24px' }}>
         {/* Navigation Breadcrumb */}
         <div style={{ marginBottom: '32px' }}>
-          <Link 
-            href="/" 
-            style={{ 
-              color: 'var(--primary, #f26422)', 
-              textDecoration: 'none', 
-              fontSize: '0.85rem', 
-              fontWeight: 800, 
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-              marginBottom: '16px'
-            }}
-          >
-            ← BACK TO HOME
-          </Link>
+          <BackToHomeButton label="← BACK TO HOME" />
           
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '20px' }}>
             <div>
