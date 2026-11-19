@@ -678,7 +678,7 @@ export default function TermsAndConditionsPage() {
                     border: '1px solid rgba(255, 255, 255, 0.15)'
                   }}
                 >
-                  <RotateCcw size={18} /> View Refund Policy
+                  <RotateCcw size={18} /> View Refund &amp; Cancellation Policy
                 </Link>
               </div>
             </section>

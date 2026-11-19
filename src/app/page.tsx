@@ -161,7 +161,7 @@ export default async function HomePage() {
                 create: [
                   { label: "Privacy Policy", url: "#", order: 10 },
                   { label: "Terms & Conditions", url: "/terms-and-conditions", order: 20 },
-                  { label: "Refund Policy", url: "#", order: 30 }
+                  { label: "Refund & Cancellation Policy", url: "/shipping-and-cancellation-and-refund-policy", order: 30 }
                 ]
               }
             }
