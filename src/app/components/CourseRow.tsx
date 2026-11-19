@@ -174,41 +174,55 @@ export default function CourseRow({ title, courses, icon, viewAllHref, sectionId
                 )}
 
                 {/* ACCESS TIER BADGE ON TOP-RIGHT */}
-                {course.tag && (
-                  <div style={{
-                    position: 'absolute',
-                    top: '8px',
-                    right: '8px',
-                    background: course.tag === 'PLATINUM' 
-                      ? 'linear-gradient(135deg, #ffffff 0%, #e5e4e2 50%, #b0b0b0 100%)' 
-                      : course.tag === 'GOLD'
-                        ? 'linear-gradient(135deg, #ffd700 0%, #ffaa00 50%, #b8860b 100%)'
-                        : course.tag === 'FREE'
-                          ? 'linear-gradient(135deg, #4ade80 0%, #22c55e 50%, #16a34a 100%)'
-                          : 'rgba(70, 211, 105, 0.2)',
-                    color: (course.tag === 'PLATINUM' || course.tag === 'GOLD' || course.tag === 'FREE') ? '#000' : '#46d369',
-                    border: course.tag === 'PLATINUM'
-                      ? '1px solid rgba(255,255,255,0.6)'
-                      : course.tag === 'GOLD'
-                        ? '1px solid rgba(255,235,100,0.6)'
-                        : course.tag === 'FREE'
-                          ? '1px solid rgba(134,239,172,0.7)'
-                          : 'none',
-                    padding: '2px 7px',
-                    borderRadius: '4px',
-                    fontSize: '0.62rem',
-                    fontWeight: 900,
-                    letterSpacing: '0.4px',
-                    zIndex: 10,
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.6)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '4px'
-                  }}>
-                    <span>{course.tag === 'PLATINUM' ? '💎' : course.tag === 'GOLD' ? '👑' : '🔓'}</span>
-                    <span>{course.tag}</span>
-                  </div>
-                )}
+                {course.tag && (() => {
+                  const tagUpper = String(course.tag).toUpperCase();
+                  const isPlatinum = tagUpper.startsWith('PLATINUM');
+                  const isGold = tagUpper.startsWith('GOLD');
+                  const isFree = tagUpper === 'FREE';
+
+                  const badgeBg = isPlatinum
+                    ? 'linear-gradient(135deg, #ffffff 0%, #e5e4e2 50%, #b0b0b0 100%)'
+                    : isGold
+                      ? 'linear-gradient(135deg, #ffd700 0%, #ffaa00 50%, #b8860b 100%)'
+                      : isFree
+                        ? 'linear-gradient(135deg, #4ade80 0%, #22c55e 50%, #16a34a 100%)'
+                        : 'rgba(70, 211, 105, 0.2)';
+
+                  const badgeBorder = isPlatinum
+                    ? '1px solid rgba(255,255,255,0.6)'
+                    : isGold
+                      ? '1px solid rgba(255,235,100,0.6)'
+                      : isFree
+                        ? '1px solid rgba(134,239,172,0.7)'
+                        : 'none';
+
+                  const icon = isPlatinum ? '💎' : isGold ? '👑' : isFree ? '🔓' : '🏷️';
+                  const label = course.tag.replace(/_/g, ' ');
+
+                  return (
+                    <div style={{
+                      position: 'absolute',
+                      top: '8px',
+                      right: '8px',
+                      background: badgeBg,
+                      color: (isPlatinum || isGold || isFree) ? '#000' : '#46d369',
+                      border: badgeBorder,
+                      padding: '2px 7px',
+                      borderRadius: '4px',
+                      fontSize: '0.62rem',
+                      fontWeight: 900,
+                      letterSpacing: '0.4px',
+                      zIndex: 10,
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.6)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px'
+                    }}>
+                      <span>{icon}</span>
+                      <span>{label}</span>
+                    </div>
+                  );
+                })()}
                 
                 {/* GLOWING PROGRESS TRACK FOR IN-PROGRESS VIDEOS */}
                 {course.progressPercent !== undefined && (
@@ -233,20 +247,42 @@ export default function CourseRow({ title, courses, icon, viewAllHref, sectionId
                     {course.durationLeftStr ? (
                        <span className="poster-tag" style={{ background: '#f26422' }}>{course.durationLeftStr}</span>
                     ) : (
-                       <span className="poster-tag" style={{
-                         background: course.tag === 'PLATINUM' 
+                       (() => {
+                         const tagUpper = String(course.tag || '').toUpperCase();
+                         const isPlatinum = tagUpper.startsWith('PLATINUM');
+                         const isGold = tagUpper.startsWith('GOLD');
+                         const isFree = tagUpper === 'FREE';
+
+                         const bg = isPlatinum 
                            ? 'linear-gradient(135deg, #e5e4e2, #b0b0b0)' 
-                           : course.tag === 'GOLD' 
+                           : isGold 
                              ? 'linear-gradient(135deg, #ffd700, #b8860b)' 
-                             : course.tag === 'FREE' 
+                             : isFree 
                                ? 'linear-gradient(135deg, #4ade80, #16a34a)' 
-                               : 'var(--primary)',
-                         color: (course.tag === 'PLATINUM' || course.tag === 'GOLD' || course.tag === 'FREE') ? '#000' : '#fff',
-                         border: course.tag === 'FREE' ? '1px solid rgba(134,239,172,0.7)' : 'none',
-                         fontWeight: 800
-                       }}>
-                         {course.tag === 'PLATINUM' ? '💎 PLATINUM' : course.tag === 'GOLD' ? '👑 GOLD' : course.tag === 'FREE' ? '🔓 FREE' : course.tag}
-                       </span>
+                               : 'var(--primary)';
+
+                         const border = isPlatinum
+                           ? '1px solid rgba(255,255,255,0.6)'
+                           : isGold
+                             ? '1px solid rgba(255,235,100,0.6)'
+                             : isFree
+                               ? '1px solid rgba(134,239,172,0.7)'
+                               : 'none';
+
+                         const icon = isPlatinum ? '💎 ' : isGold ? '👑 ' : isFree ? '🔓 ' : '';
+                         const label = course.tag ? course.tag.replace(/_/g, ' ') : '';
+
+                         return (
+                           <span className="poster-tag" style={{
+                             background: bg,
+                             color: (isPlatinum || isGold || isFree) ? '#000' : '#fff',
+                             border: border,
+                             fontWeight: 800
+                           }}>
+                             {icon}{label}
+                           </span>
+                         );
+                       })()
                     )}
                   </div>
                 </div>

@@ -164,26 +164,50 @@ export default async function WatchlistPage() {
                     
                     {/* Access Tier Pill */}
                     {course.accessLevel && (
-                      <span style={{ 
-                        position: 'absolute', 
-                        top: '12px', 
-                        right: '12px', 
-                        padding: '3px 8px', 
-                        borderRadius: '6px', 
-                        fontSize: '0.65rem', 
-                        fontWeight: 900,
-                        background: course.accessLevel === 'PLATINUM' 
-                          ? 'linear-gradient(135deg, #ffffff 0%, #b0b0b0 100%)' 
-                          : course.accessLevel === 'GOLD' 
+                      (() => {
+                      const lvlUpper = String(course.accessLevel).toUpperCase();
+                      const isPlatinum = lvlUpper.startsWith('PLATINUM');
+                      const isGold = lvlUpper.startsWith('GOLD');
+                      const isFree = lvlUpper === 'FREE';
+
+                      const bg = isPlatinum 
+                        ? 'linear-gradient(135deg, #ffffff 0%, #b0b0b0 100%)' 
+                        : isGold 
                           ? 'linear-gradient(135deg, #ffd700 0%, #b8860b 100%)' 
-                          : 'linear-gradient(135deg, #4ade80 0%, #22c55e 50%, #16a34a 100%)',
-                        color: '#000',
-                        border: course.accessLevel === 'PLATINUM' ? '1px solid rgba(255,255,255,0.6)' : course.accessLevel === 'GOLD' ? '1px solid rgba(255,235,100,0.6)' : '1px solid rgba(134,239,172,0.7)',
-                        boxShadow: '0 4px 12px rgba(0,0,0,0.5)'
-                      }}>
-                        {course.accessLevel === 'PLATINUM' ? '💎 PLATINUM' : course.accessLevel === 'GOLD' ? '👑 GOLD' : '🔓 FREE'}
-                      </span>
-                    )}
+                          : 'linear-gradient(135deg, #4ade80 0%, #22c55e 50%, #16a34a 100%)';
+
+                      const border = isPlatinum
+                        ? '1px solid rgba(255,255,255,0.6)'
+                        : isGold
+                          ? '1px solid rgba(255,235,100,0.6)'
+                          : '1px solid rgba(134,239,172,0.7)';
+
+                      const icon = isPlatinum ? '💎' : isGold ? '👑' : '🔓';
+                      const label = course.accessLevel.replace(/_/g, ' ');
+
+                      return (
+                        <span style={{ 
+                          position: 'absolute', 
+                          top: '12px', 
+                          right: '12px', 
+                          padding: '3px 8px', 
+                          borderRadius: '6px', 
+                          fontSize: '0.65rem', 
+                          fontWeight: 900,
+                          background: bg,
+                          color: '#000',
+                          border: border,
+                          boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px'
+                        }}>
+                          <span>{icon}</span>
+                          <span>{label}</span>
+                        </span>
+                      );
+                    })()
+                  )}
 
                     {/* In Watchlist Ribbon */}
                     <span style={{

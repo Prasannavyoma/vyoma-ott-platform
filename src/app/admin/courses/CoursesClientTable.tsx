@@ -277,18 +277,34 @@ export default function CoursesClientTable({ initialCourses }: { initialCourses:
                   <td style={{ padding: '15px 12px', whiteSpace: 'nowrap' }}>
                     <span 
                       style={{ 
-                        background: course.accessLevel === 'PLATINUM' || course.accessLevel === 'PLATINUM_YEARLY' ? '#e50914' : course.accessLevel === 'GOLD' || course.accessLevel === 'GOLD_YEARLY' ? '#ffd700' : 'var(--primary, #f26422)',
-                        color: course.accessLevel === 'GOLD' || course.accessLevel === 'GOLD_YEARLY' ? '#000' : '#fff',
+                        background: (course.accessLevel?.startsWith('PLATINUM'))
+                          ? 'linear-gradient(135deg, #ffffff 0%, #e5e4e2 50%, #b0b0b0 100%)' 
+                          : (course.accessLevel?.startsWith('GOLD'))
+                            ? 'linear-gradient(135deg, #ffd700 0%, #ffaa00 50%, #b8860b 100%)' 
+                            : course.accessLevel === 'FREE'
+                              ? 'linear-gradient(135deg, #4ade80 0%, #22c55e 50%, #16a34a 100%)'
+                              : 'var(--primary, #f26422)',
+                        color: (course.accessLevel?.startsWith('PLATINUM') || course.accessLevel?.startsWith('GOLD') || course.accessLevel === 'FREE') ? '#000' : '#fff',
+                        border: course.accessLevel?.startsWith('PLATINUM')
+                          ? '1px solid rgba(255,255,255,0.6)'
+                          : course.accessLevel?.startsWith('GOLD')
+                            ? '1px solid rgba(255,235,100,0.6)'
+                            : course.accessLevel === 'FREE'
+                              ? '1px solid rgba(134,239,172,0.7)'
+                              : 'none',
                         padding: '4px 10px',
-                        borderRadius: '12px',
+                        borderRadius: '6px',
                         fontSize: '0.75rem',
                         fontWeight: 900,
                         letterSpacing: '0.5px',
-                        display: 'inline-block',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '5px',
                         whiteSpace: 'nowrap'
                       }}
                     >
-                      {course.accessLevel}
+                      <span>{course.accessLevel?.startsWith('PLATINUM') ? '💎' : course.accessLevel?.startsWith('GOLD') ? '👑' : course.accessLevel === 'FREE' ? '🔓' : '🏷️'}</span>
+                      <span>{course.accessLevel ? course.accessLevel.replace(/_/g, ' ') : ''}</span>
                     </span>
                   </td>
                   <td style={{ padding: '15px 12px', fontWeight: 'bold', color: '#46d369' }}>{course._count?.episodes || 0}</td>

@@ -632,7 +632,7 @@ export default function AboutUsPage() {
                     Platinum Membership
                   </div>
                   <p style={{ color: '#94a3b8', fontSize: '0.88rem', lineHeight: 1.6, margin: 0 }}>
-                    If content displays the <strong style={{ color: '#e5e4e2' }}>💎 PLATINUM</strong> badge, it is reserved exclusively for <strong style={{ color: '#fff' }}>Platinum subscribers</strong>. Includes live masterclasses, advanced shastra courses, and certification programs.
+                    If content displays the <strong style={{ color: '#e5e4e2' }}>💎 PLATINUM</strong> (or <strong style={{ color: '#e5e4e2' }}>💎 PLATINUM MONTHLY</strong>) badge, it is reserved exclusively for <strong style={{ color: '#fff' }}>Platinum subscribers</strong>. Includes live masterclasses, advanced shastra courses, and certification programs.
                   </p>
                 </div>
               </div>
@@ -676,7 +676,7 @@ export default function AboutUsPage() {
                     Gold Membership
                   </div>
                   <p style={{ color: '#94a3b8', fontSize: '0.88rem', lineHeight: 1.6, margin: 0 }}>
-                    If content displays the <strong style={{ color: '#ffd700' }}>👑 GOLD</strong> badge, it is available to all <strong style={{ color: '#fff' }}>Gold & Platinum subscribers</strong>. Unlocks full curated video lessons, comprehensive e-books, and stotra audio recitation tracks.
+                    If content displays the <strong style={{ color: '#ffd700' }}>👑 GOLD</strong> (or <strong style={{ color: '#ffd700' }}>👑 GOLD MONTHLY</strong>) badge, it is available to all <strong style={{ color: '#fff' }}>Gold & Platinum subscribers</strong>. Unlocks full curated video lessons, comprehensive e-books, and stotra audio recitation tracks.
                   </p>
                 </div>
               </div>
