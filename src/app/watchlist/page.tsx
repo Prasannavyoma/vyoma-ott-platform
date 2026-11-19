@@ -174,8 +174,10 @@ export default async function WatchlistPage() {
                         fontWeight: 900,
                         background: course.accessLevel === 'PLATINUM' 
                           ? 'linear-gradient(135deg, #ffffff 0%, #b0b0b0 100%)' 
-                          : 'linear-gradient(135deg, #ffd700 0%, #b8860b 100%)',
-                        color: '#000',
+                          : course.accessLevel === 'GOLD' 
+                          ? 'linear-gradient(135deg, #ffd700 0%, #b8860b 100%)' 
+                          : 'rgba(70, 211, 105, 0.2)',
+                        color: (course.accessLevel === 'PLATINUM' || course.accessLevel === 'GOLD') ? '#000' : '#46d369',
                         boxShadow: '0 4px 12px rgba(0,0,0,0.5)'
                       }}>
                         {course.accessLevel === 'PLATINUM' ? '💎 PLATINUM' : course.accessLevel === 'GOLD' ? '👑 GOLD' : '🔓 FREE'}

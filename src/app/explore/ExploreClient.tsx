@@ -611,7 +611,7 @@ export default function ExploreClient({ initialCourses }: { initialCourses: any[
                   }}>
                     <div className="poster-title" style={{ fontSize: '1.25rem', fontWeight: 900, textShadow: '0 2px 10px rgba(0,0,0,0.9)', marginTop: '10px', letterSpacing: '-0.3px' }}>{course.title ? course.title.replace(/&amp;/g, '&') : ''}</div>
                     <div className="poster-meta" style={{ marginTop: '8px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <span className="poster-tag" style={{ background: course.accessLevel === 'PLATINUM' ? 'linear-gradient(135deg, #e5e4e2, #b0b0b0)' : 'linear-gradient(135deg, #ffd700, #b8860b)', color: '#000', fontWeight: 800, padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem' }}>
+                      <span className="poster-tag" style={{ background: course.accessLevel === 'PLATINUM' ? 'linear-gradient(135deg, #e5e4e2, #b0b0b0)' : course.accessLevel === 'GOLD' ? 'linear-gradient(135deg, #ffd700, #b8860b)' : 'rgba(255,255,255,0.15)', color: (course.accessLevel === 'PLATINUM' || course.accessLevel === 'GOLD') ? '#000' : '#fff', fontWeight: 800, padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem' }}>
                         {course.accessLevel}
                       </span>
                       {course.category && (
