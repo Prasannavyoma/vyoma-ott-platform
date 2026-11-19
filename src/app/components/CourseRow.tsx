@@ -183,9 +183,17 @@ export default function CourseRow({ title, courses, icon, viewAllHref, sectionId
                       ? 'linear-gradient(135deg, #ffffff 0%, #e5e4e2 50%, #b0b0b0 100%)' 
                       : course.tag === 'GOLD'
                         ? 'linear-gradient(135deg, #ffd700 0%, #ffaa00 50%, #b8860b 100%)'
-                        : 'rgba(70, 211, 105, 0.2)',
-                    color: (course.tag === 'PLATINUM' || course.tag === 'GOLD') ? '#000' : '#46d369',
-                    border: course.tag === 'FREE' ? '1px solid rgba(70, 211, 105, 0.4)' : 'none',
+                        : course.tag === 'FREE'
+                          ? 'linear-gradient(135deg, #4ade80 0%, #22c55e 50%, #16a34a 100%)'
+                          : 'rgba(70, 211, 105, 0.2)',
+                    color: (course.tag === 'PLATINUM' || course.tag === 'GOLD' || course.tag === 'FREE') ? '#000' : '#46d369',
+                    border: course.tag === 'PLATINUM'
+                      ? '1px solid rgba(255,255,255,0.6)'
+                      : course.tag === 'GOLD'
+                        ? '1px solid rgba(255,235,100,0.6)'
+                        : course.tag === 'FREE'
+                          ? '1px solid rgba(134,239,172,0.7)'
+                          : 'none',
                     padding: '2px 7px',
                     borderRadius: '4px',
                     fontSize: '0.62rem',
@@ -231,10 +239,10 @@ export default function CourseRow({ title, courses, icon, viewAllHref, sectionId
                            : course.tag === 'GOLD' 
                              ? 'linear-gradient(135deg, #ffd700, #b8860b)' 
                              : course.tag === 'FREE' 
-                               ? 'rgba(70,211,105,0.18)' 
+                               ? 'linear-gradient(135deg, #4ade80, #16a34a)' 
                                : 'var(--primary)',
-                         color: (course.tag === 'PLATINUM' || course.tag === 'GOLD') ? '#000' : (course.tag === 'FREE' ? '#46d369' : '#fff'),
-                         border: course.tag === 'FREE' ? '1px solid rgba(70,211,105,0.4)' : 'none',
+                         color: (course.tag === 'PLATINUM' || course.tag === 'GOLD' || course.tag === 'FREE') ? '#000' : '#fff',
+                         border: course.tag === 'FREE' ? '1px solid rgba(134,239,172,0.7)' : 'none',
                          fontWeight: 800
                        }}>
                          {course.tag === 'PLATINUM' ? '💎 PLATINUM' : course.tag === 'GOLD' ? '👑 GOLD' : course.tag === 'FREE' ? '🔓 FREE' : course.tag}

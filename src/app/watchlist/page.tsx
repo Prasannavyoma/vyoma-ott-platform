@@ -176,8 +176,9 @@ export default async function WatchlistPage() {
                           ? 'linear-gradient(135deg, #ffffff 0%, #b0b0b0 100%)' 
                           : course.accessLevel === 'GOLD' 
                           ? 'linear-gradient(135deg, #ffd700 0%, #b8860b 100%)' 
-                          : 'rgba(70, 211, 105, 0.2)',
-                        color: (course.accessLevel === 'PLATINUM' || course.accessLevel === 'GOLD') ? '#000' : '#46d369',
+                          : 'linear-gradient(135deg, #4ade80 0%, #22c55e 50%, #16a34a 100%)',
+                        color: '#000',
+                        border: course.accessLevel === 'PLATINUM' ? '1px solid rgba(255,255,255,0.6)' : course.accessLevel === 'GOLD' ? '1px solid rgba(255,235,100,0.6)' : '1px solid rgba(134,239,172,0.7)',
                         boxShadow: '0 4px 12px rgba(0,0,0,0.5)'
                       }}>
                         {course.accessLevel === 'PLATINUM' ? '💎 PLATINUM' : course.accessLevel === 'GOLD' ? '👑 GOLD' : '🔓 FREE'}
