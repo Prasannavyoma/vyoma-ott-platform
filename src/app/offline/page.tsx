@@ -158,57 +158,70 @@ function OfflinePlayerContent() {
         minHeight: '100vh',
         background: 'radial-gradient(ellipse at top, #141f36 0%, #080c16 80%)',
         color: '#e2e8f0',
-        paddingTop: '110px',
+        paddingTop: '130px',
         paddingBottom: '80px',
         fontFamily: "'Outfit', 'Inter', system-ui, -apple-system, sans-serif"
       }}>
-        {/* Offline Status Alert Banner */}
-        <div style={{
-          background: isOnline 
-            ? 'linear-gradient(90deg, #15803d 0%, #22c55e 100%)' 
-            : 'linear-gradient(90deg, #b91c1c 0%, #dc2626 50%, #ea580c 100%)',
-          color: '#fff',
-          padding: '10px 24px',
-          fontWeight: 700,
-          fontSize: '0.88rem',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '12px',
-          boxShadow: '0 4px 15px rgba(0,0,0,0.3)',
-          marginBottom: '24px'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            {isOnline ? <Wifi size={18} /> : <WifiOff size={18} />}
-            <span>
-              {isOnline 
-                ? '🟢 Internet Connected — Offline Library ready for zero-network playback anytime.' 
-                : '📶 Offline Mode Active — Live server is unreachable. Playing downloaded lessons stored on this device.'}
-            </span>
-          </div>
-
-          <button
-            onClick={() => window.location.reload()}
-            style={{
-              background: '#ffffff',
-              color: '#000000',
-              border: 'none',
-              padding: '5px 14px',
-              borderRadius: '20px',
-              fontSize: '0.78rem',
-              fontWeight: 800,
-              cursor: 'pointer',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px'
-            }}
-          >
-            <RefreshCw size={14} /> Refresh / Reconnect
-          </button>
-        </div>
-
         <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 24px' }}>
+
+          {/* Offline Status Alert Banner - Cleanly fitted inside container */}
+          <div style={{
+            background: isOnline 
+              ? 'linear-gradient(135deg, rgba(21, 128, 61, 0.25) 0%, rgba(34, 197, 94, 0.15) 100%)' 
+              : 'linear-gradient(135deg, rgba(185, 28, 28, 0.3) 0%, rgba(220, 38, 38, 0.18) 100%)',
+            border: isOnline ? '1px solid rgba(74, 222, 128, 0.4)' : '1px solid rgba(239, 68, 68, 0.4)',
+            borderRadius: '16px',
+            color: '#fff',
+            padding: '14px 20px',
+            fontWeight: 700,
+            fontSize: '0.88rem',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: '12px',
+            boxShadow: '0 8px 25px rgba(0,0,0,0.4)',
+            marginBottom: '28px'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div style={{
+                background: isOnline ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)',
+                color: isOnline ? '#4ade80' : '#ef4444',
+                padding: '6px',
+                borderRadius: '8px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                {isOnline ? <Wifi size={18} /> : <WifiOff size={18} />}
+              </div>
+              <span style={{ lineHeight: 1.4 }}>
+                {isOnline 
+                  ? '🟢 Internet Connected — Offline Library ready for zero-network playback anytime.' 
+                  : '📶 Offline Mode Active — Live server is unreachable. Playing downloaded lessons stored on this device.'}
+              </span>
+            </div>
+
+            <button
+              onClick={() => window.location.reload()}
+              style={{
+                background: isOnline ? '#22c55e' : '#ffffff',
+                color: isOnline ? '#ffffff' : '#000000',
+                border: 'none',
+                padding: '7px 16px',
+                borderRadius: '20px',
+                fontSize: '0.8rem',
+                fontWeight: 800,
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                flexShrink: 0
+              }}
+            >
+              <RefreshCw size={14} /> Refresh / Reconnect
+            </button>
+          </div>
           
           {/* Back Nav & Header */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>

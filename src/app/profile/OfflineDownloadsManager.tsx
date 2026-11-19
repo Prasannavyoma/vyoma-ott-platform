@@ -76,6 +76,13 @@ export default function OfflineDownloadsManager() {
         <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
           <Link
             href="/offline"
+            prefetch={false}
+            onClick={(e) => {
+              if (typeof navigator !== 'undefined' && !navigator.onLine) {
+                e.preventDefault();
+                window.location.href = '/offline.html';
+              }
+            }}
             style={{
               background: 'linear-gradient(135deg, #f26422 0%, #ff8c53 100%)',
               color: '#fff',
@@ -241,6 +248,13 @@ export default function OfflineDownloadsManager() {
                   <div style={{ marginTop: 'auto', display: 'flex', gap: '10px' }}>
                     <Link
                       href={watchHref}
+                      prefetch={false}
+                      onClick={(e) => {
+                        if (typeof navigator !== 'undefined' && !navigator.onLine) {
+                          e.preventDefault();
+                          window.location.href = `/offline.html?play=${encodeURIComponent(item.url)}`;
+                        }
+                      }}
                       style={{
                         flex: 1,
                         background: 'linear-gradient(135deg, #f26422 0%, #ff8c53 100%)',

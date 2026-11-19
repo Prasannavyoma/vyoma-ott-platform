@@ -1,5 +1,5 @@
 // Vyoma OTT Service Worker - Push Notifications, Offline App Shell & Offline Video Caching
-const OFFLINE_APP_CACHE = 'vyoma-offline-app-v2';
+const OFFLINE_APP_CACHE = 'vyoma-offline-app-v3';
 const OFFLINE_VIDEO_CACHE = 'vyoma-offline-video-v1';
 
 // 1. INSTALL: Pre-cache the standalone Offline Player application shell
@@ -8,9 +8,10 @@ self.addEventListener('install', (event) => {
     caches.open(OFFLINE_APP_CACHE).then((cache) => {
       return cache.addAll([
         '/offline.html',
+        '/offline',
         '/favicon.ico',
       ]).catch((err) => {
-        console.warn('[SW] Offline app pre-cache failed:', err);
+        console.warn('[SW] Offline app pre-cache warning:', err);
       });
     })
   );
@@ -33,7 +34,7 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// 3. FETCH INTERCEPTOR
+// 3. FETCH INTERCEPTOR (Ultra-Fast Zero-Latency Offline Delivery)
 self.addEventListener('fetch', (event) => {
   const req = event.request;
   const url = req.url;
@@ -41,42 +42,70 @@ self.addEventListener('fetch', (event) => {
   // Only handle GET requests
   if (req.method !== 'GET') return;
 
-  // A. BROWSER PAGE NAVIGATION (Offline Fallback Handler)
-  // When user is in airplane mode or has no internet, serve offline.html instead of browser error
-  if (req.mode === 'navigate') {
+  // A. INSTANT CACHE-FIRST FOR OFFLINE PAGES (/offline, /offline.html, and Next.js RSC requests)
+  // When user clicks Offline Library, serve immediately in 0ms without waiting for network!
+  if (url.includes('/offline.html') || url.includes('/offline')) {
     event.respondWith(
       (async () => {
-        try {
-          // Always try live network first when user navigates
-          return await fetch(req);
-        } catch (networkError) {
-          // Network failed! Device has no internet / airplane mode.
-          console.log('[SW] Navigation failed (offline). Serving Vyoma Offline Library.');
-          const appCache = await caches.open(OFFLINE_APP_CACHE);
-          const cachedShell = await appCache.match('/offline.html');
-          if (cachedShell) {
-            return cachedShell;
-          }
+        const appCache = await caches.open(OFFLINE_APP_CACHE);
+        const cached = (await appCache.match(url)) || (await appCache.match('/offline.html')) || (await appCache.match('/offline'));
+        if (cached) {
+          return cached;
+        }
 
-          // Fallback direct HTML in case cache was cleared
-          return new Response(
-            `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Vyoma OTT - Offline</title></head><body style="background:#080c16;color:#fff;font-family:sans-serif;text-align:center;padding:50px;"><h2>📶 Offline Mode</h2><p>You are offline. <a href="/offline.html" style="color:#f26422;font-weight:bold;">Open Offline Video Player &rarr;</a></p></body></html>`,
-            { headers: { 'Content-Type': 'text/html; charset=utf-8' } }
-          );
+        // If not in cache and online, fetch from network and cache for next time
+        try {
+          const fresh = await fetch(req);
+          if (fresh && fresh.status === 200) {
+            appCache.put(url, fresh.clone()).catch(() => {});
+          }
+          return fresh;
+        } catch (err) {
+          // Fallback to offline.html
+          const fallback = await appCache.match('/offline.html');
+          if (fallback) return fallback;
+          return new Response('Offline Library Ready', { status: 200, headers: { 'Content-Type': 'text/html' } });
         }
       })()
     );
     return;
   }
 
-  // B. STATIC OFFLINE ASSETS (offline.html or favicon)
-  if (url.includes('/offline.html')) {
+  // B. BROWSER PAGE NAVIGATION (Offline Fallback with Instant 0ms Offline Detection & 1s Fast-Race)
+  if (req.mode === 'navigate') {
     event.respondWith(
-      caches.open(OFFLINE_APP_CACHE).then(async (cache) => {
-        const cached = await cache.match(req);
-        if (cached) return cached;
-        return fetch(req);
-      })
+      (async () => {
+        // 1. Instant check: If device is already offline, return offline.html IMMEDIATELY (0ms delay)
+        if (typeof self.navigator !== 'undefined' && self.navigator.onLine === false) {
+          const appCache = await caches.open(OFFLINE_APP_CACHE);
+          const cachedShell = await appCache.match('/offline.html');
+          if (cachedShell) return cachedShell;
+        }
+
+        // 2. If online or connecting, race network with a fast 1-second timeout
+        // This prevents the browser from hanging for 10 seconds on dead/stalled connections
+        try {
+          const timeoutPromise = new Promise((_, reject) => {
+            setTimeout(() => reject(new Error('NetworkTimeout')), 1000);
+          });
+          const networkPromise = fetch(req);
+
+          return await Promise.race([networkPromise, timeoutPromise]);
+        } catch (networkError) {
+          // Network failed or timed out! Serve Vyoma Offline Library instantly
+          console.log('[SW] Network unreachable. Serving instant offline fallback shell.');
+          const appCache = await caches.open(OFFLINE_APP_CACHE);
+          const cachedShell = await appCache.match('/offline.html');
+          if (cachedShell) {
+            return cachedShell;
+          }
+
+          return new Response(
+            `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Vyoma OTT - Offline</title></head><body style="background:#080c16;color:#fff;font-family:sans-serif;text-align:center;padding:50px;"><h2>📶 Offline Mode</h2><p><a href="/offline.html" style="color:#f26422;font-weight:bold;">Open Offline Video Player &rarr;</a></p></body></html>`,
+            { headers: { 'Content-Type': 'text/html; charset=utf-8' } }
+          );
+        }
+      })()
     );
     return;
   }

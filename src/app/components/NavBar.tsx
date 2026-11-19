@@ -201,7 +201,19 @@ export default function NavBar() {
 
           {isLoggedIn ? (
             <div className="desktop-only" style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
-              <Link href="/offline" title="Offline Library" className="nav-icon-link" style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', textDecoration: 'none', color: '#cbd5e1', fontSize: '0.85rem', fontWeight: 600 }}>
+              <Link 
+                href="/offline" 
+                prefetch={false}
+                onClick={(e) => {
+                  if (typeof navigator !== 'undefined' && !navigator.onLine) {
+                    e.preventDefault();
+                    window.location.href = '/offline.html';
+                  }
+                }}
+                title="Offline Library" 
+                className="nav-icon-link" 
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', textDecoration: 'none', color: '#cbd5e1', fontSize: '0.85rem', fontWeight: 600 }}
+              >
                  <span>📥</span> <span className="profile-text">Offline</span>
               </Link>
               <Link href="/profile" title="Profile" className="profile-link nav-icon-link">
@@ -262,7 +274,14 @@ export default function NavBar() {
               </Link>
               <Link 
                 href="/offline" 
-                onClick={() => setMobileMenuOpen(false)}
+                prefetch={false}
+                onClick={(e) => {
+                  setMobileMenuOpen(false);
+                  if (typeof navigator !== 'undefined' && !navigator.onLine) {
+                    e.preventDefault();
+                    window.location.href = '/offline.html';
+                  }
+                }}
                 style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', background: 'rgba(242,100,34,0.1)', padding: '10px', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 700, border: '1px solid rgba(242,100,34,0.25)', color: '#ff8c53', textDecoration: 'none' }}
               >
                 <span>📥</span> Offline
