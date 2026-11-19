@@ -73,24 +73,44 @@ export default function OfflineDownloadsManager() {
           </p>
         </div>
 
-        {downloads.length > 0 && (
-          <button
-            onClick={handleClearAll}
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+          <Link
+            href="/offline"
             style={{
-              background: 'rgba(255,77,79,0.15)',
-              border: '1px solid rgba(255,77,79,0.3)',
-              color: '#ff4d4f',
+              background: 'linear-gradient(135deg, #f26422 0%, #ff8c53 100%)',
+              color: '#fff',
               padding: '8px 16px',
               borderRadius: '20px',
               fontSize: '0.8rem',
               fontWeight: 800,
-              cursor: 'pointer',
-              transition: 'all 0.2s',
+              textDecoration: 'none',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px'
             }}
           >
-            🗑 Clear All Downloads ({downloads.length})
-          </button>
-        )}
+            <span>▶</span> Open Offline Player Hub
+          </Link>
+
+          {downloads.length > 0 && (
+            <button
+              onClick={handleClearAll}
+              style={{
+                background: 'rgba(255,77,79,0.15)',
+                border: '1px solid rgba(255,77,79,0.3)',
+                color: '#ff4d4f',
+                padding: '8px 16px',
+                borderRadius: '20px',
+                fontSize: '0.8rem',
+                fontWeight: 800,
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+              }}
+            >
+              🗑 Clear All ({downloads.length})
+            </button>
+          )}
+        </div>
       </div>
 
       {/* DOWNLOADS LIST / GRID */}
@@ -125,9 +145,7 @@ export default function OfflineDownloadsManager() {
               day: 'numeric',
               year: 'numeric',
             });
-            const watchHref = item.courseId
-              ? `/watch/${item.courseId}${item.episodeId ? `?ep=${item.episodeId}` : ''}`
-              : '#';
+            const watchHref = `/offline?play=${encodeURIComponent(item.url)}`;
 
             return (
               <div
