@@ -108,8 +108,13 @@ export async function saveOfflineDownloadMeta(
   item: Omit<OfflineItemMeta, 'downloadedAt' | 'expiresAt'>
 ): Promise<OfflineItemMeta> {
   const nowTs = Date.now();
+  const safeCourseTitle = (item.courseTitle && item.courseTitle !== 'null' && item.courseTitle !== 'undefined')
+    ? item.courseTitle
+    : 'Vyoma Sanskrit Course';
+
   const meta: OfflineItemMeta = {
     ...item,
+    courseTitle: safeCourseTitle,
     downloadedAt: nowTs,
     expiresAt: nowTs + EXPIRY_DURATION_MS,
   };

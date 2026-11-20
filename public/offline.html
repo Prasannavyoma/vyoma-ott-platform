@@ -597,6 +597,40 @@
       return Math.max(0, Math.ceil(ms / (24 * 60 * 60 * 1000)));
     }
 
+    function formatDownloadDate(ts) {
+      if (!ts) return 'Recent';
+      try {
+        const d = new Date(ts);
+        if (isNaN(d.getTime())) return 'Recent';
+        return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+      } catch (e) {
+        return 'Recent';
+      }
+    }
+
+    function getCleanTitles(item) {
+      const rawCourse = item.courseTitle && item.courseTitle !== 'null' && item.courseTitle !== 'undefined' ? item.courseTitle : '';
+      const rawEpisode = item.episodeTitle && item.episodeTitle !== 'null' && item.episodeTitle !== 'undefined' ? item.episodeTitle : '';
+      
+      let title = '';
+      let subtitle = '';
+      
+      if (rawCourse && rawEpisode) {
+        title = `${rawCourse} - ${rawEpisode}`;
+        subtitle = rawCourse;
+      } else if (rawEpisode) {
+        title = rawEpisode;
+        subtitle = 'Offline Lesson';
+      } else if (rawCourse) {
+        title = rawCourse;
+        subtitle = 'Full Course Media';
+      } else {
+        title = 'Offline Sanskrit Lesson';
+        subtitle = 'Saved on Device';
+      }
+      return { title, subtitle };
+    }
+
     async function loadDownloads() {
       const grid = document.getElementById('downloadsGrid');
       const empty = document.getElementById('emptyState');
@@ -628,17 +662,23 @@
         const item = map[url];
         const daysLeft = calculateDaysRemaining(item.expiresAt);
         const progressWidth = Math.min(100, (daysLeft / 30) * 100);
+        const { title, subtitle } = getCleanTitles(item);
+        const dateStr = formatDownloadDate(item.downloadedAt);
 
         const card = document.createElement('div');
         card.className = 'card';
         card.innerHTML = `
           <div class="thumb-wrap">
-            <img class="thumb-img" src="${item.thumbnailUrl || '/assets/Ayodhyakanda.jpg'}" onerror="this.src='/favicon.ico'" alt="${item.courseTitle}">
+            <img class="thumb-img" src="${item.thumbnailUrl || '/assets/Ayodhyakanda.jpg'}" onerror="this.src='/favicon.ico'" alt="${title}">
             <div class="thumb-tag">✓ OFFLINE READY</div>
           </div>
           <div class="card-body">
-            <div class="card-title">${item.episodeTitle ? `${item.courseTitle} - ${item.episodeTitle}` : item.courseTitle}</div>
-            <div class="card-sub">${item.episodeTitle ? item.courseTitle : 'Full Course Media'}</div>
+            <div class="card-title">${title}</div>
+            <div class="card-sub">${subtitle}</div>
+
+            <div style="font-size: 0.74rem; color: #cbd5e1; margin-bottom: 10px; display: flex; align-items: center; gap: 5px;">
+              <span>📅</span> Downloaded: <strong style="color: #fff;">${dateStr}</strong>
+            </div>
             
             <div class="expiry-bar-container">
               <div class="expiry-text">
@@ -682,37 +722,55 @@
       const titleEl = document.getElementById('nowPlayingTitle');
       const subEl = document.getElementById('nowPlayingSub');
 
-      titleEl.textContent = item.episodeTitle ? `${item.courseTitle} - ${item.episodeTitle}` : item.courseTitle;
-      subEl.textContent = item.episodeTitle ? item.courseTitle : 'Offline Local Stream';
+      const { title } = getCleanTitles(item);
+      const dateStr = formatDownloadDate(item.downloadedAt);
+      const daysLeft = calculateDaysRemaining(item.expiresAt);
+
+      titleEl.textContent = title;
+      subEl.innerHTML = `📅 Downloaded: <strong style="color:#fff;">${dateStr}</strong> &bull; ⏱️ <strong style="color:#22c55e;">${daysLeft} days remaining</strong> &bull; Stored locally`;
 
       playerSection.style.display = 'block';
       playerSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
       try {
+        let cachedResponse = null;
         if ('caches' in window) {
-          const cache = await caches.open(CACHE_NAME);
-          let cachedResponse = await cache.match(url);
-          if (!cachedResponse) {
-            const keys = await cache.keys();
-            const matchKey = keys.find(k => k.url === url || decodeURIComponent(k.url) === decodeURIComponent(url));
-            if (matchKey) cachedResponse = await cache.match(matchKey);
-          }
+          const cacheNames = await caches.keys();
+          for (const cName of cacheNames) {
+            const c = await caches.open(cName);
+            cachedResponse = await c.match(url);
+            if (cachedResponse) break;
 
-          if (cachedResponse) {
-            const blob = await cachedResponse.blob();
-            const mimeType = cachedResponse.headers.get('content-type') || (url.endsWith('.m4a') ? 'audio/mp4' : 'video/mp4');
-            const videoBlob = blob.type ? blob : new Blob([blob], { type: mimeType });
-
-            if (currentBlobUrl && currentBlobUrl.startsWith('blob:')) {
-              URL.revokeObjectURL(currentBlobUrl);
+            const keys = await c.keys();
+            const matchKey = keys.find(k => {
+              const kUrl = k.url;
+              return kUrl === url || 
+                     decodeURIComponent(kUrl) === decodeURIComponent(url) ||
+                     encodeURI(kUrl) === encodeURI(url) ||
+                     (url.includes('/') && kUrl.endsWith(url.split('/').pop() || 'XYZ_NONE'));
+            });
+            if (matchKey) {
+              cachedResponse = await c.match(matchKey);
+              if (cachedResponse) break;
             }
-            currentBlobUrl = URL.createObjectURL(videoBlob);
-            video.src = currentBlobUrl;
-            video.load();
-            video.play().catch(e => console.log('Autoplay deferred until interaction', e));
-            return;
           }
         }
+
+        if (cachedResponse) {
+          const blob = await cachedResponse.blob();
+          const mimeType = cachedResponse.headers.get('content-type') || (url.endsWith('.m4a') ? 'audio/mp4' : 'video/mp4');
+          const videoBlob = blob.type ? blob : new Blob([blob], { type: mimeType });
+
+          if (currentBlobUrl && currentBlobUrl.startsWith('blob:')) {
+            URL.revokeObjectURL(currentBlobUrl);
+          }
+          currentBlobUrl = URL.createObjectURL(videoBlob);
+          video.src = currentBlobUrl;
+          video.load();
+          video.play().catch(e => console.log('Autoplay deferred until interaction', e));
+          return;
+        }
+
         // Fallback: try direct url (which Service Worker intercepts)
         if (currentBlobUrl && currentBlobUrl.startsWith('blob:')) {
           URL.revokeObjectURL(currentBlobUrl);

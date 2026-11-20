@@ -23,6 +23,41 @@ import {
   Home
 } from 'lucide-react';
 
+function formatDownloadDate(ts?: number) {
+  if (!ts) return 'Recent';
+  try {
+    const d = new Date(ts);
+    if (isNaN(d.getTime())) return 'Recent';
+    return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+  } catch {
+    return 'Recent';
+  }
+}
+
+function getCleanTitles(item?: OfflineItemMeta | null) {
+  if (!item) return { title: 'Offline Video', subtitle: 'Saved on Device' };
+  const rawCourse = item.courseTitle && item.courseTitle !== 'null' && item.courseTitle !== 'undefined' ? item.courseTitle : '';
+  const rawEpisode = item.episodeTitle && item.episodeTitle !== 'null' && item.episodeTitle !== 'undefined' ? item.episodeTitle : '';
+  
+  let title = '';
+  let subtitle = '';
+  
+  if (rawCourse && rawEpisode) {
+    title = `${rawCourse} - ${rawEpisode}`;
+    subtitle = rawCourse;
+  } else if (rawEpisode) {
+    title = rawEpisode;
+    subtitle = 'Offline Lesson';
+  } else if (rawCourse) {
+    title = rawCourse;
+    subtitle = 'Full Course Media';
+  } else {
+    title = 'Offline Sanskrit Lesson';
+    subtitle = 'Saved on Device';
+  }
+  return { title, subtitle };
+}
+
 function OfflinePlayerContent() {
   const searchParams = useSearchParams();
   const playParam = searchParams.get('play');
@@ -125,15 +160,23 @@ function OfflinePlayerContent() {
 
     try {
       if ('caches' in window) {
-        const cache = await caches.open('vyoma-offline-video-v1');
-        let cachedResponse = await cache.match(item.url);
+        let cachedResponse: Response | undefined = undefined;
+        const cacheNames = await caches.keys();
+        for (const cName of cacheNames) {
+          const cache = await caches.open(cName);
+          cachedResponse = await cache.match(item.url);
+          if (cachedResponse) break;
 
-        // Fallback: check all cache keys with decoded URL matching
-        if (!cachedResponse) {
           const keys = await cache.keys();
-          const matchKey = keys.find(k => k.url === item.url || decodeURIComponent(k.url) === decodeURIComponent(item.url));
+          const matchKey = keys.find(k => 
+            k.url === item.url || 
+            decodeURIComponent(k.url) === decodeURIComponent(item.url) ||
+            encodeURI(k.url) === encodeURI(item.url) ||
+            (item.url.includes('/') && k.url.endsWith(item.url.split('/').pop() || 'XYZ_NONE'))
+          );
           if (matchKey) {
             cachedResponse = await cache.match(matchKey);
+            if (cachedResponse) break;
           }
         }
 
@@ -372,10 +415,10 @@ function OfflinePlayerContent() {
               }}>
                 <div>
                   <div style={{ fontSize: '1.2rem', fontWeight: 900, color: '#fff' }}>
-                    {activeItem.episodeTitle ? `${activeItem.courseTitle} - ${activeItem.episodeTitle}` : activeItem.courseTitle}
+                    {getCleanTitles(activeItem).title}
                   </div>
                   <div style={{ fontSize: '0.85rem', color: '#94a3b8', marginTop: '4px' }}>
-                    Streaming locally from offline device storage &bull; Zero data usage
+                    📅 Downloaded: <strong style={{ color: '#fff' }}>{formatDownloadDate(activeItem.downloadedAt)}</strong> &bull; ⏱️ <strong style={{ color: '#22c55e' }}>{getRemainingDays(activeItem.expiresAt)} days left</strong> &bull; Stored locally
                   </div>
                 </div>
 
@@ -511,10 +554,14 @@ function OfflinePlayerContent() {
                         color: '#fff',
                         lineHeight: 1.35
                       }}>
-                        {item.episodeTitle ? `${item.courseTitle} - ${item.episodeTitle}` : item.courseTitle}
+                        {getCleanTitles(item).title}
                       </h4>
-                      <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginBottom: '14px' }}>
-                        {item.episodeTitle ? item.courseTitle : 'Full Video Media'}
+                      <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginBottom: '8px' }}>
+                        {getCleanTitles(item).subtitle}
+                      </div>
+
+                      <div style={{ fontSize: '0.74rem', color: '#cbd5e1', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                        <span>📅</span> Downloaded: <strong style={{ color: '#fff' }}>{formatDownloadDate(item.downloadedAt)}</strong>
                       </div>
 
                       {/* Expiry Bar */}
