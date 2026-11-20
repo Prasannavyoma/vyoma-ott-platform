@@ -413,7 +413,9 @@ export default async function HomePage() {
             const dbCatClean = (c.category || '').replace(/&amp;/g, '&').trim();
             const targetCatClean = (section.category || '').replace(/&amp;/g, '&').trim();
             
-            return dbCatClean === targetCatClean || 
+            return dbCatClean.toLowerCase().includes(targetCatClean.toLowerCase()) ||
+                   targetCatClean.toLowerCase().includes(dbCatClean.toLowerCase()) ||
+                   dbCatClean === targetCatClean || 
                    c.category === section.category ||
                    (targetCatClean === 'EBOOK' && c.contentType === 'EBOOK') ||
                    (targetCatClean === 'PODCAST' && c.contentType === 'PODCAST') ||
