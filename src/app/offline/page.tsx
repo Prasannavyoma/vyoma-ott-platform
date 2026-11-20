@@ -20,7 +20,9 @@ import {
   Wifi, 
   RefreshCw,
   HardDrive,
-  Home
+  Home,
+  X,
+  AlertTriangle
 } from 'lucide-react';
 
 function formatDownloadDate(ts?: number) {
@@ -69,6 +71,22 @@ function OfflinePlayerContent() {
   const [isOnline, setIsOnline] = useState<boolean>(true);
   const [playbackRate, setPlaybackRate] = useState<number>(1);
   const [reconnecting, setReconnecting] = useState<boolean>(false);
+  const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const [videoDurationStr, setVideoDurationStr] = useState<string>('');
+  const [videoError, setVideoError] = useState<boolean>(false);
+  const [confirmModal, setConfirmModal] = useState<{
+    open: boolean;
+    title: string;
+    description: string;
+    confirmText: string;
+    onConfirm: () => void;
+  }>({
+    open: false,
+    title: '',
+    description: '',
+    confirmText: 'Delete',
+    onConfirm: () => {},
+  });
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const playerContainerRef = useRef<HTMLDivElement>(null);
@@ -149,46 +167,80 @@ function OfflinePlayerContent() {
       videoRef.current.src = activeBlobUrl;
       videoRef.current.load();
       videoRef.current.playbackRate = playbackRate;
-      videoRef.current.play().catch(e => {
-        console.log('Autoplay deferred until user interaction:', e);
-      });
+      const p = videoRef.current.play();
+      if (p !== undefined) {
+        p.then(() => setIsPlaying(true)).catch(() => {
+          setIsPlaying(false);
+        });
+      }
     }
   }, [activeBlobUrl]);
 
+  const togglePlayPause = () => {
+    if (!videoRef.current) return;
+    if (videoRef.current.paused || videoRef.current.ended) {
+      videoRef.current.play().then(() => setIsPlaying(true)).catch(e => console.warn('Play error:', e));
+    } else {
+      videoRef.current.pause();
+      setIsPlaying(false);
+    }
+  };
+
   const playItem = async (item: OfflineItemMeta) => {
     setActiveItem(item);
+    setVideoError(false);
+    setIsPlaying(false);
 
     try {
       if ('caches' in window) {
         let cachedResponse: Response | undefined = undefined;
         const cacheNames = await caches.keys();
-        for (const cName of cacheNames) {
-          const cache = await caches.open(cName);
-          cachedResponse = await cache.match(item.url);
-          if (cachedResponse) break;
+        const decodedTarget = decodeURIComponent(item.url);
+        const encodedTarget = encodeURI(decodedTarget);
+        const targetFilename = decodedTarget.split('/').pop()?.split('?')[0] || '';
 
-          const keys = await cache.keys();
-          const matchKey = keys.find(k => 
-            k.url === item.url || 
-            decodeURIComponent(k.url) === decodeURIComponent(item.url) ||
-            encodeURI(k.url) === encodeURI(item.url) ||
-            (item.url.includes('/') && k.url.endsWith(item.url.split('/').pop() || 'XYZ_NONE'))
-          );
-          if (matchKey) {
-            cachedResponse = await cache.match(matchKey);
+        const searchOrder = cacheNames.includes('vyoma-offline-video-v1')
+          ? ['vyoma-offline-video-v1', ...cacheNames.filter(c => c !== 'vyoma-offline-video-v1')]
+          : cacheNames;
+
+        for (const cName of searchOrder) {
+          try {
+            const cache = await caches.open(cName);
+            // 1. Direct match
+            cachedResponse = (await cache.match(item.url)) || 
+                             (await cache.match(decodedTarget)) || 
+                             (await cache.match(encodedTarget));
             if (cachedResponse) break;
+
+            // 2. Deep scan
+            const keys = await cache.keys();
+            const matchKey = keys.find(k => {
+              const kUrl = k.url;
+              if (kUrl === item.url || kUrl === decodedTarget || kUrl === encodedTarget) return true;
+              if (decodeURIComponent(kUrl) === decodedTarget) return true;
+              if (targetFilename && targetFilename.length > 3 && decodeURIComponent(kUrl).includes(targetFilename)) return true;
+              return false;
+            });
+            if (matchKey) {
+              cachedResponse = await cache.match(matchKey);
+              if (cachedResponse) break;
+            }
+          } catch (e) {
+            console.warn('Cache lookup warning:', e);
           }
         }
 
         if (cachedResponse) {
           const blob = await cachedResponse.blob();
-          const mimeType = cachedResponse.headers.get('content-type') || (item.url.endsWith('.m4a') ? 'audio/mp4' : 'video/mp4');
-          const videoBlob = blob.type ? blob : new Blob([blob], { type: mimeType });
+          const isAudio = item.url.endsWith('.m4a') || item.url.endsWith('.mp3');
+          const mimeType = isAudio ? 'audio/mp4' : 'video/mp4';
+          // Enforce video/mp4 MIME type on Blob so HTML5 player decodes without error
+          const playableBlob = new Blob([blob], { type: mimeType });
 
           if (activeBlobUrl && activeBlobUrl.startsWith('blob:')) {
             URL.revokeObjectURL(activeBlobUrl);
           }
-          const blobUrl = URL.createObjectURL(videoBlob);
+          const blobUrl = URL.createObjectURL(playableBlob);
           setActiveBlobUrl(blobUrl);
 
           playerContainerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -196,15 +248,19 @@ function OfflinePlayerContent() {
         }
       }
 
-      // Fallback direct URL if cache access direct or served by Service Worker
-      if (activeBlobUrl && activeBlobUrl.startsWith('blob:')) {
-        URL.revokeObjectURL(activeBlobUrl);
+      // Fallback: direct URL if online
+      if (typeof navigator !== 'undefined' && navigator.onLine) {
+        if (activeBlobUrl && activeBlobUrl.startsWith('blob:')) {
+          URL.revokeObjectURL(activeBlobUrl);
+        }
+        setActiveBlobUrl(item.url);
+        playerContainerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        setVideoError(true);
       }
-      setActiveBlobUrl(item.url);
-      playerContainerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     } catch (err: any) {
       console.error('Could not stream cached video file:', err);
-      alert('Could not stream cached video file: ' + err.message);
+      setVideoError(true);
     }
   };
 
@@ -215,9 +271,36 @@ function OfflinePlayerContent() {
     }
   };
 
-  const handleDelete = async (url: string, title: string) => {
-    if (confirm(`Delete offline download for "${title}"?`)) {
-      if (activeItem?.url === url) {
+  const handleDelete = (url: string, title: string) => {
+    setConfirmModal({
+      open: true,
+      title: 'Delete Offline Lesson?',
+      description: `Are you sure you want to delete "${title}" from offline storage? You will need an internet connection to re-download it.`,
+      confirmText: 'Yes, Delete',
+      onConfirm: async () => {
+        if (activeItem?.url === url) {
+          setActiveItem(null);
+          if (activeBlobUrl) URL.revokeObjectURL(activeBlobUrl);
+          setActiveBlobUrl(null);
+          if (videoRef.current) {
+            videoRef.current.pause();
+            videoRef.current.src = '';
+          }
+        }
+        await removeOfflineDownload(url);
+        await refreshDownloads();
+        setConfirmModal(prev => ({ ...prev, open: false }));
+      }
+    });
+  };
+
+  const handleClearAll = () => {
+    setConfirmModal({
+      open: true,
+      title: 'Clear All Offline Downloads?',
+      description: `Are you sure you want to delete ALL ${downloads.length} downloaded lessons stored on this device? This action cannot be undone.`,
+      confirmText: 'Clear All Lessons',
+      onConfirm: async () => {
         setActiveItem(null);
         if (activeBlobUrl) URL.revokeObjectURL(activeBlobUrl);
         setActiveBlobUrl(null);
@@ -225,26 +308,13 @@ function OfflinePlayerContent() {
           videoRef.current.pause();
           videoRef.current.src = '';
         }
+        for (const item of downloads) {
+          await removeOfflineDownload(item.url);
+        }
+        await refreshDownloads();
+        setConfirmModal(prev => ({ ...prev, open: false }));
       }
-      await removeOfflineDownload(url);
-      await refreshDownloads();
-    }
-  };
-
-  const handleClearAll = async () => {
-    if (confirm('Are you sure you want to delete ALL offline downloads stored on this browser?')) {
-      setActiveItem(null);
-      if (activeBlobUrl) URL.revokeObjectURL(activeBlobUrl);
-      setActiveBlobUrl(null);
-      if (videoRef.current) {
-        videoRef.current.pause();
-        videoRef.current.src = '';
-      }
-      for (const item of downloads) {
-        await removeOfflineDownload(item.url);
-      }
-      await refreshDownloads();
-    }
+    });
   };
 
   return (
@@ -393,14 +463,99 @@ function OfflinePlayerContent() {
                   ref={videoRef}
                   src={activeBlobUrl || undefined}
                   controls
-                  autoPlay
                   playsInline
+                  preload="auto"
                   controlsList="nodownload"
                   style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                  onPlay={() => setIsPlaying(true)}
+                  onPause={() => setIsPlaying(false)}
+                  onEnded={() => setIsPlaying(false)}
+                  onLoadedMetadata={(e) => {
+                    const dur = e.currentTarget.duration;
+                    if (!isNaN(dur) && dur > 0) {
+                      const mins = Math.floor(dur / 60);
+                      const secs = Math.floor(dur % 60);
+                      setVideoDurationStr(`${mins}:${secs < 10 ? '0' : ''}${secs}`);
+                    }
+                  }}
                   onError={(e) => {
                     console.error('Offline player playback error:', e);
+                    setVideoError(true);
                   }}
                 />
+
+                {/* Big Center Play Button Overlay */}
+                {!isPlaying && !videoError && (
+                  <button
+                    onClick={togglePlayPause}
+                    aria-label="Play Lesson"
+                    style={{
+                      position: 'absolute',
+                      top: '50%',
+                      left: '50%',
+                      transform: 'translate(-50%, -50%)',
+                      width: '76px',
+                      height: '76px',
+                      borderRadius: '50%',
+                      background: 'linear-gradient(135deg, rgba(242, 100, 34, 0.95) 0%, rgba(255, 126, 66, 0.9) 100%)',
+                      border: '3px solid rgba(255, 255, 255, 0.4)',
+                      color: '#fff',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '2rem',
+                      cursor: 'pointer',
+                      boxShadow: '0 10px 30px rgba(0, 0, 0, 0.7), 0 0 35px rgba(242, 100, 34, 0.6)',
+                      zIndex: 5,
+                      paddingLeft: '4px'
+                    }}
+                  >
+                    <Play size={32} fill="#fff" />
+                  </button>
+                )}
+
+                {/* Offline Video Not Found Error Overlay */}
+                {videoError && (
+                  <div style={{
+                    position: 'absolute',
+                    inset: 0,
+                    background: 'rgba(10, 14, 26, 0.94)',
+                    backdropFilter: 'blur(8px)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '24px',
+                    textAlign: 'center',
+                    zIndex: 10
+                  }}>
+                    <AlertTriangle size={48} color="#ef4444" style={{ marginBottom: '12px' }} />
+                    <div style={{ fontSize: '1.2rem', fontWeight: 800, color: '#fff', marginBottom: '6px' }}>
+                      Offline Video File Not Found
+                    </div>
+                    <div style={{ fontSize: '0.88rem', color: '#94a3b8', maxWidth: '400px', marginBottom: '18px', lineHeight: 1.5 }}>
+                      This lesson could not be loaded from offline storage. Please check your internet connection to stream or re-download.
+                    </div>
+                    <button
+                      onClick={handleReconnect}
+                      style={{
+                        background: '#ffffff',
+                        color: '#000000',
+                        border: 'none',
+                        padding: '8px 18px',
+                        borderRadius: '20px',
+                        fontSize: '0.82rem',
+                        fontWeight: 800,
+                        cursor: 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px'
+                      }}
+                    >
+                      <RefreshCw size={14} /> Check Connection
+                    </button>
+                  </div>
+                )}
               </div>
 
               <div style={{
@@ -418,7 +573,7 @@ function OfflinePlayerContent() {
                     {getCleanTitles(activeItem).title}
                   </div>
                   <div style={{ fontSize: '0.85rem', color: '#94a3b8', marginTop: '4px' }}>
-                    📅 Downloaded: <strong style={{ color: '#fff' }}>{formatDownloadDate(activeItem.downloadedAt)}</strong> &bull; ⏱️ <strong style={{ color: '#22c55e' }}>{getRemainingDays(activeItem.expiresAt)} days left</strong> &bull; Stored locally
+                    📅 Downloaded: <strong style={{ color: '#fff' }}>{formatDownloadDate(activeItem.downloadedAt)}</strong> &bull; ⏱️ <strong style={{ color: '#22c55e' }}>{getRemainingDays(activeItem.expiresAt)} days left</strong> &bull; Stored locally{videoDurationStr ? ` • ⏱️ Duration: ${videoDurationStr}` : ''}
                   </div>
                 </div>
 
@@ -633,6 +788,132 @@ function OfflinePlayerContent() {
           )}
 
         </div>
+
+        {/* NETFLIX-STYLE CONFIRMATION MODAL */}
+        {confirmModal.open && (
+          <div 
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setConfirmModal(prev => ({ ...prev, open: false }));
+            }}
+            style={{
+              position: 'fixed',
+              inset: 0,
+              background: 'rgba(0, 0, 0, 0.82)',
+              backdropFilter: 'blur(10px)',
+              WebkitBackdropFilter: 'blur(10px)',
+              zIndex: 99999,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '20px'
+            }}
+          >
+            <div style={{
+              position: 'relative',
+              background: 'linear-gradient(155deg, #161e31 0%, #0d1322 100%)',
+              border: '1px solid rgba(255, 255, 255, 0.14)',
+              borderRadius: '24px',
+              maxWidth: '440px',
+              width: '100%',
+              padding: '34px 28px 28px',
+              textAlign: 'center',
+              boxShadow: '0 25px 70px rgba(0, 0, 0, 0.9), 0 0 45px rgba(239, 68, 68, 0.15)'
+            }}>
+              <button
+                onClick={() => setConfirmModal(prev => ({ ...prev, open: false }))}
+                style={{
+                  position: 'absolute',
+                  top: '14px',
+                  right: '14px',
+                  background: 'transparent',
+                  border: 'none',
+                  color: '#94a3b8',
+                  cursor: 'pointer',
+                  width: '34px',
+                  height: '34px',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+                aria-label="Close modal"
+              >
+                <X size={18} />
+              </button>
+
+              <div style={{
+                width: '68px',
+                height: '68px',
+                borderRadius: '50%',
+                background: 'radial-gradient(circle, rgba(239, 68, 68, 0.25) 0%, rgba(239, 68, 68, 0.05) 70%)',
+                border: '1px solid rgba(239, 68, 68, 0.45)',
+                margin: '0 auto 18px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 0 25px rgba(239, 68, 68, 0.25)'
+              }}>
+                <Trash2 size={30} color="#ef4444" />
+              </div>
+
+              <h3 style={{
+                fontSize: '1.35rem',
+                fontWeight: 900,
+                color: '#fff',
+                margin: '0 0 8px 0',
+                letterSpacing: '-0.3px'
+              }}>
+                {confirmModal.title}
+              </h3>
+
+              <p style={{
+                fontSize: '0.92rem',
+                color: '#94a3b8',
+                lineHeight: 1.5,
+                margin: '0 0 24px 0'
+              }}>
+                {confirmModal.description}
+              </p>
+
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <button
+                  onClick={confirmModal.onConfirm}
+                  style={{
+                    flex: 1,
+                    background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                    color: '#fff',
+                    border: 'none',
+                    padding: '12px 18px',
+                    borderRadius: '12px',
+                    fontWeight: 800,
+                    fontSize: '0.92rem',
+                    cursor: 'pointer',
+                    boxShadow: '0 8px 20px rgba(239, 68, 68, 0.35)'
+                  }}
+                >
+                  {confirmModal.confirmText}
+                </button>
+
+                <button
+                  onClick={() => setConfirmModal(prev => ({ ...prev, open: false }))}
+                  style={{
+                    flex: 1,
+                    background: 'rgba(255, 255, 255, 0.08)',
+                    color: '#f1f5f9',
+                    border: '1px solid rgba(255, 255, 255, 0.16)',
+                    padding: '12px 18px',
+                    borderRadius: '12px',
+                    fontWeight: 700,
+                    fontSize: '0.92rem',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
       <Footer />
     </>

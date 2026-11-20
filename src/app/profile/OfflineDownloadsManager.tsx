@@ -8,10 +8,24 @@ import {
   getRemainingDays, 
   OfflineItemMeta 
 } from '@/lib/offlineStorage';
+import { Trash2, X } from 'lucide-react';
 
 export default function OfflineDownloadsManager() {
   const [downloads, setDownloads] = useState<OfflineItemMeta[]>([]);
   const [loading, setLoading] = useState(true);
+  const [confirmModal, setConfirmModal] = useState<{
+    open: boolean;
+    title: string;
+    description: string;
+    confirmText: string;
+    onConfirm: () => void;
+  }>({
+    open: false,
+    title: '',
+    description: '',
+    confirmText: 'Delete',
+    onConfirm: () => {},
+  });
 
   const refreshDownloads = async () => {
     setLoading(true);
@@ -29,20 +43,34 @@ export default function OfflineDownloadsManager() {
     refreshDownloads();
   }, []);
 
-  const handleDelete = async (url: string, title: string) => {
-    if (confirm(`Delete offline download for "${title}"?`)) {
-      await removeOfflineDownload(url);
-      await refreshDownloads();
-    }
+  const handleDelete = (url: string, title: string) => {
+    setConfirmModal({
+      open: true,
+      title: 'Delete Offline Lesson?',
+      description: `Are you sure you want to delete "${title}" from offline storage? You will need an internet connection to re-download it.`,
+      confirmText: 'Yes, Delete',
+      onConfirm: async () => {
+        await removeOfflineDownload(url);
+        await refreshDownloads();
+        setConfirmModal(prev => ({ ...prev, open: false }));
+      }
+    });
   };
 
-  const handleClearAll = async () => {
-    if (confirm('Are you sure you want to delete ALL offline downloads?')) {
-      for (const item of downloads) {
-        await removeOfflineDownload(item.url);
+  const handleClearAll = () => {
+    setConfirmModal({
+      open: true,
+      title: 'Clear All Offline Downloads?',
+      description: `Are you sure you want to delete ALL ${downloads.length} downloaded lessons stored on this device? This action cannot be undone.`,
+      confirmText: 'Clear All Lessons',
+      onConfirm: async () => {
+        for (const item of downloads) {
+          await removeOfflineDownload(item.url);
+        }
+        await refreshDownloads();
+        setConfirmModal(prev => ({ ...prev, open: false }));
       }
-      await refreshDownloads();
-    }
+    });
   };
 
   if (loading) {
@@ -296,6 +324,132 @@ export default function OfflineDownloadsManager() {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* NETFLIX-STYLE CONFIRMATION MODAL */}
+      {confirmModal.open && (
+        <div 
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setConfirmModal(prev => ({ ...prev, open: false }));
+          }}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0, 0, 0, 0.82)',
+            backdropFilter: 'blur(10px)',
+            WebkitBackdropFilter: 'blur(10px)',
+            zIndex: 99999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '20px'
+          }}
+        >
+          <div style={{
+            position: 'relative',
+            background: 'linear-gradient(155deg, #161e31 0%, #0d1322 100%)',
+            border: '1px solid rgba(255, 255, 255, 0.14)',
+            borderRadius: '24px',
+            maxWidth: '440px',
+            width: '100%',
+            padding: '34px 28px 28px',
+            textAlign: 'center',
+            boxShadow: '0 25px 70px rgba(0, 0, 0, 0.9), 0 0 45px rgba(239, 68, 68, 0.15)'
+          }}>
+            <button
+              onClick={() => setConfirmModal(prev => ({ ...prev, open: false }))}
+              style={{
+                position: 'absolute',
+                top: '14px',
+                right: '14px',
+                background: 'transparent',
+                border: 'none',
+                color: '#94a3b8',
+                cursor: 'pointer',
+                width: '34px',
+                height: '34px',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+              aria-label="Close modal"
+            >
+              <X size={18} />
+            </button>
+
+            <div style={{
+              width: '68px',
+              height: '68px',
+              borderRadius: '50%',
+              background: 'radial-gradient(circle, rgba(239, 68, 68, 0.25) 0%, rgba(239, 68, 68, 0.05) 70%)',
+              border: '1px solid rgba(239, 68, 68, 0.45)',
+              margin: '0 auto 18px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 0 25px rgba(239, 68, 68, 0.25)'
+            }}>
+              <Trash2 size={30} color="#ef4444" />
+            </div>
+
+            <h3 style={{
+              fontSize: '1.35rem',
+              fontWeight: 900,
+              color: '#fff',
+              margin: '0 0 8px 0',
+              letterSpacing: '-0.3px'
+            }}>
+              {confirmModal.title}
+            </h3>
+
+            <p style={{
+              fontSize: '0.92rem',
+              color: '#94a3b8',
+              lineHeight: 1.5,
+              margin: '0 0 24px 0'
+            }}>
+              {confirmModal.description}
+            </p>
+
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button
+                onClick={confirmModal.onConfirm}
+                style={{
+                  flex: 1,
+                  background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                  color: '#fff',
+                  border: 'none',
+                  padding: '12px 18px',
+                  borderRadius: '12px',
+                  fontWeight: 800,
+                  fontSize: '0.92rem',
+                  cursor: 'pointer',
+                  boxShadow: '0 8px 20px rgba(239, 68, 68, 0.35)'
+                }}
+              >
+                {confirmModal.confirmText}
+              </button>
+
+              <button
+                onClick={() => setConfirmModal(prev => ({ ...prev, open: false }))}
+                style={{
+                  flex: 1,
+                  background: 'rgba(255, 255, 255, 0.08)',
+                  color: '#f1f5f9',
+                  border: '1px solid rgba(255, 255, 255, 0.16)',
+                  padding: '12px 18px',
+                  borderRadius: '12px',
+                  fontWeight: 700,
+                  fontSize: '0.92rem',
+                  cursor: 'pointer'
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

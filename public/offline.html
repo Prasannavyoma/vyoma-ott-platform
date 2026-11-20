@@ -387,6 +387,197 @@
       font-size: 0.8rem;
       border-top: 1px solid var(--card-border);
     }
+
+    /* CENTER PLAY OVERLAY BUTTON */
+    .play-overlay-btn {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(242, 100, 34, 0.95) 0%, rgba(255, 126, 66, 0.9) 100%);
+      border: 3px solid rgba(255, 255, 255, 0.4);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      cursor: pointer;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), 0 0 35px rgba(242, 100, 34, 0.6);
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 5;
+      padding-left: 5px; /* visually center play triangle */
+    }
+
+    .play-overlay-btn:hover {
+      transform: translate(-50%, -50%) scale(1.1);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.85), 0 0 50px rgba(242, 100, 34, 0.9);
+    }
+
+    .play-overlay-btn.hidden {
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, -50%) scale(0.8);
+    }
+
+    /* IN-PLAYER ERROR OVERLAY */
+    .player-error-overlay {
+      display: none;
+      position: absolute;
+      inset: 0;
+      background: rgba(10, 14, 26, 0.94);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      text-align: center;
+      z-index: 10;
+    }
+
+    .player-error-overlay.visible {
+      display: flex;
+    }
+
+    /* NETFLIX-STYLE CONFIRM MODAL */
+    .netflix-modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.82);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      z-index: 99999;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      animation: modalFadeIn 0.2s ease-out;
+    }
+
+    .netflix-modal-backdrop.open {
+      display: flex;
+    }
+
+    @keyframes modalFadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes modalCardIn {
+      from { opacity: 0; transform: scale(0.92) translateY(12px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .netflix-modal-card {
+      position: relative;
+      background: linear-gradient(155deg, #161e31 0%, #0d1322 100%);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 24px;
+      max-width: 440px;
+      width: 100%;
+      padding: 34px 28px 28px;
+      text-align: center;
+      box-shadow: 0 25px 70px rgba(0, 0, 0, 0.9), 0 0 45px rgba(239, 68, 68, 0.15);
+      animation: modalCardIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .netflix-modal-close {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      font-size: 1.6rem;
+      line-height: 1;
+      cursor: pointer;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+    }
+
+    .netflix-modal-close:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+
+    .netflix-modal-icon-wrap {
+      width: 68px;
+      height: 68px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(239, 68, 68, 0.25) 0%, rgba(239, 68, 68, 0.05) 70%);
+      border: 1px solid rgba(239, 68, 68, 0.45);
+      margin: 0 auto 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      box-shadow: 0 0 25px rgba(239, 68, 68, 0.25);
+    }
+
+    .netflix-modal-title {
+      font-size: 1.35rem;
+      font-weight: 900;
+      color: #fff;
+      margin-bottom: 8px;
+      letter-spacing: -0.3px;
+    }
+
+    .netflix-modal-desc {
+      font-size: 0.92rem;
+      color: #94a3b8;
+      line-height: 1.5;
+      margin-bottom: 24px;
+    }
+
+    .netflix-modal-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .netflix-btn-danger {
+      flex: 1;
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      color: #fff;
+      border: none;
+      padding: 12px 18px;
+      border-radius: 12px;
+      font-weight: 800;
+      font-size: 0.92rem;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(239, 68, 68, 0.35);
+      transition: all 0.2s;
+    }
+
+    .netflix-btn-danger:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 25px rgba(239, 68, 68, 0.5);
+    }
+
+    .netflix-btn-cancel {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.08);
+      color: #f1f5f9;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      padding: 12px 18px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 0.92rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .netflix-btn-cancel:hover {
+      background: rgba(255, 255, 255, 0.14);
+      color: #fff;
+    }
   </style>
 </head>
 <body>
@@ -417,7 +608,20 @@
     <!-- Embedded Offline Player Section -->
     <section id="playerSection" class="player-section">
       <div class="video-wrapper">
-        <video id="offlineVideo" controls playsinline controlslist="nodownload"></video>
+        <video id="offlineVideo" controls playsinline controlslist="nodownload" preload="auto"></video>
+        <!-- Center Play Overlay Button -->
+        <button id="playOverlayBtn" class="play-overlay-btn" onclick="togglePlayPause()" title="Play Lesson" aria-label="Play Lesson">
+          ▶
+        </button>
+        <!-- In-Player Offline Error Overlay -->
+        <div id="playerErrorOverlay" class="player-error-overlay">
+          <div style="font-size: 2.2rem; margin-bottom: 10px;">⚠️</div>
+          <div style="font-size: 1.15rem; font-weight: 800; color: #fff; margin-bottom: 6px;">Offline Video File Not Found</div>
+          <div style="font-size: 0.88rem; color: #94a3b8; max-width: 400px; margin-bottom: 18px; line-height: 1.5;">
+            This lesson could not be loaded from offline storage. Please connect to the internet to stream or re-download.
+          </div>
+          <button class="btn-reconnect" onclick="tryReconnect(this)">🔄 Check Connection</button>
+        </div>
       </div>
       <div class="player-details">
         <div>
@@ -454,6 +658,24 @@
       <button class="btn-reconnect" style="font-size: 0.9rem; padding: 8px 18px;" onclick="tryReconnect(this)">
         Check Internet &amp; Return Home
       </button>
+    </div>
+  </div>
+
+  <!-- Netflix-Style Centered Confirmation Modal -->
+  <div id="netflixModal" class="netflix-modal-backdrop" onclick="handleBackdropClick(event)">
+    <div class="netflix-modal-card">
+      <button class="netflix-modal-close" onclick="closeNetflixModal()" title="Close">&times;</button>
+      <div class="netflix-modal-icon-wrap">
+        <span>🗑️</span>
+      </div>
+      <h3 id="modalTitle" class="netflix-modal-title">Delete Offline Download?</h3>
+      <p id="modalDesc" class="netflix-modal-desc">
+        This lesson will be removed from your device storage. You will need an internet connection to re-download it.
+      </p>
+      <div class="netflix-modal-actions">
+        <button id="modalConfirmBtn" class="netflix-btn-danger">Yes, Delete</button>
+        <button class="netflix-btn-cancel" onclick="closeNetflixModal()">Cancel</button>
+      </div>
     </div>
   </div>
 
@@ -711,6 +933,132 @@
       }
     }
 
+    // Netflix-Style Modal Controller
+    function showNetflixConfirm(opts) {
+      const modal = document.getElementById('netflixModal');
+      const titleEl = document.getElementById('modalTitle');
+      const descEl = document.getElementById('modalDesc');
+      const confirmBtn = document.getElementById('modalConfirmBtn');
+
+      if (titleEl) titleEl.textContent = opts.title || 'Confirm Action';
+      if (descEl) descEl.textContent = opts.desc || 'Are you sure you want to proceed?';
+      if (confirmBtn) {
+        confirmBtn.textContent = opts.confirmText || 'Delete';
+        confirmBtn.onclick = () => {
+          closeNetflixModal();
+          if (typeof opts.onConfirm === 'function') opts.onConfirm();
+        };
+      }
+      if (modal) modal.classList.add('open');
+    }
+
+    function closeNetflixModal() {
+      const modal = document.getElementById('netflixModal');
+      if (modal) modal.classList.remove('open');
+    }
+
+    function handleBackdropClick(e) {
+      if (e.target && e.target.id === 'netflixModal') {
+        closeNetflixModal();
+      }
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeNetflixModal();
+    });
+
+    // Toggle Play/Pause via Big Center Play Button
+    function togglePlayPause() {
+      const video = document.getElementById('offlineVideo');
+      if (!video) return;
+      if (video.paused || video.ended) {
+        video.play().catch(e => console.warn('Play error:', e));
+      } else {
+        video.pause();
+      }
+    }
+
+    // Video Event Listeners (handles play overlay, error state, duration badge)
+    function setupVideoEventListeners() {
+      const video = document.getElementById('offlineVideo');
+      const overlayBtn = document.getElementById('playOverlayBtn');
+      const errOverlay = document.getElementById('playerErrorOverlay');
+      if (!video) return;
+
+      video.addEventListener('play', () => {
+        if (overlayBtn) overlayBtn.classList.add('hidden');
+        if (errOverlay) errOverlay.classList.remove('visible');
+      });
+
+      video.addEventListener('pause', () => {
+        if (overlayBtn) overlayBtn.classList.remove('hidden');
+      });
+
+      video.addEventListener('ended', () => {
+        if (overlayBtn) overlayBtn.classList.remove('hidden');
+      });
+
+      video.addEventListener('loadedmetadata', () => {
+        if (errOverlay) errOverlay.classList.remove('visible');
+        const duration = video.duration;
+        if (!isNaN(duration) && duration > 0) {
+          const mins = Math.floor(duration / 60);
+          const secs = Math.floor(duration % 60);
+          const timeStr = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+          const durationBadge = document.getElementById('playerDurationBadge');
+          if (durationBadge) durationBadge.textContent = timeStr;
+        }
+      });
+
+      video.addEventListener('error', (e) => {
+        console.warn('Video element playback error:', e);
+        if (errOverlay) errOverlay.classList.add('visible');
+        if (overlayBtn) overlayBtn.classList.add('hidden');
+      });
+    }
+
+    // Deep Cached Video Finder: Checks exact, decoded, encoded, and filename-matched keys across all caches
+    async function getCachedVideoResponse(url) {
+      if (!('caches' in window)) return null;
+
+      const cacheNames = await caches.keys();
+      const decodedTarget = decodeURIComponent(url);
+      const encodedTarget = encodeURI(decodedTarget);
+      const targetFilename = decodedTarget.split('/').pop()?.split('?')[0] || '';
+
+      const searchOrder = cacheNames.includes(CACHE_NAME)
+        ? [CACHE_NAME, ...cacheNames.filter(c => c !== CACHE_NAME)]
+        : cacheNames;
+
+      for (const cName of searchOrder) {
+        try {
+          const cache = await caches.open(cName);
+          // 1. Direct key match
+          let resp = (await cache.match(url)) || 
+                     (await cache.match(decodedTarget)) || 
+                     (await cache.match(encodedTarget));
+          if (resp) return resp;
+
+          // 2. Deep key inspection
+          const keys = await cache.keys();
+          const matchKey = keys.find(k => {
+            const kUrl = k.url;
+            if (kUrl === url || kUrl === decodedTarget || kUrl === encodedTarget) return true;
+            if (decodeURIComponent(kUrl) === decodedTarget) return true;
+            if (targetFilename && targetFilename.length > 3 && decodeURIComponent(kUrl).includes(targetFilename)) return true;
+            return false;
+          });
+          if (matchKey) {
+            resp = await cache.match(matchKey);
+            if (resp) return resp;
+          }
+        } catch (e) {
+          console.warn('Cache inspection warning:', e);
+        }
+      }
+      return null;
+    }
+
     async function playOfflineVideo(encodedUrl) {
       const url = decodeURIComponent(encodedUrl);
       const map = getStoredMap();
@@ -721,107 +1069,156 @@
       const video = document.getElementById('offlineVideo');
       const titleEl = document.getElementById('nowPlayingTitle');
       const subEl = document.getElementById('nowPlayingSub');
+      const overlayBtn = document.getElementById('playOverlayBtn');
+      const errOverlay = document.getElementById('playerErrorOverlay');
+
+      if (errOverlay) errOverlay.classList.remove('visible');
+      if (overlayBtn) overlayBtn.classList.remove('hidden');
 
       const { title } = getCleanTitles(item);
       const dateStr = formatDownloadDate(item.downloadedAt);
       const daysLeft = calculateDaysRemaining(item.expiresAt);
 
       titleEl.textContent = title;
-      subEl.innerHTML = `📅 Downloaded: <strong style="color:#fff;">${dateStr}</strong> &bull; ⏱️ <strong style="color:#22c55e;">${daysLeft} days remaining</strong> &bull; Stored locally`;
+      subEl.innerHTML = `📅 Downloaded: <strong style="color:#fff;">${dateStr}</strong> &bull; ⏱️ <strong style="color:#22c55e;">${daysLeft} days remaining</strong> &bull; Stored locally &bull; <span id="playerDurationBadge" style="color:#ffaa77; font-weight:800;">Offline Ready</span>`;
 
       playerSection.style.display = 'block';
       playerSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
       try {
-        let cachedResponse = null;
-        if ('caches' in window) {
-          const cacheNames = await caches.keys();
-          for (const cName of cacheNames) {
-            const c = await caches.open(cName);
-            cachedResponse = await c.match(url);
-            if (cachedResponse) break;
-
-            const keys = await c.keys();
-            const matchKey = keys.find(k => {
-              const kUrl = k.url;
-              return kUrl === url || 
-                     decodeURIComponent(kUrl) === decodeURIComponent(url) ||
-                     encodeURI(kUrl) === encodeURI(url) ||
-                     (url.includes('/') && kUrl.endsWith(url.split('/').pop() || 'XYZ_NONE'));
-            });
-            if (matchKey) {
-              cachedResponse = await c.match(matchKey);
-              if (cachedResponse) break;
-            }
-          }
-        }
+        const cachedResponse = await getCachedVideoResponse(url);
 
         if (cachedResponse) {
           const blob = await cachedResponse.blob();
-          const mimeType = cachedResponse.headers.get('content-type') || (url.endsWith('.m4a') ? 'audio/mp4' : 'video/mp4');
-          const videoBlob = blob.type ? blob : new Blob([blob], { type: mimeType });
+          const isAudio = url.endsWith('.m4a') || url.endsWith('.mp3');
+          const mimeType = isAudio ? 'audio/mp4' : 'video/mp4';
+
+          // Critical fix: Always force explicit video/mp4 MIME type on Blob so HTML5 player decodes without errors!
+          const playableBlob = new Blob([blob], { type: mimeType });
 
           if (currentBlobUrl && currentBlobUrl.startsWith('blob:')) {
             URL.revokeObjectURL(currentBlobUrl);
           }
-          currentBlobUrl = URL.createObjectURL(videoBlob);
+          currentBlobUrl = URL.createObjectURL(playableBlob);
           video.src = currentBlobUrl;
+          video.preload = 'auto';
           video.load();
-          video.play().catch(e => console.log('Autoplay deferred until interaction', e));
+
+          // Attempt play; if browser blocks unmuted autoplay, user clicks the prominent play button overlay
+          const playPromise = video.play();
+          if (playPromise !== undefined) {
+            playPromise.then(() => {
+              if (overlayBtn) overlayBtn.classList.add('hidden');
+            }).catch(() => {
+              if (overlayBtn) overlayBtn.classList.remove('hidden');
+            });
+          }
           return;
         }
 
-        // Fallback: try direct url (which Service Worker intercepts)
-        if (currentBlobUrl && currentBlobUrl.startsWith('blob:')) {
-          URL.revokeObjectURL(currentBlobUrl);
+        // If not in cache and online, attempt direct network stream
+        if (typeof navigator !== 'undefined' && navigator.onLine) {
+          if (currentBlobUrl && currentBlobUrl.startsWith('blob:')) {
+            URL.revokeObjectURL(currentBlobUrl);
+          }
+          video.src = url;
+          video.preload = 'auto';
+          video.load();
+          video.play().catch(() => {
+            if (overlayBtn) overlayBtn.classList.remove('hidden');
+          });
+        } else {
+          // Device is offline and video wasn't found in cache
+          console.warn('Video not found in cache and device is offline');
+          if (errOverlay) errOverlay.classList.add('visible');
+          if (overlayBtn) overlayBtn.classList.add('hidden');
         }
-        video.src = url;
-        video.load();
-        video.play().catch(e => console.log('Autoplay deferred until interaction', e));
       } catch (err) {
         console.error('Playback error:', err);
-        alert('Could not stream cached video file. Error: ' + err.message);
+        if (errOverlay) errOverlay.classList.add('visible');
       }
     }
 
     function setSpeed(rate) {
       const video = document.getElementById('offlineVideo');
-      video.playbackRate = rate;
+      if (video) video.playbackRate = rate;
       document.querySelectorAll('.speed-btn').forEach(b => {
         b.classList.toggle('active', parseFloat(b.textContent) === rate);
       });
     }
 
-    async function deleteItem(encodedUrl) {
+    function deleteItem(encodedUrl) {
       const url = decodeURIComponent(encodedUrl);
-      if (!confirm('Are you sure you want to delete this downloaded video from your device?')) return;
-
-      if ('caches' in window) {
-        const cache = await caches.open(CACHE_NAME);
-        await cache.delete(url);
-      }
       const map = getStoredMap();
-      delete map[url];
-      localStorage.setItem(METADATA_KEY, JSON.stringify(map));
-      loadDownloads();
+      const item = map[url];
+      const title = item ? getCleanTitles(item).title : 'this downloaded lesson';
+
+      showNetflixConfirm({
+        title: 'Delete Offline Lesson?',
+        desc: `Are you sure you want to delete "${title}" from offline storage? You will need an internet connection to re-download it.`,
+        confirmText: 'Yes, Delete',
+        onConfirm: async () => {
+          if ('caches' in window) {
+            const cacheNames = await caches.keys();
+            for (const cName of cacheNames) {
+              const cache = await caches.open(cName);
+              await cache.delete(url);
+              await cache.delete(decodeURIComponent(url));
+              await cache.delete(encodeURI(decodeURIComponent(url)));
+            }
+          }
+          const currentMap = getStoredMap();
+          delete currentMap[url];
+          localStorage.setItem(METADATA_KEY, JSON.stringify(currentMap));
+
+          // If current playing video was deleted, reset player
+          const video = document.getElementById('offlineVideo');
+          const playerSection = document.getElementById('playerSection');
+          if (video && (video.src === url || (currentBlobUrl && video.src === currentBlobUrl))) {
+            video.pause();
+            video.src = '';
+            if (playerSection) playerSection.style.display = 'none';
+          }
+          loadDownloads();
+        }
+      });
     }
 
-    async function clearAllDownloads() {
-      if (!confirm('Are you sure you want to delete ALL offline downloads stored on this browser?')) return;
+    function clearAllDownloads() {
+      const map = getStoredMap();
+      const count = Object.keys(map).length;
+      if (count === 0) return;
 
-      if ('caches' in window) {
-        await caches.delete(CACHE_NAME);
-      }
-      localStorage.removeItem(METADATA_KEY);
-      const playerSection = document.getElementById('playerSection');
-      playerSection.style.display = 'none';
-      const video = document.getElementById('offlineVideo');
-      video.pause();
-      video.src = '';
-      loadDownloads();
+      showNetflixConfirm({
+        title: 'Clear All Offline Downloads?',
+        desc: `Are you sure you want to delete ALL ${count} downloaded lessons stored on this device? This action cannot be undone.`,
+        confirmText: 'Clear All Lessons',
+        onConfirm: async () => {
+          if ('caches' in window) {
+            try {
+              await caches.delete(CACHE_NAME);
+            } catch (e) {}
+          }
+          localStorage.removeItem(METADATA_KEY);
+
+          const playerSection = document.getElementById('playerSection');
+          if (playerSection) playerSection.style.display = 'none';
+          const video = document.getElementById('offlineVideo');
+          if (video) {
+            video.pause();
+            video.src = '';
+          }
+          if (currentBlobUrl && currentBlobUrl.startsWith('blob:')) {
+            URL.revokeObjectURL(currentBlobUrl);
+            currentBlobUrl = null;
+          }
+          loadDownloads();
+        }
+      });
     }
 
     // Initialize on load
+    setupVideoEventListeners();
     loadDownloads();
   </script>
 </body>

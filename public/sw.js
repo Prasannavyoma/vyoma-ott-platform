@@ -1,5 +1,5 @@
 // Vyoma OTT Service Worker - Push Notifications, Offline App Shell & Offline Video Caching
-const OFFLINE_APP_CACHE = 'vyoma-offline-app-v5';
+const OFFLINE_APP_CACHE = 'vyoma-offline-app-v6';
 const OFFLINE_VIDEO_CACHE = 'vyoma-offline-video-v1';
 
 // 1. INSTALL: Pre-cache the standalone Offline Player application shell
@@ -128,12 +128,23 @@ self.addEventListener('fetch', (event) => {
 
         if (!cachedResponse) {
           const keys = await cache.keys();
-          const matchKey = keys.find(k => k.url === url || decodeURIComponent(k.url) === decodeURIComponent(url));
+          const decodedTarget = decodeURIComponent(url);
+          const encodedTarget = encodeURI(decodedTarget);
+          const urlFilename = decodedTarget.split('/').pop()?.split('?')[0] || '';
+
+          const matchKey = keys.find(k => {
+            const kUrl = k.url;
+            if (kUrl === url || kUrl === decodedTarget || kUrl === encodedTarget) return true;
+            if (decodeURIComponent(kUrl) === decodedTarget) return true;
+            if (urlFilename && urlFilename.length > 3 && decodeURIComponent(kUrl).includes(urlFilename)) return true;
+            return false;
+          });
           if (matchKey) cachedResponse = await cache.match(matchKey);
         }
 
         if (cachedResponse) {
-          const mimeType = cachedResponse.headers.get('Content-Type') || (url.endsWith('.m4a') ? 'audio/mp4' : 'video/mp4');
+          const rawMime = cachedResponse.headers.get('Content-Type');
+          const mimeType = (rawMime && rawMime.includes('/')) ? rawMime : (url.endsWith('.m4a') ? 'audio/mp4' : 'video/mp4');
 
           // HTML5 Video Range request handling (Range: bytes=start-end)
           const rangeHeader = req.headers.get('range');
@@ -168,7 +179,12 @@ self.addEventListener('fetch', (event) => {
           let fallback = (await cache.match(url)) || (await cache.match(req));
           if (!fallback) {
             const keys = await cache.keys();
-            const matchKey = keys.find(k => k.url === url || decodeURIComponent(k.url) === decodeURIComponent(url));
+            const decodedTarget = decodeURIComponent(url);
+            const urlFilename = decodedTarget.split('/').pop()?.split('?')[0] || '';
+            const matchKey = keys.find(k => {
+              const kUrl = k.url;
+              return kUrl === url || decodeURIComponent(kUrl) === decodedTarget || (urlFilename && urlFilename.length > 3 && decodeURIComponent(kUrl).includes(urlFilename));
+            });
             if (matchKey) fallback = await cache.match(matchKey);
           }
           if (fallback) return fallback;

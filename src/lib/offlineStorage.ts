@@ -134,12 +134,17 @@ export async function removeOfflineDownload(url: string): Promise<boolean> {
   try {
     const cache = await caches.open(CACHE_NAME);
     await cache.delete(url);
+    await cache.delete(decodeURIComponent(url));
+    await cache.delete(encodeURI(decodeURIComponent(url)));
 
     const map = getStoredMetadataMap();
     if (map[url]) {
       delete map[url];
-      saveStoredMetadataMap(map);
     }
+    if (map[decodeURIComponent(url)]) {
+      delete map[decodeURIComponent(url)];
+    }
+    saveStoredMetadataMap(map);
     return true;
   } catch (e) {
     console.error('Failed to delete offline download:', e);
