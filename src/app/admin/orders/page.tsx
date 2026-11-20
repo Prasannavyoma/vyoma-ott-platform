@@ -21,6 +21,19 @@ export default async function OrdersAdminPage() {
     }
   });
 
+  // Fetch subscription & order events from telemetry
+  const subscriptionEvents = await prisma.telemetryEvent.findMany({
+    where: { eventType: { in: ['PLAN_UPGRADE', 'AUTO_RENEWAL'] } },
+    orderBy: { createdAt: 'desc' }
+  });
+
+  // Map users for subscription events
+  const subUserIds = [...new Set(subscriptionEvents.map(e => e.userId).filter(Boolean))] as string[];
+  const subUsers = await prisma.user.findMany({
+    where: { id: { in: subUserIds } }
+  });
+  const subUserMap = new Map(subUsers.map(u => [u.id, u]));
+
   // Normalize into a unified ledger format for the finance team
   const rawLedger = [
     ...standardPurchases.map(p => ({
@@ -30,7 +43,9 @@ export default async function OrdersAdminPage() {
       // Ensure safe fallback if missing
       hsnCode: (p as any).hsnCode || '998439',
       placeOfSupply: (p as any).placeOfSupply || p.user?.state || 'Unknown',
-      billingAddress: (p as any).billingAddress || p.user?.address || 'Unknown'
+      billingAddress: (p as any).billingAddress || p.user?.address || 'Unknown',
+      razorpayOrderId: p.razorpayOrderId || null,
+      razorpayPaymentId: p.razorpayPaymentId || null
     })),
     ...bundlePurchases.map(p => ({
       ...p,
@@ -38,8 +53,28 @@ export default async function OrdersAdminPage() {
       productName: p.bundle?.title || 'Unknown Bundle',
       hsnCode: '998439', // Standard digital goods fallback
       placeOfSupply: p.user?.state || 'Unknown',
-      billingAddress: p.user?.address || 'Unknown'
-    }))
+      billingAddress: p.user?.address || 'Unknown',
+      razorpayOrderId: (p as any).razorpayOrderId || null,
+      razorpayPaymentId: (p as any).razorpayPaymentId || null
+    })),
+    ...subscriptionEvents.map(e => {
+      let meta: any = {};
+      try { meta = JSON.parse(e.metadata || '{}'); } catch {}
+      const user = e.userId ? subUserMap.get(e.userId) : null;
+      return {
+        id: `sub-${e.id}`,
+        type: 'SUBSCRIPTION',
+        productName: meta.productName || `Vyoma ${meta.plan || user?.plan || 'Membership'} Plan`,
+        amount: meta.amount || (meta.plan === 'PLATINUM' ? (meta.interval === 'YEARLY' ? 499 : 49) : 399),
+        createdAt: e.createdAt,
+        user: user || { name: 'Subscriber', email: 'N/A' },
+        hsnCode: meta.hsnCode || '998439',
+        placeOfSupply: meta.placeOfSupply || user?.state || 'Karnataka (29)',
+        billingAddress: meta.billingAddress || user?.address || 'Registered Subscriber',
+        razorpayOrderId: meta.orderId || `WP-${e.sourceId}`,
+        razorpayPaymentId: meta.orderId || 'WP-COMPLETED'
+      };
+    })
   ];
 
   // Sort unified ledger descending by creation time
@@ -58,11 +93,23 @@ export default async function OrdersAdminPage() {
         where: { id: orderId },
         data: { hsnCode, placeOfSupply } as any
       });
+    } else if (type === 'SUBSCRIPTION') {
+      const cleanId = orderId.replace('sub-', '');
+      const event = await prisma.telemetryEvent.findUnique({ where: { id: cleanId } });
+      if (event && event.metadata) {
+        try {
+          const meta = JSON.parse(event.metadata);
+          meta.hsnCode = hsnCode;
+          meta.placeOfSupply = placeOfSupply;
+          await prisma.telemetryEvent.update({
+            where: { id: cleanId },
+            data: { metadata: JSON.stringify(meta) }
+          });
+        } catch {}
+      }
     }
     revalidatePath('/admin/orders');
   }
-
-
 
   // Server Action to delete a selected transaction record
   async function deleteOrder(formData: FormData) {
@@ -72,8 +119,11 @@ export default async function OrdersAdminPage() {
 
     if (type === 'COURSE') {
       await prisma.purchase.delete({ where: { id: orderId } });
-    } else {
+    } else if (type === 'BUNDLE') {
       await prisma.bundlePurchase.delete({ where: { id: orderId } });
+    } else if (type === 'SUBSCRIPTION') {
+      const cleanId = orderId.replace('sub-', '');
+      await prisma.telemetryEvent.delete({ where: { id: cleanId } }).catch(() => null);
     }
 
     revalidatePath('/admin/orders');
