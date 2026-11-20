@@ -214,17 +214,18 @@ function OfflinePlayerContent() {
 
             // 2. Deep scan
             const keys = await cache.keys();
-            const matchKey = keys.find(k => {
+            for (const k of keys) {
               const kUrl = k.url;
-              if (kUrl === item.url || kUrl === decodedTarget || kUrl === encodedTarget) return true;
-              if (decodeURIComponent(kUrl) === decodedTarget) return true;
-              if (targetFilename && targetFilename.length > 3 && decodeURIComponent(kUrl).includes(targetFilename)) return true;
-              return false;
-            });
-            if (matchKey) {
-              cachedResponse = await cache.match(matchKey);
-              if (cachedResponse) break;
+              const kDecoded = decodeURIComponent(kUrl);
+              const matches = (kUrl === item.url || kUrl === decodedTarget || kUrl === encodedTarget) ||
+                              (kDecoded === decodedTarget) ||
+                              (targetFilename && targetFilename.length > 3 && (kDecoded.includes(targetFilename) || kUrl.includes(targetFilename)));
+              if (matches) {
+                cachedResponse = (await cache.match(k)) || (await cache.match(kUrl));
+                if (cachedResponse) break;
+              }
             }
+            if (cachedResponse) break;
           } catch (e) {
             console.warn('Cache lookup warning:', e);
           }
@@ -232,6 +233,12 @@ function OfflinePlayerContent() {
 
         if (cachedResponse) {
           const blob = await cachedResponse.blob();
+          if (blob.size === 0) {
+            console.warn('[Offline React] File in cache has 0 bytes!');
+            setVideoError(true);
+            return;
+          }
+
           const isAudio = item.url.endsWith('.m4a') || item.url.endsWith('.mp3');
           const mimeType = isAudio ? 'audio/mp4' : 'video/mp4';
           // Enforce video/mp4 MIME type on Blob so HTML5 player decodes without error

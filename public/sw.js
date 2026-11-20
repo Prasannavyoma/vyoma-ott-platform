@@ -1,5 +1,5 @@
 // Vyoma OTT Service Worker - Push Notifications, Offline App Shell & Offline Video Caching
-const OFFLINE_APP_CACHE = 'vyoma-offline-app-v6';
+const OFFLINE_APP_CACHE = 'vyoma-offline-app-v7';
 const OFFLINE_VIDEO_CACHE = 'vyoma-offline-video-v1';
 
 // 1. INSTALL: Pre-cache the standalone Offline Player application shell

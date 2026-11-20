@@ -73,18 +73,37 @@ export default function DownloadButton({
     try {
       const cache = await caches.open('vyoma-offline-video-v1');
 
-      // Route through server-authenticated edge/node proxy to verify login session & audit event
-      const queryParams = new URLSearchParams({
-        url: videoUrl,
-        courseId: courseId || '',
-        episodeId: episodeId || '',
-        courseTitle: courseTitle || '',
-        episodeTitle: episodeTitle || '',
-      });
-      const fetchUrl = `/api/offline-proxy?${queryParams.toString()}`;
+      // 1. Audit telemetry in background via lightweight JSON POST
+      fetch('/api/offline-proxy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          url: videoUrl,
+          courseId: courseId || '',
+          episodeId: episodeId || '',
+          courseTitle: courseTitle || '',
+          episodeTitle: episodeTitle || '',
+        })
+      }).catch((e) => console.warn('Telemetry audit warning:', e));
 
       setProgress(15);
-      const response = await fetch(fetchUrl);
+
+      // 2. High-speed Direct CDN download (avoids Vercel's 4.5MB serverless response limit and enables full streaming)
+      let response: Response;
+      try {
+        response = await fetch(videoUrl);
+        if (!response.ok) throw new Error(`Direct CDN fetch status ${response.status}`);
+      } catch (directErr) {
+        console.warn('Direct fetch failed, falling back to offline proxy:', directErr);
+        const queryParams = new URLSearchParams({
+          url: videoUrl,
+          courseId: courseId || '',
+          episodeId: episodeId || '',
+          courseTitle: courseTitle || '',
+          episodeTitle: episodeTitle || '',
+        });
+        response = await fetch(`/api/offline-proxy?${queryParams.toString()}`);
+      }
       
       if (response.status === 401) {
         alert('Authentication required: Please log in to download videos for offline viewing.');
@@ -94,10 +113,12 @@ export default function DownloadButton({
         return;
       }
 
-      if (!response.ok) throw new Error('Network failed or proxy rejected');
+      if (!response.ok) throw new Error('Video download request failed: HTTP ' + response.status);
 
       const contentLength = response.headers.get('content-length');
       const totalBytes = contentLength ? parseInt(contentLength, 10) : 0;
+
+      let blob: Blob;
 
       if (response.body && totalBytes > 0) {
         const reader = response.body.getReader();
@@ -116,35 +137,45 @@ export default function DownloadButton({
         }
 
         const mimeType = response.headers.get('content-type') || (videoUrl.endsWith('.m4a') ? 'audio/mp4' : 'video/mp4');
-        const blob = new Blob(chunks, { type: mimeType });
-
-        const cacheHeaders = new Headers(response.headers);
-        cacheHeaders.set('Content-Type', mimeType);
-        cacheHeaders.set('Content-Length', String(blob.size));
-        cacheHeaders.set('Accept-Ranges', 'bytes');
-
-        const responseToCache = new Response(blob, {
-          status: 200,
-          statusText: 'OK',
-          headers: cacheHeaders,
-        });
-        await cache.put(videoUrl, responseToCache);
+        blob = new Blob(chunks, { type: mimeType });
       } else {
-        // Simulated progress steps for unannounced stream sizes
+        // Fallback progress for unannounced content length
         setProgress(35);
-        await new Promise(r => setTimeout(r, 300));
+        await new Promise(r => setTimeout(r, 200));
         setProgress(70);
         const rawBlob = await response.blob();
         const mimeType = response.headers.get('content-type') || rawBlob.type || (videoUrl.endsWith('.m4a') ? 'audio/mp4' : 'video/mp4');
-        const blob = rawBlob.type ? rawBlob : new Blob([rawBlob], { type: mimeType });
-        setProgress(90);
+        blob = new Blob([rawBlob], { type: mimeType });
+        setProgress(95);
+      }
 
-        const cacheHeaders = new Headers(response.headers);
-        cacheHeaders.set('Content-Type', mimeType);
-        cacheHeaders.set('Content-Length', String(blob.size));
-        cacheHeaders.set('Accept-Ranges', 'bytes');
+      // Verify that the downloaded file is a valid non-empty media file
+      if (blob.size < 50000) {
+        throw new Error(`Downloaded media is incomplete (${blob.size} bytes). Please verify your connection.`);
+      }
 
-        await cache.put(videoUrl, new Response(blob, { status: 200, headers: cacheHeaders }));
+      const mimeType = videoUrl.endsWith('.m4a') ? 'audio/mp4' : 'video/mp4';
+      const cacheHeaders = new Headers(response.headers);
+      cacheHeaders.set('Content-Type', mimeType);
+      cacheHeaders.set('Content-Length', String(blob.size));
+      cacheHeaders.set('Accept-Ranges', 'bytes');
+
+      const responseToCache = new Response(blob, {
+        status: 200,
+        statusText: 'OK',
+        headers: cacheHeaders,
+      });
+
+      // Save under multiple key representations (raw, decoded, encoded) so matching is 100% resilient
+      const decodedUrl = decodeURIComponent(videoUrl);
+      const encodedUrl = encodeURI(decodedUrl);
+
+      await cache.put(videoUrl, responseToCache.clone());
+      if (decodedUrl !== videoUrl) {
+        await cache.put(decodedUrl, responseToCache.clone());
+      }
+      if (encodedUrl !== videoUrl && encodedUrl !== decodedUrl) {
+        await cache.put(encodedUrl, responseToCache);
       }
 
       // Save metadata with 30-day expiration

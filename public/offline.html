@@ -616,11 +616,14 @@
         <!-- In-Player Offline Error Overlay -->
         <div id="playerErrorOverlay" class="player-error-overlay">
           <div style="font-size: 2.2rem; margin-bottom: 10px;">⚠️</div>
-          <div style="font-size: 1.15rem; font-weight: 800; color: #fff; margin-bottom: 6px;">Offline Video File Not Found</div>
-          <div style="font-size: 0.88rem; color: #94a3b8; max-width: 400px; margin-bottom: 18px; line-height: 1.5;">
+          <div id="errorOverlayHeading" style="font-size: 1.15rem; font-weight: 800; color: #fff; margin-bottom: 6px;">Offline Video File Not Found</div>
+          <div id="errorOverlayDesc" style="font-size: 0.88rem; color: #94a3b8; max-width: 420px; margin-bottom: 18px; line-height: 1.5;">
             This lesson could not be loaded from offline storage. Please connect to the internet to stream or re-download.
           </div>
-          <button class="btn-reconnect" onclick="tryReconnect(this)">🔄 Check Connection</button>
+          <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
+            <button class="btn-reconnect" onclick="tryReconnect(this)">🔄 Check Connection</button>
+            <button id="errorDeleteBtn" style="background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #ef4444; padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 800; cursor: pointer;" onclick="deleteCurrentFailedVideo()">🗑 Delete &amp; Clear</button>
+          </div>
         </div>
       </div>
       <div class="player-details">
@@ -978,11 +981,28 @@
       }
     }
 
+    let currentFailedUrl = null;
+    let videoFailedOnce = false;
+
+    function deleteCurrentFailedVideo() {
+      if (currentFailedUrl) {
+        deleteItem(encodeURIComponent(currentFailedUrl));
+      } else {
+        const map = getStoredMap();
+        const urls = Object.keys(map);
+        if (urls.length > 0) {
+          deleteItem(encodeURIComponent(urls[0]));
+        }
+      }
+    }
+
     // Video Event Listeners (handles play overlay, error state, duration badge)
     function setupVideoEventListeners() {
       const video = document.getElementById('offlineVideo');
       const overlayBtn = document.getElementById('playOverlayBtn');
       const errOverlay = document.getElementById('playerErrorOverlay');
+      const errHeading = document.getElementById('errorOverlayHeading');
+      const errDesc = document.getElementById('errorOverlayDesc');
       if (!video) return;
 
       video.addEventListener('play', () => {
@@ -1000,6 +1020,7 @@
 
       video.addEventListener('loadedmetadata', () => {
         if (errOverlay) errOverlay.classList.remove('visible');
+        videoFailedOnce = false;
         const duration = video.duration;
         if (!isNaN(duration) && duration > 0) {
           const mins = Math.floor(duration / 60);
@@ -1012,7 +1033,22 @@
 
       video.addEventListener('error', (e) => {
         console.warn('Video element playback error:', e);
+        // Fallback: If blob: URL failed to decode, try streaming via Service Worker Range interceptor before giving up
+        if (currentBlobUrl && video.src === currentBlobUrl && currentFailedUrl && !videoFailedOnce) {
+          videoFailedOnce = true;
+          console.log('[Offline Playback] Blob decoding failed, falling back to Service Worker URL stream:', currentFailedUrl);
+          video.src = currentFailedUrl;
+          video.preload = 'auto';
+          video.load();
+          video.play().catch(() => {
+            if (overlayBtn) overlayBtn.classList.remove('hidden');
+          });
+          return;
+        }
+
         if (errOverlay) errOverlay.classList.add('visible');
+        if (errHeading) errHeading.textContent = 'Offline Video Unavailable';
+        if (errDesc) errDesc.textContent = 'This lesson could not be loaded from local storage. The previous download may have been interrupted or incomplete. Please delete this item and re-download when online.';
         if (overlayBtn) overlayBtn.classList.add('hidden');
       });
     }
@@ -1033,7 +1069,7 @@
       for (const cName of searchOrder) {
         try {
           const cache = await caches.open(cName);
-          // 1. Direct key match
+          // 1. Direct key match (URL strings)
           let resp = (await cache.match(url)) || 
                      (await cache.match(decodedTarget)) || 
                      (await cache.match(encodedTarget));
@@ -1041,16 +1077,16 @@
 
           // 2. Deep key inspection
           const keys = await cache.keys();
-          const matchKey = keys.find(k => {
+          for (const k of keys) {
             const kUrl = k.url;
-            if (kUrl === url || kUrl === decodedTarget || kUrl === encodedTarget) return true;
-            if (decodeURIComponent(kUrl) === decodedTarget) return true;
-            if (targetFilename && targetFilename.length > 3 && decodeURIComponent(kUrl).includes(targetFilename)) return true;
-            return false;
-          });
-          if (matchKey) {
-            resp = await cache.match(matchKey);
-            if (resp) return resp;
+            const kDecoded = decodeURIComponent(kUrl);
+            const matches = (kUrl === url || kUrl === decodedTarget || kUrl === encodedTarget) ||
+                            (kDecoded === decodedTarget) ||
+                            (targetFilename && targetFilename.length > 3 && (kDecoded.includes(targetFilename) || kUrl.includes(targetFilename)));
+            if (matches) {
+              resp = (await cache.match(k)) || (await cache.match(kUrl));
+              if (resp) return resp;
+            }
           }
         } catch (e) {
           console.warn('Cache inspection warning:', e);
@@ -1064,6 +1100,9 @@
       const map = getStoredMap();
       const item = map[url];
       if (!item) return;
+
+      currentFailedUrl = url;
+      videoFailedOnce = false;
 
       const playerSection = document.getElementById('playerSection');
       const video = document.getElementById('offlineVideo');
@@ -1090,6 +1129,19 @@
 
         if (cachedResponse) {
           const blob = await cachedResponse.blob();
+          console.log('[Offline Playback] Found cached blob of size:', blob.size, 'type:', blob.type);
+
+          if (blob.size === 0) {
+            console.warn('[Offline Playback] File in cache has 0 bytes!');
+            if (errOverlay) errOverlay.classList.add('visible');
+            const errHeading = document.getElementById('errorOverlayHeading');
+            const errDesc = document.getElementById('errorOverlayDesc');
+            if (errHeading) errHeading.textContent = 'Downloaded File Is Incomplete (0 Bytes)';
+            if (errDesc) errDesc.textContent = 'This lesson was saved with 0 bytes due to an interrupted connection. Please delete this item below and re-download when online.';
+            if (overlayBtn) overlayBtn.classList.add('hidden');
+            return;
+          }
+
           const isAudio = url.endsWith('.m4a') || url.endsWith('.mp3');
           const mimeType = isAudio ? 'audio/mp4' : 'video/mp4';
 
@@ -1131,6 +1183,10 @@
           // Device is offline and video wasn't found in cache
           console.warn('Video not found in cache and device is offline');
           if (errOverlay) errOverlay.classList.add('visible');
+          const errHeading = document.getElementById('errorOverlayHeading');
+          const errDesc = document.getElementById('errorOverlayDesc');
+          if (errHeading) errHeading.textContent = 'Offline Video Unavailable';
+          if (errDesc) errDesc.textContent = 'This lesson was not found in browser storage or the previous download was interrupted. Please delete and re-download when online.';
           if (overlayBtn) overlayBtn.classList.add('hidden');
         }
       } catch (err) {

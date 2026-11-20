@@ -115,12 +115,51 @@ export async function GET(request: NextRequest) {
   }
 }
 
+export async function POST(request: NextRequest) {
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const body = await request.json().catch(() => ({}));
+    const { url, courseId, episodeId, courseTitle, episodeTitle } = body;
+
+    await prisma.telemetryEvent.create({
+      data: {
+        eventType: 'OFFLINE_DOWNLOAD',
+        sourceId: episodeId || courseId || 'offline_media',
+        userId: user.id,
+        metadata: JSON.stringify({
+          userId: user.id,
+          userEmail: user.email,
+          userName: user.name || 'Learner',
+          userPlan: user.plan || 'FREE',
+          courseId: courseId || null,
+          episodeId: episodeId || null,
+          courseTitle: courseTitle || null,
+          episodeTitle: episodeTitle || null,
+          url: url || null,
+          ip: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown',
+          userAgent: request.headers.get('user-agent') || 'unknown',
+          downloadedAt: new Date().toISOString()
+        })
+      }
+    });
+
+    return NextResponse.json({ ok: true });
+  } catch (e: any) {
+    console.error('Failed to log offline audit event:', e);
+    return NextResponse.json({ ok: false, error: e?.message }, { status: 500 });
+  }
+}
+
 export async function OPTIONS() {
   return new NextResponse(null, {
     status: 200,
     headers: {
       'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, OPTIONS',
+      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, Authorization, Range',
     }
   });
