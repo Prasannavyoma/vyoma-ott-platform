@@ -82,13 +82,22 @@ export async function activateSubscription(userId: string, newPlan: string, inte
       }
     }
 
+    const daysToAdd = interval === 'YEARLY' ? 365 : 30;
+    const now = new Date();
+    let newExpiry = new Date(now.getTime() + daysToAdd * 24 * 60 * 60 * 1000);
+    // If user has existing active expiration that is in the future, preserve it
+    if (user.planExpiresAt && new Date(user.planExpiresAt) > now) {
+      newExpiry = new Date(user.planExpiresAt);
+    }
+
     await prisma.user.update({
       where: { id: userId },
       data: { 
         plan: newPlan,
         planInterval: interval,
         razorpaySubscriptionId: razorpaySubscriptionId,
-        planStartedAt: new Date(),
+        planStartedAt: user.planStartedAt || now,
+        planExpiresAt: newExpiry,
         coins: { increment: 200 } // Loyalty reward for subscribing
       }
     });

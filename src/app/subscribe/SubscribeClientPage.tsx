@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { createRazorpaySubscription } from '@/app/actions/razorpay';
+import { createRazorpaySubscription, createRazorpayOrder } from '@/app/actions/razorpay';
 import { activateSubscription } from '@/app/actions/plans';
 import RazorpayCheckoutButton from '@/app/components/RazorpayCheckoutButton';
 import AiSalesBot from '@/app/components/AiSalesBot';
@@ -24,11 +24,14 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
   const [targetPlan, setTargetPlan] = useState<Plan | null>(null);
   const [isInitializing, setIsInitializing] = useState(false);
   const [subData, setSubData] = useState<any>(null);
+  const [pricingMode, setPricingMode] = useState<'PRORATED' | 'FLAT'>('PRORATED');
   
   // DYNAMIC CYCLE LOCK ENGINE
   const calculateDaysUsed = () => {
-    if (!currentUser?.planStartedAt || currentUser.plan === 'FREE') return 0;
-    const start = new Date(currentUser.planStartedAt).getTime();
+    if (currentUser?.plan === 'FREE') return 0;
+    const refDate = currentUser?.planStartedAt || currentUser?.createdAt;
+    if (!refDate) return 30; // default safe fallback (1 month used)
+    const start = new Date(refDate).getTime();
     const now = new Date().getTime();
     const diffDays = Math.floor((now - start) / (1000 * 60 * 60 * 24));
     return Math.max(0, diffDays);
@@ -104,20 +107,35 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
 
   // DYNAMIC PRORATION ENGINE
   const calculateProration = () => {
-    if (!targetPlan) return { unusedCredit: '0.00', newProRatedCost: '0.00', netDue: '0.00', remainingDays: 0, dailyOld: '0.00', dailyNew: '0.00' };
+    if (!targetPlan) return { 
+      unusedCredit: '0.00', 
+      newProRatedCost: '0.00', 
+      netDue: '0.00', 
+      flatDifference: '0.00',
+      effectiveDue: '0.00',
+      remainingDays: 0, 
+      dailyOld: '0.00', 
+      dailyNew: '0.00',
+      isUpgrade: false
+    };
     
     const targetDays = getDaysForInterval(targetPlan.interval);
     const newPrice = getP(targetPlan);
     const dailyNew = newPrice / targetDays;
 
-    if (currentTier === 'FREE' || !currentUser?.planStartedAt) {
+    const refDate = currentUser?.planStartedAt || currentUser?.createdAt;
+
+    if (currentTier === 'FREE' || !refDate) {
       return {
         unusedCredit: "0.00",
         newProRatedCost: newPrice.toFixed(2),
         netDue: newPrice.toFixed(2),
+        flatDifference: newPrice.toFixed(2),
+        effectiveDue: newPrice.toFixed(2),
         dailyOld: "0.00",
         dailyNew: dailyNew.toFixed(2),
-        remainingDays: targetDays
+        remainingDays: targetDays,
+        isUpgrade: false
       };
     }
 
@@ -130,14 +148,23 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
     const newProRatedCost = dailyNew * remainingDays;
     
     const netDue = Math.max(0, newProRatedCost - unusedCredit);
+    const flatDifference = Math.max(0, newPrice - oldPrice);
+    const isUpgrade = currentTier !== 'FREE' && newPrice > oldPrice;
+
+    const effectiveDue = pricingMode === 'FLAT' 
+      ? flatDifference.toFixed(2) 
+      : (netDue > 0 ? netDue.toFixed(2) : flatDifference.toFixed(2));
     
     return {
       unusedCredit: unusedCredit.toFixed(2),
       newProRatedCost: newProRatedCost.toFixed(2),
       netDue: netDue.toFixed(2),
+      flatDifference: flatDifference.toFixed(2),
+      effectiveDue: effectiveDue,
       dailyOld: dailyOld.toFixed(2),
       dailyNew: dailyNew.toFixed(2),
-      remainingDays
+      remainingDays,
+      isUpgrade
     };
   };
 
@@ -157,26 +184,37 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
     if (!targetPlan || !currentUser) return;
     setIsInitializing(true);
     
-    const amountToCharge = parseFloat(calc.netDue.toString()) > 0 ? parseFloat(calc.netDue.toString()) : 1;
-        const getTotalCount = (inv: string) => {
-         switch (inv.toUpperCase()) {
-           case 'YEARLY': return 10; // 10 years
-           case 'QUARTERLY': return 40; // 10 years
-           case 'MONTHLY': return 120; // 10 years
-           case 'WEEKLY': return 520; // 10 years
-           case 'DAILY': return 3650; // 10 years
-           default: return 120;
-         }
+    const amountToCharge = parseFloat(calc.effectiveDue.toString()) > 0 ? parseFloat(calc.effectiveDue.toString()) : 1;
+
+    let res: any;
+    if (calc.isUpgrade) {
+      // 🚀 ONE-TIME UPGRADE PAYMENT ORDER (Customer pays only the difference/prorated amount)
+      res = await createRazorpayOrder({
+        amount: amountToCharge,
+        currency: region === 'INDIA' ? 'INR' : 'USD'
+      });
+    } else {
+      // NEW RECURRING SUBSCRIPTION MANDATE
+      const getTotalCount = (inv: string) => {
+        switch (inv.toUpperCase()) {
+          case 'YEARLY': return 10; // 10 years
+          case 'QUARTERLY': return 40; // 10 years
+          case 'MONTHLY': return 120; // 10 years
+          case 'WEEKLY': return 520; // 10 years
+          case 'DAILY': return 3650; // 10 years
+          default: return 120;
+        }
       };
 
-      const res = await createRazorpaySubscription({
-         name: `Vyoma ${targetPlan.name} Plan`,
-         description: `Auto-renewing ${targetPlan.interval} mandate`,
-         amount: amountToCharge,
-         currency: region === 'INDIA' ? 'INR' : 'USD',
-         interval: targetPlan.interval.toLowerCase(),
-         totalCount: getTotalCount(targetPlan.interval)
+      res = await createRazorpaySubscription({
+        name: `Vyoma ${targetPlan.name} Plan`,
+        description: `Auto-renewing ${targetPlan.interval} mandate`,
+        amount: amountToCharge,
+        currency: region === 'INDIA' ? 'INR' : 'USD',
+        interval: targetPlan.interval.toLowerCase(),
+        totalCount: getTotalCount(targetPlan.interval)
       });
+    }
     
     setSubData(res);
     setIsInitializing(false);
@@ -184,11 +222,12 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
 
   const handleSuccess = async (response: any) => {
      if (!targetPlan || !currentUser) return;
+     const paymentOrSubId = response.razorpay_payment_id || response.razorpay_subscription_id || subData?.subscriptionId || subData?.orderId || 'upgrade_txn';
      await activateSubscription(
        currentUser.id,
        targetPlan.name,
        targetPlan.interval,
-       response.razorpay_subscription_id || subData.subscriptionId
+       paymentOrSubId
      );
      window.location.href='/profile';
   };
@@ -660,49 +699,66 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
             </div>
 
             {/* DUAL ACTION BUTTONS (INR / USD) */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', zIndex: 2 }}>
-              <button 
-                onClick={() => selectedGold && startUpgradeFlow(selectedGold, 'INDIA')}
-                style={{ 
-                  width: '100%',
-                  padding: '13px', 
-                  border: '1px solid #f26422', 
-                  borderRadius: '12px', 
-                  fontWeight: 800,
-                  fontSize: '0.9rem',
-                  background: 'linear-gradient(135deg, rgba(242,100,34,0.2) 0%, rgba(242,100,34,0.05) 100%)',
-                  color: '#fff',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease',
-                  textAlign: 'center'
-                }} 
-                onMouseEnter={(e) => { e.currentTarget.style.background = '#f26422'; }} 
-                onMouseLeave={(e) => { e.currentTarget.style.background = 'linear-gradient(135deg, rgba(242,100,34,0.2) 0%, rgba(242,100,34,0.05) 100%)'; }}
-              >
-                🇮🇳 Pay ₹{selectedGold ? getINRPrice(selectedGold) : '39'} (India)
-              </button>
+            {currentTier === 'GOLD' ? (
+              <div style={{
+                width: '100%',
+                padding: '14px',
+                borderRadius: '12px',
+                fontWeight: 900,
+                fontSize: '0.88rem',
+                background: 'rgba(242, 100, 34, 0.15)',
+                border: '1px solid rgba(242, 100, 34, 0.4)',
+                color: '#ff8c53',
+                textAlign: 'center',
+                letterSpacing: '1px'
+              }}>
+                ✓ YOUR ACTIVE MEMBERSHIP
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', zIndex: 2 }}>
+                <button 
+                  onClick={() => selectedGold && startUpgradeFlow(selectedGold, 'INDIA')}
+                  style={{ 
+                    width: '100%',
+                    padding: '13px', 
+                    border: '1px solid #f26422', 
+                    borderRadius: '12px', 
+                    fontWeight: 800,
+                    fontSize: '0.9rem',
+                    background: 'linear-gradient(135deg, rgba(242,100,34,0.2) 0%, rgba(242,100,34,0.05) 100%)',
+                    color: '#fff',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease',
+                    textAlign: 'center'
+                  }} 
+                  onMouseEnter={(e) => { e.currentTarget.style.background = '#f26422'; }} 
+                  onMouseLeave={(e) => { e.currentTarget.style.background = 'linear-gradient(135deg, rgba(242,100,34,0.2) 0%, rgba(242,100,34,0.05) 100%)'; }}
+                >
+                  🇮🇳 Pay ₹{selectedGold ? getINRPrice(selectedGold) : '39'} (India)
+                </button>
 
-              <button 
-                onClick={() => selectedGold && startUpgradeFlow(selectedGold, 'ABROAD')}
-                style={{ 
-                  width: '100%',
-                  padding: '13px', 
-                  border: '1px solid #3b82f6', 
-                  borderRadius: '12px', 
-                  fontWeight: 800,
-                  fontSize: '0.9rem',
-                  background: 'linear-gradient(135deg, rgba(59,130,246,0.2) 0%, rgba(59,130,246,0.05) 100%)',
-                  color: '#60a5fa',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease',
-                  textAlign: 'center'
-                }} 
-                onMouseEnter={(e) => { e.currentTarget.style.background = '#3b82f6'; e.currentTarget.style.color = '#fff'; }} 
-                onMouseLeave={(e) => { e.currentTarget.style.background = 'linear-gradient(135deg, rgba(59,130,246,0.2) 0%, rgba(59,130,246,0.05) 100%)'; e.currentTarget.style.color = '#60a5fa'; }}
-              >
-                🌍 Pay ${selectedGold ? getUSDPrice(selectedGold) : '3'} (Abroad)
-              </button>
-            </div>
+                <button 
+                  onClick={() => selectedGold && startUpgradeFlow(selectedGold, 'ABROAD')}
+                  style={{ 
+                    width: '100%',
+                    padding: '13px', 
+                    border: '1px solid #3b82f6', 
+                    borderRadius: '12px', 
+                    fontWeight: 800,
+                    fontSize: '0.9rem',
+                    background: 'linear-gradient(135deg, rgba(59,130,246,0.2) 0%, rgba(59,130,246,0.05) 100%)',
+                    color: '#60a5fa',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease',
+                    textAlign: 'center'
+                  }} 
+                  onMouseEnter={(e) => { e.currentTarget.style.background = '#3b82f6'; e.currentTarget.style.color = '#fff'; }} 
+                  onMouseLeave={(e) => { e.currentTarget.style.background = 'linear-gradient(135deg, rgba(59,130,246,0.2) 0%, rgba(59,130,246,0.05) 100%)'; e.currentTarget.style.color = '#60a5fa'; }}
+                >
+                  🌍 Pay ${selectedGold ? getUSDPrice(selectedGold) : '3'} (Abroad)
+                </button>
+              </div>
+            )}
           </div>
 
           {/* CARD 3: PLATINUM PLAN */}
@@ -777,50 +833,71 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
             </div>
 
             {/* DUAL ACTION BUTTONS (INR / USD) */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', zIndex: 2 }}>
-              <button 
-                onClick={() => selectedPlatinum && startUpgradeFlow(selectedPlatinum, 'INDIA')}
-                style={{ 
-                  width: '100%',
-                  padding: '13px', 
-                  border: 'none', 
-                  borderRadius: '12px', 
-                  fontWeight: 900,
-                  fontSize: '0.9rem',
-                  background: 'linear-gradient(135deg, #f26422 0%, #ff8c53 100%)',
-                  color: '#fff',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease',
-                  textAlign: 'center',
-                  boxShadow: '0 4px 15px rgba(242,100,34,0.3)'
-                }} 
-                onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.02)'; }} 
-                onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
-              >
-                🇮🇳 Pay ₹{selectedPlatinum ? getINRPrice(selectedPlatinum) : '999'} (India)
-              </button>
+            {currentTier === 'PLATINUM' ? (
+              <div style={{
+                width: '100%',
+                padding: '14px',
+                borderRadius: '12px',
+                fontWeight: 900,
+                fontSize: '0.88rem',
+                background: 'rgba(70, 211, 105, 0.15)',
+                border: '1px solid rgba(70, 211, 105, 0.4)',
+                color: '#46d369',
+                textAlign: 'center',
+                letterSpacing: '1px'
+              }}>
+                ✓ HIGHEST TIER ACTIVE
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', zIndex: 2 }}>
+                <button 
+                  onClick={() => selectedPlatinum && startUpgradeFlow(selectedPlatinum, 'INDIA')}
+                  style={{ 
+                    width: '100%',
+                    padding: '13px', 
+                    border: 'none', 
+                    borderRadius: '12px', 
+                    fontWeight: 900,
+                    fontSize: '0.9rem',
+                    background: 'linear-gradient(135deg, #f26422 0%, #ff8c53 100%)',
+                    color: '#fff',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease',
+                    textAlign: 'center',
+                    boxShadow: '0 4px 15px rgba(242,100,34,0.3)'
+                  }} 
+                  onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.02)'; }} 
+                  onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
+                >
+                  {currentTier === 'GOLD' 
+                    ? `🚀 Upgrade to Platinum (₹100 Difference / Prorated)` 
+                    : `🇮🇳 Pay ₹${selectedPlatinum ? getINRPrice(selectedPlatinum) : '490'} (India)`}
+                </button>
 
-              <button 
-                onClick={() => selectedPlatinum && startUpgradeFlow(selectedPlatinum, 'ABROAD')}
-                style={{ 
-                  width: '100%',
-                  padding: '13px', 
-                  border: '1px solid #3b82f6', 
-                  borderRadius: '12px', 
-                  fontWeight: 800,
-                  fontSize: '0.9rem',
-                  background: 'linear-gradient(135deg, rgba(59,130,246,0.3) 0%, rgba(59,130,246,0.1) 100%)',
-                  color: '#93c5fd',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease',
-                  textAlign: 'center'
-                }} 
-                onMouseEnter={(e) => { e.currentTarget.style.background = '#3b82f6'; e.currentTarget.style.color = '#fff'; }} 
-                onMouseLeave={(e) => { e.currentTarget.style.background = 'linear-gradient(135deg, rgba(59,130,246,0.3) 0%, rgba(59,130,246,0.1) 100%)'; e.currentTarget.style.color = '#93c5fd'; }}
-              >
-                🌍 Pay ${selectedPlatinum ? getUSDPrice(selectedPlatinum) : '5'} (Abroad)
-              </button>
-            </div>
+                <button 
+                  onClick={() => selectedPlatinum && startUpgradeFlow(selectedPlatinum, 'ABROAD')}
+                  style={{ 
+                    width: '100%',
+                    padding: '13px', 
+                    border: '1px solid #3b82f6', 
+                    borderRadius: '12px', 
+                    fontWeight: 800,
+                    fontSize: '0.9rem',
+                    background: 'linear-gradient(135deg, rgba(59,130,246,0.3) 0%, rgba(59,130,246,0.1) 100%)',
+                    color: '#93c5fd',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease',
+                    textAlign: 'center'
+                  }} 
+                  onMouseEnter={(e) => { e.currentTarget.style.background = '#3b82f6'; e.currentTarget.style.color = '#fff'; }} 
+                  onMouseLeave={(e) => { e.currentTarget.style.background = 'linear-gradient(135deg, rgba(59,130,246,0.3) 0%, rgba(59,130,246,0.1) 100%)'; e.currentTarget.style.color = '#93c5fd'; }}
+                >
+                  {currentTier === 'GOLD' 
+                    ? `🌍 Upgrade to Platinum ($25 Difference / Prorated)` 
+                    : `🌍 Pay $${selectedPlatinum ? getUSDPrice(selectedPlatinum) : '50'} (Abroad)`}
+                </button>
+              </div>
+            )}
           </div>
 
         </div>
@@ -1020,7 +1097,56 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
 
               {/* Numerical breakdown */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', background: 'rgba(0,0,0,0.25)', padding: '24px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                 <h4 style={{ fontSize: '0.75rem', color: '#8f98a9', letterSpacing: '1.5px', textTransform: 'uppercase', margin: 0 }}>Adjustment Ledger</h4>
+                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <h4 style={{ fontSize: '0.75rem', color: '#8f98a9', letterSpacing: '1.5px', textTransform: 'uppercase', margin: 0 }}>Adjustment Ledger</h4>
+                    {calc.isUpgrade && (
+                      <span style={{ fontSize: '0.72rem', background: 'rgba(34,197,94,0.15)', color: '#22c55e', border: '1px solid rgba(34,197,94,0.3)', padding: '2px 8px', borderRadius: '6px', fontWeight: 800 }}>
+                        UPGRADE DIFFERENCE ONLY
+                      </span>
+                    )}
+                 </div>
+
+                 {/* UPGRADE MODE SELECTOR */}
+                 {calc.isUpgrade && (
+                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', background: 'rgba(255,255,255,0.04)', padding: '4px', borderRadius: '10px' }}>
+                     <button
+                       type="button"
+                       onClick={() => setPricingMode('PRORATED')}
+                       style={{
+                         padding: '8px 10px',
+                         borderRadius: '8px',
+                         border: 'none',
+                         fontSize: '0.78rem',
+                         fontWeight: 800,
+                         cursor: 'pointer',
+                         background: pricingMode === 'PRORATED' ? '#f26422' : 'transparent',
+                         color: '#fff',
+                         transition: 'all 0.2s',
+                         textAlign: 'center'
+                       }}
+                     >
+                       ⏱️ Daily Prorated ({currency}{calc.netDue})
+                     </button>
+                     <button
+                       type="button"
+                       onClick={() => setPricingMode('FLAT')}
+                       style={{
+                         padding: '8px 10px',
+                         borderRadius: '8px',
+                         border: 'none',
+                         fontSize: '0.78rem',
+                         fontWeight: 800,
+                         cursor: 'pointer',
+                         background: pricingMode === 'FLAT' ? '#f26422' : 'transparent',
+                         color: '#fff',
+                         transition: 'all 0.2s',
+                         textAlign: 'center'
+                       }}
+                     >
+                       ⚡ Flat Difference ({currency}{calc.flatDifference})
+                     </button>
+                   </div>
+                 )}
                  
                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
                     <span style={{ color: '#8f98a9' }}>New Plan Rate</span>
@@ -1055,30 +1181,43 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
                    alignItems: 'center' 
                  }}>
                     <div>
-                       <div style={{ fontSize: '0.8rem', color: '#8f98a9', fontWeight: 600 }}>Net Charge Due</div>
-                       <div style={{ fontSize: '0.7rem', color: '#6b7280' }}>Immediate payment</div>
+                       <div style={{ fontSize: '0.8rem', color: '#8f98a9', fontWeight: 600 }}>
+                         {calc.isUpgrade ? 'Net Upgrade Charge Due' : 'Net Charge Due'}
+                       </div>
+                       <div style={{ fontSize: '0.7rem', color: '#6b7280' }}>
+                         {calc.isUpgrade ? 'One-time upgrade payment' : 'Immediate first cycle'}
+                       </div>
                     </div>
-                    <div style={{ fontSize: '2.2rem', fontWeight: 900, color: '#fff', letterSpacing: '-1px' }}>{currency}{calc.netDue}</div>
+                    <div style={{ fontSize: '2.2rem', fontWeight: 900, color: '#fff', letterSpacing: '-1px' }}>
+                      {currency}{calc.effectiveDue}
+                    </div>
                  </div>
               </div>
 
               {subData && subData.success ? (
                  <div style={{ marginTop: '25px' }}>
                    <RazorpayCheckoutButton 
-                     amount={parseFloat(calc.netDue.toString()) > 0 ? parseFloat(calc.netDue.toString()) : 1}
+                     amount={parseFloat(calc.effectiveDue.toString()) > 0 ? parseFloat(calc.effectiveDue.toString()) : 1}
                      currency={region === 'INDIA' ? 'INR' : 'USD'}
-                     name={`Vyoma ${targetPlan.name} Plan`}
-                     description={`Auto-renewing ${targetPlan.interval} mandate`}
+                     name={`Vyoma ${targetPlan.name} ${calc.isUpgrade ? 'Upgrade' : 'Plan'}`}
+                     description={calc.isUpgrade ? `Tier upgrade adjustment from ${currentTier} to ${targetPlan.name}` : `Auto-renewing ${targetPlan.interval} mandate`}
+                     orderId={subData.orderId}
                      subscriptionId={subData.subscriptionId}
                      publicKey={subData.publicKey as string}
                      onSuccess={handleSuccess}
                      onError={(err: any) => console.error("Payment failed", err)}
-                     buttonText={`CONFIRM MANDATE & ACTIVATE (${currency}${calc.netDue})`}
+                     buttonText={calc.isUpgrade 
+                       ? `💳 PAY ${currency}${calc.effectiveDue} & UPGRADE NOW` 
+                       : `CONFIRM MANDATE & ACTIVATE (${currency}${calc.effectiveDue})`}
                    />
                  </div>
               ) : (
                  <button onClick={handleAuthorize} disabled={isInitializing} style={{ width: '100%', marginTop: '25px', padding: '16px', background: isInitializing ? '#374151' : 'linear-gradient(135deg, #f26422 0%, #ff8c53 100%)', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: 900, fontSize: '1.05rem', cursor: isInitializing ? 'wait' : 'pointer', boxShadow: '0 8px 25px rgba(242,100,34,0.2)', transition: 'all 0.3s' }}>
-                   {isInitializing ? 'INITIATING SECURE SESSION...' : `AUTHORIZE DIRECT DEBIT (${currency}${calc.netDue})`}
+                   {isInitializing 
+                     ? 'INITIATING SECURE SESSION...' 
+                     : calc.isUpgrade 
+                       ? `PROCEED TO PAY DIFFERENCE (${currency}${calc.effectiveDue})` 
+                       : `AUTHORIZE DIRECT DEBIT (${currency}${calc.effectiveDue})`}
                  </button>
               )}
             </div>
