@@ -86,13 +86,16 @@ function OfflinePlayerContent() {
       const items = await getOfflineDownloads();
       setDownloads(items);
 
-      // Auto play if query param is set
+      // Auto play if query param is set, or pre-load first download if available
       if (playParam) {
         const decoded = decodeURIComponent(playParam);
         const match = items.find(i => i.url === decoded);
         if (match) {
           playItem(match);
         }
+      } else if (items.length > 0 && !activeItem) {
+        // Pre-load the first downloaded item so the player is ready immediately
+        playItem(items[0]);
       }
     } catch (e) {
       console.error('Failed to load offline downloads:', e);
@@ -105,38 +108,59 @@ function OfflinePlayerContent() {
     refreshDownloads();
   }, [playParam]);
 
+  // Synchronize activeBlobUrl with video element whenever source changes
+  useEffect(() => {
+    if (activeBlobUrl && videoRef.current) {
+      videoRef.current.src = activeBlobUrl;
+      videoRef.current.load();
+      videoRef.current.playbackRate = playbackRate;
+      videoRef.current.play().catch(e => {
+        console.log('Autoplay deferred until user interaction:', e);
+      });
+    }
+  }, [activeBlobUrl]);
+
   const playItem = async (item: OfflineItemMeta) => {
     setActiveItem(item);
 
     try {
       if ('caches' in window) {
         const cache = await caches.open('vyoma-offline-video-v1');
-        const cachedResponse = await cache.match(item.url);
+        let cachedResponse = await cache.match(item.url);
+
+        // Fallback: check all cache keys with decoded URL matching
+        if (!cachedResponse) {
+          const keys = await cache.keys();
+          const matchKey = keys.find(k => k.url === item.url || decodeURIComponent(k.url) === decodeURIComponent(item.url));
+          if (matchKey) {
+            cachedResponse = await cache.match(matchKey);
+          }
+        }
+
         if (cachedResponse) {
           const blob = await cachedResponse.blob();
-          if (activeBlobUrl) {
+          const mimeType = cachedResponse.headers.get('content-type') || (item.url.endsWith('.m4a') ? 'audio/mp4' : 'video/mp4');
+          const videoBlob = blob.type ? blob : new Blob([blob], { type: mimeType });
+
+          if (activeBlobUrl && activeBlobUrl.startsWith('blob:')) {
             URL.revokeObjectURL(activeBlobUrl);
           }
-          const blobUrl = URL.createObjectURL(blob);
+          const blobUrl = URL.createObjectURL(videoBlob);
           setActiveBlobUrl(blobUrl);
-
-          if (videoRef.current) {
-            videoRef.current.src = blobUrl;
-            videoRef.current.play().catch(e => console.log('Autoplay deferred:', e));
-          }
 
           playerContainerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
           return;
         }
       }
 
-      // Fallback direct URL if cache access direct
-      if (videoRef.current) {
-        videoRef.current.src = item.url;
-        videoRef.current.play().catch(e => console.log('Autoplay deferred:', e));
+      // Fallback direct URL if cache access direct or served by Service Worker
+      if (activeBlobUrl && activeBlobUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(activeBlobUrl);
       }
+      setActiveBlobUrl(item.url);
       playerContainerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     } catch (err: any) {
+      console.error('Could not stream cached video file:', err);
       alert('Could not stream cached video file: ' + err.message);
     }
   };
@@ -324,10 +348,15 @@ function OfflinePlayerContent() {
               <div style={{ position: 'relative', width: '100%', aspectRatio: '16/9', background: '#000' }}>
                 <video
                   ref={videoRef}
+                  src={activeBlobUrl || undefined}
                   controls
+                  autoPlay
                   playsInline
                   controlsList="nodownload"
                   style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                  onError={(e) => {
+                    console.error('Offline player playback error:', e);
+                  }}
                 />
               </div>
 

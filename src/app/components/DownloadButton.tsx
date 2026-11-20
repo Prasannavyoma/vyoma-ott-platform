@@ -115,11 +115,18 @@ export default function DownloadButton({
           }
         }
 
-        const blob = new Blob(chunks);
+        const mimeType = response.headers.get('content-type') || (videoUrl.endsWith('.m4a') ? 'audio/mp4' : 'video/mp4');
+        const blob = new Blob(chunks, { type: mimeType });
+
+        const cacheHeaders = new Headers(response.headers);
+        cacheHeaders.set('Content-Type', mimeType);
+        cacheHeaders.set('Content-Length', String(blob.size));
+        cacheHeaders.set('Accept-Ranges', 'bytes');
+
         const responseToCache = new Response(blob, {
-          status: response.status,
-          statusText: response.statusText,
-          headers: response.headers,
+          status: 200,
+          statusText: 'OK',
+          headers: cacheHeaders,
         });
         await cache.put(videoUrl, responseToCache);
       } else {
@@ -127,9 +134,17 @@ export default function DownloadButton({
         setProgress(35);
         await new Promise(r => setTimeout(r, 300));
         setProgress(70);
-        const blob = await response.blob();
+        const rawBlob = await response.blob();
+        const mimeType = response.headers.get('content-type') || rawBlob.type || (videoUrl.endsWith('.m4a') ? 'audio/mp4' : 'video/mp4');
+        const blob = rawBlob.type ? rawBlob : new Blob([rawBlob], { type: mimeType });
         setProgress(90);
-        await cache.put(videoUrl, new Response(blob, { headers: response.headers }));
+
+        const cacheHeaders = new Headers(response.headers);
+        cacheHeaders.set('Content-Type', mimeType);
+        cacheHeaders.set('Content-Length', String(blob.size));
+        cacheHeaders.set('Accept-Ranges', 'bytes');
+
+        await cache.put(videoUrl, new Response(blob, { status: 200, headers: cacheHeaders }));
       }
 
       // Save metadata with 30-day expiration

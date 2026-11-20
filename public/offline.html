@@ -665,6 +665,9 @@
 
       if (autoPlayUrl && map[autoPlayUrl]) {
         playOfflineVideo(encodeURIComponent(autoPlayUrl));
+      } else if (urls.length > 0) {
+        // Automatically pre-load the first downloaded lesson into player
+        playOfflineVideo(encodeURIComponent(urls[0]));
       }
     }
 
@@ -688,22 +691,37 @@
       try {
         if ('caches' in window) {
           const cache = await caches.open(CACHE_NAME);
-          const cachedResponse = await cache.match(url);
+          let cachedResponse = await cache.match(url);
+          if (!cachedResponse) {
+            const keys = await cache.keys();
+            const matchKey = keys.find(k => k.url === url || decodeURIComponent(k.url) === decodeURIComponent(url));
+            if (matchKey) cachedResponse = await cache.match(matchKey);
+          }
+
           if (cachedResponse) {
             const blob = await cachedResponse.blob();
-            if (currentBlobUrl) {
+            const mimeType = cachedResponse.headers.get('content-type') || (url.endsWith('.m4a') ? 'audio/mp4' : 'video/mp4');
+            const videoBlob = blob.type ? blob : new Blob([blob], { type: mimeType });
+
+            if (currentBlobUrl && currentBlobUrl.startsWith('blob:')) {
               URL.revokeObjectURL(currentBlobUrl);
             }
-            currentBlobUrl = URL.createObjectURL(blob);
+            currentBlobUrl = URL.createObjectURL(videoBlob);
             video.src = currentBlobUrl;
-            video.play().catch(e => console.log('Autoplay deferred', e));
+            video.load();
+            video.play().catch(e => console.log('Autoplay deferred until interaction', e));
             return;
           }
         }
         // Fallback: try direct url (which Service Worker intercepts)
+        if (currentBlobUrl && currentBlobUrl.startsWith('blob:')) {
+          URL.revokeObjectURL(currentBlobUrl);
+        }
         video.src = url;
-        video.play().catch(e => console.log('Autoplay deferred', e));
+        video.load();
+        video.play().catch(e => console.log('Autoplay deferred until interaction', e));
       } catch (err) {
+        console.error('Playback error:', err);
         alert('Could not stream cached video file. Error: ' + err.message);
       }
     }
