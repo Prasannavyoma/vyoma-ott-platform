@@ -4,10 +4,12 @@ import { PrismaClient } from '@prisma/client';
 const globalForPrisma = global as unknown as { prisma: PrismaClient | undefined };
 
 let dbUrl = process.env.DATABASE_URL || '';
-// Vercel strips the .pem file during build. AWS RDS native SSL is trusted by Node automatically,
-// so we forcefully overwrite the connection string to use sslmode=require and drop the missing file.
+// Ensure AWS RDS connections always use SSL
 if (dbUrl.includes('global-bundle.pem')) {
   dbUrl = dbUrl.replace('sslmode=verify-full', 'sslmode=require').replace('&sslcert=global-bundle.pem', '').replace('?sslcert=global-bundle.pem', '');
+}
+if (dbUrl.includes('rds.amazonaws.com') && !dbUrl.includes('sslmode=')) {
+  dbUrl += (dbUrl.includes('?') ? '&' : '?') + 'sslmode=require';
 }
 
 export const prisma =
