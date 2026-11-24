@@ -18,7 +18,7 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: process.cwd(),
   },
-  output: 'standalone',
+  ...(process.env.BUILD_STANDALONE === 'true' ? { output: 'standalone' } : {}),
   outputFileTracingIncludes: {
     '/*': ['./global-bundle.pem'],
   },
