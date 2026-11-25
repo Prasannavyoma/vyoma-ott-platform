@@ -2,6 +2,7 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import prisma from '@/lib/prisma';
 import dynamic from 'next/dynamic';
+import { Sparkles, ArrowRight } from 'lucide-react';
 import { incrementView } from '@/app/actions/analytics';
 import DownloadButton from '@/app/components/DownloadButton';
 import CourseEngagement from '@/app/components/CourseEngagement';
@@ -158,6 +159,72 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
          <Link href="/" style={{ color: 'red' }}>Return Home</Link>
       </div>
     );
+  }
+
+  // Fetch recommended courses (same category, same content type, or popular in genre)
+  let recommendedCourses: any[] = [];
+  try {
+    const courseCategory = course.category?.trim();
+    const courseContentType = course.contentType;
+
+    // 1. Primary match: same category AND same contentType
+    recommendedCourses = await prisma.course.findMany({
+      where: {
+        id: { not: course.id },
+        ...(courseCategory ? { category: { equals: courseCategory, mode: 'insensitive' } } : {}),
+        ...(courseContentType ? { contentType: courseContentType } : {})
+      },
+      take: 4,
+      orderBy: { views: 'desc' },
+      include: {
+        episodes: { select: { id: true } }
+      }
+    });
+
+    // 2. Secondary match: same category OR same contentType if fewer than 4 found
+    if (recommendedCourses.length < 4) {
+      const excludeIds = [course.id, ...recommendedCourses.map((c: any) => c.id)];
+      const orConditions: any[] = [];
+      if (courseCategory) {
+        orConditions.push({ category: { equals: courseCategory, mode: 'insensitive' } });
+      }
+      if (courseContentType) {
+        orConditions.push({ contentType: courseContentType });
+      }
+
+      if (orConditions.length > 0) {
+        const secondary = await prisma.course.findMany({
+          where: {
+            id: { notIn: excludeIds },
+            OR: orConditions
+          },
+          take: 4 - recommendedCourses.length,
+          orderBy: { views: 'desc' },
+          include: {
+            episodes: { select: { id: true } }
+          }
+        });
+        recommendedCourses = [...recommendedCourses, ...secondary];
+      }
+    }
+
+    // 3. Fallback to top-viewed courses if still under 4
+    if (recommendedCourses.length < 4) {
+      const excludeIds = [course.id, ...recommendedCourses.map((c: any) => c.id)];
+      const fallback = await prisma.course.findMany({
+        where: {
+          id: { notIn: excludeIds }
+        },
+        take: 4 - recommendedCourses.length,
+        orderBy: { views: 'desc' },
+        include: {
+          episodes: { select: { id: true } }
+        }
+      });
+      recommendedCourses = [...recommendedCourses, ...fallback];
+    }
+  } catch (err) {
+    console.error('Error fetching recommended courses:', err);
   }
 
   // Identify currently selected episode (defaults to last watched episode, falling back to first episode if none watched yet)
@@ -720,6 +787,265 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
            </div>
 
         </div>
+
+        {/* RECOMMENDED COURSES / MORE LIKE THIS */}
+        {recommendedCourses.length > 0 && (
+          <section style={{ 
+            marginTop: '60px', 
+            paddingTop: '40px', 
+            borderTop: '1px solid rgba(255, 255, 255, 0.08)' 
+          }}>
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'space-between', 
+              flexWrap: 'wrap', 
+              gap: '15px', 
+              marginBottom: '26px' 
+            }}>
+              <div>
+                <div style={{ 
+                  display: 'inline-flex', 
+                  alignItems: 'center', 
+                  gap: '6px', 
+                  fontSize: '0.78rem', 
+                  fontWeight: 800, 
+                  textTransform: 'uppercase', 
+                  letterSpacing: '0.08em', 
+                  color: 'var(--primary, #f26422)',
+                  marginBottom: '6px'
+                }}>
+                  <Sparkles size={14} />
+                  <span>Curated For You</span>
+                </div>
+                <h2 style={{ 
+                  fontSize: 'clamp(1.4rem, 2vw, 1.85rem)', 
+                  fontWeight: 900, 
+                  color: '#fff', 
+                  margin: 0,
+                  letterSpacing: '-0.02em',
+                  display: 'flex',
+                  alignItems: 'center',
+                  flexWrap: 'wrap',
+                  gap: '10px'
+                }}>
+                  More Like This
+                  {course.category && (
+                    <span style={{ 
+                      fontSize: '0.82rem', 
+                      fontWeight: 700, 
+                      color: '#94a3b8', 
+                      background: 'rgba(255,255,255,0.06)', 
+                      padding: '4px 12px', 
+                      borderRadius: '20px',
+                      border: '1px solid rgba(255,255,255,0.08)'
+                    }}>
+                      {course.category}
+                    </span>
+                  )}
+                </h2>
+              </div>
+
+              {course.category && (
+                <Link 
+                  href={`/search?category=${encodeURIComponent(course.category)}`}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    fontSize: '0.82rem',
+                    fontWeight: 700,
+                    color: 'var(--primary, #f26422)',
+                    textDecoration: 'none',
+                    padding: '8px 16px',
+                    borderRadius: '8px',
+                    background: 'rgba(242, 100, 34, 0.08)',
+                    border: '1px solid rgba(242, 100, 34, 0.25)',
+                    transition: 'all 0.2s ease'
+                  }}
+                  className="rec-view-all-btn"
+                >
+                  <span>Explore All in {course.category}</span>
+                  <ArrowRight size={14} />
+                </Link>
+              )}
+            </div>
+
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', 
+              gap: '24px' 
+            }}>
+              {recommendedCourses.map((rec: any) => {
+                const isSameCat = rec.category && course.category && rec.category.toLowerCase() === course.category.toLowerCase();
+                const unitCount = rec.episodes?.length || 0;
+                
+                let contentTypeBadge = '📺 Video';
+                if (rec.contentType === 'AUDIOBOOK') contentTypeBadge = '🎧 Audiobook';
+                else if (rec.contentType === 'PODCAST') contentTypeBadge = '🎙️ Podcast';
+                else if (rec.contentType === 'GAME') contentTypeBadge = '🎮 Game';
+                else if (rec.contentType === 'EBOOK') contentTypeBadge = '📖 E-Book';
+                else if (rec.contentType === 'PROGRAM') contentTypeBadge = '📜 Program';
+
+                return (
+                  <Link 
+                    key={rec.id} 
+                    href={`/watch/${rec.id}`}
+                    style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}
+                  >
+                    <div 
+                      className="rec-course-card"
+                      style={{ 
+                        background: 'linear-gradient(180deg, rgba(15, 23, 42, 0.75) 0%, rgba(10, 15, 29, 0.9) 100%)', 
+                        border: '1px solid rgba(255, 255, 255, 0.08)', 
+                        borderRadius: '16px', 
+                        overflow: 'hidden', 
+                        height: '100%',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+                        position: 'relative'
+                      }}
+                    >
+                      {/* THUMBNAIL */}
+                      <div style={{ position: 'relative', paddingTop: '56.25%', background: '#090d16', overflow: 'hidden' }}>
+                        <img 
+                          src={rec.thumbnailUrl || '/assets/Ayodhyakanda.jpg'} 
+                          alt={rec.title}
+                          className="rec-card-thumb"
+                          style={{ 
+                            position: 'absolute', 
+                            top: 0, 
+                            left: 0, 
+                            width: '100%', 
+                            height: '100%', 
+                            objectFit: 'cover',
+                            transition: 'transform 0.4s ease'
+                          }}
+                        />
+                        <div style={{
+                          position: 'absolute',
+                          inset: 0,
+                          background: 'linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.65) 100%)'
+                        }} />
+
+                        {/* ACCESS BADGE */}
+                        <div style={{ 
+                          position: 'absolute', 
+                          top: '10px', 
+                          right: '10px', 
+                          background: 'rgba(2, 6, 14, 0.85)', 
+                          backdropFilter: 'blur(8px)', 
+                          border: '1px solid rgba(255,255,255,0.15)', 
+                          padding: '3px 8px', 
+                          borderRadius: '6px', 
+                          fontSize: '0.62rem', 
+                          fontWeight: 800, 
+                          color: rec.accessLevel === 'FREE' ? '#4ade80' : rec.accessLevel?.includes('PLATINUM') ? '#e5e4e2' : '#fbbf24',
+                          letterSpacing: '0.5px'
+                        }}>
+                          {rec.accessLevel === 'FREE' ? '🟢 FREE' : rec.accessLevel?.includes('PLATINUM') ? '⚪ PLATINUM' : '🟡 GOLD'}
+                        </div>
+
+                        {/* CONTENT TYPE BADGE */}
+                        <div style={{ 
+                          position: 'absolute', 
+                          bottom: '10px', 
+                          left: '10px', 
+                          background: 'rgba(0, 0, 0, 0.75)', 
+                          backdropFilter: 'blur(6px)', 
+                          padding: '3px 8px', 
+                          borderRadius: '6px', 
+                          fontSize: '0.65rem', 
+                          fontWeight: 700, 
+                          color: '#e2e8f0',
+                          border: '1px solid rgba(255,255,255,0.1)'
+                        }}>
+                          {contentTypeBadge}
+                        </div>
+
+                        {/* MATCH REASON BADGE */}
+                        {isSameCat && (
+                          <div style={{ 
+                            position: 'absolute', 
+                            top: '10px', 
+                            left: '10px', 
+                            background: 'rgba(242, 100, 34, 0.9)', 
+                            color: '#fff',
+                            padding: '2px 7px', 
+                            borderRadius: '4px', 
+                            fontSize: '0.6rem', 
+                            fontWeight: 800, 
+                            letterSpacing: '0.3px',
+                            boxShadow: '0 2px 8px rgba(242, 100, 34, 0.4)'
+                          }}>
+                            SAME CATEGORY
+                          </div>
+                        )}
+                      </div>
+
+                      {/* DETAILS */}
+                      <div style={{ padding: '16px 18px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                        <div>
+                          <div style={{ 
+                            fontSize: '0.68rem', 
+                            color: '#38bdf8', 
+                            fontWeight: 800, 
+                            textTransform: 'uppercase', 
+                            marginBottom: '6px', 
+                            letterSpacing: '0.5px',
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis'
+                          }}>
+                            {rec.category || 'Curated Content'}
+                          </div>
+                          <h3 style={{ 
+                            fontSize: '0.98rem', 
+                            fontWeight: 700, 
+                            margin: '0 0 8px 0', 
+                            color: '#fff', 
+                            lineHeight: '1.4', 
+                            height: '40px', 
+                            overflow: 'hidden', 
+                            textOverflow: 'ellipsis', 
+                            display: '-webkit-box', 
+                            WebkitLineClamp: 2, 
+                            WebkitBoxOrient: 'vertical' 
+                          }}>
+                            {rec.title}
+                          </h3>
+                        </div>
+
+                        <div style={{ 
+                          display: 'flex', 
+                          justifyContent: 'space-between', 
+                          alignItems: 'center', 
+                          marginTop: '14px', 
+                          fontSize: '0.75rem', 
+                          color: '#94a3b8', 
+                          borderTop: '1px solid rgba(255,255,255,0.06)', 
+                          paddingTop: '12px' 
+                        }}>
+                          <span>{unitCount} {unitCount === 1 ? 'Unit' : 'Units'}</span>
+                          <span style={{ 
+                            color: 'var(--primary, #f26422)', 
+                            fontWeight: 800, 
+                            display: 'inline-flex', 
+                            alignItems: 'center', 
+                            gap: '4px' 
+                          }}>
+                            EXPLORE <ArrowRight size={12} />
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </section>
+        )}
 
         </div>
       </div>

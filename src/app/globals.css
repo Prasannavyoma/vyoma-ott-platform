@@ -2472,3 +2472,21 @@ img, video, iframe {
   .mobile-only { display: block !important; } 
   .desktop-only { display: none !important; } 
 }
+
+/* Recommended Courses Cards on Watch Page */
+.rec-course-card {
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+}
+.rec-course-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(242, 100, 34, 0.45) !important;
+  box-shadow: 0 18px 35px -8px rgba(242, 100, 34, 0.25), 0 10px 20px -5px rgba(0, 0, 0, 0.6) !important;
+}
+.rec-course-card:hover .rec-card-thumb {
+  transform: scale(1.06);
+}
+.rec-view-all-btn:hover {
+  background: rgba(242, 100, 34, 0.18) !important;
+  border-color: rgba(242, 100, 34, 0.5) !important;
+  transform: translateX(2px);
+}
