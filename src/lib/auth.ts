@@ -142,7 +142,7 @@ export async function setSessionUser(email: string, rememberMe: boolean = false)
   const signedCookieValue = `${normalizedEmail}|${timestamp}|${signature}`;
   
   // Intelligent protocol detection:
-  // If the server is served over plain HTTP (e.g. raw VPS IP http://34.238.91.221),
+  // If the server is served over plain HTTP (e.g. local development or plain IP without SSL),
   // browsers strictly reject cookies marked 'Secure'. Only set 'secure: true' if HTTPS is active.
   let isHttps = false;
   if (process.env.COOKIE_SECURE === 'true') {
