@@ -56,6 +56,59 @@ export default function NavBar() {
       {/* 🚀 TOP SECONDARY UTILITY BAR */}
       <div className="top-utility-bar desktop-only">
 
+        {/* 🛡️ Find My Plan Button (Moved next to Shorts) */}
+        <button 
+          onClick={() => setShowFindFindMyPlan(true)}
+          title="Find My Plan & Pricing"
+          style={{
+            color: '#fff',
+            fontSize: 'clamp(0.68rem, 0.75vw, 0.75rem)',
+            fontWeight: 800,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            padding: '4px clamp(8px, 0.85vw, 12px)',
+            borderRadius: '20px',
+            background: 'linear-gradient(135deg, rgba(242, 100, 34, 0.25) 0%, rgba(255, 179, 0, 0.18) 100%)',
+            border: '1px solid rgba(242, 100, 34, 0.45)',
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+            whiteSpace: 'nowrap',
+            flexShrink: 0,
+            cursor: 'pointer',
+            boxShadow: '0 2px 8px rgba(242, 100, 34, 0.2)'
+          }}
+          onMouseEnter={e => {
+            e.currentTarget.style.transform = 'translateY(-2px)';
+            e.currentTarget.style.boxShadow = '0 4px 14px rgba(242, 100, 34, 0.4)';
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.transform = 'translateY(0)';
+            e.currentTarget.style.boxShadow = '0 2px 8px rgba(242, 100, 34, 0.2)';
+          }}
+        >
+          <span className="icon-wrapper" style={{ display: 'inline-flex', alignItems: 'center', color: 'var(--primary)' }}>
+            <ShieldCheck size={14} />
+          </span>
+          <span>Find My Plan</span>
+          {userPlanData?.user?.plan && userPlanData.user.plan !== 'FREE' && (
+            <span style={{
+              background: userPlanData.user.plan === 'PLATINUM' ? '#e5e4e2' : '#ffd700',
+              color: '#000',
+              padding: '1px 6px',
+              borderRadius: '6px',
+              fontSize: '0.62rem',
+              fontWeight: 900,
+              lineHeight: 1,
+              marginLeft: '4px',
+              letterSpacing: '0.5px'
+            }}>
+              {userPlanData.user.plan}
+            </span>
+          )}
+        </button>
+
         {features.shortsEnabled && (
           <Link href="/shorts" title="Shorts">
             <span className="icon-wrapper" style={{ marginRight: '5px', color: '#ff4d4d' }}><PlaySquare size={14} /></span> Shorts
@@ -145,52 +198,6 @@ export default function NavBar() {
         
         <div className="nav-actions" style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
           
-          {/* Find My Plan Button */}
-          <button 
-            onClick={() => setShowFindFindMyPlan(true)}
-            title="Find My Plan & Pricing"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '5px',
-              whiteSpace: 'nowrap',
-              flexShrink: 0,
-              background: 'linear-gradient(135deg, rgba(242, 100, 34, 0.15) 0%, rgba(255, 179, 0, 0.12) 100%)',
-              border: '1px solid rgba(242, 100, 34, 0.35)',
-              color: '#fff',
-              padding: '4px 8px',
-              borderRadius: '14px',
-              fontSize: '0.72rem',
-              fontWeight: 700,
-              lineHeight: 1,
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              boxShadow: '0 2px 8px rgba(242, 100, 34, 0.15)',
-              marginRight: '2px'
-            }}
-            onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-1px)'}
-            onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
-          >
-            <ShieldCheck size={13} color="var(--primary)" style={{ flexShrink: 0 }} />
-            <span className="desktop-only" style={{ whiteSpace: 'nowrap' }}>Find My Plan</span>
-            {userPlanData?.user?.plan && userPlanData.user.plan !== 'FREE' && (
-              <span style={{
-                background: userPlanData.user.plan === 'PLATINUM' ? '#e5e4e2' : '#ffd700',
-                color: '#000',
-                padding: '2px 5px',
-                borderRadius: '5px',
-                fontSize: '0.58rem',
-                fontWeight: 900,
-                lineHeight: 1,
-                marginLeft: '2px',
-                letterSpacing: '0.3px',
-                display: 'inline-block'
-              }}>
-                {userPlanData.user.plan}
-              </span>
-            )}
-          </button>
-
           {/* Explore Hub 'Live Eye' */}
           <div style={{ marginRight: '5px' }}>
             <ExploreEye />
