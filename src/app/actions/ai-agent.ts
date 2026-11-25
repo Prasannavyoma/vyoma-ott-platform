@@ -155,6 +155,21 @@ ${faqsContext || 'No custom FAQs loaded.'}
 SUPER ADMIN BEHAVIOR DIRECTIVES (MUST OBEY AND ENFORCE):
 ${customDirective || 'No custom prompt directives.'}
 
+COMMON USER TROUBLESHOOTING & HELP PROCEDURES (CRITICAL):
+- HOW TO LOGIN / SIGN IN:
+  Navigate to "/login". Enter your registered email address or username and password, or click "Sign in with Google". If not registered yet, sign up at "/register".
+- FORGOT PASSWORD / PASSWORD FORGOTTEN:
+  Go to "/forgot-password" (or click "Forgot Password?" on "/login"). Enter your registered email to receive a secure password reset link. Check Spam/Junk folder if not seen within 2 minutes. Click the link to set a new password.
+- PLAN NOT ACTIVATED / PAID BUT SUBSCRIPTION NOT SHOWING:
+  1. Refresh user session: Log out and log back in, or hard-refresh the page (Ctrl+F5) to reload updated membership status.
+  2. Processing delay: UPI/Netbanking payments can take 1-2 minutes for Razorpay webhook verification.
+  3. Check invoice in "/profile".
+  4. If still not activated, send Payment ID to support via WhatsApp or email.
+- HOW TO USE CONTENT / GETTING STARTED:
+  Browse courses at "/explore" -> click any course to launch player at "/watch/[id]" -> select episodes from the sidebar -> use Flashcards or Notes -> take Quizzes to earn certificates.
+- VIDEO PLAYBACK / BUFFERING ISSUES:
+  Check internet connection (2+ Mbps required), disable aggressive browser ad-blockers, clear browser cache, or try an Incognito window.
+
 CRITICAL RULES & GUARDRAILS:
 1. ONLY discuss Vyoma Sanskrit OTT, its courses, features, subscriptions, coins, certificates, study rooms, flashcards, or navigation.
 2. If the user asks general questions (e.g. general programming, homework, recipe, writing articles, unrelated translations, global news, pop culture, math, or other non-platform related topics), you MUST politely refuse.
@@ -378,10 +393,98 @@ function getSimulatedResponse(
     return intro + `Namaste! 🙏 I am **Vyoma Guru**, your personal guide for the Vyoma Sanskrit OTT platform.\n\n` +
       `Here is what I can assist you with:\n` +
       `- **Explore Courses**: Ask for recommendations on Grammar, Ramayana, Gita, Stotras, or Kids courses.\n` +
-      `- **Study Tools**: Ask about our **Study Rooms**, **Leitner Flashcards**, or **Sanskrit Grammar Tools**.\n` +
+      `- **Getting Started**: Ask **"How to use content?"** or **"How to login?"**.\n` +
+      `- **Troubleshooting**: Ask about **"Forgot password?"** or **"My plan not activated?"**.\n` +
+      `- **Study Tools**: Ask about **Study Rooms**, **Leitner Flashcards**, or **Sanskrit Grammar Tools**.\n` +
       `- **Rewards & Coins**: Learn how to earn **Sanskrit Coins** and unlock **Official Certificates**.\n` +
-      `- **Membership**: Inquire about **Free, Gold, and Platinum** subscription plans and special discounts.\n\n` +
-      `What would you like to explore today?`;
+      `- **Membership**: Inquire about **Free, Gold, and Platinum** plans and discounts.\n\n` +
+      `What would you like assistance with today?`;
+  }
+
+  // 3.1 Forgot Password / Password Reset Assistance
+  if (/forgot.*password|forg[oe]t?en.*password|forgern|forgon|lost.*password|reset.*password|cant.*remember.*password|change.*password/i.test(query)) {
+    return intro + `### 🔑 How to Reset or Recover Your Password\n\n` +
+      `If you have forgotten your password, follow these simple steps to regain access:\n\n` +
+      `1. **Go to Forgot Password**: Click directly on the [Forgot Password Page](/forgot-password) (or click *"Forgot Password?"* on the [Sign In Page](/login)).\n` +
+      `2. **Enter Your Email**: Type your registered email address and click **"Send Reset Link"**.\n` +
+      `3. **Check Your Inbox**: You will receive a secure reset link within 1–2 minutes.\n` +
+      `   *(💡 Tip: If you don't see it in your Inbox, please check your **Spam / Junk** folder).* \n` +
+      `4. **Set New Password**: Click the link in the email and create your new secure password.\n\n` +
+      `*Already logged in?* You can update your credentials anytime at [Change Password](/change-password).`;
+  }
+
+  // 3.2 Plan Not Activated / Payment Deducted / Subscription Pending
+  if (/(plan|subscription|gold|platinum).*not.*(activ|work|show)|paid.*not.*(activ|work|show)|not.*activ[ae]ted|money.*deducted|amount.*deducted|charged.*free|payment.*failed|payment.*done.*free/i.test(query)) {
+    const ci = extraData?.contactInfo || { phone: '+91 98765 43210', whatsapp: '+91 98765 43210', email: 'support@vyomasanskrit.in' };
+    const cleanWa = ci.whatsapp.replace(/[^0-9]/g, '');
+
+    return intro + `### 🛡️ Subscription Activation Help & Assurance\n\n` +
+      `Please don't worry! If your payment was deducted, your funds and plan are completely safe. Here is how to quickly resolve this:\n\n` +
+      `1. **Refresh Your Active Session (Most Common Fix)**:\n` +
+      `   - Often, your browser simply needs to re-fetch the latest subscription badge from the server.\n` +
+      `   - Please click [Sign Out](/profile) and log back in, or perform a hard refresh (**Ctrl + F5** on Windows or **Cmd + Shift + R** on Mac).\n\n` +
+      `2. **Banking / Webhook Clearance**:\n` +
+      `   - Payments via UPI or Netbanking through Razorpay occasionally take 1–2 minutes for bank confirmation.\n` +
+      `   - Verify if the invoice appears on your [Profile & Invoices Page](/profile).\n\n` +
+      `3. **Fast-Track Priority Support**:\n` +
+      `   - If your Gold/Platinum badge does not appear after 5 minutes, our team will manually activate your account immediately.\n` +
+      `   - Please message us with your **Registered Email** and **Payment ID / Order ID**:\n` +
+      `     - 💬 **WhatsApp**: [Chat Directly on WhatsApp](https://wa.me/${cleanWa})\n` +
+      `     - 📧 **Email**: [${ci.email}](mailto:${ci.email})\n` +
+      `     - 📞 **Phone**: **${ci.phone}**`;
+  }
+
+  // 3.3 How to Login / Sign In / Registration Assistance
+  if (/how to (login|sign in|log in|register|create account|signup)|cant.*login|cannot.*login|login.*(issue|problem|error)|sign in.*(problem|issue)/i.test(query)) {
+    return intro + `### 🚪 How to Sign In or Create an Account\n\n` +
+      `Accessing your Vyoma Sanskrit account is fast and easy:\n\n` +
+      `1. **Sign In to Existing Account**:\n` +
+      `   - Go to the [Sign In Page](/login).\n` +
+      `   - Enter your registered **Email Address** (or Username) and **Password**.\n` +
+      `   - Or click **"Sign In with Google"** for instant 1-click access.\n\n` +
+      `2. **New to Vyoma? Register in Seconds**:\n` +
+      `   - Visit the [Registration Page](/register).\n` +
+      `   - Enter your name, email, and choose a password.\n` +
+      `   - You'll instantly receive **+50 Sanskrit Coins** as a welcome reward!\n\n` +
+      `3. **Troubleshooting Login Errors**:\n` +
+      `   - *Incorrect Password?* Reset it in 30 seconds via [Forgot Password](/forgot-password).\n` +
+      `   - *Too many failed attempts?* For your security, the account enters a 15-minute cooldown before allowing further attempts.`;
+  }
+
+  // 3.4 How to Use Content / Getting Started Guide
+  if (/how to (use|watch|learn|navigate|start|access).*content|how (does it work|to start|to use)|where to start|getting started|how.*watch.*video|how.*use.*platform/i.test(query)) {
+    return intro + `### 🎓 How to Use Vyoma Sanskrit Content (Quick Start Guide)\n\n` +
+      `Here is how to get the most out of the Vyoma platform in 5 easy steps:\n\n` +
+      `1. **Discover Courses**: Visit the [Explore Catalog](/explore) or homepage to browse topics like Grammar, Ramayana, Gita, Stotras, and Children's learning.\n` +
+      `2. **Start Video/Audio Playback**: Click on any course card to open the [Watch Player](/watch). Lessons play in high-definition HLS streaming with audio-only and speed control toggles.\n` +
+      `3. **Navigate Chapters**: Use the right-hand episode list to track completed lessons and resume wherever you left off.\n` +
+      `4. **Use In-Player Study Tools**:\n` +
+      `   - 🗂️ **Flashcards**: Click the Flashcards tab in the player sidebar to save and review Sanskrit vocabulary.\n` +
+      `   - 📝 **Notes**: Take timestamped personal study notes while watching.\n` +
+      `   - 👥 **Study Rooms**: Click *"Start Study Room"* to invite friends to watch and discuss Shlokas together in real time.\n` +
+      `5. **Take Quizzes & Earn Certificates**: Complete module quizzes with a 50%+ score to earn your verifiable Sanskrit Certificate on your [Progress Page](/progress)!`;
+  }
+
+  // 3.5 Video Playback & Technical Troubleshooting
+  if (/video.*not.*(play|load|work)|black.*screen|buffering|stuck|blank.*screen|audio.*not.*work|error.*playing|cant.*play/i.test(query)) {
+    return intro + `### ⚙️ Video & Playback Troubleshooting\n\n` +
+      `If you experience buffering, a black screen, or playback errors, try these quick fixes:\n\n` +
+      `1. **Internet Speed**: Ensure an active connection with at least 2–5 Mbps bandwidth.\n` +
+      `2. **Ad-Blockers & Privacy Extensions**: Aggressive browser ad-blockers can mistakenly block video media segments. Try pausing ad-blockers or whitelisting the site.\n` +
+      `3. **Browser Cache / Incognito**: Open the page in a Private/Incognito window or clear your browser cache.\n` +
+      `4. **Supported Browsers**: We recommend updated Chrome, Safari, Edge, or Firefox.\n\n` +
+      `If an issue persists on a specific video, please reach out to our [Helpdesk Support](/profile) and mention the episode title!`;
+  }
+
+  // 3.6 Voucher & Discount Coupon Assistance
+  if (/voucher.*not.*(work|apply|valid)|coupon.*(error|invalid|not work)|cant.*redeem/i.test(query)) {
+    return intro + `### 🎟️ Voucher & Coupon Redemption Tips\n\n` +
+      `If your discount code or gift voucher is not applying:\n\n` +
+      `1. **Check for Extra Spaces**: Ensure no accidental spaces were pasted before or after the code.\n` +
+      `2. **Case Sensitivity**: Codes are generally uppercase (e.g., \`VYOMA10\`).\n` +
+      `3. **One-Time Use**: Gift vouchers can only be redeemed once per account.\n` +
+      `4. **Eligible Tier**: Some vouchers are specific to Gold or Platinum annual plans.\n\n` +
+      `Need assistance redeeming a gift? Contact us via [WhatsApp Support](https://wa.me/919876543210) with your code!`;
   }
 
   // 4. Sanskrit Coins & Gamification Engine
