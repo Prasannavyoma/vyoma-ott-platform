@@ -18,10 +18,15 @@ export default async function PagesManager() {
     const now = new Date().toISOString();
 
     try {
-      await prisma.$executeRawUnsafe(
-        `INSERT INTO CustomPage (id, title, slug, content, active, createdAt, updatedAt) VALUES (?,?,?,?,1,?,?)`,
-        id, title, slug, content, now, now
-      );
+      await prisma.customPage.create({
+        data: {
+          id,
+          title,
+          slug,
+          content,
+          active: true
+        }
+      });
       revalidatePath('/admin/pages');
     } catch(e) {
        console.error("Duplicate slug error:", e);
@@ -31,7 +36,11 @@ export default async function PagesManager() {
   async function deletePage(formData: FormData) {
     "use server";
     const id = formData.get('id') as string;
-    await prisma.$executeRawUnsafe(`DELETE FROM CustomPage WHERE id = ?`, id);
+    try {
+      await prisma.customPage.delete({ where: { id } });
+    } catch (e) {
+      console.error("Failed to delete page:", e);
+    }
     revalidatePath('/admin/pages');
   }
 

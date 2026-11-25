@@ -46,10 +46,17 @@ export default async function CampaignsPage() {
     const aid = fd.get('appId') as string;
     const akey = fd.get('apiKey') as string;
     
-    const q = `INSERT INTO SystemSetting ("key", "value", "updatedAt") VALUES (?, ?, ?) 
-               ON CONFLICT("key") DO UPDATE SET "value"=excluded."value", "updatedAt"=excluded."updatedAt"`;
-    await prisma.$executeRawUnsafe(q, 'ONESIGNAL_APP_ID', aid, new Date().toISOString());
-    await prisma.$executeRawUnsafe(q, 'ONESIGNAL_API_KEY', akey, new Date().toISOString());
+    const now = new Date();
+    await prisma.systemSetting.upsert({
+      where: { key: 'ONESIGNAL_APP_ID' },
+      update: { value: aid, updatedAt: now },
+      create: { key: 'ONESIGNAL_APP_ID', value: aid, updatedAt: now }
+    });
+    await prisma.systemSetting.upsert({
+      where: { key: 'ONESIGNAL_API_KEY' },
+      update: { value: akey, updatedAt: now },
+      create: { key: 'ONESIGNAL_API_KEY', value: akey, updatedAt: now }
+    });
     
     revalidatePath('/admin/campaigns');
   }

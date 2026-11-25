@@ -19,10 +19,14 @@ export default async function CategoriesAdminPage() {
     const now = new Date().toISOString();
 
     try {
-      await prisma.$executeRawUnsafe(
-        `INSERT INTO Category (id, name, description, slug, createdAt) VALUES (?, ?, ?, ?, ?)`,
-        id, name, desc, slug, now
-      );
+      await prisma.category.create({
+        data: {
+          id,
+          name,
+          description: desc,
+          slug
+        }
+      });
       revalidatePath('/admin/categories');
     } catch (e) {
       console.error("Duplicate category or error:", e);
@@ -32,7 +36,11 @@ export default async function CategoriesAdminPage() {
   async function deleteCategory(formData: FormData) {
     "use server";
     const id = formData.get('id') as string;
-    await prisma.$executeRawUnsafe(`DELETE FROM Category WHERE id = ?`, id);
+    try {
+      await prisma.category.delete({ where: { id } });
+    } catch (e) {
+      console.error("Failed to delete category:", e);
+    }
     revalidatePath('/admin/categories');
   }
 

@@ -60,9 +60,9 @@ export async function adminDeleteUser(targetUserId: string) {
   }
 
   try {
-    // 3. Execute manual hygiene purges on raw SQLite companion tables
-    await prisma.$executeRawUnsafe(`DELETE FROM WatchlistItem WHERE userId = ?`, targetUserId);
-    await prisma.$executeRawUnsafe(`DELETE FROM CourseLike WHERE userId = ?`, targetUserId);
+    // 3. Execute manual hygiene purges on companion tables
+    await prisma.watchlistItem.deleteMany({ where: { userId: targetUserId } });
+    await prisma.courseLike.deleteMany({ where: { userId: targetUserId } });
 
     // Fetch user details for audit & telemetry capture prior to deletion
     const victim = await prisma.user.findUnique({ where: { id: targetUserId } });

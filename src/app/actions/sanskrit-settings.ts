@@ -8,19 +8,27 @@ import { revalidatePath } from "next/cache";
  * Get configurations for the Sanskrit Practice Hub features.
  */
 export async function getSanskritSettings() {
-  // Anyone can retrieve settings for frontend toggles, but we can default value in db if not exists
+  const user = await getCurrentUser();
+  const isSuperAdmin = user?.role === 'SUPER_ADMIN';
+
+  // Anyone can retrieve settings for frontend toggles, but secret keys are restricted to SUPER_ADMIN
+  const keysToFetch = [
+    'SANSKRIT_HUB_ENABLED',
+    'SANSKRIT_SUBHASHITA_ENABLED',
+    'SANSKRIT_GRAMMAR_ENABLED',
+    'SANSKRIT_MEMORIZER_ENABLED',
+    'SANSKRIT_COACH_ENABLED',
+    'SANSKRIT_COACH_THRESHOLD'
+  ];
+
+  if (isSuperAdmin) {
+    keysToFetch.push('SANSKRIT_GEMINI_KEY');
+  }
+
   const settingsList = await prisma.systemSetting.findMany({
     where: {
       key: {
-        in: [
-          'SANSKRIT_HUB_ENABLED',
-          'SANSKRIT_SUBHASHITA_ENABLED',
-          'SANSKRIT_GRAMMAR_ENABLED',
-          'SANSKRIT_MEMORIZER_ENABLED',
-          'SANSKRIT_COACH_ENABLED',
-          'SANSKRIT_COACH_THRESHOLD',
-          'SANSKRIT_GEMINI_KEY'
-        ]
+        in: keysToFetch
       }
     }
   });
@@ -37,7 +45,7 @@ export async function getSanskritSettings() {
     memorizerEnabled: config['SANSKRIT_MEMORIZER_ENABLED'] !== 'false', // default: true
     coachEnabled: config['SANSKRIT_COACH_ENABLED'] !== 'false', // default: true
     coachThreshold: parseInt(config['SANSKRIT_COACH_THRESHOLD'] || '75', 10), // default: 75
-    sanskritGeminiKey: config['SANSKRIT_GEMINI_KEY'] || '', // default: empty
+    sanskritGeminiKey: isSuperAdmin ? (config['SANSKRIT_GEMINI_KEY'] || '') : '', // Only returned to SUPER_ADMIN
   };
 }
 

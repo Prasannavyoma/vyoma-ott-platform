@@ -98,7 +98,18 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
       where: { id: courseId },
       include: { 
         episodes: { orderBy: { order: 'asc' } },
-        reviews: { where: { approved: true }, include: { user: true }, orderBy: { createdAt: 'desc' } }
+        reviews: { 
+          where: { approved: true }, 
+          include: { 
+            user: { 
+              select: { 
+                name: true, 
+                avatarUrl: true 
+              } 
+            } 
+          }, 
+          orderBy: { createdAt: 'desc' } 
+        }
       }
     }),
     getWatchlistStatus(courseId),
@@ -122,7 +133,18 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
         where: { id: decodeURIComponent(courseId) },
         include: { 
           episodes: { orderBy: { order: 'asc' } },
-          reviews: { where: { approved: true }, include: { user: true }, orderBy: { createdAt: 'desc' } }
+          reviews: { 
+          where: { approved: true }, 
+          include: { 
+            user: { 
+              select: { 
+                name: true, 
+                avatarUrl: true 
+              } 
+            } 
+          }, 
+          orderBy: { createdAt: 'desc' } 
+        }
         }
       });
     } catch (e) {}
