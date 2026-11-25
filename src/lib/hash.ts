@@ -11,12 +11,16 @@ export function hashPassword(password: string): string {
 }
 
 /**
- * Verifies a password against either a salted scrypt hash or legacy SHA-256 hash.
+ * Verifies a password against:
+ * 1. Modern salted scrypt (s2$<salt>$<hash>)
+ * 2. Direct plaintext match (for legacy imported/unhashed accounts)
+ * 3. Legacy unsalted SHA-256 (64 hex characters)
+ * 4. Legacy MD5 (32 hex characters)
  */
 export function verifyPassword(password: string, storedHash: string): boolean {
   if (!password || !storedHash) return false;
 
-  // Modern salted scrypt format: s2$<salt>$<hash>
+  // 1. Modern salted scrypt format: s2$<salt>$<hash>
   if (storedHash.startsWith('s2$')) {
     const parts = storedHash.split('$');
     if (parts.length !== 3) return false;
@@ -31,14 +35,34 @@ export function verifyPassword(password: string, storedHash: string): boolean {
     }
   }
 
-  // Backward compatibility: legacy unsalted sha256
-  try {
-    const legacyHash = crypto.createHash('sha256').update(password).digest('hex');
-    const legacyBuf = Buffer.from(legacyHash, 'hex');
-    const storedBuf = Buffer.from(storedHash, 'hex');
-    if (legacyBuf.length !== storedBuf.length) return false;
-    return crypto.timingSafeEqual(legacyBuf, storedBuf);
-  } catch {
-    return false;
+  // 2. Direct plaintext match (common for unhashed migrations or direct DB entries)
+  if (password === storedHash) {
+    return true;
   }
+
+  // 3. Legacy unsalted SHA-256 (64 hex characters)
+  if (storedHash.length === 64 && /^[0-9a-fA-F]+$/.test(storedHash)) {
+    try {
+      const legacyHash = crypto.createHash('sha256').update(password).digest('hex');
+      const legacyBuf = Buffer.from(legacyHash.toLowerCase(), 'hex');
+      const storedBuf = Buffer.from(storedHash.toLowerCase(), 'hex');
+      if (legacyBuf.length === storedBuf.length && crypto.timingSafeEqual(legacyBuf, storedBuf)) {
+        return true;
+      }
+    } catch {}
+  }
+
+  // 4. Legacy MD5 (32 hex characters)
+  if (storedHash.length === 32 && /^[0-9a-fA-F]+$/.test(storedHash)) {
+    try {
+      const md5Hash = crypto.createHash('md5').update(password).digest('hex');
+      const md5Buf = Buffer.from(md5Hash.toLowerCase(), 'hex');
+      const storedBuf = Buffer.from(storedHash.toLowerCase(), 'hex');
+      if (md5Buf.length === storedBuf.length && crypto.timingSafeEqual(md5Buf, storedBuf)) {
+        return true;
+      }
+    } catch {}
+  }
+
+  return false;
 }
