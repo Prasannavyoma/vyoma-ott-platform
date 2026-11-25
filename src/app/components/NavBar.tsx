@@ -152,33 +152,39 @@ export default function NavBar() {
             style={{
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '6px',
-              background: 'linear-gradient(135deg, rgba(242, 100, 34, 0.15) 0%, rgba(255, 179, 0, 0.15) 100%)',
+              gap: '5px',
+              whiteSpace: 'nowrap',
+              flexShrink: 0,
+              background: 'linear-gradient(135deg, rgba(242, 100, 34, 0.15) 0%, rgba(255, 179, 0, 0.12) 100%)',
               border: '1px solid rgba(242, 100, 34, 0.35)',
               color: '#fff',
-              padding: '6px 12px',
-              borderRadius: '20px',
-              fontSize: '0.82rem',
-              fontWeight: 800,
+              padding: '4px 8px',
+              borderRadius: '14px',
+              fontSize: '0.72rem',
+              fontWeight: 700,
+              lineHeight: 1,
               cursor: 'pointer',
-              transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-              boxShadow: '0 4px 15px rgba(242, 100, 34, 0.2)',
+              transition: 'all 0.2s ease',
+              boxShadow: '0 2px 8px rgba(242, 100, 34, 0.15)',
               marginRight: '2px'
             }}
-            onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
+            onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-1px)'}
             onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
           >
-            <ShieldCheck size={16} color="var(--primary)" />
-            <span className="desktop-only">Find My Plan</span>
+            <ShieldCheck size={13} color="var(--primary)" style={{ flexShrink: 0 }} />
+            <span className="desktop-only" style={{ whiteSpace: 'nowrap' }}>Find My Plan</span>
             {userPlanData?.user?.plan && userPlanData.user.plan !== 'FREE' && (
               <span style={{
                 background: userPlanData.user.plan === 'PLATINUM' ? '#e5e4e2' : '#ffd700',
                 color: '#000',
-                padding: '1px 6px',
-                borderRadius: '10px',
-                fontSize: '0.65rem',
+                padding: '2px 5px',
+                borderRadius: '5px',
+                fontSize: '0.58rem',
                 fontWeight: 900,
-                marginLeft: '2px'
+                lineHeight: 1,
+                marginLeft: '2px',
+                letterSpacing: '0.3px',
+                display: 'inline-block'
               }}>
                 {userPlanData.user.plan}
               </span>
