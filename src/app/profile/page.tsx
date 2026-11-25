@@ -156,34 +156,6 @@ export default async function ProfilePage() {
   const totalUnitsCompleted = userProgress.filter(p => p.completed).length;
   const completedCoursesCount = activeSyllabi.filter(c => c.percent >= 95).length;
 
-  async function downgradePlan() {
-    "use server";
-    const freshUser = await getCurrentUser();
-    if (!freshUser || freshUser.plan === 'FREE') return;
-    
-    const nextPlan = freshUser.plan === 'PLATINUM' ? 'GOLD' : 'FREE';
-
-    // Cancel existing recurring mandate on Razorpay so customer is not billed again
-    if (freshUser.razorpaySubscriptionId && freshUser.razorpaySubscriptionId.startsWith('sub_')) {
-      try {
-        const { getRazorpayClient } = await import('@/lib/razorpay');
-        const client = await getRazorpayClient();
-        await client.subscriptions.cancel(freshUser.razorpaySubscriptionId);
-      } catch (err: any) {
-        console.warn(`[Downgrade] Razorpay mandate cancellation notice:`, err.message);
-      }
-    }
-
-    await prisma.user.update({
-      where: { id: freshUser.id },
-      data: { 
-        plan: nextPlan,
-        razorpaySubscriptionId: nextPlan === 'FREE' ? null : freshUser.razorpaySubscriptionId
-      }
-    });
-    revalidatePath('/profile');
-  }
-
   // 4. SERVER ACTIONS
   async function updateProfile(fd: FormData) {
     "use server";
@@ -471,29 +443,15 @@ export default async function ProfilePage() {
                   )}
 
                   {user.plan === 'GOLD' && (
-                     <>
-                        <a href="/subscribe" style={{ display: 'block', width: '100%', background: 'linear-gradient(135deg, #e50914 0%, #ff4d4f 100%)', color: '#fff', padding: '12px', textAlign: 'center', borderRadius: '8px', fontWeight: 900, textDecoration: 'none', fontSize: '0.85rem', boxShadow: '0 5px 15px rgba(229,9,20,0.2)' }}>
-                           🔥 UPGRADE TO PLATINUM
-                        </a>
-                        <form action={downgradePlan}>
-                           <button type="submit" style={{ width: '100%', background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: '#777', padding: '8px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}>
-                              ⬇️ Downgrade to Free Plan
-                           </button>
-                        </form>
-                     </>
+                     <a href="/subscribe" style={{ display: 'block', width: '100%', background: 'linear-gradient(135deg, #e50914 0%, #ff4d4f 100%)', color: '#fff', padding: '12px', textAlign: 'center', borderRadius: '8px', fontWeight: 900, textDecoration: 'none', fontSize: '0.85rem', boxShadow: '0 5px 15px rgba(229,9,20,0.2)' }}>
+                        🔥 UPGRADE TO PLATINUM
+                     </a>
                   )}
 
                   {user.plan === 'PLATINUM' && (
-                     <>
-                        <div style={{ background: 'rgba(229,9,20,0.1)', border: '1px solid rgba(229,9,20,0.2)', color: '#ff4d4f', padding: '10px', textAlign: 'center', borderRadius: '8px', fontWeight: 800, fontSize: '0.8rem' }}>
-                           🏆 PLATINUM MASTER ACCESS
-                        </div>
-                        <form action={downgradePlan}>
-                           <button type="submit" style={{ width: '100%', background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: '#777', padding: '8px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}>
-                              ⬇️ Switch back to Gold Plan
-                           </button>
-                        </form>
-                     </>
+                     <div style={{ background: 'rgba(229,9,20,0.1)', border: '1px solid rgba(229,9,20,0.2)', color: '#ff4d4f', padding: '10px', textAlign: 'center', borderRadius: '8px', fontWeight: 800, fontSize: '0.8rem' }}>
+                        🏆 PLATINUM MASTER ACCESS
+                     </div>
                   )}
                </div>
 
