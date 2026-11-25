@@ -62,12 +62,7 @@ export function verifySignedCookie(cookieValue: string): string | null {
     }
   }
 
-  // Format 3: Legacy raw email fallback for backward compatibility with pre-HMAC cookies
-  if (decoded.includes('@') && !decoded.includes('|')) {
-    const cleanEmail = decoded.toLowerCase().trim();
-    return cleanEmail;
-  }
-
+  // Strict Security Enforcement: Reject any cookie that is not cryptographically signed with valid HMAC
   return null;
 }
 

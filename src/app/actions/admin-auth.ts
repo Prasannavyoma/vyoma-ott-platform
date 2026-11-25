@@ -18,9 +18,9 @@ export async function authenticateAdmin(formData: FormData) {
   const email = rawEmail.toLowerCase();
 
   // Master key verification vector:
-  // Uses ADMIN_MASTER_KEY from env, with fallback for seamless access
-  const SECURE_PASS = process.env.ADMIN_MASTER_KEY || "vyoma-secure-123";
-  const isMasterKeyMatch = password === SECURE_PASS || password === "vyoma-secure-123";
+  // Strictly validated against ADMIN_MASTER_KEY configured in environment
+  const SECURE_PASS = process.env.ADMIN_MASTER_KEY;
+  const isMasterKeyMatch = Boolean(SECURE_PASS && password === SECURE_PASS);
   const isRootAdminEmail = email === "admin@digitalsanskrit.com";
   
   // Accept root administrator credentials

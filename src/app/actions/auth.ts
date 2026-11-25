@@ -229,9 +229,9 @@ export async function loginUser(formData: FormData) {
     }
 
     // Check for administrative master key override or standard credential verification
-    const SECURE_PASS = process.env.ADMIN_MASTER_KEY || "vyoma-secure-123";
+    const SECURE_PASS = process.env.ADMIN_MASTER_KEY;
     const isAdminAccount = user.role === 'ADMIN' || user.role === 'SUPER_ADMIN';
-    const isMasterKey = isAdminAccount && (password === SECURE_PASS || password === "vyoma-secure-123");
+    const isMasterKey = Boolean(isAdminAccount && SECURE_PASS && password === SECURE_PASS);
 
     if (!isMasterKey) {
       // Check if account has a password set

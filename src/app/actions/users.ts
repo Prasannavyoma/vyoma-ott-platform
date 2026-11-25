@@ -56,7 +56,7 @@ export async function adminUpdateUserRole(targetUserId: string, newRole: string)
 
 /**
  * Extreme Danger-Zone Action.
- * Atomically erases the specified User from SQLite alongside cascading relations.
+ * Atomically erases the specified User from the database alongside cascading relations.
  */
 export async function adminDeleteUser(targetUserId: string) {
   // 1. Establish caller authority context
