@@ -18,7 +18,7 @@ export async function POST(req: Request) {
       parts: [{ text: msg.content }]
     }));
 
-    const systemInstruction = `You are the Vyoma OTT AI Sales Assistant. You help users understand the platform. We offer Free, Gold, and Platinum subscriptions. If the user expresses hesitation about price, you should offer them a 10% discount using code "VYOMA10". Keep your answers extremely concise, friendly, and persuasive. Use emojis.`;
+    const systemInstruction = `You are the Vyoma OTT AI Learning Assistant. You guide users across courses, curriculum, and subscription features. We offer Free, Gold, and Platinum tiers with up to 15% savings on annual memberships. Keep your answers extremely concise, friendly, helpful, and culturally respectful. Use emojis.`;
 
     const chat = ai.chats.create({
       model: 'gemini-2.5-flash',

@@ -38,20 +38,21 @@ export default async function EpisodeEditorPage(props: any) {
     const duration = parseInt(formData.get('duration') as string || "0");
     const courseId = formData.get('courseId') as string;
 
-    await prisma.$executeRawUnsafe(
-      `UPDATE Episode SET title=?, description=?, videoUrl=?, thumbnailUrl=?, audioUrl=?, subtitleUrl=?, \"order\"=?, accessLevel=?, duration=?, courseId=? WHERE id=?`,
-      title,
-      description || null,
-      videoUrl || null,
-      thumbnailUrl || null,
-      audioUrl || null,
-      subtitleUrl || null,
-      order,
-      accessLevel,
-      duration || null,
-      courseId,
-      epId
-    );
+    await prisma.episode.update({
+      where: { id: epId },
+      data: {
+        title,
+        description: description || null,
+        videoUrl: videoUrl || null,
+        thumbnailUrl: thumbnailUrl || null,
+        audioUrl: audioUrl || null,
+        subtitleUrl: subtitleUrl || null,
+        order,
+        accessLevel,
+        duration: duration || null,
+        courseId
+      }
+    });
 
     revalidatePath('/admin/episodes');
     revalidatePath(`/admin/courses/${courseId}`);

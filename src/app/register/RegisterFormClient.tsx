@@ -8,6 +8,14 @@ import Script from 'next/script';
 import { Eye, EyeOff } from 'lucide-react';
 import { registerUser, loginWithGoogleAction } from '../actions/auth';
 
+function getSafeRedirectUrl(param: string | null): string {
+  if (!param) return '/profile';
+  if (param.startsWith('/') && !param.startsWith('//') && !param.includes('://')) {
+    return param;
+  }
+  return '/profile';
+}
+
 interface RegisterFormClientProps {
   allowPassword: boolean;
   allowGoogle: boolean;
@@ -41,7 +49,8 @@ export default function RegisterFormClient({ allowPassword, allowGoogle, googleC
           if (res && res.error) {
             setError(res.error);
           } else if (res && res.success) {
-            const redirectUrl = searchParams.get('redirect') || '/profile';
+            const target = searchParams.get('redirect') || searchParams.get('callbackUrl');
+            const redirectUrl = getSafeRedirectUrl(target);
             router.push(redirectUrl);
             router.refresh();
           } else {

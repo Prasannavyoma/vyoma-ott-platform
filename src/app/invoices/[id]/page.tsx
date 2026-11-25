@@ -1,9 +1,15 @@
 import prisma from '@/lib/prisma';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import Link from 'next/link';
 import PrintInvoiceButton from '@/components/PrintInvoiceButton';
+import { getCurrentUser } from '@/lib/auth';
 
 export default async function PublicInvoicePage({ params }: { params: Promise<{ id: string }> }) {
+  const currentUser = await getCurrentUser();
+  if (!currentUser) {
+    redirect('/login');
+  }
+
   const id = (await params).id;
   
   // 1. Fetch from purchase (Course)
@@ -72,8 +78,8 @@ export default async function PublicInvoicePage({ params }: { params: Promise<{ 
 
       const isIndia = (user.country || 'IN').toUpperCase() === 'IN';
       const defaultPrice = planName === 'PLATINUM' 
-        ? (planInterval === 'YEARLY' ? 499 : 49) 
-        : (planInterval === 'YEARLY' ? 399 : 39);
+        ? (planInterval === 'YEARLY' ? 490 : 49) 
+        : (planInterval === 'YEARLY' ? 390 : 39);
       const calculatedAmount = eventMeta?.amount || (isIndia ? (planRecord?.priceINR || defaultPrice) : (planRecord?.priceUSD || 50));
       const invoiceDate = specificEvent?.createdAt || user.planStartedAt || user.createdAt;
 
@@ -116,7 +122,7 @@ export default async function PublicInvoicePage({ params }: { params: Promise<{ 
         }
         purchase = {
           id: id,
-          amount: meta?.amount || 399,
+          amount: meta?.amount || 390,
           createdAt: giftEvent.createdAt,
           placeOfSupply: user.state || 'Karnataka (29)',
           billingAddress: user.address || 'Registered Patron Account',
@@ -136,24 +142,37 @@ export default async function PublicInvoicePage({ params }: { params: Promise<{ 
     return notFound();
   }
 
+  // Strict RBAC: Users can only view their own invoices unless SUPER_ADMIN or ADMIN (Bug #36 fix)
+  const isAuthorized = currentUser.id === purchase.user?.id || 
+                       currentUser.role === 'ADMIN' || 
+                       currentUser.role === 'SUPER_ADMIN';
+  if (!isAuthorized) {
+    return notFound();
+  }
+
   const amount = purchase.amount || 0;
+  const isAbroad = Boolean(purchase.user?.country && purchase.user?.country !== 'IN');
   const isKarnataka = (purchase.placeOfSupply || '').toLowerCase().includes('karnataka') || 
                       (purchase.placeOfSupply || '').startsWith('29') ||
                       (purchase.user?.state || '').toLowerCase().includes('karnataka');
 
-  // Math-exact GST calculations
-  const taxableValue = Number((amount / 1.18).toFixed(2));
-  const totalTax = Number((amount - taxableValue).toFixed(2));
-  
+  // Math-exact GST calculations (Bug #48 fix: Zero-rated / LUT for foreign export orders)
+  let taxableValue = amount;
+  let totalTax = 0;
   let cgst = 0;
   let sgst = 0;
   let igst = 0;
 
-  if (isKarnataka) {
-    cgst = Number((totalTax / 2).toFixed(2));
-    sgst = Number((totalTax / 2).toFixed(2));
-  } else {
-    igst = totalTax;
+  if (!isAbroad) {
+    taxableValue = Number((amount / 1.18).toFixed(2));
+    totalTax = Number((amount - taxableValue).toFixed(2));
+    
+    if (isKarnataka) {
+      cgst = Number((totalTax / 2).toFixed(2));
+      sgst = Number((totalTax / 2).toFixed(2));
+    } else {
+      igst = totalTax;
+    }
   }
 
   const dateStr = new Date(purchase.createdAt).toLocaleDateString('en-GB');

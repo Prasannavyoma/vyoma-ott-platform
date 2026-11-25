@@ -2,6 +2,7 @@
 
 import prisma from '@/lib/prisma';
 import { getCurrentUser } from '@/lib/auth';
+import crypto from 'crypto';
 
 export async function getUserGamificationStats() {
   try {
@@ -34,7 +35,9 @@ export async function getUserGamificationStats() {
     }
 
     const now = new Date();
-    const todayStr = now.toISOString().split('T')[0];
+    // Use Indian Standard Time (Asia/Kolkata) as base timezone for streak calculations to prevent UTC day-shift bugs
+    const getISTDate = (d: Date) => d.toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
+    const todayStr = getISTDate(now);
 
     let streakDays = userRecord.streakDays ?? 1;
     let xpPoints = userRecord.xpPoints ?? 100;
@@ -50,11 +53,10 @@ export async function getUserGamificationStats() {
       updatedXpPoints += 20; // Initial welcome bonus
       updateNeeded = true;
     } else {
-      const lastActiveStr = new Date(lastActive).toISOString().split('T')[0];
+      const lastActiveStr = getISTDate(new Date(lastActive));
       if (lastActiveStr !== todayStr) {
-        const yesterday = new Date(now);
-        yesterday.setDate(yesterday.getDate() - 1);
-        const yesterdayStr = yesterday.toISOString().split('T')[0];
+        const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+        const yesterdayStr = getISTDate(yesterday);
 
         if (lastActiveStr === yesterdayStr) {
           // Consecutive active day!
@@ -104,37 +106,76 @@ export async function getUserGamificationStats() {
   }
 }
 
+/**
+ * Validated XP grant with single-call cap and daily accumulation cap to prevent inflation
+ */
 export async function awardUserXp(xpAmount: number, reason?: string) {
   try {
     const user = await getCurrentUser();
     if (!user) return { success: false, error: "User not logged in." };
 
-    const userRecord = await prisma.user.findUnique({
-      where: { id: user.id }
+    // Enforce reasonable single-call limit (max 50 XP per invocation)
+    const sanitizedAmount = Math.max(1, Math.min(Math.floor(xpAmount), 50));
+
+    // Cap daily awarded XP to 250 XP
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const todayXpEvents = await prisma.telemetryEvent.findMany({
+      where: {
+        userId: user.id,
+        eventType: 'XP_AWARDED',
+        createdAt: { gte: startOfDay }
+      }
     });
 
-    if (!userRecord) return { success: false, error: "User not found." };
+    const totalToday = todayXpEvents.reduce((acc, ev) => {
+      try {
+        const parsed = JSON.parse(ev.metadata || '{}');
+        return acc + (parsed.amount || 0);
+      } catch {
+        return acc;
+      }
+    }, 0);
 
-    const newXp = (userRecord.xpPoints ?? 100) + xpAmount;
-    
-    await prisma.user.update({
+    if (totalToday >= 250) {
+      return { success: false, error: "Daily XP earning limit reached. Return tomorrow for more!" };
+    }
+
+    const actualToGrant = Math.min(sanitizedAmount, 250 - totalToday);
+
+    const updatedUser = await prisma.user.update({
       where: { id: user.id },
-      data: { xpPoints: newXp }
+      data: { xpPoints: { increment: actualToGrant } }
     });
 
-    return { success: true, newXp };
+    await prisma.telemetryEvent.create({
+      data: {
+        eventType: 'XP_AWARDED',
+        userId: user.id,
+        sourceId: reason || 'PRACTICE_HUB',
+        metadata: JSON.stringify({ amount: actualToGrant, reason })
+      }
+    }).catch(() => {});
+
+    return { success: true, newXp: updatedUser.xpPoints };
   } catch (err: any) {
     console.error("Error awarding XP:", err);
     return { success: false, error: err.message };
   }
 }
 
-export async function redeemXpForGiftVoucher(xpAmount: number) {
+const REQUIRED_XP_PER_VOUCHER = 500;
+
+export async function redeemXpForGiftVoucher(xpAmount?: number) {
   try {
     const user = await getCurrentUser();
     if (!user) {
       return { success: false, error: "Please log in to redeem XP points." };
     }
+
+    // Fixed server-side redemption cost
+    const cost = REQUIRED_XP_PER_VOUCHER;
 
     const userRecord = await prisma.user.findUnique({
       where: { id: user.id }
@@ -145,37 +186,40 @@ export async function redeemXpForGiftVoucher(xpAmount: number) {
     }
 
     const currentXp = userRecord.xpPoints ?? 100;
-    if (currentXp < xpAmount) {
+    if (currentXp < cost) {
       return {
         success: false,
-        error: `Insufficient XP points. You have ${currentXp} XP, but ${xpAmount} XP is required.`
+        error: `Insufficient XP points. You have ${currentXp} XP, but ${cost} XP is required for a 1-month Platinum voucher.`
       };
     }
 
-    // Generate unique gift code
-    const randomCode = "VYOMA-XP-" + Math.random().toString(36).substring(2, 8).toUpperCase();
+    // Cryptographically secure gift code generation (Bug #62 fix)
+    const randomCode = "VYOMA-XP-" + crypto.randomBytes(4).toString('hex').toUpperCase();
 
-    // Deduct XP and save voucher in transaction
-    await prisma.$transaction([
-      prisma.user.update({
-        where: { id: user.id },
-        data: { xpPoints: currentXp - xpAmount }
-      }),
-      prisma.subscriptionVoucher.create({
-        data: {
-          code: randomCode,
-          plan: "PLATINUM",
-          months: 1,
-          sponsoredBy: `Daily Sanskrit Gamification XP Reward`,
-          isUsed: false
-        }
-      })
-    ]);
+    // Deduct XP atomically ensuring user still has >= cost
+    const updateResult = await prisma.user.updateMany({
+      where: { id: user.id, xpPoints: { gte: cost } },
+      data: { xpPoints: { decrement: cost } }
+    });
+
+    if (updateResult.count === 0) {
+      return { success: false, error: "Insufficient XP balance or concurrent redemption detected." };
+    }
+
+    await prisma.subscriptionVoucher.create({
+      data: {
+        code: randomCode,
+        plan: "PLATINUM",
+        months: 1,
+        sponsoredBy: `Daily Sanskrit Gamification XP Reward`,
+        isUsed: false
+      }
+    });
 
     return {
       success: true,
       code: randomCode,
-      message: `Successfully redeemed ${xpAmount} XP! Your gift voucher code is: ${randomCode}`
+      message: `Successfully redeemed ${cost} XP! Your gift voucher code is: ${randomCode}`
     };
   } catch (e: any) {
     console.error("Redeem XP error:", e);

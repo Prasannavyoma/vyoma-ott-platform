@@ -27,7 +27,7 @@ export default async function FlashcardsPage() {
         
         {/* Navigation Breadcrumb */}
         <div style={{ marginBottom: '30px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Link href="/profile" style={{ color: '#888', textDecoration: 'none', fontSize: '0.9rem', fontWeight: 600 }} onMouseEnter={e => e.currentTarget.style.color = '#fff'} onMouseLeave={e => e.currentTarget.style.color = '#888'}>
+          <Link href="/profile" className="hover:text-white transition-colors" style={{ color: '#888', textDecoration: 'none', fontSize: '0.9rem', fontWeight: 600 }}>
             👤 Profile
           </Link>
           <span style={{ color: '#444' }}>/</span>

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import crypto from 'crypto';
 
 export async function POST(request: Request) {
   try {
@@ -12,6 +13,12 @@ export async function POST(request: Request) {
     const user = await getCurrentUser();
     if (!user) return NextResponse.json({ ok: false });
 
+    // Fetch episode duration for server-side watch time validation (Bug #7 fix)
+    const episode = await prisma.episode.findUnique({
+      where: { id: episodeId },
+      select: { courseId: true, duration: true }
+    });
+
     // Fetch current progress state before updating to check if newly completed
     const existing = await prisma.progress.findUnique({
       where: {
@@ -22,7 +29,13 @@ export async function POST(request: Request) {
       }
     });
 
-    const isNewlyCompleted = (completed || false) && (!existing || !existing.completed);
+    // Validate completion server-side: require at least 80% watch time or 30 seconds
+    const minRequiredPos = episode?.duration ? Math.min(episode.duration * 0.8, Math.max(0, episode.duration - 10)) : 30;
+    const meetsCompletionCriteria = typeof position === 'number' && position >= minRequiredPos;
+    
+    // Bug #41 fix: Never un-complete an already completed episode upon re-opening
+    const isCompletedNow = Boolean(existing?.completed || (completed && meetsCompletionCriteria));
+    const isNewlyCompleted = isCompletedNow && (!existing || !existing.completed);
 
     let coinsEarned = 0;
     if (isNewlyCompleted) {
@@ -37,12 +50,6 @@ export async function POST(request: Request) {
       } catch (e) {}
 
       coinsEarned += coinsVideoReward;
-
-      // Check course completion
-      const episode = await prisma.episode.findUnique({
-        where: { id: episodeId },
-        select: { courseId: true }
-      });
 
       if (episode?.courseId) {
         const allEpisodes = await prisma.episode.findMany({
@@ -72,7 +79,8 @@ export async function POST(request: Request) {
             });
             let certCode = existingCert?.code || existingCert?.id;
             if (!existingCert) {
-              certCode = 'VYOMA-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+              // Cryptographically secure collision-resistant code (Bug #62 fix)
+              certCode = 'VYOMA-CERT-' + crypto.randomBytes(4).toString('hex').toUpperCase();
               await prisma.certificate.create({
                 data: {
                   userId: user.id,
@@ -111,14 +119,13 @@ export async function POST(request: Request) {
         },
         update: {
           position: position,
-          // Once completed, stay completed (periodic saves send completed:false)
-          completed: (existing?.completed || completed) || false,
+          completed: isCompletedNow,
         },
         create: {
           userId: user.id,
           episodeId: episodeId,
           position: position,
-          completed: completed || false,
+          completed: isCompletedNow,
         }
       }),
       ...(coinsEarned > 0 ? [
@@ -132,7 +139,7 @@ export async function POST(request: Request) {
       ] : [])
     ]);
 
-    return NextResponse.json({ success: true, coinsEarned });
+    return NextResponse.json({ success: true, coinsEarned, isCompleted: isCompletedNow });
   } catch (e) {
     console.error("Progress save failed:", e);
     return NextResponse.json({ success: false });

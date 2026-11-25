@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ShieldCheck, Crown, CheckCircle2, Sparkles, AlertTriangle, X, CreditCard, RefreshCw, Globe, MapPin, ArrowLeft, Key } from 'lucide-react';
 import { createRazorpaySubscription } from '@/app/actions/razorpay';
-import { activateSubscription } from '@/app/actions/plans';
+import { activateSubscription, getActivePlans } from '@/app/actions/plans';
 import { redeemVoucherCode } from '@/app/actions/gift';
 import RazorpayCheckoutButton from '@/app/components/RazorpayCheckoutButton';
 
@@ -44,9 +44,16 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
   const [giftCode, setGiftCode] = useState('');
   const [giftLoading, setGiftLoading] = useState(false);
   const [giftStatus, setGiftStatus] = useState<{ type: 'idle' | 'success' | 'error'; message?: string; meta?: any }>({ type: 'idle' });
+  const [activePlans, setActivePlans] = useState<any[]>([]);
 
   const user = userPlanData?.user;
   const isLoggedIn = userPlanData?.isLoggedIn;
+
+  useEffect(() => {
+    if (isOpen) {
+      getActivePlans().then(setActivePlans).catch(() => {});
+    }
+  }, [isOpen]);
 
   useEffect(() => {
     if (user?.country && user.country !== 'IN') {
@@ -66,6 +73,22 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
     }
     detectLocation();
   }, [user]);
+
+  const getPlanPrice = (pName: string, pInterval: string) => {
+    const match = activePlans.find(p => p.name === pName && p.interval === pInterval);
+    if (match) {
+      return isAbroad ? match.priceUSD : match.priceINR;
+    }
+    if (pName === 'GOLD') {
+      return isAbroad ? (pInterval === 'MONTHLY' ? 3 : 25) : (pInterval === 'MONTHLY' ? 39 : 390);
+    }
+    return isAbroad ? (pInterval === 'MONTHLY' ? 5 : 50) : (pInterval === 'MONTHLY' ? 49 : 490);
+  };
+
+  const getPlanDisplayPrice = (pName: string, pInterval: string) => {
+    const p = getPlanPrice(pName, pInterval);
+    return isAbroad ? `$${p}` : `₹${p}`;
+  };
 
   if (!isOpen) return null;
 
@@ -88,7 +111,8 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
 
   const handleCheckout = async (planName: 'GOLD' | 'PLATINUM', interval: 'MONTHLY' | 'YEARLY', overrideAbroad?: boolean) => {
     if (!isLoggedIn || !user) {
-      window.location.href = '/login?callbackUrl=/';
+      const returnUrl = typeof window !== 'undefined' ? window.location.pathname + window.location.search : '/subscribe';
+      window.location.href = `/login?callbackUrl=${encodeURIComponent(returnUrl)}`;
       return;
     }
 
@@ -96,13 +120,7 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
     const currency = useAbroad ? 'USD' : 'INR';
 
     setIsInitializing(true);
-    let amount = 0;
-    if (planName === 'GOLD') {
-      amount = useAbroad ? (interval === 'MONTHLY' ? 3 : 25) : (interval === 'MONTHLY' ? 39 : 390);
-    } else {
-      amount = useAbroad ? (interval === 'MONTHLY' ? 5 : 50) : (interval === 'MONTHLY' ? 49 : 490);
-    }
-
+    const amount = getPlanPrice(planName, interval);
     const totalCount = interval === 'MONTHLY' ? 120 : 10;
 
     try {
@@ -112,7 +130,8 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
         amount: amount,
         currency: currency,
         interval: interval.toLowerCase(),
-        totalCount: totalCount
+        totalCount: totalCount,
+        planName: planName
       });
 
       if (res.success) {
@@ -492,6 +511,10 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
               description={`Auto-renewing ${checkoutData.interval} mandate`}
               subscriptionId={checkoutData.subData.subscriptionId}
               publicKey={checkoutData.subData.publicKey}
+              prefill={{
+                name: user?.name || '',
+                email: user?.email || ''
+              }}
               onSuccess={handleSuccess}
               onError={(err: any) => console.error("Payment failed", err)}
               buttonText={`CONFIRM MANDATE & SUBSCRIBE (${checkoutData.currency === 'INR' ? '₹' : '$'}${checkoutData.amount})`}
@@ -621,13 +644,13 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
                       <span style={{ fontSize: '0.85rem', color: '#ccc' }}>Monthly:</span>
                       <span style={{ fontSize: '1.4rem', fontWeight: 900, color: '#fff' }}>
-                        {isAbroad ? '$3' : '₹39'} <span style={{ fontSize: '0.75rem', color: '#888' }}>/ mo</span>
+                        {getPlanDisplayPrice('GOLD', 'MONTHLY')} <span style={{ fontSize: '0.75rem', color: '#888' }}>/ mo</span>
                       </span>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
                       <span style={{ fontSize: '0.85rem', color: '#22c55e', fontWeight: 700 }}>Yearly (Save 15%):</span>
                       <span style={{ fontSize: '1.4rem', fontWeight: 900, color: '#22c55e' }}>
-                        {isAbroad ? '$25' : '₹390'} <span style={{ fontSize: '0.75rem', color: '#888' }}>/ yr</span>
+                        {getPlanDisplayPrice('GOLD', 'YEARLY')} <span style={{ fontSize: '0.75rem', color: '#888' }}>/ yr</span>
                       </span>
                     </div>
                   </div>
@@ -692,7 +715,7 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
                         cursor: 'pointer'
                       }}
                     >
-                      Subscribe Monthly ({isAbroad ? '$3' : '₹39'})
+                      Subscribe Monthly ({getPlanDisplayPrice('GOLD', 'MONTHLY')})
                     </button>
                     <button
                       onClick={() => handleCheckout('GOLD', 'YEARLY')}
@@ -710,7 +733,7 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
                         boxShadow: '0 4px 15px rgba(242, 100, 34, 0.3)'
                       }}
                     >
-                      Subscribe Yearly ({isAbroad ? '$25' : '₹390'}) 🎁
+                      Subscribe Yearly ({getPlanDisplayPrice('GOLD', 'YEARLY')}) 🎁
                     </button>
                   </div>
                 )}
@@ -742,13 +765,13 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
                       <span style={{ fontSize: '0.85rem', color: '#ccc' }}>Monthly:</span>
                       <span style={{ fontSize: '1.4rem', fontWeight: 900, color: '#fff' }}>
-                        {isAbroad ? '$5' : '₹49'} <span style={{ fontSize: '0.75rem', color: '#888' }}>/ mo</span>
+                        {getPlanDisplayPrice('PLATINUM', 'MONTHLY')} <span style={{ fontSize: '0.75rem', color: '#888' }}>/ mo</span>
                       </span>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
                       <span style={{ fontSize: '0.85rem', color: '#22c55e', fontWeight: 700 }}>Yearly (Save 15%):</span>
                       <span style={{ fontSize: '1.4rem', fontWeight: 900, color: '#22c55e' }}>
-                        {isAbroad ? '$50' : '₹490'} <span style={{ fontSize: '0.75rem', color: '#888' }}>/ yr</span>
+                        {getPlanDisplayPrice('PLATINUM', 'YEARLY')} <span style={{ fontSize: '0.75rem', color: '#888' }}>/ yr</span>
                       </span>
                     </div>
                   </div>
@@ -797,7 +820,7 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
                         cursor: 'pointer'
                       }}
                     >
-                      Subscribe Monthly ({isAbroad ? '$5' : '₹49'})
+                      Subscribe Monthly ({getPlanDisplayPrice('PLATINUM', 'MONTHLY')})
                     </button>
                     <button
                       onClick={() => handleCheckout('PLATINUM', 'YEARLY')}
@@ -815,7 +838,7 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
                         boxShadow: '0 4px 15px rgba(242, 100, 34, 0.4)'
                       }}
                     >
-                      Subscribe Yearly ({isAbroad ? '$50' : '₹490'}) 🚀
+                      Subscribe Yearly ({getPlanDisplayPrice('PLATINUM', 'YEARLY')}) 🚀
                     </button>
                   </div>
                 )}

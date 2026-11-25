@@ -42,27 +42,37 @@ self.addEventListener('fetch', (event) => {
   // Only handle GET requests
   if (req.method !== 'GET') return;
 
-  // A. INSTANT CACHE-FIRST FOR OFFLINE PAGES (/offline, /offline.html, and Next.js RSC requests)
-  // When user clicks Offline Library, serve immediately in 0ms without waiting for network!
-  if (url.includes('/offline.html') || url.includes('/offline')) {
+  // A. OFFLINE STANDALONE SHELL DELIVERY (Bug #15 fix: Only intercept actual navigation requests, never RSC/static assets)
+  let parsedReqUrl;
+  try {
+    parsedReqUrl = new URL(url);
+  } catch {
+    return;
+  }
+
+  const isOfflineRoute = parsedReqUrl.pathname === '/offline' || parsedReqUrl.pathname === '/offline.html';
+  if (isOfflineRoute && req.mode === 'navigate') {
     event.respondWith(
       (async () => {
-        const appCache = await caches.open(OFFLINE_APP_CACHE);
-        const cached = (await appCache.match(url)) || (await appCache.match('/offline.html')) || (await appCache.match('/offline'));
-        if (cached) {
-          return cached;
+        // If device is strictly offline, serve cached app shell immediately
+        if (typeof self.navigator !== 'undefined' && self.navigator.onLine === false) {
+          const appCache = await caches.open(OFFLINE_APP_CACHE);
+          const cached = (await appCache.match('/offline')) || (await appCache.match('/offline.html'));
+          if (cached) return cached;
         }
 
-        // If not in cache and online, fetch from network and cache for next time
+        // When online, load from network first to let live Next.js SSR render cleanly without tab freeze
         try {
           const fresh = await fetch(req);
           if (fresh && fresh.status === 200) {
-            appCache.put(url, fresh.clone()).catch(() => {});
+            const appCache = await caches.open(OFFLINE_APP_CACHE);
+            appCache.put(req, fresh.clone()).catch(() => {});
           }
           return fresh;
         } catch (err) {
-          // Fallback to offline.html
-          const fallback = await appCache.match('/offline.html');
+          // Network failed: fallback to cached offline shell
+          const appCache = await caches.open(OFFLINE_APP_CACHE);
+          const fallback = (await appCache.match('/offline')) || (await appCache.match('/offline.html'));
           if (fallback) return fallback;
           return new Response('Offline Library Ready', { status: 200, headers: { 'Content-Type': 'text/html' } });
         }

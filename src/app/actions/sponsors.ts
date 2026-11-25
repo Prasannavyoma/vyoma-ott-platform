@@ -90,11 +90,11 @@ export async function setHideDummySponsors(hide: boolean) {
   try {
     const value = hide ? 'true' : 'false';
     const now = new Date();
-    await prisma.$executeRawUnsafe(
-      `INSERT INTO SystemSetting ("key", "value", "updatedAt") VALUES ('HIDE_DUMMY_SPONSORS', ?, ?) 
-       ON CONFLICT("key") DO UPDATE SET "value"=excluded.value, "updatedAt"=excluded.updatedAt`,
-      value, now.toISOString()
-    );
+    await prisma.systemSetting.upsert({
+      where: { key: 'HIDE_DUMMY_SPONSORS' },
+      update: { value, updatedAt: now },
+      create: { key: 'HIDE_DUMMY_SPONSORS', value, updatedAt: now }
+    });
     revalidatePath('/admin/sponsors');
     revalidatePath('/');
     return { success: true };

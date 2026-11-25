@@ -2,8 +2,20 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { sendTemplatedEmail } from '@/lib/mail';
 import { sendWebPush } from '@/lib/push';
+import { getCurrentUser } from '@/lib/auth';
 
 export async function GET(req: Request) {
+  // Authorize: require either valid CRON_SECRET or an authenticated admin session
+  const authHeader = req.headers.get('authorization');
+  const cronSecret = process.env.CRON_SECRET;
+  const isAuthorizedCron = cronSecret && authHeader === `Bearer ${cronSecret}`;
+  
+  const user = await getCurrentUser();
+  const isAdmin = user && (user.role === 'ADMIN' || user.role === 'SUPER_ADMIN');
+
+  if (!isAuthorizedCron && !isAdmin) {
+    return NextResponse.json({ error: 'Unauthorized: Invalid cron secret or admin credentials required.' }, { status: 401 });
+  }
   try {
     const { searchParams } = new URL(req.url);
     const forceAll = searchParams.get('forceAll') === 'true'; // Allow bypassing date filters for testing

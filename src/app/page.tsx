@@ -31,17 +31,6 @@ async function getSafeHomepageSections(): Promise<any[]> {
 
 async function getSafeHomepageChannels(): Promise<any[]> {
   try {
-    // 1. Auto Bootstrap
-    await prisma.$executeRawUnsafe(`
-      CREATE TABLE IF NOT EXISTS HomepageChannel (
-        id TEXT PRIMARY KEY,
-        name TEXT NOT NULL,
-        url TEXT NOT NULL,
-        icon TEXT NOT NULL,
-        "order" INTEGER DEFAULT 0
-      )
-    `);
-
     let raw = await prisma.homepageChannel.findMany({ 
       where: { active: true },
       orderBy: { order: 'asc' } 

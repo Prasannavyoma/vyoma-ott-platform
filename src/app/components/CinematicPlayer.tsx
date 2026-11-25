@@ -517,8 +517,8 @@ export default function CinematicPlayer({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           episodeId, 
-          position: Math.floor(position), 
-          completed: false 
+          position: Math.floor(position)
+          // Do not send completed: false in heartbeat so completed lessons are never demoted (Bug #41 fix)
         }),
         keepalive: true
       }).catch(() => {});

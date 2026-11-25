@@ -4,9 +4,10 @@ import { notFound } from 'next/navigation';
 
 export const revalidate = 3600;
 
-export default async function BlogPostPage({ params }: { params: { slug: string } }) {
+export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
   const blog = await prisma.blogPost.findUnique({
-    where: { slug: params.slug }
+    where: { slug }
   });
 
   if (!blog || !blog.published) {

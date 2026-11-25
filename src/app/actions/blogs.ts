@@ -2,8 +2,10 @@
 
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
+import { requireAdmin } from '@/lib/auth';
 
 export async function createBlogPost(formData: FormData) {
+  await requireAdmin();
   const title = formData.get('title') as string;
   const slug = formData.get('slug') as string;
   const excerpt = formData.get('excerpt') as string;
@@ -29,6 +31,7 @@ export async function createBlogPost(formData: FormData) {
 }
 
 export async function updateBlogPost(id: string, formData: FormData) {
+  await requireAdmin();
   const title = formData.get('title') as string;
   const slug = formData.get('slug') as string;
   const excerpt = formData.get('excerpt') as string;
@@ -56,12 +59,14 @@ export async function updateBlogPost(id: string, formData: FormData) {
 }
 
 export async function deleteBlogPost(id: string) {
+  await requireAdmin();
   await prisma.blogPost.delete({ where: { id } });
   revalidatePath('/blog');
   revalidatePath('/admin/blogs');
 }
 
 export async function toggleBlogPublish(id: string, published: boolean) {
+  await requireAdmin();
   const blog = await prisma.blogPost.update({
     where: { id },
     data: { published }

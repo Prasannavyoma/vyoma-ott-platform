@@ -4,14 +4,15 @@ import prisma from '@/lib/prisma';
 import { getCurrentUser } from '@/lib/auth';
 import { revalidatePath } from 'next/cache';
 import { sendGiftVoucherEmail } from '@/lib/mail';
+import crypto from 'crypto';
 
-// Generates a secure, random high-fidelity alphanumeric code
+// Generates a cryptographically secure, random high-entropy alphanumeric code (Bug #62 fix)
 function generateSecureCode() {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   let code = 'GIFT-VYOM-';
   for (let i = 0; i < 8; i++) {
     if (i === 4) code += '-';
-    code += chars.charAt(Math.floor(Math.random() * chars.length));
+    code += chars.charAt(crypto.randomInt(0, chars.length));
   }
   return code;
 }
@@ -29,15 +30,33 @@ interface GiftParams {
   currency?: string;
   cardTheme?: 'SWARNA' | 'UTSAV' | 'GURUKULA' | 'PADMA' | string;
   senderDisplayName?: string;
+  paymentDetails?: {
+    razorpay_order_id: string;
+    razorpay_payment_id: string;
+    razorpay_signature: string;
+  };
 }
 
 /**
- * Server Action: Processes Bulk Gift Orders, Minting multiple Subscription Vouchers in SQLite.
+ * Server Action: Processes Bulk Gift Orders, Minting multiple Subscription Vouchers.
+ * Strictly verifies cryptographic payment signature before minting any vouchers.
  */
 export async function purchaseGiftVoucher(params: GiftParams) {
   const buyer = await getCurrentUser();
   if (!buyer) {
     throw new Error("AUTHENTICATION_REQUIRED: Please sign in to gift subscriptions.");
+  }
+
+  // Enforce cryptographic payment verification
+  const pay = params.paymentDetails;
+  if (!pay || !pay.razorpay_order_id || !pay.razorpay_payment_id || !pay.razorpay_signature) {
+    throw new Error("PAYMENT_UNVERIFIED: Valid Razorpay payment authorization signature is strictly required to mint gift vouchers.");
+  }
+
+  const { verifyRazorpayOrderSignature } = await import('@/lib/razorpay');
+  const isValid = await verifyRazorpayOrderSignature(pay.razorpay_order_id, pay.razorpay_payment_id, pay.razorpay_signature);
+  if (!isValid) {
+    throw new Error("PAYMENT_REJECTED: Cryptographic signature verification failed. Forged or tampered payment.");
   }
 
   const senderName = params.senderDisplayName?.trim() || buyer.name || buyer.email;
@@ -146,7 +165,7 @@ export async function redeemVoucherCode(rawCode: string) {
   const cleanCode = rawCode.trim().toUpperCase();
   
   try {
-    // 1. Audit the code in SQLite
+    // 1. Audit the code and fetch current user state
     const voucher = await prisma.subscriptionVoucher.findUnique({
       where: { code: cleanCode }
     });
@@ -159,30 +178,48 @@ export async function redeemVoucherCode(rawCode: string) {
       return { success: false, error: "This Activation Code has already been redeemed." };
     }
 
-    // 2. Calculate access start & interval
+    const userInDb = await prisma.user.findUnique({ where: { id: user.id } });
+    if (!userInDb) return { success: false, error: "User account not found." };
+
+    // 2. Atomically burn the voucher using updateMany to eliminate double-redeem race condition (Bug #29 fix)
+    const burned = await prisma.subscriptionVoucher.updateMany({
+      where: { code: cleanCode, isUsed: false },
+      data: {
+        isUsed: true,
+        usedById: user.id
+      }
+    });
+
+    if (burned.count === 0) {
+      return { success: false, error: "This Activation Code has already been redeemed or is invalid." };
+    }
+
+    // 3. Calculate access start, interval & expiration extension (Bug #29 fix)
     const now = new Date();
     const intervalStr = voucher.months >= 12 ? 'YEARLY' : 'MONTHLY';
+    const daysToAdd = voucher.months * 30;
 
-    // 3. Atomic Transaction: Elevate user and burn voucher record
-    await prisma.$transaction([
-      // Upgrade User
-      prisma.user.update({
-        where: { id: user.id },
-        data: {
-          plan: voucher.plan,
-          planInterval: intervalStr as any,
-          planStartedAt: now
-        }
-      }),
-      // Mark voucher as burned
-      prisma.subscriptionVoucher.update({
-        where: { id: voucher.id },
-        data: {
-          isUsed: true,
-          usedById: user.id
-        }
-      })
-    ]);
+    let baseTime = now.getTime();
+    if (userInDb.planExpiresAt && new Date(userInDb.planExpiresAt).getTime() > now.getTime()) {
+      baseTime = new Date(userInDb.planExpiresAt).getTime();
+    }
+    const newExpiry = new Date(baseTime + daysToAdd * 24 * 60 * 60 * 1000);
+
+    // Prevent downgrading an existing PLATINUM user to GOLD
+    let targetPlan = voucher.plan;
+    if (userInDb.plan === 'PLATINUM' && voucher.plan === 'GOLD') {
+      targetPlan = 'PLATINUM';
+    }
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        plan: targetPlan,
+        planInterval: intervalStr as any,
+        planStartedAt: now,
+        planExpiresAt: newExpiry
+      }
+    });
 
     // 4. Log Telemetry Event for Gift Redemption
     await prisma.telemetryEvent.create({

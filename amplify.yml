@@ -7,7 +7,7 @@ frontend:
         - npx prisma generate
     build:
       commands:
-        - env | grep -e DATABASE_URL -e NEXT_PUBLIC_ -e RAZORPAY -e VAPID >> .env.production
+        - env | grep -E '^(DATABASE_URL|NEXT_PUBLIC_|RAZORPAY_|VAPID_|WP_|ADMIN_|GEMINI_|CRON_|GMAIL_|SMTP_)' >> .env.production || true
         - npm run build
   artifacts:
     baseDirectory: .next

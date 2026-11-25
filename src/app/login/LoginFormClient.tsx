@@ -7,6 +7,14 @@ import Script from 'next/script';
 import { Eye, EyeOff } from 'lucide-react';
 import { loginUser, loginWithGoogleAction } from '../actions/auth';
 
+function getSafeRedirectUrl(param: string | null): string {
+  if (!param) return '/';
+  if (param.startsWith('/') && !param.startsWith('//') && !param.includes('://')) {
+    return param;
+  }
+  return '/';
+}
+
 interface LoginFormClientProps {
   allowPassword: boolean;
   allowGoogle: boolean;
@@ -40,7 +48,8 @@ export default function LoginFormClient({ allowPassword, allowGoogle, googleClie
           if (res && res.error) {
             setError(res.error);
           } else if (res && res.success) {
-            const redirectUrl = searchParams.get('redirect') || '/';
+            const target = searchParams.get('redirect') || searchParams.get('callbackUrl');
+            const redirectUrl = getSafeRedirectUrl(target);
             router.push(redirectUrl);
             router.refresh();
           } else {
@@ -87,7 +96,8 @@ export default function LoginFormClient({ allowPassword, allowGoogle, googleClie
         if (res.forcePasswordChange) {
           router.push('/change-password');
         } else {
-          const redirectUrl = searchParams.get('redirect') || '/';
+          const target = searchParams.get('redirect') || searchParams.get('callbackUrl');
+          const redirectUrl = getSafeRedirectUrl(target);
           router.push(redirectUrl);
         }
         router.refresh();

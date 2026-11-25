@@ -7,8 +7,39 @@ import { redirect } from 'next/navigation';
 import { sendWelcomeEmail, sendPasswordResetEmail } from '@/lib/mail';
 import { setSessionUser, getCurrentUser, clearSession } from '@/lib/auth';
 import { validateSpamVectors } from '@/lib/spam-guard';
-import { hashPassword } from '@/lib/hash';
+import { hashPassword, verifyPassword } from '@/lib/hash';
 import crypto from 'crypto';
+
+// In-memory brute-force rate limiter: email -> { count: number, firstAttempt: number }
+const loginAttempts = new Map<string, { count: number; firstAttempt: number }>();
+
+function checkRateLimit(key: string): boolean {
+  const now = Date.now();
+  const windowMs = 15 * 60 * 1000; // 15 minutes
+  const maxAttempts = 7;
+  
+  const record = loginAttempts.get(key);
+  if (!record) {
+    loginAttempts.set(key, { count: 1, firstAttempt: now });
+    return true;
+  }
+  
+  if (now - record.firstAttempt > windowMs) {
+    loginAttempts.set(key, { count: 1, firstAttempt: now });
+    return true;
+  }
+  
+  if (record.count >= maxAttempts) {
+    return false;
+  }
+  
+  record.count += 1;
+  return true;
+}
+
+function clearRateLimit(key: string) {
+  loginAttempts.delete(key);
+}
 
 export async function logoutUser() {
   await clearSession();
@@ -71,11 +102,11 @@ export async function registerUser(formData: FormData) {
       }
     });
 
-    // 🎁 Process Referral Rewards if a referrer is present
+    // 🎁 Process Referral Rewards if a referrer is present (Bug #54 fix: Anti-farming caps)
     if (referrerId) {
       try {
         const referrer = await prisma.user.findUnique({ where: { id: referrerId } });
-        if (referrer) {
+        if (referrer && referrer.email.toLowerCase() !== normalizedEmail) {
           // 1. Log the referral connection
           await prisma.referral.create({
             data: {
@@ -84,11 +115,24 @@ export async function registerUser(formData: FormData) {
             }
           });
 
-          // 2. Award +10 coins instantly to the referrer
-          await prisma.user.update({
-            where: { id: referrerId },
-            data: { coins: { increment: 10 } }
+          // 2. Cap referral coin awards: max 10 coin awards per calendar month to prevent bot farming
+          const startOfMonth = new Date();
+          startOfMonth.setDate(1);
+          startOfMonth.setHours(0, 0, 0, 0);
+
+          const monthlyReferralCount = await prisma.referral.count({
+            where: {
+              referrerId: referrerId,
+              createdAt: { gte: startOfMonth }
+            }
           });
+
+          if (monthlyReferralCount <= 10) {
+            await prisma.user.update({
+              where: { id: referrerId },
+              data: { coins: { increment: 10 } }
+            });
+          }
 
           // 3. Check referrer's cumulative referral totals
           const referralCount = await prisma.referral.count({
@@ -162,17 +206,18 @@ export async function loginUser(formData: FormData) {
       return { error: 'Password-based login is currently disabled. Please sign in using Google.' };
     }
 
+    if (!checkRateLimit(normalizedEmail)) {
+      return { error: 'Too many failed login attempts. Please wait 15 minutes before trying again.' };
+    }
+
     const user = await prisma.user.findFirst({ 
       where: { 
-        OR: [
-          { email: { equals: normalizedEmail, mode: 'insensitive' } },
-          { name: { equals: rawEmail, mode: 'insensitive' } }
-        ]
+        email: { equals: normalizedEmail, mode: 'insensitive' }
       } 
     });
 
     if (!user) {
-      return { error: 'User ID or Email address is invalid / not registered.' };
+      return { error: 'Email address is invalid / not registered.' };
     }
 
     // If migrated user from WordPress, intercept login to force reset
@@ -180,17 +225,25 @@ export async function loginUser(formData: FormData) {
       return { error: 'force_password_change' };
     }
 
-    // Verify password if one is set in DB
-    if (user.password) {
-      if (!password || hashPassword(password) !== user.password) {
-        return { error: 'Incorrect password.' };
-      }
-    } else if (password) {
-      // Automatically save password if none was previously set (migration helper)
+    // Check if account has a password set
+    if (!user.password) {
+      return { error: 'This account was created via Google Sign-In or has no password set. Please sign in with Google or use "Forgot Password".' };
+    }
+
+    // Verify salted / legacy password
+    if (!password || !verifyPassword(password, user.password)) {
+      return { error: 'Incorrect password.' };
+    }
+
+    // Successful login: clear failed attempts
+    clearRateLimit(normalizedEmail);
+
+    // Transparently upgrade legacy unsalted SHA-256 hashes to modern salted scrypt
+    if (!user.password.startsWith('s2$')) {
       await prisma.user.update({
         where: { id: user.id },
         data: { password: hashPassword(password) }
-      });
+      }).catch(() => {});
     }
 
     let rememberMe = false;
@@ -255,9 +308,17 @@ export async function loginWithGoogleAction(idToken: string, referrerId?: string
     }
     const tokenInfo = await response.json();
 
-    // Verify audience (matches client ID) if configured
-    if (configuredClientId && tokenInfo.aud !== configuredClientId) {
-       return { error: 'Audience mismatch. Client ID is invalid.' };
+    // Verify configured client ID and audience
+    if (!configuredClientId) {
+      return { error: 'Google Sign-In is not fully configured (missing Client ID). Please contact administrator.' };
+    }
+    if (tokenInfo.aud !== configuredClientId) {
+      return { error: 'Google authentication audience mismatch.' };
+    }
+
+    // Verify Google email verification status
+    if (tokenInfo.email_verified !== 'true' && tokenInfo.email_verified !== true) {
+      return { error: 'Your Google account email is not verified by Google.' };
     }
 
     const email = tokenInfo.email;
@@ -375,20 +436,30 @@ export async function requestPasswordReset(formData: FormData) {
       data: { resetToken, resetTokenExpires }
     });
 
-    // Dynamically resolve base URL for reset link
+    // Dynamically resolve base URL for reset link with strict host validation against header poisoning
     let origin = process.env.NEXT_PUBLIC_BASE_URL || '';
     if (!origin) {
       try {
         const { headers } = await import('next/headers');
         const headerList = await headers();
-        const host = headerList.get('host');
+        const host = (headerList.get('host') || '').toLowerCase().trim();
         const proto = headerList.get('x-forwarded-proto') || 'https';
-        if (host) {
+        
+        // Allowed hosts whitelist preventing Host header injection / poisoning
+        const allowedHosts = [
+          'digitalsanskrit.com',
+          'www.digitalsanskrit.com',
+          'new.digitalsanskrit.com',
+          'vyoma-ott-platform.vercel.app',
+          'localhost:3000'
+        ];
+        
+        if (allowedHosts.includes(host) || host.endsWith('.amplifyapp.com') || host.endsWith('.vercel.app')) {
           origin = `${proto}://${host}`;
         }
       } catch (e) {}
     }
-    if (!origin) origin = 'https://digitalsanskrit.com';
+    if (!origin) origin = 'https://new.digitalsanskrit.com';
 
     const resetUrl = `${origin}/reset-password?token=${resetToken}`;
     

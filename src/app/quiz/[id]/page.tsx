@@ -30,13 +30,31 @@ export default async function QuizPage(props: { params: Promise<{ id: string }> 
     redirect('/');
   }
 
-  // Advanced Server Action to ingest results and release coins/certificates
-  async function submitResult(uid: string, score: number, passed: boolean) {
+  // Server-side authoritative grading and certificate generation (Bug #21 & #62 fixes)
+  async function submitResult(clientAnswers: Record<string, string>) {
     "use server";
+
+    const { getCurrentUser } = await import('@/lib/auth');
+    const sessionUser = await getCurrentUser();
+    if (!sessionUser) {
+      throw new Error("Unauthorized: Session expired. Please log in.");
+    }
     
-    const existingResult = await prisma.quizResult.create({
+    // Authoritative server-side answer evaluation
+    let correctCount = 0;
+    quiz!.questions.forEach(q => {
+      if (clientAnswers[q.id] && clientAnswers[q.id] === q.correctAnswer) {
+        correctCount++;
+      }
+    });
+
+    const totalQuestions = quiz!.questions.length || 1;
+    const score = Math.round((correctCount / totalQuestions) * 100);
+    const passed = score >= quiz!.minPassScore;
+
+    await prisma.quizResult.create({
       data: {
-        userId: uid,
+        userId: sessionUser.id,
         quizId: quiz!.id,
         score: score,
         passed: passed
@@ -56,7 +74,7 @@ export default async function QuizPage(props: { params: Promise<{ id: string }> 
 
       coinsGranted = coinsQuizReward;
       await prisma.user.update({
-        where: { id: uid },
+        where: { id: sessionUser.id },
         data: {
           coins: { increment: coinsGranted }
         }
@@ -64,14 +82,15 @@ export default async function QuizPage(props: { params: Promise<{ id: string }> 
 
       // Generate Certificate if not existing
       const existingCert = await prisma.certificate.findFirst({
-        where: { userId: uid, courseId: courseId }
+        where: { userId: sessionUser.id, courseId: courseId }
       });
 
       if (!existingCert) {
-        certCode = `VYOMA-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+        const crypto = await import('crypto');
+        certCode = `VYOMA-CERT-${crypto.randomBytes(4).toString('hex').toUpperCase()}`;
         await prisma.certificate.create({
           data: {
-            userId: uid,
+            userId: sessionUser.id,
             courseId: courseId,
             code: certCode
           }
@@ -79,7 +98,7 @@ export default async function QuizPage(props: { params: Promise<{ id: string }> 
 
         // 💬 WhatsApp Certificate Automation Dispatch
         const { sendWhatsAppMessage, getWhatsAppSettings } = await import('@/lib/whatsapp');
-        const userObj = await prisma.user.findUnique({ where: { id: uid } });
+        const userObj = await prisma.user.findUnique({ where: { id: sessionUser.id } });
         if (userObj?.phone) {
           const settings = await getWhatsAppSettings();
           if (settings.enabled && settings.templates.certificate) {
@@ -95,8 +114,15 @@ export default async function QuizPage(props: { params: Promise<{ id: string }> 
       }
     }
 
-    return { success: true, coins: coinsGranted, certificate: certCode };
+    return { success: true, score, passed, coins: coinsGranted, certificate: certCode };
   }
+
+  // Redact correct answers before sending quiz questions to the client browser (Bug #21 fix)
+  const sanitizedQuestions = quiz.questions.map(q => ({
+    id: q.id,
+    text: q.text,
+    options: q.options
+  }));
 
   return (
     <main style={{ minHeight: '100vh', background: '#000', color: '#fff' }}>
@@ -113,7 +139,7 @@ export default async function QuizPage(props: { params: Promise<{ id: string }> 
            quizId={quiz.id}
            courseId={course.id}
            title={course.title}
-           questions={quiz.questions}
+           questions={sanitizedQuestions}
            minPassScore={quiz.minPassScore}
            userId={user.id}
            submitResultAction={submitResult}

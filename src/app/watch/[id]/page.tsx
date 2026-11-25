@@ -98,7 +98,18 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
       where: { id: courseId },
       include: { 
         episodes: { orderBy: { order: 'asc' } },
-        reviews: { where: { approved: true }, include: { user: true }, orderBy: { createdAt: 'desc' } }
+        reviews: { 
+          where: { approved: true }, 
+          include: { 
+            user: { 
+              select: { 
+                name: true, 
+                avatarUrl: true 
+              } 
+            } 
+          }, 
+          orderBy: { createdAt: 'desc' } 
+        }
       }
     }),
     getWatchlistStatus(courseId),
@@ -122,7 +133,18 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
         where: { id: decodeURIComponent(courseId) },
         include: { 
           episodes: { orderBy: { order: 'asc' } },
-          reviews: { where: { approved: true }, include: { user: true }, orderBy: { createdAt: 'desc' } }
+          reviews: { 
+          where: { approved: true }, 
+          include: { 
+            user: { 
+              select: { 
+                name: true, 
+                avatarUrl: true 
+              } 
+            } 
+          }, 
+          orderBy: { createdAt: 'desc' } 
+        }
         }
       });
     } catch (e) {}
@@ -196,12 +218,15 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
     }
   }
 
-  // AUTHENTIC ACCESS LEVEL AUDITING (Supports dual course/episode granularity and explicit intervals)
+  // AUTHENTIC ACCESS LEVEL AUDITING (Supports dual course/episode granularity, explicit intervals, and ABROAD tier)
   function checkAccess(required: string | null | undefined): boolean {
     if (!required || required === 'FREE') return true;
     
     const tier = user?.plan || 'FREE';
     const interval = user?.planInterval || 'YEARLY';
+
+    // ABROAD / International members hold full PLATINUM-equivalent access
+    if (tier === 'ABROAD') return true;
 
     // Gold Base Verification (Matches Gold or Platinum users)
     if (required === 'GOLD' || required === 'GOLD_MONTHLY') {
@@ -248,8 +273,8 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
     }
   } catch(e) {}
 
-  // Final playback determination
-  const playUrl = activeEpisode?.videoUrl || activeEpisode?.audioUrl || "https://digitalsanskrit.b-cdn.net/Videos/Raghuveera_Gadyam_Chanting/01_Balakanda.mp4"; // Fallback
+  // Final playback determination (Bug #52 fix: do not play unrelated fallback video if unconfigured)
+  const playUrl = activeEpisode?.videoUrl || activeEpisode?.audioUrl || "";
   const displayTitle = activeEpisode ? `${course.title} - ${activeEpisode.title}` : course.title;
   const isGameContent = isInteractiveGame(playUrl, course.contentType, course.category);
 
@@ -297,40 +322,6 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
     }
   });
   extractedChapters.sort((a, b) => a.timestamp - b.timestamp);
-
-  // 🌟 GUARANTEE PRE-BUILT CHAPTERS FOR ALL VIDEOS & AUDIOS ACROSS THE ENTIRE PLATFORM (EXCEPT INTERACTIVE GAMES)
-  if (!isGameContent && extractedChapters.length === 0) {
-    const isAudioContent = course.contentType === 'PODCAST' || course.contentType === 'AUDIOBOOK' || !!activeEpisode?.audioUrl;
-    const epName = activeEpisode?.title || course.title || 'Lesson';
-    const cleanEpTitle = epName.replace(/^\d+[\s.\-_]+/, '').trim();
-
-    const smartChapters = isAudioContent ? [
-      { id: 'ch_0', timestamp: 0, timeStr: '00:00', title: `Introduction & Mangalacharanam (मङ्गलाचरणम्)` },
-      { id: 'ch_1', timestamp: 45, timeStr: '00:45', title: `${cleanEpTitle}: Chanting & Recitation (सस्वर-गानम्)` },
-      { id: 'ch_2', timestamp: 120, timeStr: '02:00', title: `Word Segmentation & Padacheda (पदच्छेदः)` },
-      { id: 'ch_3', timestamp: 240, timeStr: '04:00', title: `Meaning & Core Teaching (भावार्थविवरणम्)` },
-      { id: 'ch_4', timestamp: 390, timeStr: '06:30', title: `Repetition & Memory Practice (पुनरावृत्ति-अभ्यासः)` }
-    ] : [
-      { id: 'ch_0', timestamp: 0, timeStr: '00:00', title: `Introduction & Topic Overview: ${cleanEpTitle}` },
-      { id: 'ch_1', timestamp: 45, timeStr: '00:45', title: `Shloka / Concept Presentation (विषयोपस्थापनम्)` },
-      { id: 'ch_2', timestamp: 120, timeStr: '02:00', title: `Detailed Explanation & Anvaya (अन्वयः व्याख्यानम्)` },
-      { id: 'ch_3', timestamp: 240, timeStr: '04:00', title: `Grammar, Padavibhaga & Meaning (पदविभागः)` },
-      { id: 'ch_4', timestamp: 390, timeStr: '06:30', title: `Key Takeaways & Summary (सारसङ्ग्रहः)` }
-    ];
-
-    extractedChapters.push(...smartChapters);
-
-    // Also populate combinedMarkers so timeline ticks and tooltips show on the player seekbar
-    smartChapters.forEach(ch => {
-      combinedMarkers.push({
-        id: ch.id,
-        episodeId: activeEpisode?.id || '',
-        timestamp: ch.timestamp,
-        type: 'CHAPTER',
-        payload: JSON.stringify({ title: ch.title })
-      });
-    });
-  }
 
   return (
     <div style={{ 
@@ -681,12 +672,18 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
 
                 {/* HOTSTAR STYLE EPISODES DISPLAY - ONLY RENDERS FOR MULTI-EPISODE SERIES AS PER USER REQUEST */}
                 {course.episodes.length > 1 && (() => {
-                  const processedEpisodes = course.episodes.map((ep) => ({
-                    ...ep,
-                    isActive: activeEpisode?.id === ep.id,
-                    isLocked: !checkAccess(ep.accessLevel) || isCourseLocked,
-                    durationStr: ep.duration ? `${Math.floor(ep.duration / 60)}m ${ep.duration % 60}s` : ''
-                  }));
+                  const processedEpisodes = course.episodes.map((ep) => {
+                    const locked = !checkAccess(ep.accessLevel) || isCourseLocked;
+                    return {
+                      ...ep,
+                      // Never leak direct CDN video or audio URLs to unauthorized visitors
+                      videoUrl: locked ? '' : ep.videoUrl,
+                      audioUrl: locked ? '' : ep.audioUrl,
+                      isActive: activeEpisode?.id === ep.id,
+                      isLocked: locked,
+                      durationStr: ep.duration ? `${Math.floor(ep.duration / 60)}m ${ep.duration % 60}s` : ''
+                    };
+                  });
 
                   return (
                     <div style={{ marginTop: '40px', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '30px', marginBottom: '40px' }}>

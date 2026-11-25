@@ -236,7 +236,10 @@ export default function GiftClientPage({
     try {
       const orderPayload = await createRazorpayOrder({
         amount: totalDue,
-        currency: currency as 'INR' | 'USD'
+        currency: currency as 'INR' | 'USD',
+        giftPlanName: activePkg.name,
+        giftInterval: activePkg.interval,
+        giftCount: quantity
       });
 
       if (!orderPayload.success) {
@@ -258,7 +261,7 @@ export default function GiftClientPage({
         order_id: orderPayload.orderId,
         handler: async function (response: any) {
           console.log("💳 Payment Captured Successfully!", response.razorpay_payment_id);
-          await finalizeVoucherCreation(finalRel);
+          await finalizeVoucherCreation(finalRel, response);
         },
         prefill: {
           name: currentUser?.name || senderName || "Patron",
@@ -295,7 +298,7 @@ export default function GiftClientPage({
     }
   }
 
-  async function finalizeVoucherCreation(finalRel: string) {
+  async function finalizeVoucherCreation(finalRel: string, paymentResponse?: any) {
     try {
       const res = await purchaseGiftVoucher({
         recipientName: name,
@@ -309,7 +312,12 @@ export default function GiftClientPage({
         amount: totalDue,
         currency: currency,
         cardTheme: cardTheme === 'CUSTOM' ? customColor : cardTheme,
-        senderDisplayName: senderName
+        senderDisplayName: senderName,
+        paymentDetails: paymentResponse ? {
+          razorpay_order_id: paymentResponse.razorpay_order_id,
+          razorpay_payment_id: paymentResponse.razorpay_payment_id,
+          razorpay_signature: paymentResponse.razorpay_signature
+        } : undefined
       });
 
       if (res.success) {

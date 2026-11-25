@@ -27,20 +27,34 @@ export default async function CheckoutPage(props: { params: Promise<{ id: string
   const amount = isAbroad ? (course.priceUSD || Math.ceil((course.price || 299) / 80)) : (course.price || 299);
   const currency: 'INR' | 'USD' = isAbroad ? 'USD' : 'INR';
 
-  // 1. Pre-fetch real Razorpay Order
-  const orderResult = await createRazorpayOrder({ amount, currency });
+  // 1. Pre-fetch real Razorpay Order with server-side course verification
+  const orderResult = await createRazorpayOrder({ amount, currency, courseId });
 
   // 2. Server Action for Payment Validation
   async function handleCompletePurchase(responsePayload: any) {
     "use server";
+    
+    const paymentId = responsePayload?.razorpay_payment_id;
+    const orderId = responsePayload?.razorpay_order_id || orderResult.orderId;
+    const signature = responsePayload?.razorpay_signature;
+
+    if (!paymentId || !orderId || !signature) {
+      throw new Error("Payment verification failed: Missing required payment verification signatures.");
+    }
+
+    const { verifyRazorpayOrderSignature } = await import('@/lib/razorpay');
+    const isValid = await verifyRazorpayOrderSignature(orderId, paymentId, signature);
+    if (!isValid) {
+      throw new Error("Cryptographic verification failed: Tampered or invalid payment signature.");
+    }
     
     await prisma.purchase.create({
       data: {
         userId: user!.id,
         courseId: course!.id,
         amount: amount,
-        razorpayOrderId: responsePayload.razorpay_order_id || orderResult.orderId,
-        razorpayPaymentId: responsePayload.razorpay_payment_id || 'mock_pay',
+        razorpayOrderId: orderId,
+        razorpayPaymentId: paymentId,
         billingAddress: user!.address || 'Registered Profile Address',
         placeOfSupply: user!.state || 'Karnataka'
       }
@@ -134,6 +148,11 @@ export default async function CheckoutPage(props: { params: Promise<{ id: string
                  description={`Purchase: ${course.title}`}
                  orderId={orderResult.orderId}
                  publicKey={orderResult.publicKey as string}
+                  prefill={{
+                    name: user.name || '',
+                    email: user.email,
+                    contact: user.phone || ''
+                  }}
                  onSuccess={handleCompletePurchase}
                  onError={async (err: any) => {
                    "use server";

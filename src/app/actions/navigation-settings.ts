@@ -2,8 +2,10 @@
 
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
+import { requireAdmin } from '@/lib/auth';
 
 export async function addItem(fd: FormData) {
+  await requireAdmin();
   const label = fd.get('label') as string;
   const url = fd.get('url') as string;
   const parentId = fd.get('parentId') as string || null;
@@ -18,6 +20,7 @@ export async function addItem(fd: FormData) {
 }
 
 export async function deleteItem(fd: FormData) {
+  await requireAdmin();
   const id = fd.get('id') as string;
   await prisma.navigationMenu.delete({ where: { id } });
   revalidatePath('/admin/navigation');
@@ -25,6 +28,7 @@ export async function deleteItem(fd: FormData) {
 }
 
 export async function updateItem(fd: FormData) {
+  await requireAdmin();
   const id = fd.get('id') as string;
   const label = fd.get('label') as string;
   const url = fd.get('url') as string;

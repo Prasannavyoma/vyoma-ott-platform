@@ -3,8 +3,10 @@
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import { hashPassword } from '@/lib/hash';
+import { requireAdmin } from '@/lib/auth';
 
 export async function registerUsersFromCSV(fd: FormData) {
+  await requireAdmin();
   const rawCsvText = fd.get('csvText') as string;
   const csvFile = fd.get('csvFile') as File;
 
@@ -49,13 +51,14 @@ export async function registerUsersFromCSV(fd: FormData) {
       // Robust CSV parsing: split by commas not inside quotes
       const cells = currentLine.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/^["']|["']$/g, '').trim());
       
-      const email = cells[emailIdx];
-      if (!email || !email.includes('@')) {
+      const rawEmail = cells[emailIdx];
+      if (!rawEmail || !rawEmail.includes('@')) {
         errors.push(`Row ${i + 1}: Invalid or missing email`);
         continue;
       }
+      const normalizedEmail = rawEmail.trim().toLowerCase();
 
-      const name = nameIdx !== -1 && nameIdx < cells.length ? cells[nameIdx] : email.split('@')[0];
+      const name = nameIdx !== -1 && nameIdx < cells.length ? cells[nameIdx] : normalizedEmail.split('@')[0];
       const tempPass = passwordIdx !== -1 && passwordIdx < cells.length ? cells[passwordIdx] : 'VyomaTemp123!';
       const csvPlan = planIdx !== -1 && planIdx < cells.length ? cells[planIdx].toUpperCase() : 'FREE';
       
@@ -76,30 +79,37 @@ export async function registerUsersFromCSV(fd: FormData) {
         planExpiresAt.setFullYear(planExpiresAt.getFullYear() + 1);
       }
 
-      const hashedPassword = hashPassword(tempPass);
-
-      await prisma.user.upsert({
-        where: { email },
-        update: {
-          name,
-          plan: finalPlan,
-          planInterval,
-          planStartedAt,
-          planExpiresAt,
-          password: hashedPassword,
-          forcePasswordChange: true // Require password change at next login
-        },
-        create: {
-          email,
-          name,
-          plan: finalPlan,
-          planInterval,
-          planStartedAt,
-          planExpiresAt,
-          password: hashedPassword,
-          forcePasswordChange: true
-        }
+      // Check if user already exists (Bug #66 fix: prevent overwriting active plans or passwords)
+      const existingUser = await prisma.user.findFirst({
+        where: { email: { equals: normalizedEmail, mode: 'insensitive' } }
       });
+
+      if (existingUser) {
+        // Do not downgrade active paid subscribers to FREE upon re-import
+        const preservePlan = (existingUser.plan !== 'FREE' && finalPlan === 'FREE') ? existingUser.plan : finalPlan;
+        await prisma.user.update({
+          where: { id: existingUser.id },
+          data: {
+            name: name || existingUser.name,
+            plan: preservePlan,
+            ...(preservePlan !== 'FREE' && !existingUser.planExpiresAt ? { planInterval: 'YEARLY', planStartedAt, planExpiresAt } : {})
+          }
+        });
+      } else {
+        const hashedPassword = hashPassword(tempPass);
+        await prisma.user.create({
+          data: {
+            email: normalizedEmail,
+            name,
+            plan: finalPlan,
+            planInterval,
+            planStartedAt,
+            planExpiresAt,
+            password: hashedPassword,
+            forcePasswordChange: true
+          }
+        });
+      }
       count++;
     } catch (err: any) {
       console.error(`Error parsing row ${i + 1}:`, err);
@@ -116,6 +126,7 @@ export async function registerUsersFromCSV(fd: FormData) {
 }
 
 export async function handleMigrationCSV(fd: FormData) {
+  await requireAdmin();
   const rawCsvText = fd.get('csvText') as string;
   const csvFile = fd.get('csvFile') as File;
 
@@ -149,8 +160,9 @@ export async function handleMigrationCSV(fd: FormData) {
       // Robust CSV parsing: split by commas not inside quotes
       const cells = currentLine.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/^["']|["']$/g, '').trim());
       
-      const email = emailIdx !== -1 && emailIdx < cells.length ? cells[emailIdx] : null;
-      if (!email || !email.includes('@')) continue;
+      const rawEmail = emailIdx !== -1 && emailIdx < cells.length ? cells[emailIdx] : null;
+      if (!rawEmail || !rawEmail.includes('@')) continue;
+      const normalizedEmail = rawEmail.trim().toLowerCase();
 
       const name = nameIdx !== -1 && nameIdx < cells.length && cells[nameIdx] ? cells[nameIdx] : 'Imported Member';
       
@@ -168,23 +180,33 @@ export async function handleMigrationCSV(fd: FormData) {
         }
       }
 
-      await prisma.user.upsert({
-        where: { email },
-        update: {
-          name,
-          plan: finalPlan as any,
-          planInterval: 'YEARLY', 
-          planStartedAt
-        },
-        create: {
-          email,
-          name,
-          plan: finalPlan as any,
-          planInterval: 'YEARLY',
-          planStartedAt,
-          coins: 0
-        }
+      // Check if user already exists (Bug #66 fix)
+      const existingUser = await prisma.user.findFirst({
+        where: { email: { equals: normalizedEmail, mode: 'insensitive' } }
       });
+
+      if (existingUser) {
+        const preservePlan = (existingUser.plan !== 'FREE' && finalPlan === 'FREE') ? existingUser.plan : finalPlan;
+        await prisma.user.update({
+          where: { id: existingUser.id },
+          data: {
+            name,
+            plan: preservePlan as any,
+            ...(preservePlan !== 'FREE' && !existingUser.planExpiresAt ? { planInterval: 'YEARLY', planStartedAt } : {})
+          }
+        });
+      } else {
+        await prisma.user.create({
+          data: {
+            email: normalizedEmail,
+            name,
+            plan: finalPlan as any,
+            planInterval: 'YEARLY',
+            planStartedAt,
+            coins: 0
+          }
+        });
+      }
       count++;
     } catch (itemError) {
       console.error("Skipping malformed row in CSV:", itemError);

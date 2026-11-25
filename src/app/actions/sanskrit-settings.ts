@@ -8,19 +8,27 @@ import { revalidatePath } from "next/cache";
  * Get configurations for the Sanskrit Practice Hub features.
  */
 export async function getSanskritSettings() {
-  // Anyone can retrieve settings for frontend toggles, but we can default value in db if not exists
+  const user = await getCurrentUser();
+  const isSuperAdmin = user?.role === 'SUPER_ADMIN';
+
+  // Anyone can retrieve settings for frontend toggles, but secret keys are restricted to SUPER_ADMIN
+  const keysToFetch = [
+    'SANSKRIT_HUB_ENABLED',
+    'SANSKRIT_SUBHASHITA_ENABLED',
+    'SANSKRIT_GRAMMAR_ENABLED',
+    'SANSKRIT_MEMORIZER_ENABLED',
+    'SANSKRIT_COACH_ENABLED',
+    'SANSKRIT_COACH_THRESHOLD'
+  ];
+
+  if (isSuperAdmin) {
+    keysToFetch.push('SANSKRIT_GEMINI_KEY');
+  }
+
   const settingsList = await prisma.systemSetting.findMany({
     where: {
       key: {
-        in: [
-          'SANSKRIT_HUB_ENABLED',
-          'SANSKRIT_SUBHASHITA_ENABLED',
-          'SANSKRIT_GRAMMAR_ENABLED',
-          'SANSKRIT_MEMORIZER_ENABLED',
-          'SANSKRIT_COACH_ENABLED',
-          'SANSKRIT_COACH_THRESHOLD',
-          'SANSKRIT_GEMINI_KEY'
-        ]
+        in: keysToFetch
       }
     }
   });
@@ -37,7 +45,7 @@ export async function getSanskritSettings() {
     memorizerEnabled: config['SANSKRIT_MEMORIZER_ENABLED'] !== 'false', // default: true
     coachEnabled: config['SANSKRIT_COACH_ENABLED'] !== 'false', // default: true
     coachThreshold: parseInt(config['SANSKRIT_COACH_THRESHOLD'] || '75', 10), // default: 75
-    sanskritGeminiKey: config['SANSKRIT_GEMINI_KEY'] || '', // default: empty
+    sanskritGeminiKey: isSuperAdmin ? (config['SANSKRIT_GEMINI_KEY'] || '') : '', // Only returned to SUPER_ADMIN
   };
 }
 
@@ -87,6 +95,7 @@ export async function updateSanskritSettings(settings: {
 
 /**
  * Award coin rewards to the user for Sanskrit Practice Hub engagement targets
+ * Includes daily invocation limits to prevent unlimited automated coin farming (Bug #8)
  */
 export async function awardSanskritCoins(feature: 'memorizer' | 'coach') {
   const user = await getCurrentUser();
@@ -107,6 +116,25 @@ export async function awardSanskritCoins(feature: 'memorizer' | 'coach') {
   }
 
   try {
+    // Check daily limit for this feature (max 3 claims per feature per calendar day)
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const todayClaims = await prisma.telemetryEvent.count({
+      where: {
+        userId: user.id,
+        eventType: `COIN_AWARD_${feature.toUpperCase()}`,
+        createdAt: { gte: startOfDay }
+      }
+    });
+
+    if (todayClaims >= 3) {
+      return { 
+        success: false, 
+        error: `Daily practice coin reward limit reached for ${feature}. Practice again tomorrow to earn more coins!` 
+      };
+    }
+
     const setting = await prisma.systemSetting.findUnique({
       where: { key: settingKey }
     });
@@ -119,6 +147,17 @@ export async function awardSanskritCoins(feature: 'memorizer' | 'coach') {
           coins: { increment: coinsToAward }
         }
       });
+
+      // Log claim to enforce daily rate cap
+      await prisma.telemetryEvent.create({
+        data: {
+          eventType: `COIN_AWARD_${feature.toUpperCase()}`,
+          userId: user.id,
+          sourceId: feature,
+          metadata: JSON.stringify({ coinsAwarded: coinsToAward, timestamp: new Date().toISOString() })
+        }
+      }).catch(() => {});
+
       return { success: true, coinsAwarded: coinsToAward };
     }
     return { success: true, coinsAwarded: 0 };

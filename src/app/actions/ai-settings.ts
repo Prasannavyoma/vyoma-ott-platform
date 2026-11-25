@@ -214,13 +214,13 @@ export async function getContactSettings() {
 
   return {
     widgetEnabled: widgetEnabled ? widgetEnabled.value === 'true' : true,
-    phoneEnabled: phoneEnabled ? phoneEnabled.value === 'true' : true,
-    phoneNumber: phoneNumber ? phoneNumber.value : '+919876543210',
-    whatsappEnabled: whatsappEnabled ? whatsappEnabled.value === 'true' : true,
-    whatsappNumber: whatsappNumber ? whatsappNumber.value : '+919876543210',
+    phoneEnabled: phoneEnabled ? phoneEnabled.value === 'true' : false,
+    phoneNumber: phoneNumber ? phoneNumber.value : '+918023141354',
+    whatsappEnabled: whatsappEnabled ? whatsappEnabled.value === 'true' : false,
+    whatsappNumber: whatsappNumber ? whatsappNumber.value : '',
     whatsappMessage: whatsappMessage ? whatsappMessage.value : 'Namaste! I have a question about Vyoma Sanskrit OTT.',
     emailEnabled: emailEnabled ? emailEnabled.value === 'true' : true,
-    emailAddress: emailAddress ? emailAddress.value : 'support@vyomasanskrit.in',
+    emailAddress: emailAddress ? emailAddress.value : 'support@vyomalabs.in',
   };
 }
 

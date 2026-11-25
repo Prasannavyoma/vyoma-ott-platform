@@ -25,11 +25,19 @@ export default async function VoucherManager() {
         const code = generateCode();
         const now = new Date().toISOString();
         try {
-           await prisma.$executeRawUnsafe(
-             `INSERT INTO SubscriptionVoucher (id, code, plan, months, isUsed, sponsoredBy, createdAt) VALUES (?,?,?,12,0,?,?)`,
-             id, code, plan, sponsor, now
-           );
-        } catch(e) {}
+           await prisma.subscriptionVoucher.create({
+             data: {
+               id,
+               code,
+               plan,
+               months: 12,
+               isUsed: false,
+               sponsoredBy: sponsor
+             }
+           });
+        } catch(e) {
+           console.error("Failed to generate voucher:", e);
+        }
      }
      revalidatePath('/admin/vouchers');
   }

@@ -200,15 +200,31 @@ export async function updateStudyRoomState(roomId: string, isPlaying: boolean, p
 }
 
 export async function sendStudyRoomMessage(roomId: string, text: string, senderId?: string, senderName?: string) {
+  const trimmed = (text || '').trim();
+  if (trimmed.length === 0) {
+    throw new Error("Message cannot be empty.");
+  }
+  if (trimmed.length > 500) {
+    throw new Error("Message exceeds the maximum limit of 500 characters.");
+  }
+
+  // HTML tag sanitization to prevent stored XSS attacks
+  const sanitizedText = trimmed.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+  const user = await getCurrentUser();
   let finalUserId = "";
   let finalUserName = "";
 
-  const user = await getCurrentUser();
   if (user) {
     finalUserId = user.id;
-    finalUserName = user.name || user.email.split('@')[0] || "Student";
+    finalUserName = user.name || user.email.split('@')[0] || "Scholar";
   } else if (senderId && senderId.startsWith('guest-')) {
-    // Find or create a system Guest user to satisfy the foreign key constraint
+    // Sanitize guest display name to prevent impersonation of admins or moderators
+    const rawName = (senderName || 'Guest').trim();
+    const disallowed = ['admin', 'super_admin', 'superadmin', 'vyoma', 'staff', 'moderator', 'system'];
+    const isImpersonating = disallowed.some(d => rawName.toLowerCase().includes(d));
+    const cleanGuestName = isImpersonating ? `Guest-${senderId.slice(-4)}` : rawName.slice(0, 30);
+
     let guestUser = await prisma.user.findUnique({
       where: { id: 'guest-system-id' }
     });
@@ -224,9 +240,18 @@ export async function sendStudyRoomMessage(roomId: string, text: string, senderI
       });
     }
     finalUserId = guestUser.id;
-    finalUserName = senderName || "Guest";
+    finalUserName = cleanGuestName;
   } else {
-    throw new Error("Unauthorized");
+    throw new Error("Unauthorized: Please sign in to participate in the study room chat.");
+  }
+
+  // Rate Limiting: Prevent automated spamming (max 1 message per 2 seconds per user)
+  const recentMsg = await prisma.studyRoomMessage.findFirst({
+    where: { roomId, userId: finalUserId },
+    orderBy: { createdAt: 'desc' }
+  });
+  if (recentMsg && (Date.now() - new Date(recentMsg.createdAt).getTime() < 2000)) {
+    throw new Error("Please wait a moment before sending another message.");
   }
 
   await prisma.studyRoomMessage.create({
@@ -234,7 +259,7 @@ export async function sendStudyRoomMessage(roomId: string, text: string, senderI
       roomId,
       userId: finalUserId,
       userName: finalUserName,
-      text: text.trim()
+      text: sanitizedText
     }
   });
 

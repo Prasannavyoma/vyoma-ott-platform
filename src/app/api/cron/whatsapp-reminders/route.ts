@@ -1,13 +1,19 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { getWhatsAppSettings, sendWhatsAppMessage } from '@/lib/whatsapp';
+import { getCurrentUser } from '@/lib/auth';
 
 export async function GET(req: Request) {
-  // Ideally protect this via Vercel Cron header or custom secret
+  // Authorize: require either valid CRON_SECRET or an authenticated admin session
   const authHeader = req.headers.get('authorization');
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET || 'vyoma_cron_123'}`) {
-    // We'll allow it for now for testing, but in prod enforce it
-    // return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const cronSecret = process.env.CRON_SECRET;
+  const isAuthorizedCron = cronSecret && authHeader === `Bearer ${cronSecret}`;
+  
+  const user = await getCurrentUser();
+  const isAdmin = user && (user.role === 'ADMIN' || user.role === 'SUPER_ADMIN');
+
+  if (!isAuthorizedCron && !isAdmin) {
+    return NextResponse.json({ error: 'Unauthorized: Invalid cron secret or admin credentials required.' }, { status: 401 });
   }
 
   try {
