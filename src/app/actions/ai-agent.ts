@@ -202,7 +202,7 @@ CRITICAL RULES & GUARDRAILS:
       }
     ];
 
-    const response = await fetch(
+    let response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
       {
         method: 'POST',
@@ -221,6 +221,29 @@ CRITICAL RULES & GUARDRAILS:
         }),
       }
     );
+
+    // Fallback to gemini-1.5-flash if 2.5 is not available on this API key or model tier
+    if (!response.ok && (response.status === 404 || response.status === 400)) {
+      response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            contents: formattedContents,
+            systemInstruction: {
+              parts: [{ text: systemPrompt }]
+            },
+            generationConfig: {
+              temperature: 0.2,
+              maxOutputTokens: 800,
+            }
+          }),
+        }
+      );
+    }
 
     if (!response.ok) {
       const errText = await response.text();

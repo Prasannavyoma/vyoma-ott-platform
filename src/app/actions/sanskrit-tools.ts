@@ -52,7 +52,7 @@ Provide the response strictly as a JSON object with the following fields:
 
 Make sure the JSON is valid and only return the JSON, no markdown formatting.`;
 
-    const response = await fetch(
+    let response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
       {
         method: 'POST',
@@ -68,6 +68,25 @@ Make sure the JSON is valid and only return the JSON, no markdown formatting.`;
         }),
       }
     );
+
+    if (!response.ok && (response.status === 404 || response.status === 400)) {
+      response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            contents: [{ role: 'user', parts: [{ text: prompt }] }],
+            generationConfig: {
+              temperature: 0.1,
+              responseMimeType: "application/json",
+            }
+          }),
+        }
+      );
+    }
 
     if (!response.ok) {
       throw new Error(`Gemini API error (Status: ${response.status})`);

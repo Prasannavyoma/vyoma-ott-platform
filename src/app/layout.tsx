@@ -75,7 +75,7 @@ export default async function RootLayout({
   }
   
   let oneSignalAppId = "";
-  let chatbotEnabled = false;
+  let chatbotEnabled = true;
   let chatbotMode = "BUILTIN";
   let chatbotCustomEmbedCode = "";
   let contactSettings = {
@@ -105,7 +105,7 @@ export default async function RootLayout({
 
     // AI Settings
     if (settingsMap.has('CHATBOT_ENABLED')) {
-      chatbotEnabled = settingsMap.get('CHATBOT_ENABLED') === 'true';
+      chatbotEnabled = settingsMap.get('CHATBOT_ENABLED') !== 'false';
     }
     if (settingsMap.has('CHATBOT_MODE')) {
       chatbotMode = settingsMap.get('CHATBOT_MODE') || 'BUILTIN';
