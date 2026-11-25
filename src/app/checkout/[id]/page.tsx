@@ -148,6 +148,11 @@ export default async function CheckoutPage(props: { params: Promise<{ id: string
                  description={`Purchase: ${course.title}`}
                  orderId={orderResult.orderId}
                  publicKey={orderResult.publicKey as string}
+                  prefill={{
+                    name: user.name || '',
+                    email: user.email,
+                    contact: user.phone || ''
+                  }}
                  onSuccess={handleCompletePurchase}
                  onError={async (err: any) => {
                    "use server";

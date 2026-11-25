@@ -111,7 +111,8 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
 
   const handleCheckout = async (planName: 'GOLD' | 'PLATINUM', interval: 'MONTHLY' | 'YEARLY', overrideAbroad?: boolean) => {
     if (!isLoggedIn || !user) {
-      window.location.href = '/login?callbackUrl=/';
+      const returnUrl = typeof window !== 'undefined' ? window.location.pathname + window.location.search : '/subscribe';
+      window.location.href = `/login?callbackUrl=${encodeURIComponent(returnUrl)}`;
       return;
     }
 
@@ -510,6 +511,10 @@ export default function FindMyPlanModal({ isOpen, onClose, userPlanData }: FindM
               description={`Auto-renewing ${checkoutData.interval} mandate`}
               subscriptionId={checkoutData.subData.subscriptionId}
               publicKey={checkoutData.subData.publicKey}
+              prefill={{
+                name: user?.name || '',
+                email: user?.email || ''
+              }}
               onSuccess={handleSuccess}
               onError={(err: any) => console.error("Payment failed", err)}
               buttonText={`CONFIRM MANDATE & SUBSCRIBE (${checkoutData.currency === 'INR' ? '₹' : '$'}${checkoutData.amount})`}

@@ -102,11 +102,11 @@ export async function registerUser(formData: FormData) {
       }
     });
 
-    // 🎁 Process Referral Rewards if a referrer is present
+    // 🎁 Process Referral Rewards if a referrer is present (Bug #54 fix: Anti-farming caps)
     if (referrerId) {
       try {
         const referrer = await prisma.user.findUnique({ where: { id: referrerId } });
-        if (referrer) {
+        if (referrer && referrer.email.toLowerCase() !== normalizedEmail) {
           // 1. Log the referral connection
           await prisma.referral.create({
             data: {
@@ -115,11 +115,24 @@ export async function registerUser(formData: FormData) {
             }
           });
 
-          // 2. Award +10 coins instantly to the referrer
-          await prisma.user.update({
-            where: { id: referrerId },
-            data: { coins: { increment: 10 } }
+          // 2. Cap referral coin awards: max 10 coin awards per calendar month to prevent bot farming
+          const startOfMonth = new Date();
+          startOfMonth.setDate(1);
+          startOfMonth.setHours(0, 0, 0, 0);
+
+          const monthlyReferralCount = await prisma.referral.count({
+            where: {
+              referrerId: referrerId,
+              createdAt: { gte: startOfMonth }
+            }
           });
+
+          if (monthlyReferralCount <= 10) {
+            await prisma.user.update({
+              where: { id: referrerId },
+              data: { coins: { increment: 10 } }
+            });
+          }
 
           // 3. Check referrer's cumulative referral totals
           const referralCount = await prisma.referral.count({

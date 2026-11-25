@@ -95,6 +95,7 @@ export async function updateSanskritSettings(settings: {
 
 /**
  * Award coin rewards to the user for Sanskrit Practice Hub engagement targets
+ * Includes daily invocation limits to prevent unlimited automated coin farming (Bug #8)
  */
 export async function awardSanskritCoins(feature: 'memorizer' | 'coach') {
   const user = await getCurrentUser();
@@ -115,6 +116,25 @@ export async function awardSanskritCoins(feature: 'memorizer' | 'coach') {
   }
 
   try {
+    // Check daily limit for this feature (max 3 claims per feature per calendar day)
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const todayClaims = await prisma.telemetryEvent.count({
+      where: {
+        userId: user.id,
+        eventType: `COIN_AWARD_${feature.toUpperCase()}`,
+        createdAt: { gte: startOfDay }
+      }
+    });
+
+    if (todayClaims >= 3) {
+      return { 
+        success: false, 
+        error: `Daily practice coin reward limit reached for ${feature}. Practice again tomorrow to earn more coins!` 
+      };
+    }
+
     const setting = await prisma.systemSetting.findUnique({
       where: { key: settingKey }
     });
@@ -127,6 +147,17 @@ export async function awardSanskritCoins(feature: 'memorizer' | 'coach') {
           coins: { increment: coinsToAward }
         }
       });
+
+      // Log claim to enforce daily rate cap
+      await prisma.telemetryEvent.create({
+        data: {
+          eventType: `COIN_AWARD_${feature.toUpperCase()}`,
+          userId: user.id,
+          sourceId: feature,
+          metadata: JSON.stringify({ coinsAwarded: coinsToAward, timestamp: new Date().toISOString() })
+        }
+      }).catch(() => {});
+
       return { success: true, coinsAwarded: coinsToAward };
     }
     return { success: true, coinsAwarded: 0 };

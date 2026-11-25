@@ -44,7 +44,17 @@ export async function verifySmtpConnection() {
 }
 
 
+function escapeHtml(str: string): string {
+  return (str || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
 function getLuxuryWrap(contentHtml: string, preheader: string) {
+  const siteUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://digitalsanskrit.com';
   return `
     <!DOCTYPE html>
     <html>
@@ -65,7 +75,10 @@ function getLuxuryWrap(contentHtml: string, preheader: string) {
       <div class="wrap">
         <div class="brand">Vyoma OTT</div>
         ${contentHtml}
-        <div class="footer">© 2026 Vyoma Linguistic Labs Foundation. All transactional data secured.</div>
+        <div class="footer">
+          © 2026 Vyoma Linguistic Labs Foundation. All rights reserved.<br />
+          <a href="${siteUrl}/profile#notifications" style="color: #888; text-decoration: underline; margin-top: 8px; display: inline-block;">Unsubscribe from notification emails</a>
+        </div>
       </div>
     </body>
     </html>
@@ -307,14 +320,19 @@ export async function sendGiftVoucherEmail(
     </div>
   `).join('');
 
+  const safeRecipientName = escapeHtml(recipientName);
+  const safeBuyerName = escapeHtml(buyerName);
+  const safeRelationship = escapeHtml(relationship);
+  const safePersonalMessage = escapeHtml(personalMessage || 'Wishing you knowledge, peace, and spiritual growth on this auspicious path.');
+
   const html = getLuxuryWrap(`
     <h1 style="color: #ffd700; text-align: center;">🎁 A Sacred Gift of Wisdom for You!</h1>
-    <p>Pranam, <strong>${recipientName}</strong>!</p>
-    <p>We are delighted to share that <strong>${buyerName}</strong> (${relationship}) has gifted you <strong>${durationStr} of ${planName} Access</strong> on Vyoma Sanskrit OTT!</p>
+    <p>Pranam, <strong>${safeRecipientName}</strong>!</p>
+    <p>We are delighted to share that <strong>${safeBuyerName}</strong> (${safeRelationship}) has gifted you <strong>${durationStr} of ${planName} Access</strong> on Vyoma Sanskrit OTT!</p>
     
     <div style="background: #161a22; border-left: 4px solid #ffd700; padding: 15px 20px; margin: 25px 0; border-radius: 4px;">
       <p style="font-style: italic; margin: 0; color: #e2e8f0;">
-        "${personalMessage || 'Wishing you knowledge, peace, and spiritual growth on this auspicious path.'}"
+        "${safePersonalMessage}"
       </p>
     </div>
 
@@ -325,7 +343,7 @@ export async function sendGiftVoucherEmail(
     <div style="text-align: center; margin: 30px 0;">
       <a href="${claimUrl}" class="btn" style="background: linear-gradient(135deg, #ffd700, #ffa500); color: #000; border: none; font-weight: bold; border-radius: 30px; padding: 16px 36px; text-decoration: none; font-size: 16px; display: inline-block; box-shadow: 0 8px 25px rgba(255,215,0,0.3);">✨ Open Your Gift & Activate Access</a>
     </div>
-  `, `Gift from ${buyerName}: ${durationStr} of Vyoma Premium Access`);
+  `, `Gift from ${safeBuyerName}: ${durationStr} of Vyoma Premium Access`);
 
   await transporter.sendMail({
     from: `"Vyoma Academy" <${(transporter.options as any).auth?.user}>`,

@@ -122,13 +122,13 @@ export default async function RootLayout({
       contactSettings.phoneEnabled = settingsMap.get('CONTACT_PHONE_ENABLED') === 'true';
     }
     if (settingsMap.has('CONTACT_PHONE_NUMBER')) {
-      contactSettings.phoneNumber = settingsMap.get('CONTACT_PHONE_NUMBER') || "+919876543210";
+      contactSettings.phoneNumber = settingsMap.get('CONTACT_PHONE_NUMBER') || "+918023141354";
     }
     if (settingsMap.has('CONTACT_WHATSAPP_ENABLED')) {
       contactSettings.whatsappEnabled = settingsMap.get('CONTACT_WHATSAPP_ENABLED') === 'true';
     }
     if (settingsMap.has('CONTACT_WHATSAPP_NUMBER')) {
-      contactSettings.whatsappNumber = settingsMap.get('CONTACT_WHATSAPP_NUMBER') || "+919876543210";
+      contactSettings.whatsappNumber = settingsMap.get('CONTACT_WHATSAPP_NUMBER') || "";
     }
     if (settingsMap.has('CONTACT_WHATSAPP_MESSAGE')) {
       contactSettings.whatsappMessage = settingsMap.get('CONTACT_WHATSAPP_MESSAGE') || "Namaste! I have a question about Vyoma Sanskrit OTT.";
@@ -137,7 +137,7 @@ export default async function RootLayout({
       contactSettings.emailEnabled = settingsMap.get('CONTACT_EMAIL_ENABLED') === 'true';
     }
     if (settingsMap.has('CONTACT_EMAIL_ADDRESS')) {
-      contactSettings.emailAddress = settingsMap.get('CONTACT_EMAIL_ADDRESS') || "support@vyomasanskrit.in";
+      contactSettings.emailAddress = settingsMap.get('CONTACT_EMAIL_ADDRESS') || "support@vyomalabs.in";
     }
 
     if (settingsMap.has('THEME_PRIMARY_COLOR')) themePrimary = settingsMap.get('THEME_PRIMARY_COLOR')!;

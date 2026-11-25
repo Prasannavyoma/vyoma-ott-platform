@@ -6,9 +6,12 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { seconds } = body;
     
-    if (!seconds || typeof seconds !== 'number') {
+    if (!seconds || typeof seconds !== 'number' || isNaN(seconds)) {
       return NextResponse.json({ error: 'Invalid telemetry payload' }, { status: 400 });
     }
+
+    // Sanitize and cap watch seconds between 1 and 60 seconds per ping (Bug #63 fix)
+    const validSeconds = Math.max(1, Math.min(Math.floor(seconds), 60));
 
     // Fetch dynamic active user context securely
     const { getCurrentUser } = await import('@/lib/auth');
@@ -20,7 +23,7 @@ export async function POST(req: Request) {
     await prisma.user.update({
       where: { id: user.id },
       data: {
-        totalWatchSeconds: { increment: seconds }
+        totalWatchSeconds: { increment: validSeconds }
       }
     });
 

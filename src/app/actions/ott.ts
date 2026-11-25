@@ -197,7 +197,7 @@ export async function getContinueWatching() {
         }
       },
       orderBy: {
-        id: 'desc' // Proxy sorting
+        updatedAt: 'desc' // Chronological ordering by most recently watched (Bug #53 fix)
       },
       take: 10
     });

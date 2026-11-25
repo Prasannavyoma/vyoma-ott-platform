@@ -14,6 +14,11 @@ interface CheckoutProps {
   onError: (error: any) => void;
   onDismiss?: () => void;
   buttonText?: string;
+  prefill?: {
+    name?: string;
+    email?: string;
+    contact?: string;
+  };
 }
 
 export default function RazorpayCheckoutButton(props: CheckoutProps) {
@@ -49,11 +54,13 @@ export default function RazorpayCheckoutButton(props: CheckoutProps) {
       handler: function (response: any) {
         props.onSuccess(response);
       },
-      prefill: {
-        name: 'Guest User',
-        email: 'user@example.com',
-        contact: '9999999999'
-      },
+      ...(props.prefill?.email || props.prefill?.contact || props.prefill?.name ? {
+        prefill: {
+          name: props.prefill.name || '',
+          email: props.prefill.email || '',
+          contact: props.prefill.contact || ''
+        }
+      } : {}),
       theme: {
         color: '#f26422'
       },

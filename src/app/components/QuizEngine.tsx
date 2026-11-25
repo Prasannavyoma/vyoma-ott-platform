@@ -7,7 +7,7 @@ type QuestionData = {
   id: string;
   text: string;
   options: string; // JSON
-  correctAnswer: string;
+  correctAnswer?: string;
 }
 
 type QuizProps = {
@@ -16,7 +16,7 @@ type QuizProps = {
   title: string;
   questions: QuestionData[];
   minPassScore: number;
-  submitResultAction: (userId: string, score: number, passed: boolean) => Promise<{ success: boolean, coins?: number, certificate?: string }>;
+  submitResultAction: (answers: Record<string, string>) => Promise<{ success: boolean, score?: number, passed?: boolean, coins?: number, certificate?: string, error?: string }>;
   userId: string;
 }
 
@@ -32,25 +32,14 @@ export default function QuizEngine({ quizId, courseId, title, questions, minPass
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    let correctCount = 0;
-    
-    questions.forEach(q => {
-      if (answers[q.id] === q.correctAnswer) {
-        correctCount++;
-      }
-    });
-
-    const scorePct = Math.round((correctCount / questions.length) * 100);
-    const passed = scorePct >= minPassScore;
-
     setSubmitted(true);
 
-    // Push result to server
-    const response = await submitResultAction(userId, scorePct, passed);
+    // Push client answers to server for authentic grading (Bug #21 fix)
+    const response = await submitResultAction(answers);
     
     setResult({
-      score: scorePct,
-      passed: passed,
+      score: response.score ?? 0,
+      passed: response.passed ?? false,
       coinsAwarded: response.coins,
       certCode: response.certificate
     });

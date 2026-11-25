@@ -270,13 +270,29 @@ export default async function ProfilePage() {
     "use server";
     const freshUser = await getCurrentUser();
     if (!freshUser || freshUser.coins < 1000) return;
-    await prisma.user.update({
-      where: { id: freshUser.id },
+
+    const userInDb = await prisma.user.findUnique({ where: { id: freshUser.id } });
+    if (!userInDb || userInDb.coins < 1000) return;
+
+    const now = new Date();
+    let baseTime = now.getTime();
+    if (userInDb.planExpiresAt && new Date(userInDb.planExpiresAt).getTime() > now.getTime()) {
+      baseTime = new Date(userInDb.planExpiresAt).getTime();
+    }
+    const newExpiry = new Date(baseTime + 365 * 24 * 60 * 60 * 1000);
+
+    // Prevent downgrading an existing PLATINUM user to GOLD (Bug #49 fix)
+    const targetPlan = userInDb.plan === 'PLATINUM' ? 'PLATINUM' : 'GOLD';
+
+    // Atomic conditional decrement to eliminate double-redeem race condition
+    await prisma.user.updateMany({
+      where: { id: freshUser.id, coins: { gte: 1000 } },
       data: {
         coins: { decrement: 1000 },
-        plan: 'GOLD',
+        plan: targetPlan,
         planInterval: 'YEARLY',
-        planStartedAt: new Date()
+        planStartedAt: now,
+        planExpiresAt: newExpiry
       }
     });
     revalidatePath('/profile');

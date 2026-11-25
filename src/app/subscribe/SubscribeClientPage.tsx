@@ -1215,6 +1215,11 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
                      orderId={subData.orderId}
                      subscriptionId={subData.subscriptionId}
                      publicKey={subData.publicKey as string}
+                     prefill={{
+                       name: currentUser?.name || '',
+                       email: currentUser?.email || '',
+                       contact: currentUser?.phone || ''
+                     }}
                      onSuccess={handleSuccess}
                      onError={(err: any) => console.error("Payment failed", err)}
                      buttonText={calc.isUpgrade 

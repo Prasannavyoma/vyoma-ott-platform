@@ -40,10 +40,19 @@ export async function GET(request: Request) {
       }
     });
 
-    const users = activeProgress.map(ap => ({
-      name: ap.user.name || 'Scholar',
-      avatarUrl: ap.user.avatarUrl || ''
-    }));
+    // Mask user full names to protect viewer privacy (Bug #63 fix)
+    const users = activeProgress.map(ap => {
+      const rawName = (ap.user.name || '').trim();
+      let displayName = 'Fellow Scholar';
+      if (rawName) {
+        const parts = rawName.split(' ');
+        displayName = parts[0] + (parts.length > 1 && parts[1] ? ` ${parts[1][0]}.` : '');
+      }
+      return {
+        name: displayName,
+        avatarUrl: ap.user.avatarUrl || ''
+      };
+    });
 
     return NextResponse.json({
       success: true,

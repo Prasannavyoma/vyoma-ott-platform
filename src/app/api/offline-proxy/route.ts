@@ -28,7 +28,29 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  // 2. Audit Telemetry: Record who downloaded which video/course/episode
+  // 2. Validate URL and block SSRF attacks against internal or unauthorized hosts (Bug #22 fix)
+  let parsedUrl: URL;
+  try {
+    parsedUrl = new URL(url, request.nextUrl.origin);
+  } catch {
+    return NextResponse.json({ error: 'Invalid URL parameter format' }, { status: 400 });
+  }
+
+  const allowedHostnames = [
+    'digitalsanskrit.b-cdn.net',
+    'd3a8qbwm8iliew.cloudfront.net',
+    request.nextUrl.hostname
+  ];
+
+  if (!allowedHostnames.includes(parsedUrl.hostname)) {
+    console.warn(`[SSRF Prevention] Refused offline proxy request to untrusted host: ${parsedUrl.hostname}`);
+    return NextResponse.json(
+      { error: 'Forbidden: Media downloads are strictly restricted to authorized Vyoma CDN sources.' },
+      { status: 403 }
+    );
+  }
+
+  // 3. Audit Telemetry: Record who downloaded which video/course/episode
   const courseId = request.nextUrl.searchParams.get('courseId');
   const episodeId = request.nextUrl.searchParams.get('episodeId');
   const courseTitle = request.nextUrl.searchParams.get('courseTitle');
