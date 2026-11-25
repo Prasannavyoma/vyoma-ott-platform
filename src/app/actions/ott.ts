@@ -196,10 +196,12 @@ export async function getContinueWatching() {
           }
         }
       },
+      // Most recently watched first (updatedAt changes on every progress save; id is only the
+      // creation order, so re-watching an older course never moved it to the front)
       orderBy: {
-        id: 'desc' // Proxy sorting
+        updatedAt: 'desc'
       },
-      take: 10
+      take: 50 // several rows can belong to one course; de-duplicated below
     });
 
     // Map into unique course objects, attaching progress details
@@ -222,7 +224,7 @@ export async function getContinueWatching() {
       }
     }
 
-    return Array.from(uniqueCoursesMap.values());
+    return Array.from(uniqueCoursesMap.values()).slice(0, 10);
   } catch (e) {
     console.error("Continue Watching fetch error:", e);
     return [];

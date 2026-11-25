@@ -1,5 +1,6 @@
 import prisma from '@/lib/prisma';
 import Link from 'next/link';
+import PrintCertificateButton from './PrintCertificateButton';
 
 export const dynamic = 'force-dynamic';
 
@@ -46,26 +47,39 @@ export default async function CertificatePage(props: any) {
   });
 
   return (
-    <div style={{ minHeight: '100vh', background: '#121319', padding: '40px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center', fontFamily: 'system-ui, sans-serif' }}>
+    <div className="cert-page" style={{ minHeight: '100vh', background: '#121319', padding: '40px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center', fontFamily: 'system-ui, sans-serif' }}>
       
       {/* Action Bar (hidden when printing) */}
       <div className="no-print" style={{ marginBottom: '25px', display: 'flex', gap: '15px', alignItems: 'center' }}>
         <Link href="/profile#certificates" style={{ padding: '10px 22px', background: 'rgba(255,255,255,0.08)', color: '#fff', borderRadius: '30px', textDecoration: 'none', fontWeight: 700, border: '1px solid rgba(255,255,255,0.15)', fontSize: '0.9rem' }}>
           ← Back to Profile
         </Link>
-        <button 
-          id="print-btn-top"
-          style={{ padding: '10px 24px', background: 'linear-gradient(135deg, #f26422 0%, #ff8c53 100%)', color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 800, cursor: 'pointer', boxShadow: '0 4px 15px rgba(242,100,34,0.4)', fontSize: '0.9rem' }}
-        >
-          🖨️ Print / Save PDF
-        </button>
+        <PrintCertificateButton />
       </div>
 
       <style dangerouslySetInnerHTML={{ __html: `
+        @page { size: A4 landscape; margin: 0; }
         @media print {
+          html, body { background: #fff !important; margin: 0 !important; padding: 0 !important; }
+          /* Print only the certificate: hides site-wide overlays (cookie banner, chat widgets, etc.) */
+          body * { visibility: hidden !important; }
+          .cert-container, .cert-container * { visibility: visible !important; }
           .no-print { display: none !important; }
-          body { background: #fff !important; padding: 0 !important; }
-          .cert-container { box-shadow: none !important; margin: 0 auto !important; width: 100% !important; max-width: 100% !important; }
+          .cert-page { background: #fff !important; padding: 0 !important; min-height: 0 !important; }
+          .cert-container {
+            position: fixed !important;
+            inset: 0 !important;
+            width: 100% !important;
+            max-width: none !important;
+            height: 100% !important;
+            min-height: 0 !important;
+            margin: 0 !important;
+            box-shadow: none !important;
+            border-radius: 0 !important;
+            /* Keep the cream paper and gold frame even when "Background graphics" is off */
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
         }
       `}} />
 
@@ -109,7 +123,7 @@ export default async function CertificatePage(props: any) {
            <img 
              src="/assets/logo-200-x-70-px.png" 
              alt="Vyoma Watermark" 
-             style={{ width: '100%', height: 'auto', filter: 'grayscale(100%)' }} 
+             style={{ width: '100%', height: 'auto', filter: 'brightness(0)' }} 
            />
         </div>
 
@@ -118,7 +132,7 @@ export default async function CertificatePage(props: any) {
           <img 
             src="/assets/logo-200-x-70-px.png" 
             alt="Vyoma Logo" 
-            style={{ height: '55px', objectFit: 'contain' }} 
+            style={{ height: '55px', objectFit: 'contain', filter: 'brightness(0)' }} 
           />
         </div>
 
@@ -168,10 +182,6 @@ export default async function CertificatePage(props: any) {
         </div>
 
       </div>
-
-      <script dangerouslySetInnerHTML={{ __html: `
-        document.getElementById('print-btn-top').onclick = function() { window.print(); };
-      `}} />
 
     </div>
   );

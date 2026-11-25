@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import AvatarUploader from '@/app/components/AvatarUploader';
+import { validatePhone } from '@/lib/phoneValidation';
 
 interface ProfileDossierFormProps {
   user: {
@@ -20,7 +21,7 @@ interface ProfileDossierFormProps {
   };
   uiCoinsNameReward: number;
   uiCoinsProfileReward: number;
-  updateProfile: (fd: FormData) => Promise<void>;
+  updateProfile: (fd: FormData) => Promise<{ success: boolean; error?: string }>;
 }
 
 export default function ProfileDossierForm({
@@ -33,16 +34,30 @@ export default function ProfileDossierForm({
   const [isPending, startTransition] = useTransition();
   const [statusMsg, setStatusMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [justSaved, setJustSaved] = useState(false);
+  const [phoneError, setPhoneError] = useState<string | null>(null);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setStatusMsg(null);
 
     const formData = new FormData(e.currentTarget);
+
+    // Block dummy / malformed phone numbers before they reach the server
+    const phoneCheck = validatePhone(formData.get('phone') as string);
+    if (!phoneCheck.isValid) {
+      setPhoneError(phoneCheck.error || 'Please enter a valid phone number.');
+      setStatusMsg({ type: 'error', text: phoneCheck.error || 'Please enter a valid phone number.' });
+      return;
+    }
+    setPhoneError(null);
     
     startTransition(async () => {
       try {
-        await updateProfile(formData);
+        const result = await updateProfile(formData);
+        if (!result?.success) {
+          setStatusMsg({ type: 'error', text: result?.error || 'Failed to save modifications. Please try again.' });
+          return;
+        }
         router.refresh();
         setStatusMsg({ type: 'success', text: '🎉 Profile modifications saved successfully!' });
         setJustSaved(true);
@@ -139,11 +154,23 @@ export default function ProfileDossierForm({
             placeholder="e.g. +91 9876543210" 
             pattern="^[\+]?[0-9\s\-\(\)]{10,18}$"
             title="Please enter a valid 10-15 digit mobile number (e.g. +91 9876543210 or 9876543210)"
-            style={inputStyle} 
+            aria-invalid={phoneError ? true : undefined}
+            onBlur={(e) => {
+              const check = validatePhone(e.currentTarget.value);
+              setPhoneError(check.isValid ? null : (check.error || 'Please enter a valid phone number.'));
+            }}
+            onChange={() => { if (phoneError) setPhoneError(null); }}
+            style={phoneError ? { ...inputStyle, border: '1px solid #ef4444' } : inputStyle} 
           />
-          <span style={{ color: '#777', fontSize: '0.72rem', marginTop: '4px', display: 'block' }}>
-            Must be 10–15 digits with optional country code (+91) for WhatsApp updates.
-          </span>
+          {phoneError ? (
+            <span role="alert" style={{ color: '#ef4444', fontSize: '0.72rem', marginTop: '4px', display: 'block', fontWeight: 600 }}>
+              {phoneError}
+            </span>
+          ) : (
+            <span style={{ color: '#777', fontSize: '0.72rem', marginTop: '4px', display: 'block' }}>
+              Must be 10–15 digits with optional country code (+91) for WhatsApp updates.
+            </span>
+          )}
         </div>
 
         <div>

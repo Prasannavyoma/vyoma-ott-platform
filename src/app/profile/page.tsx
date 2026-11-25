@@ -6,12 +6,14 @@ import PushManager from '@/app/components/PushManager';
 import { revalidatePath } from 'next/cache';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { getCurrentUser, clearSession } from '@/lib/auth';
+import { getCurrentUser } from '@/lib/auth';
+import { validatePhone } from '@/lib/phoneValidation';
 import SkillConstellation from './SkillConstellation';
 import SanskritStreakWidget from '@/app/components/SanskritStreakWidget';
 import OfflineDownloadsManager from './OfflineDownloadsManager';
 import ProfileQuickNav from './ProfileQuickNav';
 import ProfileDossierForm from './ProfileDossierForm';
+import ProfileLogoutButton from './ProfileLogoutButton';
 
 export default async function ProfilePage() {
   // 1. Secure Context Validation
@@ -103,7 +105,9 @@ export default async function ProfilePage() {
       episode: {
         include: { course: true }
       }
-    }
+    },
+    // Newest first, so the first row per course is the episode watched most recently
+    orderBy: { updatedAt: 'desc' }
   });
 
   // Construct hash-map grouping watched items by parent courses
@@ -112,6 +116,7 @@ export default async function ProfilePage() {
     watchedCount: number;
     completedCount: number;
     lastEpId: string;
+    lastWatchedAt: Date;
   }> = {};
 
   for (const prog of userProgress) {
@@ -122,7 +127,8 @@ export default async function ProfilePage() {
         course: prog.episode.course,
         watchedCount: 0,
         completedCount: 0,
-        lastEpId: prog.episodeId
+        lastEpId: prog.episodeId,
+        lastWatchedAt: prog.updatedAt
       };
     }
     activeMap[cId].watchedCount++;
@@ -151,6 +157,8 @@ export default async function ProfilePage() {
   });
 
   activeSyllabi.sort((a, b) => (a.course.roadmapOrder || 0) - (b.course.roadmapOrder || 0));
+  // Continue Watching shelf: latest watched first (the roadmap above keeps its curriculum order)
+  const recentSyllabi = [...activeSyllabi].sort((a, b) => new Date(b.lastWatchedAt).getTime() - new Date(a.lastWatchedAt).getTime());
 
   // Dynamic Global Counters for Analytics Strip
   const totalUnitsCompleted = userProgress.filter(p => p.completed).length;
@@ -180,22 +188,16 @@ export default async function ProfilePage() {
     const interests = fd.get('interests') as string;
     const avatarUrl = fd.get('avatarUrl') as string;
 
-    // Validate & format phone number (10 to 15 digits, non-dummy sequence)
-    let validatedPhone: string | null = null;
-    let isPhoneValid = false;
-    if (phone && phone.trim() !== '') {
-      const rawPhone = phone.trim();
-      const cleanDigits = rawPhone.replace(/[\+\s\-\(\)]/g, '');
-      const isDummySequence = /^(\d)\1+$/.test(cleanDigits);
-      
-      if (/^[0-9]{10,15}$/.test(cleanDigits) && !isDummySequence) {
-        isPhoneValid = true;
-        validatedPhone = rawPhone.startsWith('+') ? '+' + cleanDigits : cleanDigits;
-      }
+    // Validate & format phone number (10 to 15 digits, no dummy numbers like 0000000000)
+    const phoneCheck = validatePhone(phone);
+    if (!phoneCheck.isValid) {
+      return { success: false, error: phoneCheck.error };
     }
+    const validatedPhone = phoneCheck.normalized;
+    const isPhoneValid = validatedPhone !== null;
 
     const freshUser = await prisma.user.findUnique({ where: { id: user!.id } });
-    if (!freshUser) return;
+    if (!freshUser) return { success: false, error: 'User account not found. Please log in again.' };
 
     let coinsToAdd = 0;
     let nameRewardGiven = freshUser.nameRewardGiven;
@@ -249,6 +251,7 @@ export default async function ProfilePage() {
       }
     });
     revalidatePath('/profile');
+    return { success: true };
   }
 
   async function redeemCoins() {
@@ -617,7 +620,7 @@ export default async function ProfilePage() {
                   </div>
                ) : (
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '25px' }}>
-                     {activeSyllabi.map(item => (
+                     {recentSyllabi.map(item => (
                         <div key={item.course.id} style={{
                            background: '#111', border: '1px solid #222', borderRadius: '16px', overflow: 'hidden',
                            display: 'flex', flexDirection: 'column', transition: 'transform 0.2s ease'
@@ -823,13 +826,9 @@ export default async function ProfilePage() {
                   )}
                </div>
 
-               {/* LOCKOUT CONTAINER */}
+               {/* LOCKOUT CONTAINER (the NavBar hides its Logout on /profile) */}
                <div style={{ marginTop: 'auto' }}>
-                  <form action={async () => { "use server"; await clearSession(); redirect('/login'); }}>
-                     <button type="submit" style={{ width: '100%', border: '1px solid rgba(255,0,0,0.2)', background: 'rgba(255,0,0,0.1)', color: '#ff4444', textAlign: 'center', padding: '12px', borderRadius: '8px', cursor: 'pointer', fontWeight: 700 }}>
-                        🔐 SECURE LOG OUT
-                     </button>
-                  </form>
+                  <ProfileLogoutButton />
                </div>
 
             </div>

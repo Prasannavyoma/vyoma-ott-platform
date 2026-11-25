@@ -111,7 +111,8 @@ export async function POST(request: Request) {
         },
         update: {
           position: position,
-          completed: completed || false,
+          // Once completed, stay completed (periodic saves send completed:false)
+          completed: (existing?.completed || completed) || false,
         },
         create: {
           userId: user.id,

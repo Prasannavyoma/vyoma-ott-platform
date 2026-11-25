@@ -170,7 +170,18 @@ export default function CinematicPlayer({
   initialPosition?: number,
   subtitleUrl?: string
 }) {
-  const { playEpisode, isMinimized, setPlaying, isPlaying, updateTime, videoRef } = useGlobalPlayer();
+  const { playEpisode, isMinimized, setPlaying, isPlaying, updateTime, videoRef, activeEpisodeId: globalEpisodeId, currentTime: globalTime } = useGlobalPlayer();
+  // Coming back from the mini player for the same episode: resume where the mini player was
+  // (it is newer than the server-saved progress). Captured once on mount.
+  const [resumePosition] = useState(() =>
+    globalEpisodeId === episodeId && globalTime > 0 ? globalTime : initialPosition
+  );
+  // ...and keep playing if it was playing in the mini player (consumed once, after the source is attached)
+  const resumePlayingRef = useRef(globalEpisodeId === episodeId && globalTime > 0 && isPlaying);
+  // Latest values for the progress heartbeat interval
+  const isMinimizedRef = useRef(isMinimized);
+  isMinimizedRef.current = isMinimized;
+  const heartbeatUsesLocalTimeRef = useRef(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const playerContainerRef = useRef<HTMLDivElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -318,6 +329,7 @@ export default function CinematicPlayer({
 
   const [localTime, setLocalTime] = useState<number>(0);
   const currentPosition = isNonNativeVideo && !isAudioFormat ? localTime : (videoRef.current?.currentTime || 0);
+  heartbeatUsesLocalTimeRef.current = isNonNativeVideo && !isAudioFormat;
   
   const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -493,12 +505,19 @@ export default function CinematicPlayer({
   useEffect(() => {
     if (!episodeId) return;
     const interval = setInterval(() => {
+      // localTime only advances for non-native (iframe/embed) players; native <video> keeps the real
+      // position on the element. Sending localTime for native video used to overwrite progress with 0.
+      if (isMinimizedRef.current) return; // the mini player owns progress while minimized
+      const position = heartbeatUsesLocalTimeRef.current
+        ? localTimeRef.current
+        : (videoRef.current?.currentTime || 0);
+      if (!position || position <= 0) return; // unknown position: don't clobber saved progress
       fetch('/api/progress', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           episodeId, 
-          position: localTimeRef.current || 0, 
+          position: Math.floor(position), 
           completed: false 
         }),
         keepalive: true
@@ -509,7 +528,7 @@ export default function CinematicPlayer({
 
   useEffect(() => {
     if (episodeId && courseId) {
-      playEpisode(episodeId, courseId, cleanUrl, initialPosition || 0, poster);
+      playEpisode(episodeId, courseId, cleanUrl, resumePosition || 0, poster);
     }
     
     let finalUrl = cleanUrl;
@@ -531,6 +550,11 @@ export default function CinematicPlayer({
       }, 15000);
       return () => clearTimeout(timer);
     }
+
+    // While the global mini player is still showing, videoRef points at the mini player's
+    // <video> and this component renders only a placeholder. Wait until it un-minimizes
+    // (this effect re-runs on isMinimized) so the source is attached to our own <video>.
+    if (isMinimized) return;
 
     const video = videoRef.current;
     if (!video) return;
@@ -563,13 +587,18 @@ export default function CinematicPlayer({
       video.src = finalUrl;
     }
 
+    if (resumePlayingRef.current) {
+      resumePlayingRef.current = false;
+      video.play().catch(() => setPlaying(false));
+    }
+
     return () => {
       if (hlsRef.current) {
         hlsRef.current.destroy();
         hlsRef.current = null;
       }
     };
-  }, [episodeId, courseId, cleanUrl]);
+  }, [episodeId, courseId, cleanUrl, isMinimized]);
 
   // Load subtitles and parse WebVTT
   useEffect(() => {
@@ -746,8 +775,8 @@ export default function CinematicPlayer({
     updateTime(localTime);
 
     // Initial Position Resume
-    if (!hasSetInitialPosition && initialPosition && initialPosition > 0) {
-      setLocalTime(initialPosition);
+    if (!hasSetInitialPosition && resumePosition && resumePosition > 0) {
+      setLocalTime(resumePosition);
       setHasSetInitialPosition(true);
     } else if (!hasSetInitialPosition && current > 2) {
       setHasSetInitialPosition(true);
@@ -795,7 +824,7 @@ export default function CinematicPlayer({
         }
       }
     }
-  }, [localTime, isNonNativeVideo, isAudioFormat, duration, episodeId, initialPosition, markers, lastProcessedTime, hasSetInitialPosition]);
+  }, [localTime, isNonNativeVideo, isAudioFormat, duration, episodeId, resumePosition, markers, lastProcessedTime, hasSetInitialPosition]);
 
   // Handle X-Ray glossary for Non-Native Formats on pause
   useEffect(() => {
@@ -961,9 +990,9 @@ export default function CinematicPlayer({
     updateTime(e.target.currentTime);
     
     // Initial Position Resume
-    if (!hasSetInitialPosition && initialPosition && initialPosition > 0 && e.target.duration > 0) {
-      if (Math.abs(current - initialPosition) > 2 && current < 5) {
-        e.target.currentTime = initialPosition;
+    if (!hasSetInitialPosition && resumePosition && resumePosition > 0 && e.target.duration > 0) {
+      if (Math.abs(current - resumePosition) > 2 && current < 5) {
+        e.target.currentTime = resumePosition;
         setHasSetInitialPosition(true);
       }
     } else if (!hasSetInitialPosition && current > 2) {

@@ -26,7 +26,9 @@ export default async function ProgressTrackerPage() {
       episode: {
         include: { course: true }
       }
-    }
+    },
+    // Newest first: courses appear latest-watched first and lastEp is the most recent episode
+    orderBy: { updatedAt: 'desc' }
   });
 
   // Construct course progression mapping
