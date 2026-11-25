@@ -218,12 +218,15 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
     }
   }
 
-  // AUTHENTIC ACCESS LEVEL AUDITING (Supports dual course/episode granularity and explicit intervals)
+  // AUTHENTIC ACCESS LEVEL AUDITING (Supports dual course/episode granularity, explicit intervals, and ABROAD tier)
   function checkAccess(required: string | null | undefined): boolean {
     if (!required || required === 'FREE') return true;
     
     const tier = user?.plan || 'FREE';
     const interval = user?.planInterval || 'YEARLY';
+
+    // ABROAD / International members hold full PLATINUM-equivalent access
+    if (tier === 'ABROAD') return true;
 
     // Gold Base Verification (Matches Gold or Platinum users)
     if (required === 'GOLD' || required === 'GOLD_MONTHLY') {
@@ -703,12 +706,18 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
 
                 {/* HOTSTAR STYLE EPISODES DISPLAY - ONLY RENDERS FOR MULTI-EPISODE SERIES AS PER USER REQUEST */}
                 {course.episodes.length > 1 && (() => {
-                  const processedEpisodes = course.episodes.map((ep) => ({
-                    ...ep,
-                    isActive: activeEpisode?.id === ep.id,
-                    isLocked: !checkAccess(ep.accessLevel) || isCourseLocked,
-                    durationStr: ep.duration ? `${Math.floor(ep.duration / 60)}m ${ep.duration % 60}s` : ''
-                  }));
+                  const processedEpisodes = course.episodes.map((ep) => {
+                    const locked = !checkAccess(ep.accessLevel) || isCourseLocked;
+                    return {
+                      ...ep,
+                      // Never leak direct CDN video or audio URLs to unauthorized visitors
+                      videoUrl: locked ? '' : ep.videoUrl,
+                      audioUrl: locked ? '' : ep.audioUrl,
+                      isActive: activeEpisode?.id === ep.id,
+                      isLocked: locked,
+                      durationStr: ep.duration ? `${Math.floor(ep.duration / 60)}m ${ep.duration % 60}s` : ''
+                    };
+                  });
 
                   return (
                     <div style={{ marginTop: '40px', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '30px', marginBottom: '40px' }}>

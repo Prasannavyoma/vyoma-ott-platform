@@ -77,20 +77,22 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
 
   const getINRPrice = (plan: any) => {
     if (!plan) return 0;
+    if (typeof plan.priceINR === 'number') return plan.priceINR;
     if (plan.name === 'GOLD' && plan.interval === 'MONTHLY') return 39;
     if (plan.name === 'GOLD' && plan.interval === 'YEARLY') return 390;
     if (plan.name === 'PLATINUM' && plan.interval === 'MONTHLY') return 49;
     if (plan.name === 'PLATINUM' && plan.interval === 'YEARLY') return 490;
-    return plan.priceINR || 0;
+    return 0;
   };
 
   const getUSDPrice = (plan: any) => {
     if (!plan) return 0;
+    if (typeof plan.priceUSD === 'number') return plan.priceUSD;
     if (plan.name === 'GOLD' && plan.interval === 'MONTHLY') return 3;
     if (plan.name === 'GOLD' && plan.interval === 'YEARLY') return 25;
     if (plan.name === 'PLATINUM' && plan.interval === 'MONTHLY') return 5;
     if (plan.name === 'PLATINUM' && plan.interval === 'YEARLY') return 50;
-    return plan.priceUSD || 0;
+    return 0;
   };
 
   const currency = region === 'INDIA' ? '₹' : '$';
@@ -191,7 +193,9 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
       // 🚀 ONE-TIME UPGRADE PAYMENT ORDER (Customer pays only the difference/prorated amount)
       res = await createRazorpayOrder({
         amount: amountToCharge,
-        currency: region === 'INDIA' ? 'INR' : 'USD'
+        currency: region === 'INDIA' ? 'INR' : 'USD',
+        planName: targetPlan.name,
+        interval: targetPlan.interval
       });
     } else {
       // NEW RECURRING SUBSCRIPTION MANDATE
@@ -212,7 +216,8 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
         amount: amountToCharge,
         currency: region === 'INDIA' ? 'INR' : 'USD',
         interval: targetPlan.interval.toLowerCase(),
-        totalCount: getTotalCount(targetPlan.interval)
+        totalCount: getTotalCount(targetPlan.interval),
+        planName: targetPlan.name
       });
     }
     
@@ -222,12 +227,18 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
 
   const handleSuccess = async (response: any) => {
      if (!targetPlan || !currentUser) return;
-     const paymentOrSubId = response.razorpay_payment_id || response.razorpay_subscription_id || subData?.subscriptionId || subData?.orderId || 'upgrade_txn';
+     // Prefer real Razorpay Subscription ID (sub_...) for recurring mandates over one-off payment ID
+     const paymentOrSubId = response.razorpay_subscription_id || subData?.subscriptionId || response.razorpay_payment_id || subData?.orderId || 'upgrade_txn';
      await activateSubscription(
        currentUser.id,
        targetPlan.name,
        targetPlan.interval,
-       paymentOrSubId
+       paymentOrSubId,
+       {
+         razorpay_payment_id: response.razorpay_payment_id,
+         razorpay_signature: response.razorpay_signature,
+         razorpay_order_id: response.razorpay_order_id || subData?.orderId
+       }
      );
      window.location.href='/profile';
   };

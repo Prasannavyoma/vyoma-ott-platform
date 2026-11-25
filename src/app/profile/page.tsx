@@ -162,9 +162,24 @@ export default async function ProfilePage() {
     if (!freshUser || freshUser.plan === 'FREE') return;
     
     const nextPlan = freshUser.plan === 'PLATINUM' ? 'GOLD' : 'FREE';
+
+    // Cancel existing recurring mandate on Razorpay so customer is not billed again
+    if (freshUser.razorpaySubscriptionId && freshUser.razorpaySubscriptionId.startsWith('sub_')) {
+      try {
+        const { getRazorpayClient } = await import('@/lib/razorpay');
+        const client = await getRazorpayClient();
+        await client.subscriptions.cancel(freshUser.razorpaySubscriptionId);
+      } catch (err: any) {
+        console.warn(`[Downgrade] Razorpay mandate cancellation notice:`, err.message);
+      }
+    }
+
     await prisma.user.update({
       where: { id: freshUser.id },
-      data: { plan: nextPlan }
+      data: { 
+        plan: nextPlan,
+        razorpaySubscriptionId: nextPlan === 'FREE' ? null : freshUser.razorpaySubscriptionId
+      }
     });
     revalidatePath('/profile');
   }

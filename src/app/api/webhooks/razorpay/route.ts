@@ -22,31 +22,73 @@ export async function POST(req: Request) {
 
     const expectedSignature = crypto.createHmac('sha256', secret).update(bodyText).digest('hex');
 
-    if (expectedSignature !== signature) {
+    // Timing-safe signature comparison to mitigate side-channel timing attacks
+    const sigBuffer = Buffer.from(signature);
+    const expBuffer = Buffer.from(expectedSignature);
+    if (sigBuffer.length !== expBuffer.length || !crypto.timingSafeEqual(sigBuffer, expBuffer)) {
       console.warn('[Razorpay Webhook] Invalid signature detected.');
       return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
     }
 
     const event = JSON.parse(bodyText);
+    const eventId = event.id || `${event.event}_${event.payload?.subscription?.entity?.id || event.payload?.payment?.entity?.id}_${event.created_at || Date.now()}`;
+
+    // Webhook Idempotency: Ignore duplicate webhook deliveries from Razorpay retries
+    const existingProcessed = await prisma.telemetryEvent.findFirst({
+      where: {
+        eventType: 'RAZORPAY_WEBHOOK_EVENT',
+        sourceId: eventId
+      }
+    });
+
+    if (existingProcessed) {
+      console.log(`[Razorpay Webhook] Duplicate event ${eventId} ignored.`);
+      return NextResponse.json({ success: true, duplicate: true });
+    }
 
     if (event.event === 'subscription.charged') {
       const subscriptionEntity = event.payload?.subscription?.entity;
       const razorpaySubscriptionId = subscriptionEntity?.id;
       const amountCharged = (subscriptionEntity?.paid_count ? subscriptionEntity?.plan_id : null) || subscriptionEntity?.amount || 0;
 
-      const user = await prisma.user.findFirst({
+      let user = await prisma.user.findFirst({
         where: { razorpaySubscriptionId }
       });
+
+      // Fallback: match by customer email if subscription ID was not previously bound
+      if (!user) {
+        const payloadEmail = event.payload?.payment?.entity?.email || subscriptionEntity?.customer_email;
+        if (payloadEmail) {
+          user = await prisma.user.findUnique({ where: { email: payloadEmail } });
+          if (user && razorpaySubscriptionId) {
+            await prisma.user.update({
+              where: { id: user.id },
+              data: { razorpaySubscriptionId }
+            });
+          }
+        }
+      }
 
       if (!user) {
         console.error(`[Razorpay Webhook] Auto-renew succeeded but user with subscription ID ${razorpaySubscriptionId} not found.`);
         return NextResponse.json({ success: true, warning: 'User not found' });
       }
 
+      // Calculate extended expiration date for recurring billing
+      const interval = user.planInterval || 'MONTHLY';
+      const daysToAdd = interval === 'YEARLY' ? 365 : 30;
+      const now = new Date();
+      let baseTime = now.getTime();
+      if (user.planExpiresAt && new Date(user.planExpiresAt).getTime() > now.getTime()) {
+        baseTime = new Date(user.planExpiresAt).getTime();
+      }
+      const newExpiry = new Date(baseTime + daysToAdd * 24 * 60 * 60 * 1000);
+
       await prisma.user.update({
         where: { id: user.id },
         data: {
-          planStartedAt: new Date(),
+          planStartedAt: now,
+          planExpiresAt: newExpiry,
           coins: { increment: 200 }
         }
       });
@@ -73,7 +115,7 @@ export async function POST(req: Request) {
         }
       }).catch(e => console.error("Telemetry error:", e));
 
-      console.log(`[Razorpay Webhook] Successfully processed auto-renewal and sent email for ${user.email}`);
+      console.log(`[Razorpay Webhook] Successfully processed auto-renewal and extended expiry for ${user.email}`);
     } else if (event.event === 'subscription.cancelled' || event.event === 'subscription.halted') {
       const subscriptionEntity = event.payload?.subscription?.entity;
       const razorpaySubscriptionId = subscriptionEntity?.id;
@@ -83,6 +125,17 @@ export async function POST(req: Request) {
       });
 
       if (user) {
+        // Demote user plan to FREE and revoke subscription mandate
+        await prisma.user.update({
+          where: { id: user.id },
+          data: {
+            plan: 'FREE',
+            planInterval: null,
+            razorpaySubscriptionId: null,
+            planExpiresAt: new Date()
+          }
+        });
+
         // Dispatch cancellation notice email
         sendCancelNotification(user.email).catch(e => {});
 
@@ -101,6 +154,46 @@ export async function POST(req: Request) {
             })
           }
         }).catch(e => console.error("Telemetry error:", e));
+      }
+    } else if (event.event === 'payment.refunded' || event.event === 'refund.processed') {
+      const paymentEntity = event.payload?.payment?.entity;
+      const refundEntity = event.payload?.refund?.entity;
+      const paymentId = paymentEntity?.id || refundEntity?.payment_id;
+      const orderId = paymentEntity?.order_id;
+      const email = paymentEntity?.email;
+
+      // 1. Revoke individual Course purchase if refunded
+      if (paymentId || orderId) {
+        const purchase = await prisma.purchase.findFirst({
+          where: {
+            OR: [
+              ...(paymentId ? [{ razorpayPaymentId: paymentId }] : []),
+              ...(orderId ? [{ razorpayOrderId: orderId }] : [])
+            ]
+          }
+        });
+
+        if (purchase) {
+          await prisma.purchase.delete({ where: { id: purchase.id } });
+          console.log(`[Razorpay Webhook] Revoked course purchase ${purchase.courseId} for user ${purchase.userId} due to refund.`);
+        }
+      }
+
+      // 2. Revert user subscription to FREE if membership was refunded
+      if (email) {
+        const refundedUser = await prisma.user.findUnique({ where: { email } });
+        if (refundedUser && refundedUser.plan !== 'FREE') {
+          await prisma.user.update({
+            where: { id: refundedUser.id },
+            data: {
+              plan: 'FREE',
+              planInterval: null,
+              razorpaySubscriptionId: null,
+              planExpiresAt: new Date()
+            }
+          });
+          console.log(`[Razorpay Webhook] Reverted user ${refundedUser.email} to FREE due to processed refund.`);
+        }
       }
     } else if (event.event === 'payment.failed' || event.event === 'subscription.pending') {
       const paymentEntity = event.payload?.payment?.entity;
@@ -126,6 +219,18 @@ export async function POST(req: Request) {
         }
       }).catch(e => console.error("Telemetry error:", e));
     }
+
+    // Record webhook event to enforce idempotency across retries
+    await prisma.telemetryEvent.create({
+      data: {
+        eventType: 'RAZORPAY_WEBHOOK_EVENT',
+        sourceId: eventId,
+        metadata: JSON.stringify({
+          event: event.event,
+          processedAt: new Date().toISOString()
+        })
+      }
+    }).catch(e => console.error("Webhook idempotency record error:", e));
 
     return NextResponse.json({ success: true });
   } catch (error: any) {

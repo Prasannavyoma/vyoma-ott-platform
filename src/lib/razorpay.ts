@@ -38,3 +38,40 @@ export async function getRazorpayClient() {
 export async function getRazorpayPublicKey() {
   return (await getSafeSetting('RAZORPAY_KEY_ID')) || process.env.RAZORPAY_KEY_ID || "";
 }
+
+/**
+ * Helper to retrieve Razorpay secret key securely on the server.
+ */
+export async function getRazorpaySecretKey() {
+  return (await getSafeSetting('RAZORPAY_KEY_SECRET')) || process.env.RAZORPAY_KEY_SECRET || "";
+}
+
+/**
+ * Cryptographically verifies one-time order payment signature.
+ */
+export async function verifyRazorpayOrderSignature(orderId: string, paymentId: string, signature: string): Promise<boolean> {
+  const secret = await getRazorpaySecretKey();
+  if (!secret || !orderId || !paymentId || !signature) return false;
+  try {
+    const crypto = await import('crypto');
+    const expected = crypto.createHmac('sha256', secret).update(`${orderId}|${paymentId}`).digest('hex');
+    return expected === signature;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Cryptographically verifies recurring mandate subscription payment signature.
+ */
+export async function verifyRazorpaySubscriptionSignature(subscriptionId: string, paymentId: string, signature: string): Promise<boolean> {
+  const secret = await getRazorpaySecretKey();
+  if (!secret || !subscriptionId || !paymentId || !signature) return false;
+  try {
+    const crypto = await import('crypto');
+    const expected = crypto.createHmac('sha256', secret).update(`${paymentId}|${subscriptionId}`).digest('hex');
+    return expected === signature;
+  } catch {
+    return false;
+  }
+}

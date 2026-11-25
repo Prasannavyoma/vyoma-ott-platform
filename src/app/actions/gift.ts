@@ -29,15 +29,33 @@ interface GiftParams {
   currency?: string;
   cardTheme?: 'SWARNA' | 'UTSAV' | 'GURUKULA' | 'PADMA' | string;
   senderDisplayName?: string;
+  paymentDetails?: {
+    razorpay_order_id: string;
+    razorpay_payment_id: string;
+    razorpay_signature: string;
+  };
 }
 
 /**
- * Server Action: Processes Bulk Gift Orders, Minting multiple Subscription Vouchers in SQLite.
+ * Server Action: Processes Bulk Gift Orders, Minting multiple Subscription Vouchers.
+ * Strictly verifies cryptographic payment signature before minting any vouchers.
  */
 export async function purchaseGiftVoucher(params: GiftParams) {
   const buyer = await getCurrentUser();
   if (!buyer) {
     throw new Error("AUTHENTICATION_REQUIRED: Please sign in to gift subscriptions.");
+  }
+
+  // Enforce cryptographic payment verification
+  const pay = params.paymentDetails;
+  if (!pay || !pay.razorpay_order_id || !pay.razorpay_payment_id || !pay.razorpay_signature) {
+    throw new Error("PAYMENT_UNVERIFIED: Valid Razorpay payment authorization signature is strictly required to mint gift vouchers.");
+  }
+
+  const { verifyRazorpayOrderSignature } = await import('@/lib/razorpay');
+  const isValid = await verifyRazorpayOrderSignature(pay.razorpay_order_id, pay.razorpay_payment_id, pay.razorpay_signature);
+  if (!isValid) {
+    throw new Error("PAYMENT_REJECTED: Cryptographic signature verification failed. Forged or tampered payment.");
   }
 
   const senderName = params.senderDisplayName?.trim() || buyer.name || buyer.email;

@@ -1,9 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getCurrentUser } from '@/lib/auth';
 
 export async function GET(
   request: NextRequest,
   props: { params: Promise<{ path: string[] }> }
 ) {
+  // Enforce session authentication before streaming through proxy
+  const user = await getCurrentUser();
+  if (!user) {
+    return new NextResponse('Unauthorized: Authentication required to stream media.', { status: 401 });
+  }
+
   const resolvedParams = await props.params;
   const pathParts = resolvedParams.path;
   const targetUrl = `https://d3a8qbwm8iliew.cloudfront.net/${pathParts.join('/')}`;
