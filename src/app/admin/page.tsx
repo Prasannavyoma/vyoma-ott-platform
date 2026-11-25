@@ -1,5 +1,9 @@
 import prisma from '@/lib/prisma';
 import Link from 'next/link';
+import { 
+  ShoppingBag, Download, Package, PlusCircle, Layout, 
+  IndianRupee, Users, Eye, BookOpen 
+} from 'lucide-react';
 
 export default async function AdminDashboard() {
   // 1. Exhaustive Analytical Pipelines targeting financial and retention vectors
@@ -49,19 +53,34 @@ export default async function AdminDashboard() {
           <p style={{ color: '#888', marginTop: '4px' }}>Unified console anchoring cross-platform telemetry, revenue streams, and audience traction.</p>
         </div>
         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-          <Link href="/admin/orders" style={{ background: 'rgba(242,100,34,0.1)', border: '1px solid rgba(242,100,34,0.3)', color: '#f26422', padding: '12px 20px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '0.9rem' }}>
+          <Link href="/admin/orders" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(242,100,34,0.1)', border: '1px solid rgba(242,100,34,0.3)', color: '#f26422', padding: '10px 18px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '0.9rem', transition: 'all 0.2s' }}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '24px', height: '24px', borderRadius: '6px', background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)', boxShadow: '0 2px 6px rgba(249,115,22,0.4)', color: '#fff' }}>
+              <ShoppingBag size={13} strokeWidth={2.4} />
+            </span>
             Financial Orders
           </Link>
-          <Link href="/admin/users/import" style={{ background: 'rgba(255, 215, 0, 0.1)', border: '1px solid rgba(255, 215, 0, 0.3)', color: '#ffd700', padding: '12px 20px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '0.9rem' }}>
-            📥 Bulk Import Users
+          <Link href="/admin/users/import" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(255, 215, 0, 0.1)', border: '1px solid rgba(255, 215, 0, 0.3)', color: '#ffd700', padding: '10px 18px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '0.9rem', transition: 'all 0.2s' }}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '24px', height: '24px', borderRadius: '6px', background: 'linear-gradient(135deg, #fcd34d 0%, #d97706 100%)', boxShadow: '0 2px 6px rgba(252,211,77,0.4)', color: '#fff' }}>
+              <Download size={13} strokeWidth={2.4} />
+            </span>
+            Bulk Import Users
           </Link>
-          <Link href="/admin/bundles" style={{ background: 'rgba(70,211,105,0.1)', border: '1px solid rgba(70,211,105,0.3)', color: '#46d369', padding: '12px 20px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '0.9rem' }}>
+          <Link href="/admin/bundles" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(70,211,105,0.1)', border: '1px solid rgba(70,211,105,0.3)', color: '#46d369', padding: '10px 18px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '0.9rem', transition: 'all 0.2s' }}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '24px', height: '24px', borderRadius: '6px', background: 'linear-gradient(135deg, #10b981 0%, #047857 100%)', boxShadow: '0 2px 6px rgba(16,185,129,0.4)', color: '#fff' }}>
+              <Package size={13} strokeWidth={2.4} />
+            </span>
             Manage Bundles
           </Link>
-          <Link href="/admin/courses/new" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '12px 20px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '0.9rem' }}>
+          <Link href="/admin/courses/new" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '10px 18px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '0.9rem', transition: 'all 0.2s' }}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '24px', height: '24px', borderRadius: '6px', background: 'linear-gradient(135deg, #fb7185 0%, #e11d48 100%)', boxShadow: '0 2px 6px rgba(251,113,133,0.4)', color: '#fff' }}>
+              <PlusCircle size={13} strokeWidth={2.4} />
+            </span>
             Create Content
           </Link>
-          <Link href="/admin/layout-settings" style={{ background: 'var(--primary)', color: '#fff', padding: '12px 20px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '0.9rem' }}>
+          <Link href="/admin/layout-settings" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'var(--primary)', color: '#fff', padding: '10px 18px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '0.9rem', transition: 'all 0.2s' }}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '24px', height: '24px', borderRadius: '6px', background: 'rgba(255,255,255,0.25)', color: '#fff' }}>
+              <Layout size={13} strokeWidth={2.4} />
+            </span>
             Manage Layout
           </Link>
         </div>
@@ -73,7 +92,22 @@ export default async function AdminDashboard() {
         {/* Revenue Spotlight (WooCommerce Priority 1) */}
         <div className="stat-card" style={{ background: 'linear-gradient(145deg, rgba(70,211,105,0.12) 0%, rgba(0,0,0,0) 100%)', border: '1px solid rgba(70,211,105,0.2)', padding: '25px', borderRadius: '16px', position: 'relative', overflow: 'hidden' }}>
           <div style={{ position: 'absolute', right: '-10px', bottom: '-10px', fontSize: '5rem', opacity: 0.03 }}>₹</div>
-          <div className="stat-title" style={{ color: '#46d369', fontSize: '0.8rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>Gross Platform Yield</div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div className="stat-title" style={{ color: '#46d369', fontSize: '0.8rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>Gross Platform Yield</div>
+            <span style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '38px',
+              height: '38px',
+              borderRadius: '10px',
+              background: 'linear-gradient(135deg, #10b981 0%, #047857 100%)',
+              boxShadow: '0 4px 12px rgba(16, 185, 129, 0.4), inset 0 1px 1px rgba(255,255,255,0.45)',
+              color: '#fff'
+            }}>
+              <IndianRupee size={18} strokeWidth={2.5} />
+            </span>
+          </div>
           <div className="stat-value" style={{ fontSize: '2.4rem', fontWeight: 900, marginTop: '10px', color: '#fff', display: 'flex', alignItems: 'baseline', gap: '5px' }}>
             <span style={{ fontSize: '1.2rem', color: '#46d369' }}>₹</span>
             {totalRevenue.toLocaleString('en-IN')}
@@ -84,7 +118,22 @@ export default async function AdminDashboard() {
         </div>
 
         <div className="stat-card" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', padding: '25px', borderRadius: '16px' }}>
-          <div className="stat-title" style={{ color: '#aaa', fontSize: '0.8rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>Active Audience</div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div className="stat-title" style={{ color: '#aaa', fontSize: '0.8rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>Active Audience</div>
+            <span style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '38px',
+              height: '38px',
+              borderRadius: '10px',
+              background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+              boxShadow: '0 4px 12px rgba(59, 130, 246, 0.4), inset 0 1px 1px rgba(255,255,255,0.45)',
+              color: '#fff'
+            }}>
+              <Users size={18} strokeWidth={2.5} />
+            </span>
+          </div>
           <div className="stat-value" style={{ fontSize: '2.4rem', fontWeight: 900, marginTop: '10px', color: '#fff' }}>{totalUsers}</div>
           <div style={{ fontSize: '0.8rem', color: '#666', marginTop: '5px' }}>
             <span style={{ color: '#f26422', fontWeight: 'bold' }}>{premiumUsers}</span> Premium Subscriptions
@@ -92,13 +141,43 @@ export default async function AdminDashboard() {
         </div>
         
         <div className="stat-card" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', padding: '25px', borderRadius: '16px' }}>
-          <div className="stat-title" style={{ color: '#aaa', fontSize: '0.8rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>Platform Engagement</div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div className="stat-title" style={{ color: '#aaa', fontSize: '0.8rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>Platform Engagement</div>
+            <span style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '38px',
+              height: '38px',
+              borderRadius: '10px',
+              background: 'linear-gradient(135deg, #06b6d4 0%, #0284c7 100%)',
+              boxShadow: '0 4px 12px rgba(6, 182, 212, 0.4), inset 0 1px 1px rgba(255,255,255,0.45)',
+              color: '#fff'
+            }}>
+              <Eye size={18} strokeWidth={2.5} />
+            </span>
+          </div>
           <div className="stat-value" style={{ fontSize: '2.4rem', fontWeight: 900, marginTop: '10px', color: '#38bdf8' }}>{totalImpressions}</div>
           <div style={{ fontSize: '0.8rem', color: '#666', marginTop: '5px' }}>Total Curriculum Node Impressions</div>
         </div>
 
         <div className="stat-card" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', padding: '25px', borderRadius: '16px' }}>
-          <div className="stat-title" style={{ color: '#aaa', fontSize: '0.8rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>Library Density</div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div className="stat-title" style={{ color: '#aaa', fontSize: '0.8rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>Library Density</div>
+            <span style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '38px',
+              height: '38px',
+              borderRadius: '10px',
+              background: 'linear-gradient(135deg, #a855f7 0%, #6b21a8 100%)',
+              boxShadow: '0 4px 12px rgba(168, 85, 247, 0.4), inset 0 1px 1px rgba(255,255,255,0.45)',
+              color: '#fff'
+            }}>
+              <BookOpen size={18} strokeWidth={2.5} />
+            </span>
+          </div>
           <div className="stat-value" style={{ fontSize: '2.4rem', fontWeight: 900, marginTop: '10px', color: '#fff' }}>{totalCourses}</div>
           <div style={{ fontSize: '0.8rem', color: '#46d369', marginTop: '5px' }}>● Serving Assets via Global CDN</div>
         </div>
