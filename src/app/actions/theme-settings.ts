@@ -39,7 +39,7 @@ export async function saveThemeSettings(data: {
   buttonRadius: string;
 }) {
   const user = await getCurrentUser();
-  if (!user || user.role !== 'ADMIN') throw new Error("Unauthorized");
+  if (!user || (user.role !== 'ADMIN' && user.role !== 'SUPER_ADMIN')) throw new Error("Unauthorized");
 
   const settingsToSave = [
     { key: 'THEME_PRIMARY_COLOR', value: data.primaryColor },

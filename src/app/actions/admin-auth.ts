@@ -15,14 +15,12 @@ export async function authenticateAdmin(formData: FormData) {
     return { success: false, message: "All fields are mandatory." };
   }
 
-  // Secure verification vectors. In production, leverage environment variables
-  const SECURE_PASS = process.env.ADMIN_MASTER_KEY || "vyoma-secure-123";
+  // Master key verification vector: requires ADMIN_MASTER_KEY to be explicitly set in environment
+  const SECURE_PASS = process.env.ADMIN_MASTER_KEY;
   
-  // Accept absolute Admin credentials
-  if (email.toLowerCase() === "admin@digitalsanskrit.com" && password === SECURE_PASS) {
-    
+  // Accept root administrator credentials if configured
+  if (SECURE_PASS && email.toLowerCase() === "admin@digitalsanskrit.com" && password === SECURE_PASS) {
     try {
-      // 1. Look up or Auto-Hydrate Admin Profile
       let user = await prisma.user.findUnique({ where: { email } });
       
       if (!user) {
@@ -30,21 +28,19 @@ export async function authenticateAdmin(formData: FormData) {
           data: {
             email,
             name: "Primary Administrator",
-            role: "ADMIN", // Lock administrative capacity
+            role: "SUPER_ADMIN",
             plan: "PLATINUM"
           }
         });
-      } else if (user.role !== "ADMIN") {
-        // Elevate to Admin if existing user used standard registration first
+      } else if (user.role === "USER") {
         user = await prisma.user.update({
           where: { email },
-          data: { role: "ADMIN" }
+          data: { role: "SUPER_ADMIN" }
         });
       }
 
-      // 2. Establish Secure, Encrypted Session Cookie
+      // Establish Secure, HMAC-Signed Session Cookie
       await setSessionUser(email);
-
       return { success: true };
     } catch (e) {
       console.error("Admin authentication internal failure:", e);
@@ -52,12 +48,15 @@ export async function authenticateAdmin(formData: FormData) {
     }
   }
 
-  // General Administrator user lookup (if other admins exist in DB)
+  // Standard Administrator credential verification with individual passwords
   try {
+    const { verifyPassword } = await import('@/lib/hash');
     const existingUser = await prisma.user.findUnique({ where: { email } });
-    if (existingUser && existingUser.role !== "USER" && password === SECURE_PASS) {
-      await setSessionUser(email);
-      return { success: true };
+    if (existingUser && existingUser.role !== "USER" && existingUser.password) {
+      if (verifyPassword(password, existingUser.password)) {
+        await setSessionUser(email);
+        return { success: true };
+      }
     }
   } catch (e) {}
 

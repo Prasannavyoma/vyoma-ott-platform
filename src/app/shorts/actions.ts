@@ -1,8 +1,10 @@
 "use server";
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
+import { requireAdmin } from '@/lib/auth';
 
 export async function createShort(formData: FormData) {
+  await requireAdmin();
   const title = formData.get('title') as string;
   const description = formData.get('description') as string;
   const videoUrl = formData.get('videoUrl') as string;

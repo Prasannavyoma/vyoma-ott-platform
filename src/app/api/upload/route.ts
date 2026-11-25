@@ -1,14 +1,33 @@
 import { NextResponse } from 'next/server';
 import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
+import { getCurrentUser } from '@/lib/auth';
 
 export async function POST(request: Request) {
   try {
+    // Authenticate user before allowing any upload
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ success: false, error: 'Unauthorized: Authentication required to upload files.' }, { status: 401 });
+    }
+
     const formData = await request.formData();
     const file = formData.get('file') as File | null;
 
     if (!file) {
       return NextResponse.json({ success: false, error: 'No file provided' }, { status: 400 });
+    }
+
+    // Enforce 5MB max file size
+    if (file.size > 5 * 1024 * 1024) {
+      return NextResponse.json({ success: false, error: 'File size exceeds maximum allowed limit (5MB).' }, { status: 400 });
+    }
+
+    // Whitelist image MIME types
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    const mimeType = file.type || 'image/jpeg';
+    if (!allowedTypes.includes(mimeType)) {
+      return NextResponse.json({ success: false, error: 'Invalid file format. Only JPEG, PNG, WEBP, and GIF images are allowed.' }, { status: 400 });
     }
 
     const bytes = await file.arrayBuffer();

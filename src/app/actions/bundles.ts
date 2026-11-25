@@ -2,6 +2,7 @@
 
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
+import { requireAdmin } from '@/lib/auth';
 
 export async function createBundle(data: {
   title: string;
@@ -11,6 +12,7 @@ export async function createBundle(data: {
   thumbnailUrl?: string;
   courseIds: string[];
 }) {
+  await requireAdmin();
   try {
     const bundle = await prisma.bundle.create({
       data: {
@@ -36,6 +38,7 @@ export async function createBundle(data: {
 }
 
 export async function deleteBundle(bundleId: string) {
+  await requireAdmin();
   try {
     await prisma.bundle.delete({
       where: { id: bundleId }

@@ -3,8 +3,10 @@
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import { sendTemplatedEmail } from '@/lib/mail';
+import { requireAdmin } from '@/lib/auth';
 
 export async function saveEmailTemplateAction(templateKey: string, subject: string, body: string) {
+  await requireAdmin();
   const subjectKey = `TEMPLATE_${templateKey}_SUBJECT`;
   const bodyKey = `TEMPLATE_${templateKey}_BODY`;
 
@@ -24,6 +26,7 @@ export async function saveEmailTemplateAction(templateKey: string, subject: stri
 }
 
 export async function sendTestEmailAction(toEmail: string, templateKey: string, testUserId: string) {
+  await requireAdmin();
   // Fetch user if specified to substitute name, otherwise use default mock data
   let userName = "Seeker";
   if (testUserId) {

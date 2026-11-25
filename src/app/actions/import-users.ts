@@ -3,8 +3,10 @@
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import { hashPassword } from '@/lib/hash';
+import { requireAdmin } from '@/lib/auth';
 
 export async function registerUsersFromCSV(fd: FormData) {
+  await requireAdmin();
   const rawCsvText = fd.get('csvText') as string;
   const csvFile = fd.get('csvFile') as File;
 
@@ -116,6 +118,7 @@ export async function registerUsersFromCSV(fd: FormData) {
 }
 
 export async function handleMigrationCSV(fd: FormData) {
+  await requireAdmin();
   const rawCsvText = fd.get('csvText') as string;
   const csvFile = fd.get('csvFile') as File;
 

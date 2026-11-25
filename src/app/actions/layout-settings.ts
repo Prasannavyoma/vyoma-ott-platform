@@ -2,8 +2,10 @@
 
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
+import { requireAdmin } from '@/lib/auth';
 
 export async function updateChannel(formData: FormData) {
+  await requireAdmin();
   const id = formData.get('id') as string;
   const name = formData.get('name') as string;
   const url = formData.get('url') as string;
@@ -20,6 +22,7 @@ export async function updateChannel(formData: FormData) {
 }
 
 export async function addChannel(formData: FormData) {
+  await requireAdmin();
   const name = formData.get('name') as string || "New Channel";
   const url = formData.get('url') as string || "/";
   const icon = formData.get('icon') as string || "⭐";
@@ -34,6 +37,7 @@ export async function addChannel(formData: FormData) {
 }
 
 export async function toggleChannel(id: string, active: boolean) {
+  await requireAdmin();
   await prisma.homepageChannel.update({
     where: { id },
     data: { active }
@@ -43,6 +47,7 @@ export async function toggleChannel(id: string, active: boolean) {
 }
 
 export async function deleteChannel(id: string) {
+  await requireAdmin();
   await prisma.homepageChannel.delete({
     where: { id }
   });
@@ -51,6 +56,7 @@ export async function deleteChannel(id: string) {
 }
 
 export async function addSection(formData: FormData) {
+  await requireAdmin();
   const title = formData.get('title') as string;
   const category = formData.get('category') as string;
   const order = parseInt(formData.get('order') as string || "0");
@@ -68,6 +74,7 @@ export async function addSection(formData: FormData) {
 }
 
 export async function deleteSection(formData: FormData) {
+  await requireAdmin();
   const id = formData.get('id') as string;
   await prisma.homepageSection.delete({ where: { id } });
   revalidatePath('/admin/layout-settings');
@@ -75,6 +82,7 @@ export async function deleteSection(formData: FormData) {
 }
 
 export async function updateSection(formData: FormData) {
+  await requireAdmin();
   const id = formData.get('id') as string;
   const title = formData.get('title') as string;
   const category = formData.get('category') as string;
@@ -94,6 +102,7 @@ export async function updateSection(formData: FormData) {
 }
 
 export async function toggleKnowledgeRoadmap(enabled: boolean) {
+  await requireAdmin();
   await prisma.systemSetting.upsert({
     where: { key: 'FEATURE_KNOWLEDGE_ROADMAP' },
     update: { value: enabled ? 'true' : 'false' },
@@ -104,6 +113,7 @@ export async function toggleKnowledgeRoadmap(enabled: boolean) {
 }
 
 export async function toggleShortsFeature(enabled: boolean) {
+  await requireAdmin();
   await prisma.systemSetting.upsert({
     where: { key: 'FEATURE_SHORTS' },
     update: { value: enabled ? 'true' : 'false' },
@@ -114,6 +124,7 @@ export async function toggleShortsFeature(enabled: boolean) {
 }
 
 export async function toggleBlogFeature(enabled: boolean) {
+  await requireAdmin();
   await prisma.systemSetting.upsert({
     where: { key: 'FEATURE_BLOG' },
     update: { value: enabled ? 'true' : 'false' },
@@ -124,6 +135,7 @@ export async function toggleBlogFeature(enabled: boolean) {
 }
 
 export async function toggleHotstarChannelsFeature(enabled: boolean) {
+  await requireAdmin();
   await prisma.systemSetting.upsert({
     where: { key: 'FEATURE_HOTSTAR_CHANNELS' },
     update: { value: enabled ? 'true' : 'false' },
@@ -134,6 +146,7 @@ export async function toggleHotstarChannelsFeature(enabled: boolean) {
 }
 
 export async function toggleScriptSwitcherFeature(enabled: boolean) {
+  await requireAdmin();
   await prisma.systemSetting.upsert({
     where: { key: 'FEATURE_SCRIPT_SWITCHER' },
     update: { value: enabled ? 'true' : 'false' },
@@ -144,6 +157,7 @@ export async function toggleScriptSwitcherFeature(enabled: boolean) {
 }
 
 export async function toggleGamificationStreaksFeature(enabled: boolean) {
+  await requireAdmin();
   await prisma.systemSetting.upsert({
     where: { key: 'FEATURE_GAMIFICATION_STREAKS' },
     update: { value: enabled ? 'true' : 'false' },
@@ -154,6 +168,7 @@ export async function toggleGamificationStreaksFeature(enabled: boolean) {
 }
 
 export async function toggleAiPronunciationFeature(enabled: boolean) {
+  await requireAdmin();
   await prisma.systemSetting.upsert({
     where: { key: 'FEATURE_AI_PRONUNCIATION' },
     update: { value: enabled ? 'true' : 'false' },

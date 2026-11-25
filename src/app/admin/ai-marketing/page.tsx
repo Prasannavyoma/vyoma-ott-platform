@@ -9,7 +9,7 @@ export const metadata = {
 
 export default async function AiMarketingPage() {
   const user = await getCurrentUser();
-  if (!user || user.role !== 'SUPER_ADMIN') {
+  if (!user || (user.role !== 'ADMIN' && user.role !== 'SUPER_ADMIN')) {
     redirect('/admin?error=UnauthorizedMarketingAccess');
   }
 

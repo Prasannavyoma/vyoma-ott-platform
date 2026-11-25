@@ -17,13 +17,24 @@ export async function adminUpdateUserRole(targetUserId: string, newRole: string)
     throw new Error("UNAUTHORIZED_OPERATION: Elevated privileges required.");
   }
 
-  // Prevent general ADMINs from modifying other admin structures if necessary
-  // In this implementation, SUPER_ADMIN can change anyone, ADMIN can only demote/elevate non-admins
-  
   // 3. Validate target role string against acceptable matrix
   const ACCEPTED_ROLES = ['USER', 'SUPER_ADMIN', 'ADMIN', 'MANAGER', 'FINANCE'];
   if (!ACCEPTED_ROLES.includes(newRole)) {
     throw new Error("INVALID_ROLE_PARAMETER: Non-conforming system tag.");
+  }
+
+  // Privilege Escalation Prevention: Only a SUPER_ADMIN can create or modify SUPER_ADMINs
+  if (newRole === 'SUPER_ADMIN' && actor.role !== 'SUPER_ADMIN') {
+    throw new Error("FORBIDDEN: Only SUPER_ADMIN can grant the SUPER_ADMIN role.");
+  }
+
+  const targetUser = await prisma.user.findUnique({ where: { id: targetUserId } });
+  if (!targetUser) {
+    throw new Error("Target user not found.");
+  }
+
+  if (targetUser.role === 'SUPER_ADMIN' && actor.role !== 'SUPER_ADMIN') {
+    throw new Error("FORBIDDEN: Only a SUPER_ADMIN can modify another SUPER_ADMIN's role.");
   }
 
   try {

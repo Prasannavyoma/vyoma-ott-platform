@@ -5,8 +5,10 @@ import { revalidatePath } from 'next/cache';
 import { sendPurchaseSuccess, sendCancelNotification } from '@/lib/mail';
 
 import { getRazorpayClient } from '@/lib/razorpay';
+import { requireAdmin } from '@/lib/auth';
 
 export async function adminUpdateUserPlan(userId: string, newPlan: string) {
+  await requireAdmin();
   try {
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) throw new Error("Target user not found.");

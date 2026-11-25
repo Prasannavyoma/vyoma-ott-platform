@@ -2,8 +2,10 @@
 
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
+import { requireAdmin } from '@/lib/auth';
 
 export async function createCourse(formData: FormData) {
+  await requireAdmin();
   const title = formData.get('title') as string;
   const description = formData.get('description') as string;
   const thumbnailUrl = formData.get('thumbnailUrl') as string;
@@ -88,6 +90,7 @@ export async function createCourse(formData: FormData) {
 }
 
 export async function deleteCourse(courseId: string) {
+  await requireAdmin();
   // Manually wipe all child nodes securely to bypass SQLite foreign key constraint quirks!
   try {
     // 1. Clear Sticky Notes
@@ -131,12 +134,14 @@ export async function deleteCourse(courseId: string) {
 }
 
 export async function handleDeleteCourse(formData: FormData) {
+  await requireAdmin();
   const id = formData.get('courseId') as string;
   if (!id) return;
   await deleteCourse(id);
 }
 
 export async function bulkCreateCourses(coursesData: any[]) {
+  await requireAdmin();
   try {
     for (const item of coursesData) {
       const course = await prisma.course.create({
@@ -190,6 +195,7 @@ function parseCSVLine(line: string): string[] {
 }
 
 export async function bulkUploadQuizCSV(episodeId: string, formData: FormData) {
+  await requireAdmin();
   const csvFile = formData.get('csvFile') as File;
   if (!csvFile || csvFile.size === 0) {
     return { error: 'Please upload a valid CSV file.' };
@@ -283,6 +289,7 @@ export async function bulkUploadQuizCSV(episodeId: string, formData: FormData) {
 }
 
 export async function broadcastNewCourse(courseId: string) {
+  await requireAdmin();
   try {
     const course = await prisma.course.findUnique({ where: { id: courseId } });
     if (!course) return { error: "Course not found" };
