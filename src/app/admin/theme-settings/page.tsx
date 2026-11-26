@@ -129,6 +129,7 @@ export default function ThemeSettingsPage() {
                 <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '8px', color: '#ccc' }}>Font Family</label>
                 <select value={fontFamily} onChange={(e) => setFontFamily(e.target.value)} style={{ width: '100%', padding: '12px', background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', borderRadius: '8px' }}>
                   <option value="Outfit">Outfit (Default)</option>
+                  <option value="Shobhika">Shobhika (Classical Sanskrit - IIT Bombay)</option>
                   <option value="Inter">Inter (Modern)</option>
                   <option value="Roboto">Roboto (Classic)</option>
                   <option value="Playfair Display">Playfair Display (Serif)</option>

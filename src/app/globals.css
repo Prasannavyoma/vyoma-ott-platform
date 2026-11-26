@@ -1,5 +1,44 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
 
+/* ==========================================================================
+   Shobhika - Classical Sanskrit, Devanagari & Vedic Typography
+   Developed by Science and Heritage Initiative (SandHI), IIT Bombay
+   Supports Vedic accents, conjuncts, and classical Sanskrit aesthetics
+   ========================================================================== */
+@font-face {
+  font-family: 'Shobhika';
+  src: url('/fonts/Shobhika-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0900-097F, U+1CD0-1CFF, U+A8E0-A8FF, U+200C-200D;
+}
+
+@font-face {
+  font-family: 'Shobhika';
+  src: url('/fonts/Shobhika-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0900-097F, U+1CD0-1CFF, U+A8E0-A8FF, U+200C-200D;
+}
+
+@font-face {
+  font-family: 'Shobhika-Full';
+  src: url('/fonts/Shobhika-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Shobhika-Full';
+  src: url('/fonts/Shobhika-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --background: #030b17; /* Premium JioHotstar Ultra Midnight Blue */
   --foreground: #f9f9f9;
@@ -9,6 +48,7 @@
   --card-bg: #0f1624;
   --text-muted: #8f98a9;
   --border-premium: 1px solid rgba(255,255,255,0.08);
+  --font-sanskrit: 'Shobhika', 'Shobhika-Full', 'Noto Serif Devanagari', 'Sanskrit Text', serif;
 }
 
 html, body {
@@ -17,11 +57,24 @@ html, body {
   background: radial-gradient(circle at 50% 0%, #0d1a30 0%, #030b17 75%);
   background-attachment: fixed;
   color: var(--foreground);
-  font-family: 'Outfit', sans-serif;
+  font-family: 'Outfit', 'Shobhika', system-ui, -apple-system, sans-serif;
   margin: 0;
   padding: 0;
   scroll-behavior: smooth;
   letter-spacing: -0.01em;
+}
+
+/* Dedicated Sanskrit Shloka & Word Typography */
+.sanskrit-text,
+.sanskrit-word,
+.shloka-text,
+.devanagari,
+.sanskrit-verse,
+.subhashita-text,
+[lang="sa"],
+[data-script="devanagari"] {
+  font-family: var(--font-sanskrit) !important;
+  letter-spacing: 0.02em;
 }
 
 * {

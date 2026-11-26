@@ -79,7 +79,7 @@ function getAutoSubtitle(episodeId: string, time: number) {
   
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-      <div style={{ color: '#ff8c53', fontSize: '1.2rem', fontWeight: 900 }}>{current.sanskrit}</div>
+      <div className="sanskrit-text" style={{ color: '#ff8c53', fontSize: '1.25rem', fontWeight: 800, fontFamily: "'Shobhika', serif" }}>{current.sanskrit}</div>
       <div style={{ color: '#ffffff', fontSize: '0.9rem', fontWeight: 500, opacity: 0.9 }}>{current.english}</div>
     </div>
   );

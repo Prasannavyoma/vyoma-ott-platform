@@ -393,19 +393,23 @@ export default function AiPronunciationAssistant({
       </div>
 
       {/* SHLOKA DISPLAY BOX */}
-      <div style={{
-        background: 'rgba(0, 0, 0, 0.4)',
-        border: '1px solid rgba(255, 255, 255, 0.1)',
-        borderRadius: '14px',
-        padding: '18px 24px',
-        fontSize: '1.2rem',
-        lineHeight: '1.9',
-        color: '#f8fafc',
-        textAlign: 'center',
-        marginBottom: '20px',
-        fontWeight: 600,
-        letterSpacing: '0.5px'
-      }}>
+      <div 
+        className="sanskrit-text"
+        style={{
+          fontFamily: "'Shobhika', serif",
+          background: 'rgba(0, 0, 0, 0.4)',
+          border: '1px solid rgba(255, 255, 255, 0.1)',
+          borderRadius: '14px',
+          padding: '18px 24px',
+          fontSize: '1.35rem',
+          lineHeight: '2.0',
+          color: '#f8fafc',
+          textAlign: 'center',
+          marginBottom: '20px',
+          fontWeight: 600,
+          letterSpacing: '0.5px'
+        }}
+      >
         {shlokaText}
       </div>
 

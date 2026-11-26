@@ -152,8 +152,10 @@ export default async function RootLayout({
     }
   } catch(e) {}
 
-  // Construct dynamic font URL based on the user's selected font family
-  const fontUrl = `https://fonts.googleapis.com/css2?family=${themeFontFamily.replace(/ /g, '+')}:wght@300;400;500;600;700;800&display=swap`;
+  // Construct dynamic font URL based on the user's selected font family (Shobhika is bundled locally in /fonts/)
+  const fontUrl = themeFontFamily === 'Shobhika' 
+    ? null 
+    : `https://fonts.googleapis.com/css2?family=${themeFontFamily.replace(/ /g, '+')}:wght@300;400;500;600;700;800&display=swap`;
 
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
@@ -162,15 +164,16 @@ export default async function RootLayout({
         <meta name="theme-color" content={themePrimary} />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href={fontUrl} rel="stylesheet" />
+        {fontUrl && <link href={fontUrl} rel="stylesheet" />}
         <style dangerouslySetInnerHTML={{ __html: `
           :root {
             --primary: ${themePrimary} !important;
             --background: ${themeBg} !important;
             --card-bg: ${themeCardBg} !important;
-            --font-family-dynamic: "${themeFontFamily}", sans-serif !important;
+            --font-family-dynamic: "${themeFontFamily}", "Shobhika", sans-serif !important;
             --font-size-base: ${themeFontSize} !important;
             --button-radius: ${themeButtonRadius} !important;
+            --font-sanskrit: "Shobhika", "Shobhika-Full", serif !important;
           }
           
           body {

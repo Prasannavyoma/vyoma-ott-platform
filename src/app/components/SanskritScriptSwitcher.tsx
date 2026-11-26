@@ -132,17 +132,21 @@ export default function SanskritScriptSwitcher({
       </div>
 
       {/* SANSKRIT SHLOKA TEXT DISPLAY WITH CLICKABLE WORDS */}
-      <div style={{
-        background: 'rgba(15, 23, 42, 0.6)',
-        border: '1px dashed rgba(56, 189, 248, 0.3)',
-        borderRadius: '12px',
-        padding: '24px',
-        fontSize: '1.25rem',
-        lineHeight: '2.2',
-        color: '#f8fafc',
-        textAlign: 'center',
-        letterSpacing: '0.5px'
-      }}>
+      <div 
+        className="sanskrit-text"
+        style={{
+          fontFamily: selectedScript === 'devanagari' ? "'Shobhika', serif" : 'inherit',
+          background: 'rgba(15, 23, 42, 0.6)',
+          border: '1px dashed rgba(56, 189, 248, 0.3)',
+          borderRadius: '12px',
+          padding: '24px',
+          fontSize: '1.35rem',
+          lineHeight: '2.2',
+          color: '#f8fafc',
+          textAlign: 'center',
+          letterSpacing: '0.5px'
+        }}
+      >
         {words.map((w, idx) => {
           const isPunctuation = /[।॥,. \s]/.test(w);
           if (isPunctuation) {
@@ -196,8 +200,8 @@ export default function SanskritScriptSwitcher({
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <span style={{ fontSize: '1.3rem', fontWeight: 800, color: '#f26422' }}>{selectedWord}</span>
-                    <span style={{ fontSize: '0.75rem', background: 'rgba(242, 100, 34, 0.15)', color: '#f26422', border: '1px solid rgba(242, 100, 34, 0.3)', padding: '2px 8px', borderRadius: '12px', fontWeight: 700 }}>
+                    <span style={{ fontSize: '1.45rem', fontWeight: 800, color: '#f26422', fontFamily: "'Shobhika', serif" }}>{selectedWord}</span>
+                    <span style={{ fontSize: '0.75rem', background: 'rgba(242, 100, 34, 0.15)', color: '#f26422', border: '1px solid rgba(242, 100, 34, 0.3)', padding: '2px 8px', borderRadius: '12px', fontWeight: 700, fontFamily: "'Shobhika', serif" }}>
                       {def.type}
                     </span>
                   </div>
@@ -212,7 +216,7 @@ export default function SanskritScriptSwitcher({
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', marginTop: '12px', fontSize: '0.88rem' }}>
                   <div style={{ background: 'rgba(0,0,0,0.3)', padding: '10px', borderRadius: '8px', borderLeft: '3px solid #38bdf8' }}>
                     <div style={{ color: '#94a3b8', fontSize: '0.75rem', fontWeight: 700, marginBottom: '2px' }}>पदच्छेदः (Word Split):</div>
-                    <div style={{ color: '#38bdf8', fontWeight: 700 }}>{def.padachheda}</div>
+                    <div style={{ color: '#38bdf8', fontWeight: 700, fontSize: '1.1rem', fontFamily: "'Shobhika', serif" }}>{def.padachheda}</div>
                   </div>
                   <div style={{ background: 'rgba(0,0,0,0.3)', padding: '10px', borderRadius: '8px', borderLeft: '3px solid #f26422' }}>
                     <div style={{ color: '#94a3b8', fontSize: '0.75rem', fontWeight: 700, marginBottom: '2px' }}>English Translation:</div>
@@ -220,7 +224,7 @@ export default function SanskritScriptSwitcher({
                   </div>
                   <div style={{ background: 'rgba(0,0,0,0.3)', padding: '10px', borderRadius: '8px', borderLeft: '3px solid #22c55e' }}>
                     <div style={{ color: '#94a3b8', fontSize: '0.75rem', fontWeight: 700, marginBottom: '2px' }}>संस्कृत-अर्थः (Sanskrit Meaning):</div>
-                    <div style={{ color: '#4ade80', fontWeight: 600 }}>{def.sanskritMeaning}</div>
+                    <div style={{ color: '#4ade80', fontWeight: 600, fontSize: '1.1rem', fontFamily: "'Shobhika', serif" }}>{def.sanskritMeaning}</div>
                   </div>
                 </div>
               </div>
