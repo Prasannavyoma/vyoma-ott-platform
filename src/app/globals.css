@@ -1241,7 +1241,7 @@ a {
   background: linear-gradient(135deg, var(--primary) 0%, #ff8c53 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  font-weight: 700;\r
+  font-weight: 700;
   letter-spacing: 1.5px !important;
   text-shadow: 0 0 30px rgba(242,100,34,0.2);
 }
