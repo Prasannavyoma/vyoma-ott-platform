@@ -47,7 +47,7 @@ export async function getRazorpaySecretKey() {
 }
 
 /**
- * Cryptographically verifies one-time order payment signature.
+ * Cryptographically verifies one-time order payment signature with timing-safe comparison.
  */
 export async function verifyRazorpayOrderSignature(orderId: string, paymentId: string, signature: string): Promise<boolean> {
   const secret = await getRazorpaySecretKey();
@@ -55,14 +55,16 @@ export async function verifyRazorpayOrderSignature(orderId: string, paymentId: s
   try {
     const crypto = await import('crypto');
     const expected = crypto.createHmac('sha256', secret).update(`${orderId}|${paymentId}`).digest('hex');
-    return expected === signature;
+    const sigBuffer = Buffer.from(signature);
+    const expBuffer = Buffer.from(expected);
+    return sigBuffer.length === expBuffer.length && crypto.timingSafeEqual(sigBuffer, expBuffer);
   } catch {
     return false;
   }
 }
 
 /**
- * Cryptographically verifies recurring mandate subscription payment signature.
+ * Cryptographically verifies recurring mandate subscription payment signature with timing-safe comparison.
  */
 export async function verifyRazorpaySubscriptionSignature(subscriptionId: string, paymentId: string, signature: string): Promise<boolean> {
   const secret = await getRazorpaySecretKey();
@@ -70,7 +72,9 @@ export async function verifyRazorpaySubscriptionSignature(subscriptionId: string
   try {
     const crypto = await import('crypto');
     const expected = crypto.createHmac('sha256', secret).update(`${paymentId}|${subscriptionId}`).digest('hex');
-    return expected === signature;
+    const sigBuffer = Buffer.from(signature);
+    const expBuffer = Buffer.from(expected);
+    return sigBuffer.length === expBuffer.length && crypto.timingSafeEqual(sigBuffer, expBuffer);
   } catch {
     return false;
   }

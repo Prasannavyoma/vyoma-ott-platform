@@ -1,42 +1,69 @@
-import { cookies } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import prisma from '@/lib/prisma';
 import crypto from 'crypto';
 
 const AUTH_SECRET = process.env.AUTH_SECRET || process.env.SESSION_SECRET || 'vyoma_secure_auth_session_hmac_2026_key';
 
 export function signEmail(email: string, timestamp: number): string {
-  const data = `${email}:${timestamp}`;
+  const data = `${email.toLowerCase().trim()}:${timestamp}`;
   return crypto.createHmac('sha256', AUTH_SECRET).update(data).digest('hex');
 }
 
 export function verifySignedCookie(cookieValue: string): string | null {
   if (!cookieValue) return null;
-  const parts = cookieValue.split('.');
-  if (parts.length !== 3) return null;
-  
-  const [email, timestampStr, signature] = parts;
-  const timestamp = parseInt(timestampStr, 10);
-  if (isNaN(timestamp)) return null;
-  
-  // Check session expiration (30 days maximum validity)
-  const maxAgeMs = 30 * 24 * 60 * 60 * 1000;
-  if (Date.now() - timestamp > maxAgeMs) {
-    return null;
-  }
-  
-  try {
-    const expectedSignature = signEmail(email, timestamp);
-    const sigBuffer = Buffer.from(signature, 'hex');
-    const expectedBuffer = Buffer.from(expectedSignature, 'hex');
-    
-    if (sigBuffer.length !== expectedBuffer.length || !crypto.timingSafeEqual(sigBuffer, expectedBuffer)) {
-      return null;
+  const decoded = decodeURIComponent(cookieValue).trim();
+  if (!decoded) return null;
+
+  let email: string = '';
+  let timestamp: number = 0;
+  let signature: string = '';
+
+  // Format 1: Pipe-delimited: email|timestamp|signature (recommended, immune to dots in email)
+  if (decoded.includes('|')) {
+    const parts = decoded.split('|');
+    if (parts.length === 3) {
+      email = parts[0].toLowerCase().trim();
+      timestamp = parseInt(parts[1], 10);
+      signature = parts[2].trim();
     }
-    
-    return email;
-  } catch (err) {
-    return null;
+  } 
+  // Format 2: Dot-delimited: email.timestamp.signature
+  // Since email addresses contain dots (e.g. admin@digitalsanskrit.com), 
+  // parse backwards from the right: last dot precedes hex signature, second-to-last precedes timestamp.
+  else if (decoded.includes('.')) {
+    const lastDot = decoded.lastIndexOf('.');
+    const secondLastDot = decoded.lastIndexOf('.', lastDot - 1);
+    if (lastDot > 0 && secondLastDot > 0) {
+      const potentialSig = decoded.slice(lastDot + 1).trim();
+      const potentialTs = parseInt(decoded.slice(secondLastDot + 1, lastDot), 10);
+      if (potentialSig.length === 64 && /^[0-9a-fA-F]+$/.test(potentialSig) && !isNaN(potentialTs)) {
+        email = decoded.slice(0, secondLastDot).toLowerCase().trim();
+        timestamp = potentialTs;
+        signature = potentialSig;
+      }
+    }
   }
+
+  // Cryptographically verify signature if extracted
+  if (email && timestamp && signature && !isNaN(timestamp)) {
+    const maxAgeMs = 30 * 24 * 60 * 60 * 1000; // 30 days validity window
+    if (Date.now() - timestamp <= maxAgeMs) {
+      try {
+        const expectedSignature = signEmail(email, timestamp);
+        const sigBuffer = Buffer.from(signature, 'hex');
+        const expectedBuffer = Buffer.from(expectedSignature, 'hex');
+        
+        if (sigBuffer.length === expectedBuffer.length && crypto.timingSafeEqual(sigBuffer, expectedBuffer)) {
+          return email;
+        }
+      } catch (err) {
+        // signature buffer mismatch
+      }
+    }
+  }
+
+  // Strict Security Enforcement: Reject any cookie that is not cryptographically signed with valid HMAC
+  return null;
 }
 
 export async function getCurrentUser() {
@@ -54,8 +81,10 @@ export async function getCurrentUser() {
   }
 
   try {
-    let user = await prisma.user.findUnique({
-      where: { email: verifiedEmail },
+    let user = await prisma.user.findFirst({
+      where: { 
+        email: { equals: verifiedEmail, mode: 'insensitive' } 
+      },
       include: {
         certificates: { include: { course: true } },
         purchases: { include: { course: true }, orderBy: { createdAt: 'desc' } }
@@ -100,18 +129,41 @@ export async function getCurrentUser() {
 }
 
 export async function setSessionUser(email: string, rememberMe: boolean = false) {
+  const normalizedEmail = email.toLowerCase().trim();
   const cookieStore = await cookies();
   const timestamp = Date.now();
-  const signature = signEmail(email, timestamp);
-  const signedCookieValue = `${email}.${timestamp}.${signature}`;
+  const signature = signEmail(normalizedEmail, timestamp);
+  // Pipe delimiter ensures dots in email domains never collide with signature segments
+  const signedCookieValue = `${normalizedEmail}|${timestamp}|${signature}`;
   
+  // Intelligent protocol detection:
+  // If the server is served over plain HTTP (e.g. local development or plain IP without SSL),
+  // browsers strictly reject cookies marked 'Secure'. Only set 'secure: true' if HTTPS is active.
+  let isHttps = false;
+  if (process.env.COOKIE_SECURE === 'true') {
+    isHttps = true;
+  } else if (process.env.COOKIE_SECURE === 'false') {
+    isHttps = false;
+  } else {
+    try {
+      const headerList = await headers();
+      const proto = headerList.get('x-forwarded-proto') || headerList.get('x-forwarded-protocol');
+      const host = headerList.get('host') || '';
+      if (proto === 'https' || host.includes('.vercel.app') || (process.env.NEXT_PUBLIC_APP_URL && process.env.NEXT_PUBLIC_APP_URL.startsWith('https://'))) {
+        isHttps = true;
+      }
+    } catch {
+      isHttps = false;
+    }
+  }
+
   const cookieOptions: any = {
     name: 'user_email',
     value: signedCookieValue,
     httpOnly: true,
     path: '/',
     sameSite: 'lax',
-    secure: process.env.NODE_ENV === 'production',
+    secure: isHttps,
   };
 
   if (rememberMe) {
