@@ -609,7 +609,7 @@ export default function ExploreClient({ initialCourses }: { initialCourses: any[
                     padding: '20px',
                     transition: 'opacity 0.3s ease'
                   }}>
-                    <div className="poster-title" style={{ fontSize: '0.88rem', fontWeight: 400, textShadow: '0 2px 10px rgba(0,0,0,0.9)', marginTop: '10px', letterSpacing: '0.01em', lineHeight: '1.35', color: '#f1f5f9' }}>{course.title ? course.title.replace(/&amp;/g, '&') : ''}</div>
+                    <div className="poster-title" style={{ fontSize: '0.88rem', fontWeight: 400, textShadow: '0 2px 10px rgba(0,0,0,0.9)', marginTop: '10px', letterSpacing: '0.01em', lineHeight: '1.35', color: '#f1f5f9', fontFamily: "'Jost', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif" }}>{course.title ? course.title.replace(/&amp;/g, '&') : ''}</div>
                     <div className="poster-meta" style={{ marginTop: '8px', display: 'flex', alignItems: 'center', gap: '10px' }}>
                       {(() => {
                         const lvlUpper = String(course.accessLevel || '').toUpperCase();

@@ -28,8 +28,8 @@ export default function HeroSlider({ items }: { items: SliderItem[] }) {
     return (
       <section className="hero" style={{ backgroundImage: `url('/assets/Bala-new.jpg')` }}>
         <div className="hero-content">
-          <h1 className="hero-title">Srimad Valmiki Ramayana</h1>
-          <p className="hero-desc">Embark on the eternal epic narrative of standard values and righteous living.</p>
+          <h1 className="hero-title" style={{ fontFamily: "'Jost', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif", fontWeight: 600 }}>Srimad Valmiki Ramayana</h1>
+          <p className="hero-desc" style={{ fontFamily: "'Jost', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif", fontWeight: 300 }}>Embark on the eternal epic narrative of standard values and righteous living.</p>
         </div>
       </section>
     );
@@ -115,21 +115,23 @@ export default function HeroSlider({ items }: { items: SliderItem[] }) {
                     lineHeight: '1.25',
                     marginBottom: '14px',
                     color: '#ffffff',
+                    fontFamily: "'Jost', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif",
                     letterSpacing: '-0.3px'
                   }}>
                     {item.title ? item.title.replace(/&amp;/g, '&') : ''}
                   </h1>
 
                   <p className="hero-desc" style={{ 
-                    fontSize: '1rem', 
+                    fontSize: '0.95rem', 
                     lineHeight: '1.65', 
                     marginBottom: '30px',
-                    color: 'rgba(255, 255, 255, 0.8)',
+                    color: 'rgba(255, 255, 255, 0.82)',
                     textShadow: '0 2px 10px rgba(0,0,0,0.9)',
                     display: '-webkit-box',
                     WebkitLineClamp: 3,
                     WebkitBoxOrient: 'vertical',
                     overflow: 'hidden',
+                    fontFamily: "'Jost', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif",
                     fontWeight: 300,
                     letterSpacing: '0.01em'
                   }}>

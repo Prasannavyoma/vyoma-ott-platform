@@ -240,7 +240,7 @@ export default function CourseRow({ title, courses, icon, viewAllHref, sectionId
                     <div className="action-pill circle-btn">+</div>
                     <div className="action-pill circle-btn">👍</div>
                   </div>
-                  <div className="poster-title" style={{ fontSize: '0.88rem', fontWeight: 400, letterSpacing: '0.01em', lineHeight: '1.35', color: '#f1f5f9' }}>{course.title ? course.title.replace(/&amp;/g, '&') : ''}</div>
+                  <div className="poster-title" style={{ fontSize: '0.88rem', fontWeight: 400, letterSpacing: '0.01em', lineHeight: '1.35', color: '#f1f5f9', fontFamily: "'Jost', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif" }}>{course.title ? course.title.replace(/&amp;/g, '&') : ''}</div>
                   {course.subTitle && <div style={{ fontSize: '0.7rem', opacity: 0.8, marginBottom: '5px', color: 'var(--primary)' }}>{course.subTitle ? course.subTitle.replace(/&amp;/g, '&') : ''}</div>}
                   <div className="poster-meta">
                     <span style={{color: '#46d369', fontWeight: 600}}>{course.match}</span>

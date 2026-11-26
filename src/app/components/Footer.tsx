@@ -27,6 +27,24 @@ interface FooterProps {
 export default function Footer({ userPlanData }: FooterProps) {
   const [showFindMyPlan, setShowFindMyPlan] = useState(false);
 
+  const footerLinkStyle: React.CSSProperties = {
+    fontFamily: "'Jost', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif",
+    fontSize: '0.88rem',
+    fontWeight: 300,
+    color: '#94a3b8',
+    textDecoration: 'none',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    background: 'transparent',
+    border: 'none',
+    padding: 0,
+    cursor: 'pointer',
+    textAlign: 'left',
+    letterSpacing: '0.01em',
+    transition: 'color 0.2s ease',
+  };
+
   return (
     <>
       <footer style={{ 
@@ -36,7 +54,8 @@ export default function Footer({ userPlanData }: FooterProps) {
         paddingTop: '60px', 
         paddingBottom: '30px', 
         color: '#8f98a9',
-        fontFamily: "'Futura', 'Futura PT', 'Jost', 'Outfit', 'Inter', system-ui, sans-serif",
+        fontFamily: "'Jost', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif",
+        fontWeight: 300,
         position: 'relative'
       }}>
 
@@ -60,7 +79,7 @@ export default function Footer({ userPlanData }: FooterProps) {
                 style={{ height: '48px', width: 'fit-content', objectFit: 'contain', filter: 'drop-shadow(0 0 12px rgba(242, 100, 34, 0.2))' }} 
               />
             </Link>
-            <p style={{ fontSize: '0.9rem', lineHeight: '1.6', margin: 0, color: '#8f98a9', fontWeight: 300 }}>
+            <p style={{ fontSize: '0.9rem', lineHeight: '1.6', margin: 0, color: '#8f98a9', fontWeight: 300, fontFamily: "'Jost', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif" }}>
               Vyoma Linguistic Labs Foundation is a non-profit organization pioneering digital Sanskrit education globally. Empowering learners through modern OTT streaming technology.
             </p>
             
@@ -146,24 +165,25 @@ export default function Footer({ userPlanData }: FooterProps) {
               marginBottom: '18px', 
               borderBottom: '2px solid rgba(242,100,34,0.4)',
               paddingBottom: '6px',
-              display: 'inline-block'
+              display: 'inline-block',
+              fontFamily: "'Jost', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif"
             }}>
               Learn &amp; Explore
             </h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <Link href="/explore" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '0.88rem', fontWeight: 300, display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Link href="/explore" style={footerLinkStyle}>
                 <Globe size={14} color="var(--primary)" /> Explore Hub
               </Link>
-              <Link href="/ebook" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '0.88rem', fontWeight: 300, display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Link href="/ebook" style={footerLinkStyle}>
                 <BookOpen size={14} color="#38bdf8" /> Sanskrit E-Books
               </Link>
-              <Link href="/podcast" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '0.88rem', fontWeight: 300, display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Link href="/podcast" style={footerLinkStyle}>
                 <Mic size={14} color="#a855f7" /> Audiobooks &amp; Podcasts
               </Link>
-              <Link href="/game" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '0.88rem', fontWeight: 300, display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Link href="/game" style={footerLinkStyle}>
                 <Gamepad2 size={14} color="#22c55e" /> Interactive Games
               </Link>
-              <Link href="/shorts" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '0.88rem', fontWeight: 300, display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Link href="/shorts" style={footerLinkStyle}>
                 <PlaySquare size={14} color="#ff4d4d" /> Shorts Clips
               </Link>
             </div>
@@ -178,14 +198,15 @@ export default function Footer({ userPlanData }: FooterProps) {
               marginBottom: '18px', 
               borderBottom: '2px solid rgba(242,100,34,0.4)',
               paddingBottom: '6px',
-              display: 'inline-block'
+              display: 'inline-block',
+              fontFamily: "'Jost', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif"
             }}>
               Membership &amp; Account
             </h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               <button 
                 onClick={() => setShowFindMyPlan(true)} 
-                style={{ background: 'transparent', border: 'none', color: '#94a3b8', textAlign: 'left', cursor: 'pointer', fontSize: '0.88rem', fontWeight: 300, padding: 0, display: 'flex', alignItems: 'center', gap: '8px' }}
+                style={footerLinkStyle}
                 onMouseEnter={e => e.currentTarget.style.color = '#fff'}
                 onMouseLeave={e => e.currentTarget.style.color = '#94a3b8'}
               >
@@ -193,19 +214,19 @@ export default function Footer({ userPlanData }: FooterProps) {
               </button>
               <button 
                 onClick={() => setShowFindMyPlan(true)} 
-                style={{ background: 'transparent', border: 'none', color: '#94a3b8', textAlign: 'left', cursor: 'pointer', fontSize: '0.88rem', fontWeight: 300, padding: 0, display: 'flex', alignItems: 'center', gap: '8px' }}
+                style={footerLinkStyle}
                 onMouseEnter={e => e.currentTarget.style.color = '#fff'}
                 onMouseLeave={e => e.currentTarget.style.color = '#94a3b8'}
               >
                 <Key size={14} color="#ffd700" /> Redeem Gift Voucher
               </button>
-              <Link href="/gift" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '0.88rem', fontWeight: 300, display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Link href="/gift" style={footerLinkStyle}>
                 <Gift size={14} color="#f43f5e" /> Gift Subscriptions
               </Link>
-              <Link href="/certificate/verify" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '0.88rem', fontWeight: 300, display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Link href="/certificate/verify" style={footerLinkStyle}>
                 <Award size={14} color="#fbbf24" /> Verify Certificates
               </Link>
-              <Link href="/register" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '0.88rem', fontWeight: 300, display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Link href="/register" style={footerLinkStyle}>
                 <Star size={14} color="#22c55e" /> Create Free Account
               </Link>
             </div>
@@ -220,27 +241,28 @@ export default function Footer({ userPlanData }: FooterProps) {
               marginBottom: '18px', 
               borderBottom: '2px solid rgba(242,100,34,0.4)',
               paddingBottom: '6px',
-              display: 'inline-block'
+              display: 'inline-block',
+              fontFamily: "'Jost', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif"
             }}>
               Foundation &amp; Legal
             </h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <Link href="/about-us" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '0.88rem', fontWeight: 300 }}>
+              <Link href="/about-us" style={footerLinkStyle}>
                 About Vyoma Foundation
               </Link>
-              <Link href="/terms-and-conditions" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '0.88rem', fontWeight: 300 }}>
+              <Link href="/terms-and-conditions" style={footerLinkStyle}>
                 Terms &amp; Conditions
               </Link>
-              <Link href="/privacy-policy" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '0.88rem', fontWeight: 300 }}>
+              <Link href="/privacy-policy" style={footerLinkStyle}>
                 Privacy Policy
               </Link>
-              <Link href="/shipping-and-cancellation-and-refund-policy" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '0.88rem', fontWeight: 300 }}>
+              <Link href="/shipping-and-cancellation-and-refund-policy" style={footerLinkStyle}>
                 Refund &amp; Cancellation Policy
               </Link>
-              <Link href="/faq" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '0.88rem', fontWeight: 300, display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <Link href="/faq" style={footerLinkStyle}>
                 <HelpCircle size={14} color="#38bdf8" /> Help &amp; Support FAQ
               </Link>
-              <Link href="/testimonials" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '0.88rem', fontWeight: 300 }}>
+              <Link href="/testimonials" style={footerLinkStyle}>
                 Community Testimonials
               </Link>
             </div>
@@ -301,18 +323,18 @@ export default function Footer({ userPlanData }: FooterProps) {
           fontSize: '0.82rem',
           color: '#64748b'
         }}>
-          <div>
-            © 2026 Vyoma Linguistic Labs Foundation. All rights reserved. <Link href="/" style={{ color: '#94a3b8', textDecoration: 'underline' }}>digitalsanskrit.com</Link>
+          <div style={{ fontFamily: "'Jost', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif", fontWeight: 300 }}>
+            © 2026 Vyoma Linguistic Labs Foundation. All rights reserved. <Link href="/" style={{ color: '#94a3b8', textDecoration: 'underline', fontWeight: 300 }}>digitalsanskrit.com</Link>
           </div>
 
           <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
-            <Link href="/privacy-policy" style={{ color: '#94a3b8', textDecoration: 'none' }}>
+            <Link href="/privacy-policy" style={{ color: '#94a3b8', textDecoration: 'none', fontWeight: 300, fontFamily: "'Jost', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif" }}>
               Privacy Policy
             </Link>
-            <Link href="/terms-and-conditions" style={{ color: '#94a3b8', textDecoration: 'none' }}>
+            <Link href="/terms-and-conditions" style={{ color: '#94a3b8', textDecoration: 'none', fontWeight: 300, fontFamily: "'Jost', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif" }}>
               Terms & Conditions
             </Link>
-            <Link href="/shipping-and-cancellation-and-refund-policy" style={{ color: '#94a3b8', textDecoration: 'none' }}>
+            <Link href="/shipping-and-cancellation-and-refund-policy" style={{ color: '#94a3b8', textDecoration: 'none', fontWeight: 300, fontFamily: "'Jost', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif" }}>
               Refund & Cancellation Policy
             </Link>
           </div>

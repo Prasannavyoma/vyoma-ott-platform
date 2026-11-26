@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import React from 'react';
 import dynamic from 'next/dynamic';
@@ -17,16 +16,6 @@ import CookieConsent from "./components/CookieConsent";
 
 // 🚀 LAZY LOAD AI CHAT WIDGET: This prevents the heavy chatbot logic from blocking the initial page paint globally!
 const AiChatWidget = dynamic(() => import('./components/AiChatWidget'));
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://www.vyoma-ott.com'),
@@ -160,11 +149,11 @@ export default async function RootLayout({
     : `https://fonts.googleapis.com/css2?family=${themeFontFamily.replace(/ /g, '+')}:wght@300;400;500;600;700;800&display=swap`;
 
   const dynamicFontFamilyCSS = themeFontFamily === 'Futura'
-    ? "'Futura', 'Futura PT', 'Jost', 'Outfit', 'Shobhika', sans-serif"
+    ? "'Jost', 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Outfit', 'Futura', 'Shobhika', sans-serif"
     : `"${themeFontFamily}", "Shobhika", sans-serif`;
 
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
+    <html lang="en">
       <head>
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content={themePrimary} />
@@ -180,12 +169,15 @@ export default async function RootLayout({
             --font-size-base: ${themeFontSize} !important;
             --button-radius: ${themeButtonRadius} !important;
             --font-sanskrit: "Shobhika", "Shobhika-Full", serif !important;
-            --font-futura: 'Futura', 'Futura PT', 'Jost', 'Outfit', sans-serif !important;
+            --font-futura: 'Jost', 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Outfit', 'Futura', sans-serif !important;
           }
           
-          body {
+          body, button, input, select, textarea {
             font-family: var(--font-family-dynamic) !important;
             font-size: var(--font-size-base) !important;
+          }
+
+          body {
             background: var(--background) !important;
           }
 

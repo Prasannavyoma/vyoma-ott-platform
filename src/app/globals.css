@@ -39,6 +39,13 @@
   font-display: swap;
 }
 
+/* Authentic Sanskrit & Devanagari Typography */
+.sanskrit, .devanagari, [lang="sa"], .shobhika, .sanskrit-title, .sanskrit-sub {
+  font-family: 'Shobhika', 'Shobhika-Full', 'Noto Serif Devanagari', 'Sanskrit Text', serif !important;
+  font-weight: 400 !important;
+  letter-spacing: 0.02em;
+}
+
 :root {
   --background: #030b17; /* Premium JioHotstar Ultra Midnight Blue */
   --foreground: #f9f9f9;
@@ -49,7 +56,7 @@
   --text-muted: #8f98a9;
   --border-premium: 1px solid rgba(255,255,255,0.08);
   --font-sanskrit: 'Shobhika', 'Shobhika-Full', 'Noto Serif Devanagari', 'Sanskrit Text', serif;
-  --font-futura: 'Jost', 'Futura', 'Futura PT', 'Outfit', sans-serif;
+  --font-futura: 'Jost', 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Outfit', 'Futura', sans-serif;
 }
 
 html, body {
@@ -58,8 +65,8 @@ html, body {
   background: radial-gradient(circle at 50% 0%, #0d1a30 0%, #030b17 75%);
   background-attachment: fixed;
   color: var(--foreground);
-  font-family: 'Jost', 'Futura', 'Futura PT', 'Outfit', 'Shobhika', system-ui, -apple-system, sans-serif;
-  font-weight: 400; /* Regular Book weight for body */
+  font-family: 'Jost', 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Outfit', 'Futura', 'Shobhika', sans-serif;
+  font-weight: 300; /* Crisp light base weight for clean readability */
   line-height: 1.6;
   margin: 0;
   padding: 0;
@@ -125,7 +132,7 @@ h5, h6 {
 
 /* Light weights where required: descriptions, paragraphs, synopses, metadata */
 p, .hero-desc, .watch-description, .course-desc, .description, .synopsis, .lesson-desc, .body-light {
-  font-family: 'Futura', 'Futura PT', 'Jost', 'Outfit', 'Shobhika', sans-serif;
+  font-family: 'Jost', 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Outfit', 'Futura', 'Shobhika', sans-serif;
   font-size: 0.95rem;
   font-weight: 300 !important;
   letter-spacing: 0.01em;
@@ -244,27 +251,35 @@ a {
 /* ==========================================================================
    Footer Section - Light Typography Standard (as requested by user)
    ========================================================================== */
-footer {
+footer, .footer-section, .footer-container {
+  font-family: 'Jost', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif !important;
   font-weight: 300 !important;
 }
 
 footer p,
 footer span,
 footer div {
-  font-weight: 300;
+  font-family: 'Jost', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-weight: 300 !important;
 }
 
-footer a {
+footer a,
+footer button {
+  font-family: 'Jost', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-size: 0.88rem !important;
   font-weight: 300 !important;
   color: #94a3b8 !important;
   transition: color 0.2s ease;
+  letter-spacing: 0.01em !important;
 }
 
-footer a:hover {
+footer a:hover,
+footer button:hover {
   color: #ffffff !important;
 }
 
 footer h3 {
+  font-family: 'Jost', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif !important;
   font-size: 0.95rem !important;
   font-weight: 500 !important;
   letter-spacing: 0.5px !important;
@@ -313,7 +328,7 @@ footer h3 {
   white-space: nowrap;
   flex-shrink: 0;
   cursor: pointer;
-  font-family: inherit;
+  font-family: 'Jost', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif !important;
 }
 .top-utility-bar a:hover,
 .top-utility-bar button.top-utility-bar-item:hover {
@@ -833,7 +848,7 @@ footer h3 {
   align-items: center;
   gap: 10px;
   transition: all 0.35s cubic-bezier(0.25, 1, 0.5, 1);
-  font-family: inherit;
+  font-family: 'Jost', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif !important;
   letter-spacing: 0.5px;
 }
 
@@ -1202,8 +1217,9 @@ footer h3 {
 }
 
 .poster-title {
+  font-family: 'Jost', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif !important;
   font-size: 0.88rem;
-  font-weight: 400;
+  font-weight: 400 !important;
   letter-spacing: 0.01em;
   line-height: 1.35;
   color: #f1f5f9;
@@ -1501,7 +1517,7 @@ footer h3 {
   border-radius: 10px;
   color: #fff;
   font-size: 0.95rem;
-  font-family: inherit;
+  font-family: 'Jost', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif !important;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
