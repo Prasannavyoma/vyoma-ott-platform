@@ -92,7 +92,7 @@ export default async function RootLayout({
   let themePrimary = '#f26422';
   let themeBg = '#030b17';
   let themeCardBg = '#0f1624';
-  let themeFontFamily = 'Outfit';
+  let themeFontFamily = 'Futura';
   let themeFontSize = '16px';
   let themeButtonRadius = '8px';
 
@@ -152,10 +152,16 @@ export default async function RootLayout({
     }
   } catch(e) {}
 
-  // Construct dynamic font URL based on the user's selected font family (Shobhika is bundled locally in /fonts/)
+  // Construct dynamic font URL based on the user's selected font family (Shobhika is bundled locally in /fonts/, Futura pairs with Jost webfont)
   const fontUrl = themeFontFamily === 'Shobhika' 
     ? null 
+    : themeFontFamily === 'Futura'
+    ? 'https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700;800;900&display=swap'
     : `https://fonts.googleapis.com/css2?family=${themeFontFamily.replace(/ /g, '+')}:wght@300;400;500;600;700;800&display=swap`;
+
+  const dynamicFontFamilyCSS = themeFontFamily === 'Futura'
+    ? "'Futura', 'Futura PT', 'Jost', 'Outfit', 'Shobhika', sans-serif"
+    : `"${themeFontFamily}", "Shobhika", sans-serif`;
 
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
@@ -170,10 +176,11 @@ export default async function RootLayout({
             --primary: ${themePrimary} !important;
             --background: ${themeBg} !important;
             --card-bg: ${themeCardBg} !important;
-            --font-family-dynamic: "${themeFontFamily}", "Shobhika", sans-serif !important;
+            --font-family-dynamic: ${dynamicFontFamilyCSS} !important;
             --font-size-base: ${themeFontSize} !important;
             --button-radius: ${themeButtonRadius} !important;
             --font-sanskrit: "Shobhika", "Shobhika-Full", serif !important;
+            --font-futura: 'Futura', 'Futura PT', 'Jost', 'Outfit', sans-serif !important;
           }
           
           body {

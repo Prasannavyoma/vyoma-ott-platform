@@ -31,7 +31,7 @@ export default async function InterestsPage() {
   const recommendedToDisplay = aiRecommended.length > 0 ? aiRecommended : fallbackCourses;
 
   return (
-    <div style={{ minHeight: '100vh', background: '#030b17', color: '#fff', fontFamily: "'Outfit', 'Inter', system-ui, sans-serif" }}>
+    <div style={{ minHeight: '100vh', background: '#030b17', color: '#fff', fontFamily: "'Futura', 'Futura PT', 'Jost', 'Outfit', 'Inter', system-ui, sans-serif" }}>
       <NavBar />
 
       <main style={{ maxWidth: '1280px', margin: '0 auto', padding: '160px 24px 80px 24px' }}>

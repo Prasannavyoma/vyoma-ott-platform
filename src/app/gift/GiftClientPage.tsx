@@ -359,7 +359,7 @@ export default function GiftClientPage({
       minHeight: '100vh', 
       backgroundColor: '#020710', 
       color: '#fff', 
-      fontFamily: "'Outfit', 'Inter', system-ui, -apple-system, sans-serif",
+      fontFamily: "'Futura', 'Futura PT', 'Jost', 'Outfit', 'Inter', system-ui, -apple-system, sans-serif",
       position: 'relative',
       overflowX: 'hidden'
     }}>

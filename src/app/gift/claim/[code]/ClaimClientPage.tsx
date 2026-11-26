@@ -156,7 +156,7 @@ export default function ClaimClientPage({ initialData }: { initialData: VoucherC
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: '#020710', color: '#fff', fontFamily: "'Outfit', 'Inter', system-ui, sans-serif", position: 'relative', overflowX: 'hidden' }}>
+    <div style={{ minHeight: '100vh', background: '#020710', color: '#fff', fontFamily: "'Futura', 'Futura PT', 'Jost', 'Outfit', 'Inter', system-ui, sans-serif", position: 'relative', overflowX: 'hidden' }}>
       <NavBar />
 
       <style dangerouslySetInnerHTML={{__html: `

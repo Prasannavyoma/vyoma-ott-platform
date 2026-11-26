@@ -77,7 +77,7 @@ export default function LogoutConfirmationModal({
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.85), 0 0 30px rgba(242, 100, 34, 0.15)',
           position: 'relative',
           color: '#fff',
-          fontFamily: "'Outfit', 'Inter', system-ui, sans-serif",
+          fontFamily: "'Futura', 'Futura PT', 'Jost', 'Outfit', 'Inter', system-ui, sans-serif",
           animation: 'slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1)'
         }}
       >

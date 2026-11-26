@@ -108,7 +108,7 @@ export default function SanskritStreakWidget({ isEnabled = true }: SanskritStrea
             boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7)',
             position: 'relative',
             color: '#fff',
-            fontFamily: "'Outfit', 'Inter', system-ui, sans-serif"
+            fontFamily: "'Futura', 'Futura PT', 'Jost', 'Outfit', 'Inter', system-ui, sans-serif"
           }}>
             {/* CLOSE BUTTON */}
             <button

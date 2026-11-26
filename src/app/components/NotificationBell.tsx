@@ -210,7 +210,7 @@ export default function NotificationBell() {
             color: '#fff',
             fontSize: '0.65rem',
             fontWeight: 900,
-            fontFamily: 'Outfit, sans-serif',
+            fontFamily: "'Futura', 'Futura PT', 'Jost', 'Outfit', sans-serif",
             minWidth: '20px',
             height: '20px',
             borderRadius: '10px',
@@ -245,7 +245,7 @@ export default function NotificationBell() {
             zIndex: 9999,
             overflow: 'hidden',
             animation: 'notifPanelIn 0.2s ease-out',
-            fontFamily: 'Outfit, sans-serif',
+            fontFamily: "'Futura', 'Futura PT', 'Jost', 'Outfit', sans-serif",
             display: 'flex',
             flexDirection: 'column',
           }}
@@ -300,7 +300,7 @@ export default function NotificationBell() {
                     padding: '4px 8px',
                     cursor: isLoading ? 'wait' : 'pointer',
                     transition: 'all 0.2s',
-                    fontFamily: 'Outfit, sans-serif',
+                    fontFamily: "'Futura', 'Futura PT', 'Jost', 'Outfit', sans-serif",
                     opacity: isLoading ? 0.6 : 1,
                   }}
                 >

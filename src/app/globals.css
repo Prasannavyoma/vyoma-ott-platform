@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800&display=swap');
 
 /* ==========================================================================
    Shobhika - Classical Sanskrit, Devanagari & Vedic Typography
@@ -49,6 +49,7 @@
   --text-muted: #8f98a9;
   --border-premium: 1px solid rgba(255,255,255,0.08);
   --font-sanskrit: 'Shobhika', 'Shobhika-Full', 'Noto Serif Devanagari', 'Sanskrit Text', serif;
+  --font-futura: 'Futura', 'Futura PT', 'Jost', 'Outfit', sans-serif;
 }
 
 html, body {
@@ -57,7 +58,7 @@ html, body {
   background: radial-gradient(circle at 50% 0%, #0d1a30 0%, #030b17 75%);
   background-attachment: fixed;
   color: var(--foreground);
-  font-family: 'Outfit', 'Shobhika', system-ui, -apple-system, sans-serif;
+  font-family: 'Futura', 'Futura PT', 'Jost', 'Outfit', 'Shobhika', system-ui, -apple-system, sans-serif;
   margin: 0;
   padding: 0;
   scroll-behavior: smooth;

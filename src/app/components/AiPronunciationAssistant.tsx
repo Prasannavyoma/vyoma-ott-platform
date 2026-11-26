@@ -361,7 +361,7 @@ export default function AiPronunciationAssistant({
       color: '#fff',
       margin: '24px 0',
       boxShadow: '0 15px 35px rgba(0, 0, 0, 0.5)',
-      fontFamily: "'Outfit', 'Inter', system-ui, sans-serif"
+      fontFamily: "'Futura', 'Futura PT', 'Jost', 'Outfit', 'Inter', system-ui, sans-serif"
     }}>
       {/* HEADER */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '18px', flexWrap: 'wrap', gap: '12px' }}>

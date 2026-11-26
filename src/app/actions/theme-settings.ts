@@ -24,7 +24,7 @@ export async function getThemeSettings() {
     primaryColor: map.get('THEME_PRIMARY_COLOR') || '#f26422',
     backgroundColor: map.get('THEME_BACKGROUND_COLOR') || '#030b17',
     cardBg: map.get('THEME_CARD_BG') || '#0f1624',
-    fontFamily: map.get('THEME_FONT_FAMILY') || 'Outfit',
+    fontFamily: map.get('THEME_FONT_FAMILY') || 'Futura',
     fontSizeBase: map.get('THEME_FONT_SIZE_BASE') || '16px',
     buttonRadius: map.get('THEME_BUTTON_RADIUS') || '8px',
   };

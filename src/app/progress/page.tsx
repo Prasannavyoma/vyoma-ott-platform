@@ -152,7 +152,7 @@ export default async function ProgressTrackerPage() {
   const completedTracks = activeSyllabi.filter(item => item.percent === 100);
 
   return (
-    <main style={{ minHeight: '100vh', background: '#030b17', color: '#fff', fontFamily: 'Outfit, system-ui, sans-serif' }}>
+    <main style={{ minHeight: '100vh', background: '#030b17', color: '#fff', fontFamily: "'Futura', 'Futura PT', 'Jost', 'Outfit', system-ui, sans-serif" }}>
       <NavBar />
 
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '160px 20px 60px 20px' }}>

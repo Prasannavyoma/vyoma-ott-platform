@@ -77,7 +77,7 @@ export default function PrivacyPolicyPage() {
         color: '#e2e8f0',
         paddingTop: '130px',
         paddingBottom: '80px',
-        fontFamily: "'Outfit', 'Inter', system-ui, -apple-system, sans-serif"
+        fontFamily: "'Futura', 'Futura PT', 'Jost', 'Outfit', 'Inter', system-ui, -apple-system, sans-serif"
       }}>
         <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 24px' }}>
           

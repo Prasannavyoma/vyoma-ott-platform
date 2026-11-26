@@ -25,7 +25,7 @@ export default async function ClaimPage({
 
   if (!voucherData.success) {
     return (
-      <main style={{ minHeight: '100vh', background: '#020710', color: '#fff', fontFamily: "'Outfit', 'Inter', system-ui, sans-serif" }}>
+      <main style={{ minHeight: '100vh', background: '#020710', color: '#fff', fontFamily: "'Futura', 'Futura PT', 'Jost', 'Outfit', 'Inter', system-ui, sans-serif" }}>
         <NavBar />
         <div style={{ maxWidth: '600px', margin: '0 auto', padding: '160px 20px 80px', textAlign: 'center' }}>
           <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '24px', padding: '50px 30px' }}>

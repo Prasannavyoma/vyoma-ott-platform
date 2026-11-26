@@ -23,7 +23,7 @@ export default function AiMarketingClient({ courses }: { courses: any[] }) {
   };
 
   return (
-    <div style={{ padding: '30px', color: 'white', maxWidth: '1000px', margin: '0 auto', fontFamily: 'Outfit, system-ui, sans-serif' }}>
+    <div style={{ padding: '30px', color: 'white', maxWidth: '1000px', margin: '0 auto', fontFamily: "'Futura', 'Futura PT', 'Jost', 'Outfit', system-ui, sans-serif" }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '10px' }}>
         <h1 style={{ fontSize: '2rem', fontWeight: 900, margin: 0 }}>🤖 AI Auto-Blogger</h1>
         <span style={{ background: 'rgba(242,100,34,0.15)', color: '#f26422', border: '1px solid rgba(242,100,34,0.3)', padding: '4px 12px', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 800 }}>

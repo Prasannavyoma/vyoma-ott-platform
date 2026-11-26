@@ -36,7 +36,7 @@ export default function Footer({ userPlanData }: FooterProps) {
         paddingTop: '60px', 
         paddingBottom: '30px', 
         color: '#8f98a9',
-        fontFamily: "'Outfit', 'Inter', system-ui, sans-serif",
+        fontFamily: "'Futura', 'Futura PT', 'Jost', 'Outfit', 'Inter', system-ui, sans-serif",
         position: 'relative'
       }}>
 

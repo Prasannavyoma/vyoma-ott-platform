@@ -395,7 +395,7 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
       background: '#030b17', 
       minHeight: '100vh', 
       color: '#fff', 
-      fontFamily: 'Outfit, system-ui, sans-serif',
+      fontFamily: "'Futura', 'Futura PT', 'Jost', 'Outfit', system-ui, sans-serif",
       position: 'relative',
       overflowX: 'hidden'
     }}>

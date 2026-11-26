@@ -73,7 +73,7 @@ export default function SanskritScriptSwitcher({
       color: '#fff',
       margin: '20px 0',
       boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
-      fontFamily: "'Outfit', 'Inter', system-ui, sans-serif"
+      fontFamily: "'Futura', 'Futura PT', 'Jost', 'Outfit', 'Inter', system-ui, sans-serif"
     }}>
       {/* HEADER BAR */}
       <div style={{

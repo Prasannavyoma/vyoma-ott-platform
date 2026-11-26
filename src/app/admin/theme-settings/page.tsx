@@ -8,7 +8,7 @@ export default function ThemeSettingsPage() {
   const [primaryColor, setPrimaryColor] = useState('#f26422');
   const [backgroundColor, setBackgroundColor] = useState('#030b17');
   const [cardBg, setCardBg] = useState('#0f1624');
-  const [fontFamily, setFontFamily] = useState('Outfit');
+  const [fontFamily, setFontFamily] = useState('Futura');
   const [fontSizeBase, setFontSizeBase] = useState('16px');
   const [buttonRadius, setButtonRadius] = useState('8px');
   
@@ -39,7 +39,7 @@ export default function ThemeSettingsPage() {
     setPrimaryColor('#f26422');
     setBackgroundColor('#030b17');
     setCardBg('#0f1624');
-    setFontFamily('Outfit');
+    setFontFamily('Futura');
     setFontSizeBase('16px');
     setButtonRadius('8px');
   };
@@ -128,7 +128,8 @@ export default function ThemeSettingsPage() {
               <div>
                 <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '8px', color: '#ccc' }}>Font Family</label>
                 <select value={fontFamily} onChange={(e) => setFontFamily(e.target.value)} style={{ width: '100%', padding: '12px', background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', borderRadius: '8px' }}>
-                  <option value="Outfit">Outfit (Default)</option>
+                  <option value="Futura">Futura (Modern Geometric - Default)</option>
+                  <option value="Outfit">Outfit</option>
                   <option value="Shobhika">Shobhika (Classical Sanskrit - IIT Bombay)</option>
                   <option value="Inter">Inter (Modern)</option>
                   <option value="Roboto">Roboto (Classic)</option>
