@@ -94,7 +94,7 @@ export default function EpisodeListExpander({ episodes, courseId, courseThumbnai
                   </div>
                 )}
                 
-                <div style={{ position: 'absolute', bottom: '8px', left: '8px', background: 'rgba(0,0,0,0.8)', padding: '4px 8px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 900, letterSpacing: '0.5px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                <div style={{ position: 'absolute', bottom: '8px', left: '8px', background: 'rgba(0,0,0,0.8)', padding: '4px 8px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.5px', border: '1px solid rgba(255,255,255,0.1)' }}>
                   {isInteractiveEp ? 'ACTIVITY' : 'EPISODE'} {ep.order}
                 </div>
               </div>
@@ -102,26 +102,26 @@ export default function EpisodeListExpander({ episodes, courseId, courseThumbnai
               {/* 2. METADATA RENDERER */}
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                 <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px', gap: '8px' }}>
-                  <h4 style={{ flex: 1, minWidth: '200px', fontSize: '1.2rem', fontWeight: 800, margin: 0, color: ep.isActive ? 'var(--primary)' : '#fff', letterSpacing: '-0.2px', wordBreak: 'break-word' }}>
+                  <h4 style={{ flex: 1, minWidth: '200px', fontSize: '1.2rem', fontWeight: 600, margin: 0, color: ep.isActive ? 'var(--primary)' : '#fff', letterSpacing: '-0.2px', wordBreak: 'break-word' }}>
                     {ep.title ? ep.title.replace(/&amp;/g, '&') : ''}
                   </h4>
                   {ep.durationStr && (
-                    <span style={{ color: '#666', fontSize: '0.8rem', fontFamily: 'monospace', fontWeight: 'bold', background: 'rgba(0,0,0,0.3)', padding: '3px 8px', borderRadius: '4px', whiteSpace: 'nowrap' }}>{ep.durationStr}</span>
+                    <span style={{ color: '#666', fontSize: '0.8rem', fontFamily: 'monospace', fontWeight: 600, background: 'rgba(0,0,0,0.3)', padding: '3px 8px', borderRadius: '4px', whiteSpace: 'nowrap' }}>{ep.durationStr}</span>
                   )}
                 </div>
                 
-                <p style={{ color: '#999', fontSize: '0.92rem', margin: '0 0 15px 0', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', lineHeight: '1.5' }}>
+                <p style={{ fontSize: '0.9rem', margin: '0 0 15px 0', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', lineHeight: '1.6', fontWeight: 300, color: '#aaa' }}>
                   {displayDesc}
                 </p>
 
                 <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
                   {ep.isLocked ? (
-                    <span style={{ background: 'rgba(242, 100, 34, 0.15)', border: '1px solid rgba(242, 100, 34, 0.3)', color: 'var(--primary)', padding: '4px 10px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: '900', letterSpacing: '0.5px' }}>
+                    <span style={{ background: 'rgba(242, 100, 34, 0.15)', border: '1px solid rgba(242, 100, 34, 0.3)', color: 'var(--primary)', padding: '4px 10px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.5px' }}>
                       🔒 {ep.accessLevel?.replace('_', ' ')} PRESCRIBED
                     </span>
                   ) : (
                     <>
-                      <span style={{ background: 'rgba(70, 211, 105, 0.12)', border: '1px solid rgba(70,211,105,0.2)', color: '#46d369', padding: '4px 10px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 'bold', letterSpacing: '0.5px' }}>
+                      <span style={{ background: 'rgba(70, 211, 105, 0.12)', border: '1px solid rgba(70,211,105,0.2)', color: '#46d369', padding: '4px 10px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.5px' }}>
                         ● ACCESS GRANTED
                       </span>
                       {isInteractiveGame(ep.videoUrl) ? (
@@ -133,7 +133,7 @@ export default function EpisodeListExpander({ episodes, courseId, courseThumbnai
                             padding: '4px 10px', 
                             borderRadius: '4px', 
                             fontSize: '0.7rem', 
-                            fontWeight: '800', 
+                            fontWeight: 600, 
                             letterSpacing: '0.5px',
                             display: 'inline-flex',
                             alignItems: 'center',
@@ -177,7 +177,7 @@ export default function EpisodeListExpander({ episodes, courseId, courseThumbnai
               color: '#fff',
               padding: '12px 30px',
               borderRadius: '30px',
-              fontWeight: 800,
+              fontWeight: 600,
               fontSize: '0.9rem',
               cursor: 'pointer',
               display: 'flex',

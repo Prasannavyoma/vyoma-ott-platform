@@ -168,7 +168,7 @@ export default function SubhashitaWidget() {
       padding: '24px 30px',
       margin: '40px 0',
       boxShadow: '0 20px 40px rgba(0, 0, 0, 0.3), inset 0 1px 2px rgba(255,255,255,0.05)',
-      fontFamily: 'var(--font-geist-sans), sans-serif',
+      fontFamily: 'inherit',
       color: '#fff',
     }}>
       <style dangerouslySetInnerHTML={{ __html: `

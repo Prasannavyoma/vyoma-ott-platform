@@ -277,7 +277,7 @@ export default function CourseRow({ title, courses, icon, viewAllHref, sectionId
                              background: bg,
                              color: (isPlatinum || isGold || isFree) ? '#000' : '#fff',
                              border: border,
-                             fontWeight: 800
+                             fontWeight: 600
                            }}>
                              {icon}{label}
                            </span>

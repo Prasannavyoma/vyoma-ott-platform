@@ -178,16 +178,16 @@ export default function ExploreClient({ initialCourses }: { initialCourses: any[
               border: '1px solid rgba(242, 100, 34, 0.3)',
               color: 'var(--primary)',
               fontSize: '0.75rem',
-              fontWeight: 800,
+              fontWeight: 600,
               letterSpacing: '1px',
               textTransform: 'uppercase'
             }}>
               LIVE METRICS MATRIX
             </span>
-            <span style={{ fontSize: '0.85rem', color: '#aaa', fontWeight: 600 }}>Real-Time Catalog Sync</span>
+            <span style={{ fontSize: '0.85rem', color: '#aaa', fontWeight: 400 }}>Real-Time Catalog Sync</span>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8rem', color: '#46d369', fontWeight: 700 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8rem', color: '#46d369', fontWeight: 600 }}>
             <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#46d369', boxShadow: '0 0 10px #46d369' }}></span>
             <span>AUTOMATICALLY SYNCED</span>
           </div>
@@ -216,12 +216,12 @@ export default function ExploreClient({ initialCourses }: { initialCourses: any[
               <span style={{ padding: '8px', borderRadius: '10px', background: 'rgba(59, 130, 246, 0.15)', color: '#60a5fa' }}>
                 <Video size={20} />
               </span>
-              <span style={{ fontSize: '0.7rem', color: '#93c5fd', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>HD Lectures</span>
+              <span style={{ fontSize: '0.7rem', color: '#93c5fd', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>HD Lectures</span>
             </div>
-            <div style={{ fontSize: '2.2rem', fontWeight: 900, color: '#fff', letterSpacing: '-0.5px', lineHeight: 1 }}>
+            <div style={{ fontSize: '1.9rem', fontWeight: 700, color: '#fff', letterSpacing: '-0.5px', lineHeight: 1 }}>
               <AnimatedCounter target={matrixMetrics.videoCount} />
             </div>
-            <div style={{ fontSize: '0.85rem', color: '#94a3b8', marginTop: '6px', fontWeight: 700 }}>
+            <div style={{ fontSize: '0.85rem', color: '#94a3b8', marginTop: '6px', fontWeight: 500 }}>
               Video Courses
             </div>
           </div>
@@ -243,12 +243,12 @@ export default function ExploreClient({ initialCourses }: { initialCourses: any[
               <span style={{ padding: '8px', borderRadius: '10px', background: 'rgba(236, 72, 153, 0.15)', color: '#f472b6' }}>
                 <BookOpen size={20} />
               </span>
-              <span style={{ fontSize: '0.7rem', color: '#fbcfe8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Digital Texts</span>
+              <span style={{ fontSize: '0.7rem', color: '#fbcfe8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Digital Texts</span>
             </div>
-            <div style={{ fontSize: '2.2rem', fontWeight: 900, color: '#fff', letterSpacing: '-0.5px', lineHeight: 1 }}>
+            <div style={{ fontSize: '1.9rem', fontWeight: 700, color: '#fff', letterSpacing: '-0.5px', lineHeight: 1 }}>
               <AnimatedCounter target={matrixMetrics.ebookCount} />
             </div>
-            <div style={{ fontSize: '0.85rem', color: '#94a3b8', marginTop: '6px', fontWeight: 700 }}>
+            <div style={{ fontSize: '0.85rem', color: '#94a3b8', marginTop: '6px', fontWeight: 500 }}>
               E-Books
             </div>
           </div>
@@ -270,12 +270,12 @@ export default function ExploreClient({ initialCourses }: { initialCourses: any[
               <span style={{ padding: '8px', borderRadius: '10px', background: 'rgba(168, 85, 247, 0.15)', color: '#c084fc' }}>
                 <Headphones size={20} />
               </span>
-              <span style={{ fontSize: '0.7rem', color: '#e9d5ff', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Recitations</span>
+              <span style={{ fontSize: '0.7rem', color: '#e9d5ff', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Recitations</span>
             </div>
-            <div style={{ fontSize: '2.2rem', fontWeight: 900, color: '#fff', letterSpacing: '-0.5px', lineHeight: 1 }}>
+            <div style={{ fontSize: '1.9rem', fontWeight: 700, color: '#fff', letterSpacing: '-0.5px', lineHeight: 1 }}>
               <AnimatedCounter target={matrixMetrics.audioCount} />
             </div>
-            <div style={{ fontSize: '0.85rem', color: '#94a3b8', marginTop: '6px', fontWeight: 700 }}>
+            <div style={{ fontSize: '0.85rem', color: '#94a3b8', marginTop: '6px', fontWeight: 500 }}>
               Audio & Podcasts
             </div>
           </div>
@@ -297,12 +297,12 @@ export default function ExploreClient({ initialCourses }: { initialCourses: any[
               <span style={{ padding: '8px', borderRadius: '10px', background: 'rgba(16, 185, 129, 0.15)', color: '#34d399' }}>
                 <Gamepad2 size={20} />
               </span>
-              <span style={{ fontSize: '0.7rem', color: '#a7f3d0', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Interactive</span>
+              <span style={{ fontSize: '0.7rem', color: '#a7f3d0', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Interactive</span>
             </div>
-            <div style={{ fontSize: '2.2rem', fontWeight: 900, color: '#fff', letterSpacing: '-0.5px', lineHeight: 1 }}>
+            <div style={{ fontSize: '1.9rem', fontWeight: 700, color: '#fff', letterSpacing: '-0.5px', lineHeight: 1 }}>
               <AnimatedCounter target={matrixMetrics.gameCount} />
             </div>
-            <div style={{ fontSize: '0.85rem', color: '#94a3b8', marginTop: '6px', fontWeight: 700 }}>
+            <div style={{ fontSize: '0.85rem', color: '#94a3b8', marginTop: '6px', fontWeight: 500 }}>
               Games & Quizzes
             </div>
           </div>
@@ -324,12 +324,12 @@ export default function ExploreClient({ initialCourses }: { initialCourses: any[
               <span style={{ padding: '8px', borderRadius: '10px', background: 'rgba(245, 158, 11, 0.2)', color: '#fbbf24' }}>
                 <Sparkles size={20} />
               </span>
-              <span style={{ fontSize: '0.7rem', color: '#fef08a', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Full Library</span>
+              <span style={{ fontSize: '0.7rem', color: '#fef08a', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Full Library</span>
             </div>
-            <div style={{ fontSize: '2.2rem', fontWeight: 950, color: '#fff', letterSpacing: '-0.5px', lineHeight: 1 }}>
+            <div style={{ fontSize: '1.9rem', fontWeight: 700, color: '#fff', letterSpacing: '-0.5px', lineHeight: 1 }}>
               <AnimatedCounter target={matrixMetrics.totalCount} />
             </div>
-            <div style={{ fontSize: '0.85rem', color: '#fde68a', marginTop: '6px', fontWeight: 800 }}>
+            <div style={{ fontSize: '0.85rem', color: '#fde68a', marginTop: '6px', fontWeight: 500 }}>
               Total Titles Available
             </div>
           </div>
@@ -351,13 +351,13 @@ export default function ExploreClient({ initialCourses }: { initialCourses: any[
           top: '90px' 
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '15px' }}>
-             <h3 style={{ fontSize: '1.2rem', fontWeight: 800, margin: 0, letterSpacing: '0.5px' }}>
+             <h3 style={{ fontSize: '1.15rem', fontWeight: 600, margin: 0, letterSpacing: '0.5px' }}>
                Filters
              </h3>
              {(selectedCategory !== 'All' || selectedAccess !== 'All' || selectedContentType !== 'All' || selectedSort !== 'Newest' || searchQuery.trim() !== '') && (
                 <button 
                   onClick={() => { setSelectedCategory('All'); setSelectedAccess('All'); setSelectedContentType('All'); setSelectedSort('Newest'); setSearchQuery(''); }}
-                  style={{ background: 'none', border: 'none', color: 'var(--primary)', fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer', opacity: 0.8 }}
+                  style={{ background: 'none', border: 'none', color: 'var(--primary)', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer', opacity: 0.8 }}
                   onMouseEnter={e => e.currentTarget.style.opacity = '1'}
                   onMouseLeave={e => e.currentTarget.style.opacity = '0.8'}
                 >
@@ -515,7 +515,7 @@ export default function ExploreClient({ initialCourses }: { initialCourses: any[
         {/* RESULTS GRID */}
         <section>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px', background: 'rgba(255,255,255,0.02)', padding: '15px 25px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, margin: 0, color: '#fff' }}>
+            <h2 style={{ fontSize: 'clamp(1.25rem, 1.8vw, 1.5rem)', fontWeight: 700, margin: 0, color: '#fff' }}>
               {selectedCategory === 'All' ? 'All Content' : (selectedCategory ? selectedCategory.replace(/&amp;/g, '&') : '')}
               {selectedAccess !== 'All' && <span style={{ opacity: 0.5, fontSize: '1rem', marginLeft: '10px', fontWeight: 500 }}>| {selectedAccess}</span>}
               {selectedContentType !== 'All' && <span style={{ opacity: 0.5, fontSize: '1rem', marginLeft: '10px', fontWeight: 500 }}>| {selectedContentType}</span>}
@@ -537,7 +537,7 @@ export default function ExploreClient({ initialCourses }: { initialCourses: any[
               >
                 {sortOptions.map(opt => <option key={opt} value={opt} style={{ background: '#121214' }}>Sort: {opt}</option>)}
               </select>
-              <span style={{ background: 'rgba(242,100,34,0.15)', color: 'var(--primary)', padding: '6px 15px', borderRadius: '20px', fontSize: '0.85rem', fontWeight: 800 }}>
+              <span style={{ background: 'rgba(242,100,34,0.15)', color: 'var(--primary)', padding: '6px 15px', borderRadius: '20px', fontSize: '0.85rem', fontWeight: 600 }}>
                 {filteredCourses.length} Titles
               </span>
             </div>
@@ -546,11 +546,11 @@ export default function ExploreClient({ initialCourses }: { initialCourses: any[
           {filteredCourses.length === 0 ? (
              <div style={{ textAlign: 'center', padding: '100px 20px', background: 'rgba(255,255,255,0.02)', borderRadius: '16px', border: '1px dashed rgba(255,255,255,0.1)' }}>
                 <span style={{ fontSize: '4rem', marginBottom: '20px', display: 'block', opacity: 0.5 }}>🧭</span>
-                <h3 style={{ fontSize: '1.5rem', marginBottom: '10px' }}>No matches found</h3>
-                <p style={{ color: '#777', fontSize: '1.1rem', maxWidth: '400px', margin: '0 auto' }}>Try adjusting your filters to discover more content from our library.</p>
+                <h3 style={{ fontSize: '1.5rem', marginBottom: '10px', fontWeight: 600 }}>No matches found</h3>
+                <p style={{ color: '#aaa', fontSize: '1rem', maxWidth: '400px', margin: '0 auto', fontWeight: 300 }}>Try adjusting your filters to discover more content from our library.</p>
                 <button 
                   onClick={() => { setSelectedCategory('All'); setSelectedAccess('All'); setSearchQuery(''); }}
-                  style={{ marginTop: '30px', padding: '12px 30px', background: 'var(--primary)', color: '#fff', border: 'none', borderRadius: '30px', cursor: 'pointer', fontWeight: 800, fontSize: '1rem', boxShadow: '0 5px 20px rgba(242,100,34,0.4)', transition: 'transform 0.2s' }}
+                  style={{ marginTop: '30px', padding: '12px 30px', background: 'var(--primary)', color: '#fff', border: 'none', borderRadius: '30px', cursor: 'pointer', fontWeight: 600, fontSize: '0.95rem', boxShadow: '0 5px 20px rgba(242,100,34,0.4)', transition: 'transform 0.2s' }}
                   onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.05)'}
                   onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
                 >
@@ -609,7 +609,7 @@ export default function ExploreClient({ initialCourses }: { initialCourses: any[
                     padding: '20px',
                     transition: 'opacity 0.3s ease'
                   }}>
-                    <div className="poster-title" style={{ fontSize: '1.25rem', fontWeight: 900, textShadow: '0 2px 10px rgba(0,0,0,0.9)', marginTop: '10px', letterSpacing: '-0.3px' }}>{course.title ? course.title.replace(/&amp;/g, '&') : ''}</div>
+                    <div className="poster-title" style={{ fontSize: '1.05rem', fontWeight: 600, textShadow: '0 2px 10px rgba(0,0,0,0.9)', marginTop: '10px', letterSpacing: '-0.2px' }}>{course.title ? course.title.replace(/&amp;/g, '&') : ''}</div>
                     <div className="poster-meta" style={{ marginTop: '8px', display: 'flex', alignItems: 'center', gap: '10px' }}>
                       {(() => {
                         const lvlUpper = String(course.accessLevel || '').toUpperCase();
@@ -641,7 +641,7 @@ export default function ExploreClient({ initialCourses }: { initialCourses: any[
                             background: bg,
                             color: (isPlatinum || isGold || isFree) ? '#000' : '#fff',
                             border: border,
-                            fontWeight: 800,
+                            fontWeight: 600,
                             padding: '2px 8px',
                             borderRadius: '4px',
                             fontSize: '0.75rem'

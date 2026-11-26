@@ -77,7 +77,7 @@ export default async function InterestsPage() {
         <section style={{ marginBottom: '60px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
             <span style={{ fontSize: '1.4rem' }}>👍</span>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, margin: 0, color: '#fff' }}>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 600, margin: 0, color: '#fff' }}>
               Products You Liked & Endorsed ({likedCourses.length})
             </h2>
           </div>
@@ -93,7 +93,7 @@ export default async function InterestsPage() {
               <p style={{ color: '#94a3b8', margin: '0 0 16px 0', fontSize: '0.95rem' }}>
                 Sign in to see courses you have given a thumbs up.
               </p>
-              <Link href="/login" style={{ color: '#f26422', fontWeight: 800, textDecoration: 'none' }}>
+              <Link href="/login" style={{ color: '#f26422', fontWeight: 600, textDecoration: 'none' }}>
                 Sign In →
               </Link>
             </div>
@@ -106,7 +106,7 @@ export default async function InterestsPage() {
               textAlign: 'center'
             }}>
               <div style={{ fontSize: '2.5rem', marginBottom: '10px' }}>👍</div>
-              <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#cbd5e1', marginBottom: '6px' }}>
+              <h3 style={{ fontSize: '1.15rem', fontWeight: 600, color: '#cbd5e1', marginBottom: '6px' }}>
                 No Liked Products Yet
               </h3>
               <p style={{ color: '#64748b', fontSize: '0.9rem', maxWidth: '520px', margin: '0 auto 16px auto', lineHeight: '1.5' }}>
@@ -150,7 +150,7 @@ export default async function InterestsPage() {
                         padding: '3px 8px', 
                         borderRadius: '6px', 
                         fontSize: '0.7rem', 
-                        fontWeight: 900,
+                        fontWeight: 600,
                         display: 'flex',
                         alignItems: 'center',
                         gap: '4px'
@@ -160,15 +160,15 @@ export default async function InterestsPage() {
                     </div>
 
                     <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', flex: 1 }}>
-                      <span style={{ color: 'var(--primary, #f26422)', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', marginBottom: '6px' }}>
+                      <span style={{ color: 'var(--primary, #f26422)', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', marginBottom: '6px' }}>
                         {course.category || 'Sanskrit OTT'}
                       </span>
-                      <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#f8fafc', margin: '0 0 8px 0', lineHeight: '1.4' }}>
+                      <h3 style={{ fontSize: '1.05rem', fontWeight: 600, color: '#f8fafc', margin: '0 0 8px 0', lineHeight: '1.4' }}>
                         {course.title ? course.title.replace(/&amp;/g, '&') : ''}
                       </h3>
                       <div style={{ marginTop: 'auto', paddingTop: '12px', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <span style={{ color: '#94a3b8', fontSize: '0.75rem' }}>{course.contentType || 'VIDEO'}</span>
-                        <span style={{ color: 'var(--primary, #f26422)', fontSize: '0.8rem', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                        <span style={{ color: 'var(--primary, #f26422)', fontSize: '0.8rem', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                           <Play size={12} fill="currentColor" /> Watch
                         </span>
                       </div>
@@ -185,7 +185,7 @@ export default async function InterestsPage() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
             <span style={{ fontSize: '1.4rem' }}>🎯</span>
             <div>
-              <h2 style={{ fontSize: '1.5rem', fontWeight: 800, margin: 0, color: '#fff' }}>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: 600, margin: 0, color: '#fff' }}>
                 Curated Recommendations For You
               </h2>
               <p style={{ color: '#64748b', fontSize: '0.85rem', margin: '4px 0 0 0', fontWeight: 300 }}>

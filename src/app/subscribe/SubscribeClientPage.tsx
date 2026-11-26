@@ -508,10 +508,10 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
           </span>
           
           <h1 style={{ 
-            fontSize: '3.6rem', 
+            fontSize: 'clamp(2rem, 3.2vw, 2.75rem)', 
             fontWeight: 700, 
             marginBottom: '15px', 
-            letterSpacing: '-1.5px',
+            letterSpacing: '-1px',
             background: 'linear-gradient(135deg, #fff 30%, #94a3b8 100%)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
@@ -588,7 +588,7 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
                onClick={() => setBillingPeriod('YEARLY')} 
                className={`toggle-btn ${billingPeriod === 'YEARLY' ? 'active' : ''}`}
              >
-               Yearly <span style={{ fontSize: '0.75rem', opacity: 0.9, background: 'rgba(0,0,0,0.15)', padding: '2px 8px', borderRadius: '10px', marginLeft: '5px', fontWeight: 800 }}>Save 15%</span>
+               Yearly <span style={{ fontSize: '0.75rem', opacity: 0.9, background: 'rgba(0,0,0,0.15)', padding: '2px 8px', borderRadius: '10px', marginLeft: '5px', fontWeight: 600 }}>Save 15%</span>
              </button>
           </div>
         </div>
@@ -716,7 +716,7 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
                 width: '100%',
                 padding: '14px',
                 borderRadius: '12px',
-                fontWeight: 900,
+                fontWeight: 600,
                 fontSize: '0.88rem',
                 background: 'rgba(242, 100, 34, 0.15)',
                 border: '1px solid rgba(242, 100, 34, 0.4)',
@@ -735,7 +735,7 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
                     padding: '13px', 
                     border: '1px solid #f26422', 
                     borderRadius: '12px', 
-                    fontWeight: 800,
+                    fontWeight: 600,
                     fontSize: '0.9rem',
                     background: 'linear-gradient(135deg, rgba(242,100,34,0.2) 0%, rgba(242,100,34,0.05) 100%)',
                     color: '#fff',
@@ -756,7 +756,7 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
                     padding: '13px', 
                     border: '1px solid #3b82f6', 
                     borderRadius: '12px', 
-                    fontWeight: 800,
+                    fontWeight: 600,
                     fontSize: '0.9rem',
                     background: 'linear-gradient(135deg, rgba(59,130,246,0.2) 0%, rgba(59,130,246,0.05) 100%)',
                     color: '#60a5fa',
@@ -786,7 +786,7 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
               padding: '6px 24px', 
               borderRadius: '20px', 
               fontSize: '0.75rem', 
-              fontWeight: 900,
+              fontWeight: 600,
               letterSpacing: '1.5px',
               animation: 'floatBadge 4s infinite ease-in-out',
               boxShadow: '0 8px 20px rgba(242,100,34,0.45)',
@@ -850,7 +850,7 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
                 width: '100%',
                 padding: '14px',
                 borderRadius: '12px',
-                fontWeight: 900,
+                fontWeight: 600,
                 fontSize: '0.88rem',
                 background: 'rgba(70, 211, 105, 0.15)',
                 border: '1px solid rgba(70, 211, 105, 0.4)',
@@ -869,7 +869,7 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
                     padding: '13px', 
                     border: 'none', 
                     borderRadius: '12px', 
-                    fontWeight: 900,
+                    fontWeight: 600,
                     fontSize: '0.9rem',
                     background: 'linear-gradient(135deg, #f26422 0%, #ff8c53 100%)',
                     color: '#fff',
@@ -893,7 +893,7 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
                     padding: '13px', 
                     border: '1px solid #3b82f6', 
                     borderRadius: '12px', 
-                    fontWeight: 800,
+                    fontWeight: 600,
                     fontSize: '0.9rem',
                     background: 'linear-gradient(135deg, rgba(59,130,246,0.3) 0%, rgba(59,130,246,0.1) 100%)',
                     color: '#93c5fd',
@@ -924,7 +924,7 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
                 padding: '6px 18px',
                 borderRadius: '20px',
                 fontSize: '0.75rem',
-                fontWeight: 800,
+                fontWeight: 600,
                 textTransform: 'uppercase',
                 letterSpacing: '2px',
                 display: 'inline-block',
@@ -933,7 +933,7 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
               }}>
                 Exclusive Learning Material
               </span>
-              <h2 style={{ fontSize: '2.4rem', fontWeight: 800, letterSpacing: '-1.5px', marginBottom: '10px' }}>
+              <h2 style={{ fontSize: '2.4rem', fontWeight: 600, letterSpacing: '-1.5px', marginBottom: '10px' }}>
                 Paid Products & Bundles
               </h2>
               <p style={{ color: '#8f98a9', maxWidth: '600px', margin: '0 auto', fontSize: '1.05rem', lineHeight: '1.6' }}>
@@ -956,12 +956,12 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
                   <div key={course.id} className="sub-card" style={{ padding: '25px', display: 'flex', flexDirection: 'column', height: '100%' }}>
                     <div style={{ position: 'relative', width: '100%', aspectRatio: '16/9', borderRadius: '12px', overflow: 'hidden', marginBottom: '20px', border: '1px solid rgba(255,255,255,0.05)' }}>
                       <img src={course.thumbnailUrl || '/assets/Ayodhyakanda.jpg'} alt={course.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      <div style={{ position: 'absolute', top: '10px', left: '10px', background: '#f26422', color: '#fff', fontSize: '0.65rem', fontWeight: 900, padding: '4px 8px', borderRadius: '4px', letterSpacing: '0.5px' }}>
+                      <div style={{ position: 'absolute', top: '10px', left: '10px', background: '#f26422', color: '#fff', fontSize: '0.65rem', fontWeight: 600, padding: '4px 8px', borderRadius: '4px', letterSpacing: '0.5px' }}>
                         PAID PRODUCT
                       </div>
                     </div>
 
-                    <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#fff', marginBottom: '8px', wordBreak: 'break-word' }}>{course.title}</h3>
+                    <h3 style={{ fontSize: '1.25rem', fontWeight: 600, color: '#fff', marginBottom: '8px', wordBreak: 'break-word' }}>{course.title}</h3>
                     <p style={{ color: '#8f98a9', fontSize: '0.9rem', lineHeight: '1.5', flex: 1, marginBottom: '20px', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                       {course.description || 'Exclusive deep-dive course module with detailed lectures, chanting books, and completion certificates.'}
                     </p>
@@ -969,7 +969,7 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '15px' }}>
                       <div>
                         <div style={{ fontSize: '0.75rem', color: '#8f98a9' }}>One-time Buy</div>
-                        <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#fff' }}>{priceStr}</div>
+                        <div style={{ fontSize: '1.4rem', fontWeight: 600, color: '#fff' }}>{priceStr}</div>
                       </div>
                       
                       {isOwned ? (
@@ -1077,13 +1077,13 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
               animation: 'slideUp 0.4s cubic-bezier(0.165, 0.84, 0.44, 1)' 
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px' }}>
-                 <h2 style={{ fontSize: '1.6rem', fontWeight: 900, background: 'linear-gradient(135deg, #fff 0%, #a5b4fc 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Confirm Your Upgrade</h2>
+                 <h2 style={{ fontSize: '1.6rem', fontWeight: 600, background: 'linear-gradient(135deg, #fff 0%, #a5b4fc 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Confirm Your Upgrade</h2>
                  <button onClick={() => setIsCalculating(false)} style={{ background: 'rgba(255,255,255,0.05)', border: 'none', color: '#aaa', cursor: 'pointer', fontSize: '1.2rem', padding: '6px 12px', borderRadius: '50%' }} onMouseEnter={(e)=>e.currentTarget.style.background='rgba(255,255,255,0.1)'} onMouseLeave={(e)=>e.currentTarget.style.background='rgba(255,255,255,0.05)'}>✕</button>
               </div>
 
               <div style={{ background: 'rgba(242,100,34,0.05)', padding: '18px', borderRadius: '16px', marginBottom: '25px', border: '1px solid rgba(242,100,34,0.15)' }}>
-                 <div style={{ fontSize: '0.75rem', color: '#ff8c53', fontWeight: 800, letterSpacing: '1.5px' }}>PRORATED ACCOUNT ALIGNMENT</div>
-                 <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginTop: '8px', fontSize: '1.25rem', fontWeight: 800 }}>
+                 <div style={{ fontSize: '0.75rem', color: '#ff8c53', fontWeight: 600, letterSpacing: '1.5px' }}>PRORATED ACCOUNT ALIGNMENT</div>
+                 <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginTop: '8px', fontSize: '1.25rem', fontWeight: 600 }}>
                     <span style={{ color: '#8f98a9' }}>{currentTier}</span> 
                     <span style={{ color: '#444' }}>→</span> 
                     <span style={{ color: '#f26422' }}>{targetPlan.name} ({targetPlan.interval})</span>
@@ -1112,7 +1112,7 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <h4 style={{ fontSize: '0.75rem', color: '#8f98a9', letterSpacing: '1.5px', textTransform: 'uppercase', margin: 0 }}>Adjustment Ledger</h4>
                     {calc.isUpgrade && (
-                      <span style={{ fontSize: '0.72rem', background: 'rgba(34,197,94,0.15)', color: '#22c55e', border: '1px solid rgba(34,197,94,0.3)', padding: '2px 8px', borderRadius: '6px', fontWeight: 800 }}>
+                      <span style={{ fontSize: '0.72rem', background: 'rgba(34,197,94,0.15)', color: '#22c55e', border: '1px solid rgba(34,197,94,0.3)', padding: '2px 8px', borderRadius: '6px', fontWeight: 600 }}>
                         UPGRADE DIFFERENCE ONLY
                       </span>
                     )}
@@ -1129,7 +1129,7 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
                          borderRadius: '8px',
                          border: 'none',
                          fontSize: '0.78rem',
-                         fontWeight: 800,
+                         fontWeight: 600,
                          cursor: 'pointer',
                          background: pricingMode === 'PRORATED' ? '#f26422' : 'transparent',
                          color: '#fff',
@@ -1147,7 +1147,7 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
                          borderRadius: '8px',
                          border: 'none',
                          fontSize: '0.78rem',
-                         fontWeight: 800,
+                         fontWeight: 600,
                          cursor: 'pointer',
                          background: pricingMode === 'FLAT' ? '#f26422' : 'transparent',
                          color: '#fff',
@@ -1200,7 +1200,7 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
                          {calc.isUpgrade ? 'One-time upgrade payment' : 'Immediate first cycle'}
                        </div>
                     </div>
-                    <div style={{ fontSize: '2.2rem', fontWeight: 900, color: '#fff', letterSpacing: '-1px' }}>
+                    <div style={{ fontSize: '2.2rem', fontWeight: 600, color: '#fff', letterSpacing: '-1px' }}>
                       {currency}{calc.effectiveDue}
                     </div>
                  </div>
@@ -1229,7 +1229,7 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
                    />
                  </div>
               ) : (
-                 <button onClick={handleAuthorize} disabled={isInitializing} style={{ width: '100%', marginTop: '25px', padding: '16px', background: isInitializing ? '#374151' : 'linear-gradient(135deg, #f26422 0%, #ff8c53 100%)', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: 900, fontSize: '1.05rem', cursor: isInitializing ? 'wait' : 'pointer', boxShadow: '0 8px 25px rgba(242,100,34,0.2)', transition: 'all 0.3s' }}>
+                 <button onClick={handleAuthorize} disabled={isInitializing} style={{ width: '100%', marginTop: '25px', padding: '16px', background: isInitializing ? '#374151' : 'linear-gradient(135deg, #f26422 0%, #ff8c53 100%)', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: 600, fontSize: '1.05rem', cursor: isInitializing ? 'wait' : 'pointer', boxShadow: '0 8px 25px rgba(242,100,34,0.2)', transition: 'all 0.3s' }}>
                    {isInitializing 
                      ? 'INITIATING SECURE SESSION...' 
                      : calc.isUpgrade 

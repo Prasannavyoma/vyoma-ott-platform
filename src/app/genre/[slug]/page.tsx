@@ -148,15 +148,15 @@ export default async function GenrePage({ params }: { params: Promise<{ slug: st
       <main style={{ maxWidth: '1280px', margin: '0 auto', padding: '160px 24px 80px 24px' }}>
         <BackToHomeButton />
         
-        <h1 style={{ fontSize: '2.5rem', fontWeight: 900, marginBottom: '24px', letterSpacing: '-0.5px' }}>
+        <h1 style={{ fontSize: 'clamp(1.75rem, 2.5vw, 2.35rem)', fontWeight: 700, marginBottom: '24px', letterSpacing: '-0.5px' }}>
           {categoryName}
         </h1>
         
         {courses.length === 0 ? (
           <div style={{ padding: '80px 20px', background: 'rgba(15, 23, 42, 0.4)', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: '20px', textAlign: 'center' }}>
             <div style={{ fontSize: '3rem', marginBottom: '16px' }}>📂</div>
-            <h3 style={{ fontSize: '1.2rem', color: '#cbd5e1', marginBottom: '8px' }}>No courses found in "{categoryName}".</h3>
-            <p style={{ color: '#64748b', fontSize: '0.9rem', margin: 0 }}>New course additions for this genre will appear here automatically.</p>
+            <h3 style={{ fontSize: '1.2rem', color: '#cbd5e1', marginBottom: '8px', fontWeight: 600 }}>No courses found in "{categoryName}".</h3>
+            <p style={{ color: '#64748b', fontSize: '0.9rem', margin: 0, fontWeight: 300 }}>New course additions for this genre will appear here automatically.</p>
           </div>
         ) : (
           <div style={{ 
@@ -194,7 +194,7 @@ export default async function GenrePage({ params }: { params: Promise<{ slug: st
                       padding: '4px 10px', 
                       borderRadius: '8px', 
                       fontSize: '0.65rem', 
-                      fontWeight: 800, 
+                      fontWeight: 600, 
                       color: course.contentType === 'GAME' ? '#c084fc' : '#fbbf24' 
                     }}>
                       {course.contentType === 'GAME' ? '🎮 GAME' : `🛡️ ${course.accessLevel?.replace('_', ' ')}`}
@@ -204,17 +204,17 @@ export default async function GenrePage({ params }: { params: Promise<{ slug: st
                   {/* BODY CONTENT */}
                   <div style={{ padding: '20px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                     <div>
-                      <div style={{ fontSize: '0.7rem', color: '#38bdf8', fontWeight: 800, textTransform: 'uppercase', marginBottom: '8px', letterSpacing: '0.5px' }}>
+                      <div style={{ fontSize: '0.7rem', color: '#38bdf8', fontWeight: 500, textTransform: 'uppercase', marginBottom: '8px', letterSpacing: '0.5px' }}>
                         {course.category || 'Uncategorized'}
                       </div>
-                      <h3 style={{ fontSize: '1.05rem', fontWeight: 700, margin: '0 0 10px 0', color: '#fff', lineHeight: '1.4', height: '44px', overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+                      <h3 style={{ fontSize: '1.05rem', fontWeight: 600, margin: '0 0 10px 0', color: '#fff', lineHeight: '1.4', height: '44px', overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
                         {course.title}
                       </h3>
                     </div>
 
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px', fontSize: '0.78rem', color: '#94a3b8', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '14px' }}>
-                      <span>{course.episodes?.length || 0} {course.contentType === 'GAME' ? 'Activities' : 'Units'}</span>
-                      <span style={{ color: course.contentType === 'GAME' ? '#c084fc' : 'var(--primary, #f26422)', fontWeight: 800 }}>
+                      <span style={{ fontWeight: 300 }}>{course.episodes?.length || 0} {course.contentType === 'GAME' ? 'Activities' : 'Units'}</span>
+                      <span style={{ color: course.contentType === 'GAME' ? '#c084fc' : 'var(--primary, #f26422)', fontWeight: 600 }}>
                         {course.contentType === 'GAME' ? 'PLAY NOW 🎮' : 'EXPLORE →'}
                       </span>
                     </div>

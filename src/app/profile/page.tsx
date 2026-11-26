@@ -406,12 +406,12 @@ export default async function ProfilePage() {
                   <div style={{ position: 'absolute', bottom: 0, right: 0, background: '#46d369', width: '25px', height: '25px', borderRadius: '50%', border: '4px solid #111' }}></div>
                </div>
                <div>
-                  <h1 style={{ fontSize: '2.5rem', fontWeight: 900, margin: 0 }}>{user.name || "Learner"}</h1>
-                  <p style={{ color: '#777', margin: '5px 0 15px 0', fontSize: '1.1rem' }}>{user.email}</p>
+                  <h1 style={{ fontSize: 'clamp(1.6rem, 2.4vw, 2.2rem)', fontWeight: 700, margin: 0 }}>{user.name || "Learner"}</h1>
+                  <p style={{ color: '#aaa', margin: '5px 0 15px 0', fontSize: '1rem', fontWeight: 300 }}>{user.email}</p>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-                     <span style={{ background: 'var(--primary)', padding: '6px 15px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 800 }}>{user.plan} ACCESS</span>
-                     <span style={{ background: '#222', padding: '6px 15px', borderRadius: '20px', fontSize: '0.8rem', color: '#aaa' }}>{user.gender || 'UNSPECIFIED'}</span>
-                     <span style={{ background: 'rgba(70,211,105,0.15)', color: '#46d369', border: '1px solid rgba(70,211,105,0.3)', padding: '6px 15px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 800 }}>
+                     <span style={{ background: 'var(--primary)', padding: '6px 15px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 600 }}>{user.plan} ACCESS</span>
+                     <span style={{ background: '#222', padding: '6px 15px', borderRadius: '20px', fontSize: '0.8rem', color: '#aaa', fontWeight: 400 }}>{user.gender || 'UNSPECIFIED'}</span>
+                     <span style={{ background: 'rgba(70,211,105,0.15)', color: '#46d369', border: '1px solid rgba(70,211,105,0.3)', padding: '6px 15px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 600 }}>
                        ⏱️ {(user.totalWatchSeconds / 3600).toFixed(2)} Total Hours Spent
                      </span>
                   </div>
@@ -422,14 +422,14 @@ export default async function ProfilePage() {
             <div style={{ background: 'linear-gradient(145deg, #151515, #090909)', border: '1px solid rgba(255,255,255,0.06)', padding: '25px', borderRadius: '20px', display: 'flex', flexDirection: 'column', justifyContent: 'center', boxShadow: '0 10px 30px rgba(0,0,0,0.3)' }}>
                
                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                  <span style={{ color: '#777', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1.5px' }}>Active Plan</span>
+                  <span style={{ color: '#777', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px' }}>Active Plan</span>
                   <span style={{ 
                     background: user.plan === 'PLATINUM' ? '#e50914' : user.plan === 'GOLD' ? '#f26422' : '#333',
-                    color: '#fff', fontSize: '0.7rem', fontWeight: 900, padding: '3px 8px', borderRadius: '4px'
+                    color: '#fff', fontSize: '0.7rem', fontWeight: 600, padding: '3px 8px', borderRadius: '4px'
                   }}>{user.plan} PLAN</span>
                </div>
 
-               <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#fff', margin: '5px 0 10px 0' }}>
+               <div style={{ fontSize: '1.4rem', fontWeight: 700, color: '#fff', margin: '5px 0 10px 0' }}>
                   {getDaysRemaining()}
                </div>
                
@@ -437,19 +437,19 @@ export default async function ProfilePage() {
                   
                   {/* 1. UPGRADE TRIGGERS */}
                   {user.plan === 'FREE' && (
-                     <a href="/subscribe" style={{ display: 'block', width: '100%', background: 'linear-gradient(135deg, #f26422 0%, #ff8c53 100%)', color: '#fff', padding: '12px', textAlign: 'center', borderRadius: '8px', fontWeight: 900, textDecoration: 'none', fontSize: '0.85rem', boxShadow: '0 5px 15px rgba(242,100,34,0.2)' }}>
+                     <a href="/subscribe" style={{ display: 'block', width: '100%', background: 'linear-gradient(135deg, #f26422 0%, #ff8c53 100%)', color: '#fff', padding: '12px', textAlign: 'center', borderRadius: '8px', fontWeight: 600, textDecoration: 'none', fontSize: '0.85rem', boxShadow: '0 5px 15px rgba(242,100,34,0.2)' }}>
                         ⚡ UPGRADE TO PREMIUM
                      </a>
                   )}
 
                   {user.plan === 'GOLD' && (
-                     <a href="/subscribe" style={{ display: 'block', width: '100%', background: 'linear-gradient(135deg, #e50914 0%, #ff4d4f 100%)', color: '#fff', padding: '12px', textAlign: 'center', borderRadius: '8px', fontWeight: 900, textDecoration: 'none', fontSize: '0.85rem', boxShadow: '0 5px 15px rgba(229,9,20,0.2)' }}>
+                     <a href="/subscribe" style={{ display: 'block', width: '100%', background: 'linear-gradient(135deg, #e50914 0%, #ff4d4f 100%)', color: '#fff', padding: '12px', textAlign: 'center', borderRadius: '8px', fontWeight: 600, textDecoration: 'none', fontSize: '0.85rem', boxShadow: '0 5px 15px rgba(229,9,20,0.2)' }}>
                         🔥 UPGRADE TO PLATINUM
                      </a>
                   )}
 
                   {user.plan === 'PLATINUM' && (
-                     <div style={{ background: 'rgba(229,9,20,0.1)', border: '1px solid rgba(229,9,20,0.2)', color: '#ff4d4f', padding: '10px', textAlign: 'center', borderRadius: '8px', fontWeight: 800, fontSize: '0.8rem' }}>
+                     <div style={{ background: 'rgba(229,9,20,0.1)', border: '1px solid rgba(229,9,20,0.2)', color: '#ff4d4f', padding: '10px', textAlign: 'center', borderRadius: '8px', fontWeight: 600, fontSize: '0.8rem' }}>
                         🏆 PLATINUM MASTER ACCESS
                      </div>
                   )}
@@ -485,7 +485,7 @@ export default async function ProfilePage() {
           }}>
              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px', marginBottom: '20px' }}>
                 <div>
-                   <h2 style={{ margin: 0, fontSize: '1.6rem', fontWeight: 900, color: '#ffd700', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                   <h2 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 700, color: '#ffd700', display: 'flex', alignItems: 'center', gap: '12px' }}>
                       <span>🎁</span> Vyoma Referral & Reward Center
                    </h2>
                    <p style={{ margin: '5px 0 0 0', color: '#aaa', fontSize: '0.9rem' }}>
@@ -494,8 +494,8 @@ export default async function ProfilePage() {
                 </div>
                 
                 <div style={{ background: 'rgba(255,215,0,0.1)', border: '1px solid rgba(255,215,0,0.2)', padding: '10px 20px', borderRadius: '15px', textAlign: 'center' }}>
-                   <div style={{ fontSize: '0.75rem', color: '#ffd700', fontWeight: 800, textTransform: 'uppercase' }}>Successful Referrals</div>
-                   <div style={{ fontSize: '2rem', fontWeight: 900, color: '#fff' }}>{referralsCount}</div>
+                   <div style={{ fontSize: '0.75rem', color: '#ffd700', fontWeight: 600, textTransform: 'uppercase' }}>Successful Referrals</div>
+                   <div style={{ fontSize: '1.8rem', fontWeight: 700, color: '#fff' }}>{referralsCount}</div>
                 </div>
              </div>
 
@@ -526,7 +526,7 @@ export default async function ProfilePage() {
                               <span style={{ fontSize: '0.7rem', color: '#777' }}>🔒 {tier.referralsRequired - referralsCount} more to unlock</span>
                             )}
                          </div>
-                         <h4 style={{ margin: '0 0 5px 0', fontSize: '1.1rem', fontWeight: 800, color: isUnlocked ? '#fff' : '#666' }}>{tier.rewardName}</h4>
+                         <h4 style={{ margin: '0 0 5px 0', fontSize: '1.05rem', fontWeight: 600, color: isUnlocked ? '#fff' : '#666' }}>{tier.rewardName}</h4>
                       </div>
                       <div style={{ marginTop: '15px', width: '100%', height: '6px', background: 'rgba(255,255,255,0.05)', borderRadius: '3px', overflow: 'hidden' }}>
                          <div style={{ width: `${Math.min(100, (referralsCount / tier.referralsRequired) * 100)}%`, height: '100%', background: isUnlocked ? '#46d369' : '#f26422' }} />
@@ -547,7 +547,7 @@ export default async function ProfilePage() {
 
           {/* 2. ADVANCED ACADEMY ANALYTICS MATRIX */}
           <div id="matrix" style={{ marginBottom: '40px' }}>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 900, color: '#fff', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <h2 style={{ fontSize: 'clamp(1.25rem, 1.8vw, 1.5rem)', fontWeight: 700, color: '#fff', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
                📊 Academic Engagement Matrix
             </h2>
 
@@ -592,7 +592,7 @@ export default async function ProfilePage() {
             <div style={{ background: '#0d0d0d', border: '1px solid #1a1a1a', borderRadius: '24px', padding: '30px' }}>
                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px' }}>
                   <div>
-                     <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800 }}>▶ Active Curriculum & Learning Tracks</h3>
+                     <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 600 }}>▶ Active Curriculum & Learning Tracks</h3>
                      <p style={{ color: '#666', fontSize: '0.85rem', margin: '5px 0 0 0' }}>Pick up right where you left off to continue earning Vyoma Coins.</p>
                   </div>
                </div>
@@ -602,7 +602,7 @@ export default async function ProfilePage() {
                      <span style={{ fontSize: '3rem', display: 'block', marginBottom: '15px' }}>🎬</span>
                      <h4 style={{ margin: '0 0 10px 0', color: '#888' }}>Your curriculum queue is empty!</h4>
                      <p style={{ color: '#555', fontSize: '0.9rem', marginBottom: '20px' }}>Start streaming any Vyoma course to begin tracking your academic progress here.</p>
-                     <Link href="/" style={{ background: 'var(--primary)', color: '#fff', padding: '10px 25px', borderRadius: '30px', textDecoration: 'none', fontWeight: 900, fontSize: '0.9rem' }}>EXPLORE CATALOG</Link>
+                     <Link href="/" style={{ background: 'var(--primary)', color: '#fff', padding: '10px 25px', borderRadius: '30px', textDecoration: 'none', fontWeight: 600, fontSize: '0.9rem' }}>EXPLORE CATALOG</Link>
                   </div>
                ) : (
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '25px' }}>
@@ -616,20 +616,20 @@ export default async function ProfilePage() {
                               {item.course.thumbnailUrl && (
                                  <img src={item.course.thumbnailUrl} alt="" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.8 }} />
                               )}
-                              <div style={{ position: 'absolute', top: '10px', right: '10px', background: item.percent === 100 ? '#46d369' : '#f26422', color: '#fff', fontSize: '0.7rem', fontWeight: 900, padding: '4px 8px', borderRadius: '4px', boxShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>
+                              <div style={{ position: 'absolute', top: '10px', right: '10px', background: item.percent === 100 ? '#46d369' : '#f26422', color: '#fff', fontSize: '0.7rem', fontWeight: 600, padding: '4px 8px', borderRadius: '4px', boxShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>
                                  {item.percent}% DONE
                               </div>
                            </div>
 
                            {/* Course Metrics Block */}
                            <div style={{ padding: '20px', flex: 1, display: 'flex', flexDirection: 'column' }}>
-                              <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: 800, color: '#fff', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', minHeight: '2.4em', lineHeight: '1.2' }}>
+                              <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: 600, color: '#fff', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', minHeight: '2.4em', lineHeight: '1.2' }}>
                                  {item.course.title}
                               </h4>
                               
                               <div style={{ marginTop: 'auto', paddingTop: '15px' }}>
                                  {/* Dynamic Glowing Progress bar */}
-                                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: '#777', marginBottom: '5px', fontWeight: 700 }}>
+                                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: '#777', marginBottom: '5px', fontWeight: 600 }}>
                                     <span>{item.completedCount} / {item.totalEpisodes} Units Mastered</span>
                                  </div>
                                  <div style={{ width: '100%', height: '6px', background: 'rgba(255,255,255,0.1)', borderRadius: '3px', overflow: 'hidden' }}>
@@ -643,7 +643,7 @@ export default async function ProfilePage() {
                                        marginTop: '20px', display: 'block', textAlign: 'center',
                                        background: item.percent === 100 ? 'rgba(255,255,255,0.1)' : 'linear-gradient(135deg, #f26422 0%, #ff8c53 100%)',
                                        color: item.percent === 100 ? '#fff' : '#fff',
-                                       padding: '12px', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 900,
+                                       padding: '12px', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 600,
                                        textDecoration: 'none', border: item.percent === 100 ? '1px solid rgba(255,255,255,0.1)' : 'none',
                                        boxShadow: item.percent === 100 ? 'none' : '0 10px 25px rgba(242,100,34,0.3)',
                                        transition: 'transform 0.2s'

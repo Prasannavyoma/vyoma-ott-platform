@@ -574,10 +574,10 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
 
                 {/* MAIN COURSE TITLE - GRADIENT WOW EFFECT */}
                 <h1 className="watch-title" style={{
-                  fontSize: '3.2rem',
+                  fontSize: 'clamp(1.8rem, 2.6vw, 2.5rem)',
                   fontWeight: 700,
-                  letterSpacing: '-1.2px',
-                  lineHeight: 1.15,
+                  letterSpacing: '-0.8px',
+                  lineHeight: 1.2,
                   marginBottom: '15px',
                   background: 'linear-gradient(to right, #ffffff, #b0b8c7)',
                   WebkitBackgroundClip: 'text',
@@ -590,7 +590,7 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
                 {/* ACTIVE EPISODE SUBTITLE (If viewing specific sequence) */}
                 {activeEpisode && activeEpisode.title !== course.title && (
                   <h3 className="active-episode-title" style={{ 
-                    fontSize: '1.6rem', 
+                    fontSize: 'clamp(1.2rem, 1.6vw, 1.5rem)', 
                     fontWeight: 600, 
                     color: 'var(--primary)', 
                     margin: '0 0 20px 0', 

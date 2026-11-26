@@ -258,11 +258,11 @@ export default async function ProgressTrackerPage() {
                 
                 {/* Node Meta */}
                 <div style={{ marginTop: '12px' }}>
-                  <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#fff', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', height: '34px', lineHeight: '17px', maxWidth: '140px' }}>
+                  <div style={{ fontWeight: 600, fontSize: '0.85rem', color: '#fff', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', height: '34px', lineHeight: '17px', maxWidth: '140px' }}>
                     {node.title}
                   </div>
                   {node.status !== 'locked' ? (
-                    <span style={{ fontSize: '0.75rem', fontWeight: 900, color: node.status === 'completed' ? '#46d369' : '#ffd700' }}>
+                    <span style={{ fontSize: '0.75rem', fontWeight: 600, color: node.status === 'completed' ? '#46d369' : '#ffd700' }}>
                       {node.status === 'completed' ? 'Graduated' : `${node.percent}% Done`}
                     </span>
                   ) : (
@@ -286,7 +286,7 @@ export default async function ProgressTrackerPage() {
             
             {/* ACTIVE COURSES */}
             <div style={{ marginBottom: '45px' }}>
-              <h2 style={{ fontSize: '1.6rem', fontWeight: 800, color: '#fff', marginBottom: '25px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <h2 style={{ fontSize: '1.6rem', fontWeight: 600, color: '#fff', marginBottom: '25px', display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <span style={{ color: '#f26422' }}><Zap size={24} /></span> Active Curriculum Queue
               </h2>
 
@@ -348,7 +348,7 @@ export default async function ProgressTrackerPage() {
 
             {/* COMPLETED COURSES */}
             <div>
-              <h2 style={{ fontSize: '1.6rem', fontWeight: 800, color: '#fff', marginBottom: '25px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <h2 style={{ fontSize: '1.6rem', fontWeight: 600, color: '#fff', marginBottom: '25px', display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <span style={{ color: '#46d369' }}>🏆</span> Completed & Graduated Courses
               </h2>
 
@@ -376,7 +376,7 @@ export default async function ProgressTrackerPage() {
                           <h3 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0, color: '#fff' }}>
                             {item.course.title}
                           </h3>
-                          <div style={{ background: 'rgba(70,211,105,0.1)', color: '#46d369', border: '1px solid rgba(70,211,105,0.2)', padding: '5px 10px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 800, display: 'inline-block', marginTop: '10px' }}>
+                          <div style={{ background: 'rgba(70,211,105,0.1)', color: '#46d369', border: '1px solid rgba(70,211,105,0.2)', padding: '5px 10px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 600, display: 'inline-block', marginTop: '10px' }}>
                              🎓 Certificate Available
                           </div>
                         </div>
@@ -407,7 +407,7 @@ export default async function ProgressTrackerPage() {
           {/* RIGHT COLUMN: GAMIFIED SCHOLAR BADGES */}
           <div>
             <div style={sidebarPanelStyle}>
-              <h3 style={{ fontSize: '1.3rem', fontWeight: 800, margin: '0 0 20px 0', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '15px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <h3 style={{ fontSize: '1.3rem', fontWeight: 600, margin: '0 0 20px 0', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '15px', display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <span>🛡️</span> Scholar Badges & Ranks
               </h3>
               
@@ -425,9 +425,9 @@ export default async function ProgressTrackerPage() {
                     </div>
                     
                     <div>
-                      <div style={{ fontWeight: 800, fontSize: '0.95rem', color: badge.unlocked ? '#fff' : '#8f98a9', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <div style={{ fontWeight: 600, fontSize: '0.95rem', color: badge.unlocked ? '#fff' : '#8f98a9', display: 'flex', alignItems: 'center', gap: '8px' }}>
                         {badge.name}
-                        {badge.unlocked && <span style={{ color: badge.color, fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 900 }}>Active</span>}
+                        {badge.unlocked && <span style={{ color: badge.color, fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 600 }}>Active</span>}
                       </div>
                       <div style={{ color: '#8f98a9', fontSize: '0.75rem', marginTop: '3px' }}>
                         {badge.desc}
