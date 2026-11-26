@@ -84,26 +84,26 @@ export default function NavBar() {
         </button>
 
         {features.shortsEnabled && (
-          <Link href="/shorts" title="Shorts">
+          <Link href="/shorts" title="Shorts" className="top-utility-bar-item">
             <span className="icon-wrapper" style={{ marginRight: '5px', color: '#ff4d4d' }}><PlaySquare size={14} /></span> Shorts
           </Link>
         )}
         {features.blogEnabled && (
-          <Link href="/blog" title="Vyoma Insights Blog">
-            <span className="icon-wrapper" style={{ marginRight: '5px' }}><FileText size={14} /></span> Blog
+          <Link href="/blog" title="Vyoma Insights Blog" className="top-utility-bar-item">
+            <span className="icon-wrapper" style={{ marginRight: '5px', color: '#38bdf8' }}><FileText size={14} /></span> Blog
           </Link>
         )}
-        <Link href="/testimonials" title="Community Testimonials">
+        <Link href="/testimonials" title="Community Testimonials" className="top-utility-bar-item">
           <span className="icon-wrapper" style={{ marginRight: '5px', color: '#ffb300' }}><Star size={14} /></span> Testimonials
         </Link>
-        <Link href="/faq" title="Help / FAQ">
+        <Link href="/faq" title="Help / FAQ" className="top-utility-bar-item">
           <span className="icon-wrapper" style={{ marginRight: '5px', color: '#00d2ff' }}><HelpCircle size={14} /></span> Help
         </Link>
-        <Link href="/gift" title="Gift Wisdom">
-          <span className="icon-wrapper" style={{ marginRight: '5px' }}><Gift size={14} /></span> Gift
+        <Link href="/gift" title="Gift Wisdom" className="top-utility-bar-item">
+          <span className="icon-wrapper" style={{ marginRight: '5px', color: '#f43f5e' }}><Gift size={14} /></span> Gift
         </Link>
-        <Link href="/progress" title="Progress">
-          <span className="icon-wrapper" style={{ marginRight: '5px' }}><TrendingUp size={14} /></span> Progress
+        <Link href="/progress" title="Progress" className="top-utility-bar-item">
+          <span className="icon-wrapper" style={{ marginRight: '5px', color: '#22c55e' }}><TrendingUp size={14} /></span> Progress
         </Link>
       </div>
 

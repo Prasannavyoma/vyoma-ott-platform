@@ -30,8 +30,8 @@ export default function Footer({ userPlanData }: FooterProps) {
   const footerLinkStyle: React.CSSProperties = {
     fontFamily: "'Jost', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif",
     fontSize: '0.88rem',
-    fontWeight: 300,
-    color: '#94a3b8',
+    fontWeight: 400,
+    color: '#cbd5e1',
     textDecoration: 'none',
     display: 'flex',
     alignItems: 'center',
@@ -53,9 +53,9 @@ export default function Footer({ userPlanData }: FooterProps) {
         background: 'linear-gradient(180deg, rgba(3, 11, 23, 0.6) 0%, rgba(2, 6, 14, 0.98) 100%)',
         paddingTop: '60px', 
         paddingBottom: '30px', 
-        color: '#8f98a9',
+        color: '#94a3b8',
         fontFamily: "'Jost', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif",
-        fontWeight: 300,
+        fontWeight: 400,
         position: 'relative'
       }}>
 
@@ -79,7 +79,7 @@ export default function Footer({ userPlanData }: FooterProps) {
                 style={{ height: '48px', width: 'fit-content', objectFit: 'contain', filter: 'drop-shadow(0 0 12px rgba(242, 100, 34, 0.2))' }} 
               />
             </Link>
-            <p style={{ fontSize: '0.9rem', lineHeight: '1.6', margin: 0, color: '#8f98a9', fontWeight: 300, fontFamily: "'Jost', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif" }}>
+            <p style={{ fontSize: '0.9rem', lineHeight: '1.6', margin: 0, color: '#94a3b8', fontWeight: 400, fontFamily: "'Jost', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif" }}>
               Vyoma Linguistic Labs Foundation is a non-profit organization pioneering digital Sanskrit education globally. Empowering learners through modern OTT streaming technology.
             </p>
             
@@ -297,13 +297,13 @@ export default function Footer({ userPlanData }: FooterProps) {
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: '#ccc' }}>
                 <CreditCard size={15} /> Verified Payment Gateway:
               </span>
-              <span style={{ background: 'rgba(255,255,255,0.06)', padding: '3px 8px', borderRadius: '6px', color: '#94a3b8', fontWeight: 300 }}>
+              <span style={{ background: 'rgba(255,255,255,0.06)', padding: '3px 8px', borderRadius: '6px', color: '#cbd5e1', fontWeight: 400 }}>
                 🇮🇳 UPI / RuPay (INR)
               </span>
-              <span style={{ background: 'rgba(255,255,255,0.06)', padding: '3px 8px', borderRadius: '6px', color: '#94a3b8', fontWeight: 300 }}>
+              <span style={{ background: 'rgba(255,255,255,0.06)', padding: '3px 8px', borderRadius: '6px', color: '#cbd5e1', fontWeight: 400 }}>
                 🌍 Visa / Mastercard ($ USD)
               </span>
-              <span style={{ background: 'rgba(255,255,255,0.06)', padding: '3px 8px', borderRadius: '6px', color: '#94a3b8', fontWeight: 300 }}>
+              <span style={{ background: 'rgba(255,255,255,0.06)', padding: '3px 8px', borderRadius: '6px', color: '#cbd5e1', fontWeight: 400 }}>
                 Razorpay GEO Billing
               </span>
             </div>
@@ -321,20 +321,20 @@ export default function Footer({ userPlanData }: FooterProps) {
           flexWrap: 'wrap',
           gap: '16px',
           fontSize: '0.82rem',
-          color: '#64748b'
+          color: '#94a3b8'
         }}>
-          <div style={{ fontFamily: "'Jost', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif", fontWeight: 300 }}>
-            © 2026 Vyoma Linguistic Labs Foundation. All rights reserved. <Link href="/" style={{ color: '#94a3b8', textDecoration: 'underline', fontWeight: 300 }}>digitalsanskrit.com</Link>
+          <div style={{ fontFamily: "'Jost', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif", fontWeight: 400 }}>
+            © 2026 Vyoma Linguistic Labs Foundation. All rights reserved. <Link href="/" style={{ color: '#cbd5e1', textDecoration: 'underline', fontWeight: 400 }}>digitalsanskrit.com</Link>
           </div>
 
           <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
-            <Link href="/privacy-policy" style={{ color: '#94a3b8', textDecoration: 'none', fontWeight: 300, fontFamily: "'Jost', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif" }}>
+            <Link href="/privacy-policy" style={{ color: '#cbd5e1', textDecoration: 'none', fontWeight: 400, fontFamily: "'Jost', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif" }}>
               Privacy Policy
             </Link>
-            <Link href="/terms-and-conditions" style={{ color: '#94a3b8', textDecoration: 'none', fontWeight: 300, fontFamily: "'Jost', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif" }}>
+            <Link href="/terms-and-conditions" style={{ color: '#cbd5e1', textDecoration: 'none', fontWeight: 400, fontFamily: "'Jost', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif" }}>
               Terms & Conditions
             </Link>
-            <Link href="/shipping-and-cancellation-and-refund-policy" style={{ color: '#94a3b8', textDecoration: 'none', fontWeight: 300, fontFamily: "'Jost', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif" }}>
+            <Link href="/shipping-and-cancellation-and-refund-policy" style={{ color: '#cbd5e1', textDecoration: 'none', fontWeight: 400, fontFamily: "'Jost', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif" }}>
               Refund & Cancellation Policy
             </Link>
           </div>

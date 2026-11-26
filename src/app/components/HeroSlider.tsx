@@ -29,7 +29,7 @@ export default function HeroSlider({ items }: { items: SliderItem[] }) {
       <section className="hero" style={{ backgroundImage: `url('/assets/Bala-new.jpg')` }}>
         <div className="hero-content">
           <h1 className="hero-title" style={{ fontFamily: "'Jost', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif", fontWeight: 600 }}>Srimad Valmiki Ramayana</h1>
-          <p className="hero-desc" style={{ fontFamily: "'Jost', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif", fontWeight: 300 }}>Embark on the eternal epic narrative of standard values and righteous living.</p>
+          <p className="hero-desc" style={{ fontFamily: "'Jost', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif", fontWeight: 400 }}>Embark on the eternal epic narrative of standard values and righteous living.</p>
         </div>
       </section>
     );
@@ -125,14 +125,14 @@ export default function HeroSlider({ items }: { items: SliderItem[] }) {
                     fontSize: '0.95rem', 
                     lineHeight: '1.65', 
                     marginBottom: '30px',
-                    color: 'rgba(255, 255, 255, 0.82)',
+                    color: 'rgba(255, 255, 255, 0.88)',
                     textShadow: '0 2px 10px rgba(0,0,0,0.9)',
                     display: '-webkit-box',
                     WebkitLineClamp: 3,
                     WebkitBoxOrient: 'vertical',
                     overflow: 'hidden',
                     fontFamily: "'Jost', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif",
-                    fontWeight: 300,
+                    fontWeight: 400,
                     letterSpacing: '0.01em'
                   }}>
                     {displayDesc ? displayDesc.replace(/&amp;/g, '&') : ''}

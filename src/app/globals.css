@@ -66,7 +66,7 @@ html, body {
   background-attachment: fixed;
   color: var(--foreground);
   font-family: 'Jost', 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Outfit', 'Futura', 'Shobhika', sans-serif;
-  font-weight: 300; /* Crisp light base weight for clean readability */
+  font-weight: 400; /* Regular Book weight for clean readability */
   line-height: 1.6;
   margin: 0;
   padding: 0;
@@ -130,11 +130,11 @@ h5, h6 {
   line-height: 1.4;
 }
 
-/* Light weights where required: descriptions, paragraphs, synopses, metadata */
+/* Light/Regular weights where required: descriptions, paragraphs, synopses, metadata */
 p, .hero-desc, .watch-description, .course-desc, .description, .synopsis, .lesson-desc, .body-light {
   font-family: 'Jost', 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Outfit', 'Futura', 'Shobhika', sans-serif;
   font-size: 0.95rem;
-  font-weight: 300 !important;
+  font-weight: 400 !important;
   letter-spacing: 0.01em;
   line-height: 1.65;
 }
@@ -249,26 +249,27 @@ a {
 
 
 /* ==========================================================================
-   Footer Section - Light Typography Standard (as requested by user)
+   Footer Section - Clean, Legible Typography (Little Bold as requested by user)
    ========================================================================== */
 footer, .footer-section, .footer-container {
   font-family: 'Jost', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif !important;
-  font-weight: 300 !important;
+  font-weight: 400 !important;
 }
 
 footer p,
 footer span,
 footer div {
   font-family: 'Jost', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif !important;
-  font-weight: 300 !important;
+  font-weight: 400 !important;
 }
 
 footer a,
-footer button {
+footer button,
+.footer-link {
   font-family: 'Jost', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif !important;
   font-size: 0.88rem !important;
-  font-weight: 300 !important;
-  color: #94a3b8 !important;
+  font-weight: 400 !important;
+  color: #cbd5e1 !important;
   transition: color 0.2s ease;
   letter-spacing: 0.01em !important;
 }
@@ -281,7 +282,7 @@ footer button:hover {
 footer h3 {
   font-family: 'Jost', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif !important;
   font-size: 0.95rem !important;
-  font-weight: 500 !important;
+  font-weight: 600 !important;
   letter-spacing: 0.5px !important;
   color: #ffffff !important;
 }
@@ -297,7 +298,7 @@ footer h3 {
   justify-content: flex-end;
   align-items: center;
   padding: 0 clamp(12px, 3vw, 4%);
-  gap: clamp(8px, 1.4vw, 22px);
+  gap: clamp(8px, 1.2vw, 14px);
   z-index: 1001;
   border-bottom: 1px solid rgba(255,255,255,0.05);
   box-shadow: 0 4px 20px rgba(0,0,0,0.5);
@@ -310,41 +311,50 @@ footer h3 {
   display: none;
 }
 .top-utility-bar a,
-.top-utility-bar button.top-utility-bar-item {
-  color: #a0aec0;
-  font-size: clamp(0.68rem, 0.75vw, 0.75rem);
-  font-weight: 500;
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px clamp(7px, 0.85vw, 12px);
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  white-space: nowrap;
-  flex-shrink: 0;
-  cursor: pointer;
+.top-utility-bar button,
+.top-utility-bar-item {
+  color: #cbd5e1 !important;
+  font-size: 0.75rem !important;
+  font-weight: 500 !important;
+  text-decoration: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  height: 28px !important;
+  padding: 0 12px !important;
+  border-radius: 8px !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.04em !important;
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+  cursor: pointer !important;
+  box-sizing: border-box !important;
   font-family: 'Jost', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  line-height: 1 !important;
 }
 .top-utility-bar a:hover,
-.top-utility-bar button.top-utility-bar-item:hover {
-  color: #fff;
-  transform: translateY(-2px);
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.15);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5), inset 0 0 10px rgba(255,255,255,0.02);
+.top-utility-bar button:hover,
+.top-utility-bar-item:hover {
+  color: #ffffff !important;
+  transform: translateY(-1px) !important;
+  background: rgba(255, 255, 255, 0.09) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4) !important;
 }
-.top-utility-bar a .icon-wrapper {
+.top-utility-bar a .icon-wrapper,
+.top-utility-bar button .icon-wrapper {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
-.top-utility-bar a:hover .icon-wrapper {
-  transform: scale(1.2) rotate(8deg);
+.top-utility-bar a:hover .icon-wrapper,
+.top-utility-bar button:hover .icon-wrapper {
+  transform: scale(1.15) rotate(6deg);
 }
 
 .navbar {
@@ -830,8 +840,9 @@ footer h3 {
   font-size: 0.98rem;
   line-height: 1.65;
   margin-bottom: 28px;
-  color: rgba(255, 255, 255, 0.82) !important;
-  font-weight: 300 !important; /* Futura Light for elegant reading */
+  color: rgba(255, 255, 255, 0.88) !important;
+  font-weight: 400 !important;
+  font-family: 'Jost', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif !important;
   max-width: 550px;
   text-shadow: 0 2px 12px rgba(0,0,0,0.9);
   letter-spacing: 0.01em;
@@ -1890,12 +1901,15 @@ footer h3 {
 @media (max-width: 1400px) {
   .top-utility-bar {
     padding: 0 2%;
-    gap: 12px;
+    gap: 10px;
   }
-  .top-utility-bar a {
-    font-size: 0.7rem;
-    padding: 3px 8px;
-    letter-spacing: 0.03em;
+  .top-utility-bar a,
+  .top-utility-bar button,
+  .top-utility-bar-item {
+    font-size: 0.72rem !important;
+    padding: 0 10px !important;
+    height: 26px !important;
+    letter-spacing: 0.03em !important;
   }
   .nav-left-group {
     gap: 16px !important;
@@ -1923,11 +1937,14 @@ footer h3 {
     gap: 8px;
     justify-content: flex-end;
   }
-  .top-utility-bar a {
-    font-size: 0.67rem;
-    padding: 2.5px 7px;
-    gap: 4px;
-    letter-spacing: 0.02em;
+  .top-utility-bar a,
+  .top-utility-bar button,
+  .top-utility-bar-item {
+    font-size: 0.68rem !important;
+    padding: 0 8px !important;
+    height: 25px !important;
+    gap: 4px !important;
+    letter-spacing: 0.02em !important;
   }
   .nav-links {
     gap: 10px !important;
@@ -1949,9 +1966,12 @@ footer h3 {
     padding: 0 12px;
     gap: 6px;
   }
-  .top-utility-bar a {
-    font-size: 0.65rem;
-    padding: 2px 7px;
+  .top-utility-bar a,
+  .top-utility-bar button,
+  .top-utility-bar-item {
+    font-size: 0.66rem !important;
+    padding: 0 7px !important;
+    height: 24px !important;
   }
   .hero-title {
     font-size: 3rem;
