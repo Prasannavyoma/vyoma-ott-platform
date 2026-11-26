@@ -108,7 +108,7 @@ export default function CourseRow({ title, courses, icon, viewAllHref, sectionId
 
   return (
     <div id={resolvedSectionId} className="row" style={{ position: 'relative', overflow: 'visible', scrollMarginTop: '110px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '10px', paddingRight: '20px' }}>
+      <div className="course-row-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '10px', paddingRight: '20px' }}>
         <h2 className="row-title" style={{ fontSize: '1.5rem', fontWeight: '700', color: '#fff', zIndex: 1, margin: 0, display: 'flex', alignItems: 'center', gap: '10px' }}>
           {icon && <span style={{ color: 'var(--primary)' }}>{icon}</span>}
           {title ? title.replace(/&amp;/g, '&') : ''}
@@ -122,7 +122,7 @@ export default function CourseRow({ title, courses, icon, viewAllHref, sectionId
         </Link>
       </div>
       
-      <div style={{ position: 'relative', overflow: 'visible' }} className="group-hover-controls">
+      <div style={{ position: 'relative', overflow: 'visible' }} className="group-hover-controls course-row-track">
         {/* Modernized Scroll Arrows */}
         <button 
           onClick={() => scroll('left')} 

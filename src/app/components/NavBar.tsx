@@ -9,11 +9,15 @@ import NotificationBell from './NotificationBell';
 import FindMyPlanModal from './FindMyPlanModal';
 import SanskritStreakWidget from './SanskritStreakWidget';
 import LogoutConfirmationModal from './LogoutConfirmationModal';
+import { useGlobalPlayer } from './GlobalPlayerProvider';
 
 import { logoutUser } from '@/app/actions/auth';
 
 export default function NavBar() {
   const pathname = usePathname();
+  const { stopEpisode } = useGlobalPlayer();
+  // Profile page has its own logout button, so the NavBar does not repeat it there
+  const showNavLogout = pathname !== '/profile';
   const [scrolled, setScrolled] = useState(false);
   const [menus, setMenus] = useState<any[]>([]);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
@@ -232,15 +236,17 @@ export default function NavBar() {
               <Link href="/profile" title="Profile" className="profile-link nav-icon-link">
                  <User size={18} color="var(--primary)" /> <span className="profile-text" style={{ marginLeft: '6px' }}>Profile</span>
               </Link>
-              <button 
-                onClick={() => setShowLogoutModal(true)} 
-                className="logout-btn" 
-                style={{ background: 'rgba(255,100,100,0.1)', color: '#ff6b6b', border: '1px solid rgba(255,100,100,0.2)', padding: '6px 14px', borderRadius: '20px', fontSize: '0.85rem', fontWeight: 'bold', cursor: 'pointer', transition: 'all 0.3s' }}
-                onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,100,100,0.2)'}
-                onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,100,100,0.1)'}
-              >
-                Logout
-              </button>
+              {showNavLogout && (
+                <button 
+                  onClick={() => setShowLogoutModal(true)} 
+                  className="logout-btn" 
+                  style={{ background: 'rgba(255,100,100,0.1)', color: '#ff6b6b', border: '1px solid rgba(255,100,100,0.2)', padding: '6px 14px', borderRadius: '20px', fontSize: '0.85rem', fontWeight: 'bold', cursor: 'pointer', transition: 'all 0.3s' }}
+                  onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,100,100,0.2)'}
+                  onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,100,100,0.1)'}
+                >
+                  Logout
+                </button>
+              )}
             </div>
           ) : (
             <div className="desktop-only" style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
@@ -308,15 +314,17 @@ export default function NavBar() {
                   >
                     <User size={16} /> Profile
                   </Link>
-                  <button 
-                    onClick={() => {
-                      setMobileMenuOpen(false);
-                      setShowLogoutModal(true);
-                    }}
-                    style={{ flex: '1 1 100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', background: 'rgba(255,100,100,0.1)', padding: '10px', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 700, border: '1px solid rgba(255,100,100,0.2)', color: '#ff6b6b', cursor: 'pointer' }}
-                  >
-                    Logout
-                  </button>
+                  {showNavLogout && (
+                    <button 
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        setShowLogoutModal(true);
+                      }}
+                      style={{ flex: '1 1 100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', background: 'rgba(255,100,100,0.1)', padding: '10px', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 700, border: '1px solid rgba(255,100,100,0.2)', color: '#ff6b6b', cursor: 'pointer' }}
+                    >
+                      Logout
+                    </button>
+                  )}
                 </>
               ) : (
               <>
@@ -463,6 +471,7 @@ export default function NavBar() {
         onClose={() => setShowLogoutModal(false)}
         onConfirm={async () => {
           setShowLogoutModal(false);
+          stopEpisode(); // don't let the mini player keep playing after logout
           await logoutUser();
         }}
       />

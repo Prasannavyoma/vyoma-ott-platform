@@ -21,6 +21,9 @@ interface GlobalPlayerContextType {
 
 const GlobalPlayerContext = createContext<GlobalPlayerContextType | undefined>(undefined);
 
+// Pages a signed-out user lands on (logout, expired session). Playback must never continue here.
+const AUTH_ROUTES = ['/login', '/register', '/forgot-password', '/reset-password', '/admin/login'];
+
 export function GlobalPlayerProvider({ children }: { children: React.ReactNode }) {
   const [activeEpisodeId, setActiveEpisodeId] = useState<string | null>(null);
   const [activeCourseId, setActiveCourseId] = useState<string | null>(null);
@@ -30,8 +33,47 @@ export function GlobalPlayerProvider({ children }: { children: React.ReactNode }
   const [isMinimized, setIsMinimized] = useState(false);
   const [poster, setPoster] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  // Position/play state to restore when the video moves into the mini player
+  const miniResumeRef = useRef<{ time: number; play: boolean } | null>(null);
+  const lastMiniSaveRef = useRef(0);
+
+  // Persist mini-player progress every 10s of playback so Continue Watching stays accurate
+  const saveMiniProgress = (video: HTMLVideoElement) => {
+    const position = Math.floor(video.currentTime);
+    if (!activeEpisodeId || position <= 0 || Math.abs(position - lastMiniSaveRef.current) < 10) return;
+    lastMiniSaveRef.current = position;
+    fetch('/api/progress', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        episodeId: activeEpisodeId,
+        position,
+        completed: !!video.duration && position >= video.duration * 0.95,
+      }),
+      keepalive: true,
+    }).catch(() => {});
+  };
 
   const pathname = usePathname();
+
+  const stopEpisode = () => {
+    setActiveEpisodeId(null);
+    setActiveCourseId(null);
+    setVideoUrl(null);
+    setPoster(null);
+    setIsPlaying(false);
+    setIsMinimized(false);
+    if (videoRef.current) {
+      videoRef.current.pause();
+    }
+  };
+
+  // Stop the mini player when the user is sent to a sign-in page (e.g. after logout)
+  useEffect(() => {
+    if (activeEpisodeId && AUTH_ROUTES.some(route => pathname === route || pathname.startsWith(route + '/'))) {
+      stopEpisode();
+    }
+  }, [pathname, activeEpisodeId]);
 
   useEffect(() => {
     // If the user navigates away from the Watch page while a video is loaded, activate PiP / Mini player
@@ -39,6 +81,10 @@ export function GlobalPlayerProvider({ children }: { children: React.ReactNode }
       if (pathname.includes(`/watch/${activeCourseId}`)) {
         setIsMinimized(false);
       } else {
+        if (!isMinimized) {
+          // Leaving the watch page: continue from where the full player was, not from 0:00
+          miniResumeRef.current = { time: currentTime, play: isPlaying };
+        }
         setIsMinimized(true);
       }
     } else {
@@ -59,18 +105,6 @@ export function GlobalPlayerProvider({ children }: { children: React.ReactNode }
     if (videoRef.current && !isDoc) {
       videoRef.current.currentTime = startTime;
       videoRef.current.play().catch(() => setIsPlaying(false));
-    }
-  };
-
-  const stopEpisode = () => {
-    setActiveEpisodeId(null);
-    setActiveCourseId(null);
-    setVideoUrl(null);
-    setPoster(null);
-    setIsPlaying(false);
-    setIsMinimized(false);
-    if (videoRef.current) {
-      videoRef.current.pause();
     }
   };
 
@@ -172,10 +206,23 @@ export function GlobalPlayerProvider({ children }: { children: React.ReactNode }
                 ref={videoRef}
                 src={videoUrl}
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
+                onLoadedMetadata={(e) => {
+                  const video = e.currentTarget;
+                  const resume = miniResumeRef.current;
+                  miniResumeRef.current = null;
+                  if (resume && resume.time > 0 && (!video.duration || resume.time < video.duration)) {
+                    video.currentTime = resume.time;
+                  }
+                  if (!resume || resume.play) {
+                    video.play().catch(() => setIsPlaying(false));
+                  }
+                }}
+                onTimeUpdate={(e) => {
+                  setCurrentTime(e.currentTarget.currentTime);
+                  saveMiniProgress(e.currentTarget);
+                }}
                 onPlay={() => setIsPlaying(true)}
                 onPause={() => setIsPlaying(false)}
-                autoPlay
               />
               {/* Quick Controls overlay */}
               <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)', display: 'flex', alignItems: 'flex-end', padding: '10px', opacity: 0, transition: 'opacity 0.2s' }}
@@ -193,7 +240,7 @@ export function GlobalPlayerProvider({ children }: { children: React.ReactNode }
           )}
           <div style={{ padding: '12px', background: '#0a0a0a' }}>
             <div style={{ fontSize: '0.85rem', fontWeight: 600, color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Now Viewing</div>
-            <Link href={`/watch/${activeCourseId}`} style={{ display: 'block', fontSize: '0.75rem', color: 'var(--primary)', marginTop: '4px', textDecoration: 'none' }}>
+            <Link href={`/watch/${activeCourseId}${activeEpisodeId ? `?ep=${encodeURIComponent(activeEpisodeId)}` : ''}`} style={{ display: 'block', fontSize: '0.75rem', color: 'var(--primary)', marginTop: '4px', textDecoration: 'none' }}>
               Return to Full Player
             </Link>
           </div>

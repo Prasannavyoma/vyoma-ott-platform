@@ -9,6 +9,7 @@ import {
   OfflineItemMeta
 } from '@/lib/offlineStorage';
 import { isNonDownloadableMedia } from '@/lib/mediaTypes';
+import OfflineClearModal, { singleClearMessage } from '@/app/components/OfflineClearModal';
 
 interface DownloadButtonProps {
   videoUrl: string | null | undefined;
@@ -205,9 +206,7 @@ export default function DownloadButton({
     setShowClearModal(true);
   };
 
-  const confirmClear = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const confirmClear = async () => {
     if (videoUrl) {
       await removeOfflineDownload(videoUrl);
       setStatus('IDLE');
@@ -217,9 +216,7 @@ export default function DownloadButton({
     setShowClearModal(false);
   };
 
-  const cancelClear = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const cancelClear = () => {
     setShowClearModal(false);
   };
 
@@ -230,123 +227,13 @@ export default function DownloadButton({
   return (
     <>
       {/* CLEAR OFFLINE DOWNLOAD CONFIRMATION MODAL */}
-      {showClearModal && (
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'rgba(3, 11, 23, 0.88)',
-            backdropFilter: 'blur(12px)',
-            zIndex: 999999,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '20px',
-            animation: 'fadeIn 0.2s ease-out',
-          }}
-          onClick={cancelClear}
-        >
-          <div
-            style={{
-              position: 'relative',
-              background: '#0b121e',
-              border: '1px solid rgba(255, 255, 255, 0.15)',
-              borderRadius: '16px',
-              padding: '25px 30px',
-              maxWidth: '420px',
-              width: '100%',
-              boxShadow: '0 25px 50px rgba(0,0,0,0.8), 0 0 30px rgba(229,9,20,0.2)',
-              textAlign: 'center',
-              color: '#fff',
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Top Right Close Button */}
-            <button
-              onClick={cancelClear}
-              title="Close"
-              style={{
-                position: 'absolute',
-                top: '14px',
-                right: '14px',
-                background: '#f26422',
-                border: '2px solid #ffffff',
-                color: '#ffffff',
-                borderRadius: '50%',
-                width: '32px',
-                height: '32px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                fontSize: '1rem',
-                fontWeight: 'bold',
-                transition: 'all 0.2s',
-                zIndex: 10,
-                boxShadow: '0 4px 12px rgba(242,100,34,0.5)'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'scale(1.1)';
-                e.currentTarget.style.background = '#ef4444';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'scale(1)';
-                e.currentTarget.style.background = '#f26422';
-              }}
-            >
-              ✕
-            </button>
-            <div style={{ fontSize: '2.5rem', marginBottom: '12px' }}>🗑️</div>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 900, marginBottom: '10px' }}>
-              Clear Offline Download?
-            </h3>
-            <p style={{ color: '#aaa', fontSize: '0.9rem', lineHeight: '1.5', marginBottom: '25px' }}>
-              You are about to clear this offline downloaded content{titleForModal ? <strong style={{ color: '#fff' }}> &ldquo;{titleForModal}&rdquo;</strong> : ''}. Are you sure?
-            </p>
-
-            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
-              <button
-                onClick={cancelClear}
-                style={{
-                  background: 'rgba(255,255,255,0.08)',
-                  border: '1px solid rgba(255,255,255,0.2)',
-                  color: '#fff',
-                  padding: '12px 20px',
-                  borderRadius: '8px',
-                  fontWeight: 'bold',
-                  fontSize: '0.85rem',
-                  cursor: 'pointer',
-                  flex: 1,
-                  transition: 'background 0.2s'
-                }}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={confirmClear}
-                style={{
-                  background: '#e50914',
-                  border: 'none',
-                  color: '#fff',
-                  padding: '12px 20px',
-                  borderRadius: '8px',
-                  fontWeight: 900,
-                  fontSize: '0.85rem',
-                  cursor: 'pointer',
-                  flex: 1,
-                  boxShadow: '0 4px 15px rgba(229,9,20,0.4)',
-                  transition: 'transform 0.1s'
-                }}
-              >
-                Yes, Clear
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <OfflineClearModal
+        open={showClearModal}
+        title="Clear Offline Download?"
+        message={singleClearMessage(titleForModal)}
+        onConfirm={confirmClear}
+        onCancel={cancelClear}
+      />
 
       {/* COMPACT MODE BUTTON */}
       {compact ? (

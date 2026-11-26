@@ -447,10 +447,10 @@
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.82);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      z-index: 99999;
+      background: rgba(3, 11, 23, 0.88);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      z-index: 999999;
       align-items: center;
       justify-content: center;
       padding: 20px;
@@ -473,14 +473,15 @@
 
     .netflix-modal-card {
       position: relative;
-      background: linear-gradient(155deg, #161e31 0%, #0d1322 100%);
-      border: 1px solid rgba(255, 255, 255, 0.14);
-      border-radius: 24px;
-      max-width: 440px;
+      background: #0b121e;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 16px;
+      max-width: 420px;
       width: 100%;
-      padding: 34px 28px 28px;
+      padding: 25px 30px;
       text-align: center;
-      box-shadow: 0 25px 70px rgba(0, 0, 0, 0.9), 0 0 45px rgba(239, 68, 68, 0.15);
+      color: #fff;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(229, 9, 20, 0.2);
       animation: modalCardIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
@@ -488,90 +489,83 @@
       position: absolute;
       top: 14px;
       right: 14px;
-      background: transparent;
-      border: none;
-      color: #94a3b8;
-      font-size: 1.6rem;
+      background: #f26422;
+      border: 2px solid #ffffff;
+      color: #ffffff;
+      font-size: 1rem;
+      font-weight: bold;
       line-height: 1;
       cursor: pointer;
-      width: 34px;
-      height: 34px;
+      width: 32px;
+      height: 32px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.15s;
+      transition: all 0.2s;
+      z-index: 10;
+      box-shadow: 0 4px 12px rgba(242, 100, 34, 0.5);
     }
 
     .netflix-modal-close:hover {
-      background: rgba(255, 255, 255, 0.1);
-      color: #fff;
+      background: #ef4444;
+      transform: scale(1.1);
     }
 
     .netflix-modal-icon-wrap {
-      width: 68px;
-      height: 68px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(239, 68, 68, 0.25) 0%, rgba(239, 68, 68, 0.05) 70%);
-      border: 1px solid rgba(239, 68, 68, 0.45);
-      margin: 0 auto 18px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.8rem;
-      box-shadow: 0 0 25px rgba(239, 68, 68, 0.25);
+      font-size: 2.5rem;
+      margin-bottom: 12px;
     }
 
     .netflix-modal-title {
-      font-size: 1.35rem;
+      font-size: 1.25rem;
       font-weight: 900;
       color: #fff;
-      margin-bottom: 8px;
-      letter-spacing: -0.3px;
+      margin-bottom: 10px;
     }
 
     .netflix-modal-desc {
-      font-size: 0.92rem;
-      color: #94a3b8;
+      font-size: 0.9rem;
+      color: #aaa;
       line-height: 1.5;
-      margin-bottom: 24px;
+      margin-bottom: 25px;
+    }
+
+    .netflix-modal-desc strong {
+      color: #fff;
     }
 
     .netflix-modal-actions {
       display: flex;
       gap: 12px;
+      justify-content: center;
     }
 
     .netflix-btn-danger {
       flex: 1;
-      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      background: #e50914;
       color: #fff;
       border: none;
-      padding: 12px 18px;
-      border-radius: 12px;
-      font-weight: 800;
-      font-size: 0.92rem;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-weight: 900;
+      font-size: 0.85rem;
       cursor: pointer;
-      box-shadow: 0 8px 20px rgba(239, 68, 68, 0.35);
-      transition: all 0.2s;
-    }
-
-    .netflix-btn-danger:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 10px 25px rgba(239, 68, 68, 0.5);
+      box-shadow: 0 4px 15px rgba(229, 9, 20, 0.4);
+      transition: transform 0.1s;
     }
 
     .netflix-btn-cancel {
       flex: 1;
       background: rgba(255, 255, 255, 0.08);
-      color: #f1f5f9;
-      border: 1px solid rgba(255, 255, 255, 0.16);
-      padding: 12px 18px;
-      border-radius: 12px;
-      font-weight: 700;
-      font-size: 0.92rem;
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 0.85rem;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: background 0.2s;
     }
 
     .netflix-btn-cancel:hover {
@@ -671,13 +665,13 @@
       <div class="netflix-modal-icon-wrap">
         <span>🗑️</span>
       </div>
-      <h3 id="modalTitle" class="netflix-modal-title">Delete Offline Download?</h3>
+      <h3 id="modalTitle" class="netflix-modal-title">Clear Offline Download?</h3>
       <p id="modalDesc" class="netflix-modal-desc">
-        This lesson will be removed from your device storage. You will need an internet connection to re-download it.
+        You are about to clear this offline downloaded content. Are you sure?
       </p>
       <div class="netflix-modal-actions">
-        <button id="modalConfirmBtn" class="netflix-btn-danger">Yes, Delete</button>
         <button class="netflix-btn-cancel" onclick="closeNetflixModal()">Cancel</button>
+        <button id="modalConfirmBtn" class="netflix-btn-danger">Yes, Clear</button>
       </div>
     </div>
   </div>
@@ -944,7 +938,23 @@
       const confirmBtn = document.getElementById('modalConfirmBtn');
 
       if (titleEl) titleEl.textContent = opts.title || 'Confirm Action';
-      if (descEl) descEl.textContent = opts.desc || 'Are you sure you want to proceed?';
+      if (descEl) {
+        descEl.textContent = '';
+        if (opts.descParts) {
+          // [text, boldText, text] -> bold middle part, built with DOM nodes (no innerHTML)
+          opts.descParts.forEach((part, i) => {
+            if (i % 2 === 1) {
+              const strong = document.createElement('strong');
+              strong.textContent = part;
+              descEl.appendChild(strong);
+            } else {
+              descEl.appendChild(document.createTextNode(part));
+            }
+          });
+        } else {
+          descEl.textContent = opts.desc || 'Are you sure you want to proceed?';
+        }
+      }
       if (confirmBtn) {
         confirmBtn.textContent = opts.confirmText || 'Delete';
         confirmBtn.onclick = () => {
@@ -1210,9 +1220,9 @@
       const title = item ? getCleanTitles(item).title : 'this downloaded lesson';
 
       showNetflixConfirm({
-        title: 'Delete Offline Lesson?',
-        desc: `Are you sure you want to delete "${title}" from offline storage? You will need an internet connection to re-download it.`,
-        confirmText: 'Yes, Delete',
+        title: 'Clear Offline Download?',
+        descParts: ['You are about to clear this offline downloaded content ', `\u201C${title}\u201D`, '. Are you sure?'],
+        confirmText: 'Yes, Clear',
         onConfirm: async () => {
           if ('caches' in window) {
             const cacheNames = await caches.keys();
@@ -1247,8 +1257,8 @@
 
       showNetflixConfirm({
         title: 'Clear All Offline Downloads?',
-        desc: `Are you sure you want to delete ALL ${count} downloaded lessons stored on this device? This action cannot be undone.`,
-        confirmText: 'Clear All Lessons',
+        descParts: ['You are about to clear all ', String(count), ` offline downloaded ${count === 1 ? 'item' : 'items'} from this device. Are you sure?`],
+        confirmText: 'Yes, Clear All',
         onConfirm: async () => {
           if ('caches' in window) {
             try {

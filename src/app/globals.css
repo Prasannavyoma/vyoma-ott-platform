@@ -400,6 +400,23 @@ a {
 .scroll-arrow-left { left: -25px; }
 .scroll-arrow-right { right: -25px; }
 
+/* CourseRow: reserve a gutter on each side of the poster track so the scroll arrows sit
+   beside the posters instead of covering the first/last poster image. The header is
+   indented by the same amount so the row title stays aligned with the first poster. */
+.course-row-track {
+  --row-arrow-gutter: 52px;
+  padding: 0 var(--row-arrow-gutter);
+}
+.course-row-header {
+  padding-left: var(--row-arrow-gutter, 52px);
+  padding-right: var(--row-arrow-gutter, 52px) !important;
+}
+.course-row-track .scroll-arrow {
+  width: 40px;
+}
+.course-row-track .scroll-arrow-left { left: 0; }
+.course-row-track .scroll-arrow-right { right: 0; }
+
 /* --------------------------------- */
 
 .dropdown-content a {
@@ -2298,6 +2315,15 @@ nextjs-portal,
   /* Hide Desktop Scroll Arrows on Touch Devices */
   .scroll-arrow, .group-hover-controls > button {
     display: none !important;
+  }
+
+  /* No arrows on touch devices, so no arrow gutter either */
+  .course-row-track {
+    padding: 0;
+  }
+  .course-row-header {
+    padding-left: 0;
+    padding-right: 20px !important;
   }
   
   /* Ensure CourseRow posters scroll flawlessly on Mobile */

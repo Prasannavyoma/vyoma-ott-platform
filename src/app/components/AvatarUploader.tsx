@@ -1,11 +1,19 @@
 "use client";
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
 export default function AvatarUploader({ currentUrl }: { currentUrl?: string }) {
   const [uploading, setUploading] = useState(false);
   const [url, setUrl] = useState(currentUrl || '');
   const [inputMode, setInputMode] = useState<'FILE' | 'URL'>('FILE');
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  // Always-mounted file input so "Upload Photo File" can open the picker from either mode
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const openFilePicker = () => {
+    setInputMode('FILE');
+    if (!uploading) fileInputRef.current?.click();
+  };
 
   // Compress image on client-side canvas before uploading
   const compressImage = (file: File): Promise<Blob> => {
@@ -55,8 +63,21 @@ export default function AvatarUploader({ currentUrl }: { currentUrl?: string }) 
   };
 
   async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
+    const input = e.target;
+    const file = input.files?.[0];
     if (!file) return;
+
+    setUploadError(null);
+    if (!file.type.startsWith('image/')) {
+      setUploadError('Please choose an image file (JPG, PNG, WEBP, etc.).');
+      input.value = '';
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      setUploadError('Image is too large. Please choose a photo under 10 MB.');
+      input.value = '';
+      return;
+    }
 
     setUploading(true);
     try {
@@ -72,13 +93,15 @@ export default function AvatarUploader({ currentUrl }: { currentUrl?: string }) 
       if (res.success && res.url) {
         setUrl(res.url);
       } else {
-        alert(res.error || 'Upload failed. Please try again.');
+        setUploadError(res.error || 'Upload failed. Please try again.');
       }
     } catch (e: any) {
       console.error('Avatar upload error:', e);
-      alert('Upload error: ' + (e.message || 'Failed to upload photo.'));
+      setUploadError('Upload error: ' + (e.message || 'Failed to upload photo.'));
     } finally {
       setUploading(false);
+      // Reset so choosing the same file again still triggers onChange
+      input.value = '';
     }
   }
 
@@ -108,7 +131,8 @@ export default function AvatarUploader({ currentUrl }: { currentUrl?: string }) 
           <div style={{ display: 'flex', gap: '10px', marginBottom: '8px' }}>
             <button
               type="button"
-              onClick={() => setInputMode('FILE')}
+              onClick={openFilePicker}
+              disabled={uploading}
               style={{
                 background: inputMode === 'FILE' ? 'rgba(242,100,34,0.2)' : 'transparent',
                 border: inputMode === 'FILE' ? '1px solid #f26422' : '1px solid #333',
@@ -141,7 +165,11 @@ export default function AvatarUploader({ currentUrl }: { currentUrl?: string }) 
           </div>
 
           {inputMode === 'FILE' ? (
-            <label style={{ 
+            <button
+              type="button"
+              onClick={openFilePicker}
+              disabled={uploading}
+              style={{ 
               display: 'inline-flex', 
               alignItems: 'center', 
               gap: '8px', 
@@ -156,8 +184,7 @@ export default function AvatarUploader({ currentUrl }: { currentUrl?: string }) 
               transition: 'all 0.2s'
             }}>
               {uploading ? '⏫ Compressing & Uploading...' : '📷 Select Local Photo File'}
-              <input type="file" accept="image/*" onChange={handleFile} disabled={uploading} style={{ display: 'none' }} />
-            </label>
+            </button>
           ) : (
             <input 
               type="url" 
@@ -178,6 +205,22 @@ export default function AvatarUploader({ currentUrl }: { currentUrl?: string }) 
           )}
         </div>
       </div>
+
+      {uploadError && (
+        <p role="alert" style={{ color: '#ef4444', fontSize: '0.75rem', fontWeight: 600, margin: '10px 0 0 0' }}>
+          {uploadError}
+        </p>
+      )}
+
+      {/* Native file picker (opened by the buttons above) */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        onChange={handleFile}
+        disabled={uploading}
+        style={{ display: 'none' }}
+      />
 
       {/* Hidden input passed into FormData when user submits profile form */}
       <input type="hidden" name="avatarUrl" value={url} />
