@@ -157,7 +157,7 @@ export default function SponsorSlider({
           color: 'var(--primary)', 
           textTransform: 'uppercase', 
           letterSpacing: '3px',
-          fontWeight: 800,
+          fontWeight: 600,
           margin: '0 0 8px 0'
         }}>
           🤝 Academic Partners & Patrons
@@ -166,7 +166,7 @@ export default function SponsorSlider({
           fontSize: '0.85rem',
           color: '#8f98a9',
           margin: 0,
-          fontWeight: 500,
+          fontWeight: 300,
           maxWidth: '600px',
           marginLeft: 'auto',
           marginRight: 'auto',
@@ -188,7 +188,7 @@ export default function SponsorSlider({
                     <div className="sponsor-monogram">
                       <span style={{ 
                         fontSize: '1.15rem', 
-                        fontWeight: 900, 
+                        fontWeight: 600, 
                         color: 'var(--primary)', 
                         letterSpacing: '1.5px', 
                         textTransform: 'uppercase',

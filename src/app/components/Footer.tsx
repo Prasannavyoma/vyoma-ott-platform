@@ -142,7 +142,7 @@ export default function Footer({ userPlanData }: FooterProps) {
             <h3 style={{ 
               color: '#fff', 
               fontSize: '1rem', 
-              fontWeight: 600, 
+              fontWeight: 500, 
               marginBottom: '18px', 
               borderBottom: '2px solid rgba(242,100,34,0.4)',
               paddingBottom: '6px',
@@ -151,19 +151,19 @@ export default function Footer({ userPlanData }: FooterProps) {
               Learn &amp; Explore
             </h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <Link href="/explore" style={{ color: '#cbd5e1', textDecoration: 'none', fontSize: '0.88rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Link href="/explore" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '0.88rem', fontWeight: 300, display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Globe size={14} color="var(--primary)" /> Explore Hub
               </Link>
-              <Link href="/ebook" style={{ color: '#cbd5e1', textDecoration: 'none', fontSize: '0.88rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Link href="/ebook" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '0.88rem', fontWeight: 300, display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <BookOpen size={14} color="#38bdf8" /> Sanskrit E-Books
               </Link>
-              <Link href="/podcast" style={{ color: '#cbd5e1', textDecoration: 'none', fontSize: '0.88rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Link href="/podcast" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '0.88rem', fontWeight: 300, display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Mic size={14} color="#a855f7" /> Audiobooks &amp; Podcasts
               </Link>
-              <Link href="/game" style={{ color: '#cbd5e1', textDecoration: 'none', fontSize: '0.88rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Link href="/game" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '0.88rem', fontWeight: 300, display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Gamepad2 size={14} color="#22c55e" /> Interactive Games
               </Link>
-              <Link href="/shorts" style={{ color: '#cbd5e1', textDecoration: 'none', fontSize: '0.88rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Link href="/shorts" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '0.88rem', fontWeight: 300, display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <PlaySquare size={14} color="#ff4d4d" /> Shorts Clips
               </Link>
             </div>
@@ -174,7 +174,7 @@ export default function Footer({ userPlanData }: FooterProps) {
             <h3 style={{ 
               color: '#fff', 
               fontSize: '1rem', 
-              fontWeight: 600, 
+              fontWeight: 500, 
               marginBottom: '18px', 
               borderBottom: '2px solid rgba(242,100,34,0.4)',
               paddingBottom: '6px',
@@ -185,7 +185,7 @@ export default function Footer({ userPlanData }: FooterProps) {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               <button 
                 onClick={() => setShowFindMyPlan(true)} 
-                style={{ background: 'transparent', border: 'none', color: '#ff8c53', textAlign: 'left', cursor: 'pointer', fontSize: '0.88rem', fontWeight: 500, padding: 0, display: 'flex', alignItems: 'center', gap: '8px' }}
+                style={{ background: 'transparent', border: 'none', color: '#ff8c53', textAlign: 'left', cursor: 'pointer', fontSize: '0.88rem', fontWeight: 300, padding: 0, display: 'flex', alignItems: 'center', gap: '8px' }}
               >
                 <ShieldCheck size={14} /> Find My Plan &amp; Pricing
               </button>
@@ -195,13 +195,13 @@ export default function Footer({ userPlanData }: FooterProps) {
               >
                 <Key size={14} color="#ffd700" /> Redeem Gift Voucher 🔑
               </button>
-              <Link href="/gift" style={{ color: '#cbd5e1', textDecoration: 'none', fontSize: '0.88rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Link href="/gift" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '0.88rem', fontWeight: 300, display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Gift size={14} color="#f43f5e" /> Gift Subscriptions
               </Link>
-              <Link href="/certificate/verify" style={{ color: '#cbd5e1', textDecoration: 'none', fontSize: '0.88rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Link href="/certificate/verify" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '0.88rem', fontWeight: 300, display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Award size={14} color="#fbbf24" /> Verify Certificates
               </Link>
-              <Link href="/register" style={{ color: '#cbd5e1', textDecoration: 'none', fontSize: '0.88rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Link href="/register" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '0.88rem', fontWeight: 300, display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Star size={14} color="#22c55e" /> Create Free Account
               </Link>
             </div>
@@ -212,7 +212,7 @@ export default function Footer({ userPlanData }: FooterProps) {
             <h3 style={{ 
               color: '#fff', 
               fontSize: '1rem', 
-              fontWeight: 600, 
+              fontWeight: 500, 
               marginBottom: '18px', 
               borderBottom: '2px solid rgba(242,100,34,0.4)',
               paddingBottom: '6px',
@@ -221,22 +221,22 @@ export default function Footer({ userPlanData }: FooterProps) {
               Foundation &amp; Legal
             </h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <Link href="/about-us" style={{ color: '#cbd5e1', textDecoration: 'none', fontSize: '0.88rem' }}>
+              <Link href="/about-us" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '0.88rem', fontWeight: 300 }}>
                 About Vyoma Foundation
               </Link>
-              <Link href="/terms-and-conditions" style={{ color: '#cbd5e1', textDecoration: 'none', fontSize: '0.88rem' }}>
+              <Link href="/terms-and-conditions" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '0.88rem', fontWeight: 300 }}>
                 Terms &amp; Conditions
               </Link>
-              <Link href="/privacy-policy" style={{ color: '#cbd5e1', textDecoration: 'none', fontSize: '0.88rem' }}>
+              <Link href="/privacy-policy" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '0.88rem', fontWeight: 300 }}>
                 Privacy Policy
               </Link>
-              <Link href="/shipping-and-cancellation-and-refund-policy" style={{ color: '#cbd5e1', textDecoration: 'none', fontSize: '0.88rem' }}>
+              <Link href="/shipping-and-cancellation-and-refund-policy" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '0.88rem', fontWeight: 300 }}>
                 Refund &amp; Cancellation Policy
               </Link>
-              <Link href="/faq" style={{ color: '#cbd5e1', textDecoration: 'none', fontSize: '0.88rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <Link href="/faq" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '0.88rem', fontWeight: 300, display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <HelpCircle size={14} color="#38bdf8" /> Help &amp; Support FAQ
               </Link>
-              <Link href="/testimonials" style={{ color: '#cbd5e1', textDecoration: 'none', fontSize: '0.88rem' }}>
+              <Link href="/testimonials" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '0.88rem', fontWeight: 300 }}>
                 Community Testimonials
               </Link>
             </div>
@@ -271,13 +271,13 @@ export default function Footer({ userPlanData }: FooterProps) {
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: '#ccc' }}>
                 <CreditCard size={15} /> Verified Payment Gateway:
               </span>
-              <span style={{ background: 'rgba(255,255,255,0.06)', padding: '3px 8px', borderRadius: '6px', color: '#ff8c53', fontWeight: 800 }}>
+              <span style={{ background: 'rgba(255,255,255,0.06)', padding: '3px 8px', borderRadius: '6px', color: '#ff8c53', fontWeight: 500 }}>
                 🇮🇳 UPI / RuPay (INR)
               </span>
-              <span style={{ background: 'rgba(255,255,255,0.06)', padding: '3px 8px', borderRadius: '6px', color: '#60a5fa', fontWeight: 800 }}>
+              <span style={{ background: 'rgba(255,255,255,0.06)', padding: '3px 8px', borderRadius: '6px', color: '#60a5fa', fontWeight: 500 }}>
                 🌍 Visa / Mastercard ($ USD)
               </span>
-              <span style={{ background: 'rgba(255,255,255,0.06)', padding: '3px 8px', borderRadius: '6px', color: '#a855f7', fontWeight: 800 }}>
+              <span style={{ background: 'rgba(255,255,255,0.06)', padding: '3px 8px', borderRadius: '6px', color: '#a855f7', fontWeight: 500 }}>
                 Razorpay GEO Billing
               </span>
             </div>

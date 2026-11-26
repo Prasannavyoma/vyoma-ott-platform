@@ -240,6 +240,37 @@ a {
   text-decoration: none;
 }
 
+
+/* ==========================================================================
+   Footer Section - Light Typography Standard (as requested by user)
+   ========================================================================== */
+footer {
+  font-weight: 300 !important;
+}
+
+footer p,
+footer span,
+footer div {
+  font-weight: 300;
+}
+
+footer a {
+  font-weight: 300 !important;
+  color: #94a3b8 !important;
+  transition: color 0.2s ease;
+}
+
+footer a:hover {
+  color: #ffffff !important;
+}
+
+footer h3 {
+  font-size: 0.95rem !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.5px !important;
+  color: #ffffff !important;
+}
+
 /* Elevate WOW factor with glass and glow themes */
 .top-utility-bar {
   position: fixed;
@@ -696,13 +727,13 @@ a {
 }
 
 .hero-title {
-  font-size: clamp(2rem, 3.4vw, 3rem);
-  font-weight: 700;
-  line-height: 1.15;
+  font-size: clamp(1.5rem, 2.3vw, 2.2rem);
+  font-weight: 600;
+  line-height: 1.25;
   color: #ffffff !important;
-  letter-spacing: -0.8px;
-  margin-bottom: 16px;
-  text-shadow: 0 4px 20px rgba(0,0,0,0.8), 0 0 30px rgba(0,0,0,0.5);
+  letter-spacing: -0.3px;
+  margin-bottom: 14px;
+  text-shadow: 0 3px 16px rgba(0,0,0,0.8);
 }
 
 
@@ -777,10 +808,10 @@ a {
 }
 
 .hero-desc {
-  font-size: 1.15rem; /* Optimized readability size */
+  font-size: 0.98rem;
   line-height: 1.65;
-  margin-bottom: 40px;
-  color: rgba(255, 255, 255, 0.9) !important;
+  margin-bottom: 28px;
+  color: rgba(255, 255, 255, 0.82) !important;
   font-weight: 300 !important; /* Futura Light for elegant reading */
   max-width: 550px;
   text-shadow: 0 2px 12px rgba(0,0,0,0.9);
@@ -893,9 +924,10 @@ a {
 }
 
 .row-title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin-bottom: 15px;
+  font-size: clamp(1.15rem, 1.4vw, 1.35rem);
+  font-weight: 600;
+  letter-spacing: -0.2px;
+  margin-bottom: 12px;
   color: #fff;
 }
 

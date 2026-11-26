@@ -109,14 +109,14 @@ export default function CourseRow({ title, courses, icon, viewAllHref, sectionId
   return (
     <div id={resolvedSectionId} className="row" style={{ position: 'relative', overflow: 'visible', scrollMarginTop: '110px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '10px', paddingRight: '20px' }}>
-        <h2 className="row-title" style={{ fontSize: '1.5rem', fontWeight: '700', color: '#fff', zIndex: 1, margin: 0, display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <h2 className="row-title" style={{ fontSize: 'clamp(1.15rem, 1.4vw, 1.35rem)', fontWeight: 600, color: '#fff', zIndex: 1, margin: 0, display: 'flex', alignItems: 'center', gap: '10px' }}>
           {icon && <span style={{ color: 'var(--primary)' }}>{icon}</span>}
           {title ? title.replace(/&amp;/g, '&') : ''}
         </h2>
         <Link 
           href={finalViewAllLink} 
           onClick={recordPosition}
-          style={{ color: 'var(--primary)', fontSize: '0.9rem', fontWeight: 'bold', textDecoration: 'none' }}
+          style={{ color: 'var(--primary)', fontSize: '0.85rem', fontWeight: 500, textDecoration: 'none' }}
         >
           View All →
         </Link>

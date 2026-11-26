@@ -109,13 +109,13 @@ export default function HeroSlider({ items }: { items: SliderItem[] }) {
                   </div>
 
                   <h1 className="hero-title" style={{ 
-                    textShadow: '0 4px 20px rgba(0,0,0,0.8)', 
-                    fontSize: 'clamp(1.8rem, 3vw, 2.8rem)', 
-                    fontWeight: 700,
-                    lineHeight: '1.2',
-                    marginBottom: '16px',
+                    textShadow: '0 3px 16px rgba(0,0,0,0.8)', 
+                    fontSize: 'clamp(1.5rem, 2.3vw, 2.2rem)', 
+                    fontWeight: 600,
+                    lineHeight: '1.25',
+                    marginBottom: '14px',
                     color: '#ffffff',
-                    letterSpacing: '-0.5px'
+                    letterSpacing: '-0.3px'
                   }}>
                     {item.title ? item.title.replace(/&amp;/g, '&') : ''}
                   </h1>
@@ -230,12 +230,13 @@ export default function HeroSlider({ items }: { items: SliderItem[] }) {
                 </div>
 
                 <h1 style={{ 
-                  fontSize: '2.4rem', 
-                  fontWeight: 700,
-                  lineHeight: '1.1',
-                  marginBottom: '20px',
+                  fontSize: 'clamp(1.35rem, 4.5vw, 1.75rem)', 
+                  fontWeight: 600,
+                  lineHeight: '1.2',
+                  marginBottom: '16px',
                   color: '#ffffff',
-                  textShadow: '0 2px 10px rgba(0,0,0,0.8)'
+                  textShadow: '0 2px 10px rgba(0,0,0,0.8)',
+                  letterSpacing: '-0.3px'
                 }}>
                   {item.title ? item.title.replace(/&amp;/g, '&') : ''}
                 </h1>
