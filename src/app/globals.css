@@ -8,7 +8,7 @@
 @font-face {
   font-family: 'Shobhika';
   src: url('/fonts/Shobhika-Regular.otf') format('opentype');
-  font-weight: 400;
+  font-weight: 300 500;
   font-style: normal;
   font-display: swap;
   unicode-range: U+0900-097F, U+1CD0-1CFF, U+A8E0-A8FF, U+200C-200D;
@@ -17,7 +17,7 @@
 @font-face {
   font-family: 'Shobhika';
   src: url('/fonts/Shobhika-Bold.otf') format('opentype');
-  font-weight: 700;
+  font-weight: 600 800;
   font-style: normal;
   font-display: swap;
   unicode-range: U+0900-097F, U+1CD0-1CFF, U+A8E0-A8FF, U+200C-200D;
@@ -49,7 +49,7 @@
   --text-muted: #8f98a9;
   --border-premium: 1px solid rgba(255,255,255,0.08);
   --font-sanskrit: 'Shobhika', 'Shobhika-Full', 'Noto Serif Devanagari', 'Sanskrit Text', serif;
-  --font-futura: 'Futura', 'Futura PT', 'Jost', 'Outfit', sans-serif;
+  --font-futura: 'Jost', 'Futura', 'Futura PT', 'Outfit', sans-serif;
 }
 
 html, body {
@@ -58,7 +58,7 @@ html, body {
   background: radial-gradient(circle at 50% 0%, #0d1a30 0%, #030b17 75%);
   background-attachment: fixed;
   color: var(--foreground);
-  font-family: 'Futura', 'Futura PT', 'Jost', 'Outfit', 'Shobhika', system-ui, -apple-system, sans-serif;
+  font-family: 'Jost', 'Futura', 'Futura PT', 'Outfit', 'Shobhika', system-ui, -apple-system, sans-serif;
   font-weight: 400; /* Regular Book weight for body */
   line-height: 1.6;
   margin: 0;
@@ -83,7 +83,7 @@ html, body {
    ========================================================================== */
 
 h1, .h1 {
-  font-family: 'Futura', 'Futura PT', 'Jost', 'Outfit', sans-serif;
+  font-family: 'Jost', 'Futura', 'Futura PT', 'Outfit', sans-serif;
   font-size: clamp(1.75rem, 2.5vw, 2.35rem);
   font-weight: 700;
   letter-spacing: -0.025em;
@@ -91,7 +91,7 @@ h1, .h1 {
 }
 
 h2, .h2 {
-  font-family: 'Futura', 'Futura PT', 'Jost', 'Outfit', sans-serif;
+  font-family: 'Jost', 'Futura', 'Futura PT', 'Outfit', sans-serif;
   font-size: clamp(1.35rem, 1.8vw, 1.75rem);
   font-weight: 700;
   letter-spacing: -0.018em;
@@ -99,7 +99,7 @@ h2, .h2 {
 }
 
 h3, .h3 {
-  font-family: 'Futura', 'Futura PT', 'Jost', 'Outfit', sans-serif;
+  font-family: 'Jost', 'Futura', 'Futura PT', 'Outfit', sans-serif;
   font-size: clamp(1.1rem, 1.3vw, 1.3rem);
   font-weight: 600;
   letter-spacing: -0.012em;
@@ -107,7 +107,7 @@ h3, .h3 {
 }
 
 h4, .h4 {
-  font-family: 'Futura', 'Futura PT', 'Jost', 'Outfit', sans-serif;
+  font-family: 'Jost', 'Futura', 'Futura PT', 'Outfit', sans-serif;
   font-size: clamp(0.95rem, 1.1vw, 1.1rem);
   font-weight: 600;
   letter-spacing: -0.005em;
@@ -115,7 +115,7 @@ h4, .h4 {
 }
 
 h5, h6 {
-  font-family: 'Futura', 'Futura PT', 'Jost', 'Outfit', sans-serif;
+  font-family: 'Jost', 'Futura', 'Futura PT', 'Outfit', sans-serif;
   font-size: 0.85rem;
   font-weight: 500;
   letter-spacing: 0.05em;
@@ -294,10 +294,11 @@ footer h3 {
 .top-utility-bar::-webkit-scrollbar {
   display: none;
 }
-.top-utility-bar a {
+.top-utility-bar a,
+.top-utility-bar button.top-utility-bar-item {
   color: #a0aec0;
   font-size: clamp(0.68rem, 0.75vw, 0.75rem);
-  font-weight: 400;
+  font-weight: 500;
   text-decoration: none;
   display: flex;
   align-items: center;
@@ -305,14 +306,17 @@ footer h3 {
   padding: 4px clamp(7px, 0.85vw, 12px);
   border-radius: 20px;
   background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   white-space: nowrap;
   flex-shrink: 0;
+  cursor: pointer;
+  font-family: inherit;
 }
-.top-utility-bar a:hover {
+.top-utility-bar a:hover,
+.top-utility-bar button.top-utility-bar-item:hover {
   color: #fff;
   transform: translateY(-2px);
   background: rgba(255, 255, 255, 0.08);
@@ -362,7 +366,7 @@ footer h3 {
 .nav-links a {
   position: relative;
   font-size: 16px;
-  font-weight: 500;
+  font-weight: 600;
   color: rgba(255,255,255,0.85); /* Slightly muted for premium high-contrast states */
   transition: color 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   letter-spacing: -0.1px;
@@ -1198,8 +1202,12 @@ footer h3 {
 }
 
 .poster-title {
-  font-size: 0.95rem;
-  font-weight: 600;
+  font-size: 0.88rem;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  line-height: 1.35;
+  color: #f1f5f9;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.9);
   margin-bottom: 5px;
 }
 
@@ -2147,7 +2155,7 @@ footer h3 {
 
 .mobile-nav-link {
   font-size: 1.15rem;
-  font-weight: 500;
+  font-weight: 600;
   color: #fff;
   display: flex;
   justify-content: space-between;

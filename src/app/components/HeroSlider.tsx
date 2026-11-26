@@ -110,7 +110,7 @@ export default function HeroSlider({ items }: { items: SliderItem[] }) {
 
                   <h1 className="hero-title" style={{ 
                     textShadow: '0 3px 16px rgba(0,0,0,0.8)', 
-                    fontSize: 'clamp(1.5rem, 2.3vw, 2.2rem)', 
+                    fontSize: 'clamp(1.4rem, 2.2vw, 2.05rem)', 
                     fontWeight: 600,
                     lineHeight: '1.25',
                     marginBottom: '14px',

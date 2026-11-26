@@ -185,15 +185,19 @@ export default function Footer({ userPlanData }: FooterProps) {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               <button 
                 onClick={() => setShowFindMyPlan(true)} 
-                style={{ background: 'transparent', border: 'none', color: '#ff8c53', textAlign: 'left', cursor: 'pointer', fontSize: '0.88rem', fontWeight: 300, padding: 0, display: 'flex', alignItems: 'center', gap: '8px' }}
+                style={{ background: 'transparent', border: 'none', color: '#94a3b8', textAlign: 'left', cursor: 'pointer', fontSize: '0.88rem', fontWeight: 300, padding: 0, display: 'flex', alignItems: 'center', gap: '8px' }}
+                onMouseEnter={e => e.currentTarget.style.color = '#fff'}
+                onMouseLeave={e => e.currentTarget.style.color = '#94a3b8'}
               >
-                <ShieldCheck size={14} /> Find My Plan &amp; Pricing
+                <ShieldCheck size={14} color="var(--primary)" /> Find My Plan &amp; Pricing
               </button>
               <button 
                 onClick={() => setShowFindMyPlan(true)} 
-                style={{ background: 'transparent', border: 'none', color: '#cbd5e1', textAlign: 'left', cursor: 'pointer', fontSize: '0.88rem', padding: 0, display: 'flex', alignItems: 'center', gap: '8px' }}
+                style={{ background: 'transparent', border: 'none', color: '#94a3b8', textAlign: 'left', cursor: 'pointer', fontSize: '0.88rem', fontWeight: 300, padding: 0, display: 'flex', alignItems: 'center', gap: '8px' }}
+                onMouseEnter={e => e.currentTarget.style.color = '#fff'}
+                onMouseLeave={e => e.currentTarget.style.color = '#94a3b8'}
               >
-                <Key size={14} color="#ffd700" /> Redeem Gift Voucher 🔑
+                <Key size={14} color="#ffd700" /> Redeem Gift Voucher
               </button>
               <Link href="/gift" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '0.88rem', fontWeight: 300, display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Gift size={14} color="#f43f5e" /> Gift Subscriptions
@@ -271,13 +275,13 @@ export default function Footer({ userPlanData }: FooterProps) {
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: '#ccc' }}>
                 <CreditCard size={15} /> Verified Payment Gateway:
               </span>
-              <span style={{ background: 'rgba(255,255,255,0.06)', padding: '3px 8px', borderRadius: '6px', color: '#ff8c53', fontWeight: 500 }}>
+              <span style={{ background: 'rgba(255,255,255,0.06)', padding: '3px 8px', borderRadius: '6px', color: '#94a3b8', fontWeight: 300 }}>
                 🇮🇳 UPI / RuPay (INR)
               </span>
-              <span style={{ background: 'rgba(255,255,255,0.06)', padding: '3px 8px', borderRadius: '6px', color: '#60a5fa', fontWeight: 500 }}>
+              <span style={{ background: 'rgba(255,255,255,0.06)', padding: '3px 8px', borderRadius: '6px', color: '#94a3b8', fontWeight: 300 }}>
                 🌍 Visa / Mastercard ($ USD)
               </span>
-              <span style={{ background: 'rgba(255,255,255,0.06)', padding: '3px 8px', borderRadius: '6px', color: '#a855f7', fontWeight: 500 }}>
+              <span style={{ background: 'rgba(255,255,255,0.06)', padding: '3px 8px', borderRadius: '6px', color: '#94a3b8', fontWeight: 300 }}>
                 Razorpay GEO Billing
               </span>
             </div>

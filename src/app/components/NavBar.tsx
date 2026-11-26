@@ -60,35 +60,9 @@ export default function NavBar() {
         <button 
           onClick={() => setShowFindFindMyPlan(true)}
           title="Find My Plan & Pricing"
-          style={{
-            color: '#fff',
-            fontSize: 'clamp(0.68rem, 0.75vw, 0.75rem)',
-            fontWeight: 500,
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-            padding: '4px clamp(8px, 0.85vw, 12px)',
-            borderRadius: '20px',
-            background: 'linear-gradient(135deg, rgba(242, 100, 34, 0.25) 0%, rgba(255, 179, 0, 0.18) 100%)',
-            border: '1px solid rgba(242, 100, 34, 0.45)',
-            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-            textTransform: 'uppercase',
-            letterSpacing: '0.05em',
-            whiteSpace: 'nowrap',
-            flexShrink: 0,
-            cursor: 'pointer',
-            boxShadow: '0 2px 8px rgba(242, 100, 34, 0.2)'
-          }}
-          onMouseEnter={e => {
-            e.currentTarget.style.transform = 'translateY(-2px)';
-            e.currentTarget.style.boxShadow = '0 4px 14px rgba(242, 100, 34, 0.4)';
-          }}
-          onMouseLeave={e => {
-            e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.boxShadow = '0 2px 8px rgba(242, 100, 34, 0.2)';
-          }}
+          className="top-utility-bar-item"
         >
-          <span className="icon-wrapper" style={{ display: 'inline-flex', alignItems: 'center', color: 'var(--primary)' }}>
+          <span className="icon-wrapper" style={{ marginRight: '5px', color: 'var(--primary)' }}>
             <ShieldCheck size={14} />
           </span>
           <span>Find My Plan</span>
