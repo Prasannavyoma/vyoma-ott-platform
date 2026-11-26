@@ -60,7 +60,7 @@ export default function Footer({ userPlanData }: FooterProps) {
                 style={{ height: '48px', width: 'fit-content', objectFit: 'contain', filter: 'drop-shadow(0 0 12px rgba(242, 100, 34, 0.2))' }} 
               />
             </Link>
-            <p style={{ fontSize: '0.9rem', lineHeight: '1.6', margin: 0, color: '#8f98a9' }}>
+            <p style={{ fontSize: '0.9rem', lineHeight: '1.6', margin: 0, color: '#8f98a9', fontWeight: 300 }}>
               Vyoma Linguistic Labs Foundation is a non-profit organization pioneering digital Sanskrit education globally. Empowering learners through modern OTT streaming technology.
             </p>
             
@@ -142,7 +142,7 @@ export default function Footer({ userPlanData }: FooterProps) {
             <h3 style={{ 
               color: '#fff', 
               fontSize: '1rem', 
-              fontWeight: 800, 
+              fontWeight: 600, 
               marginBottom: '18px', 
               borderBottom: '2px solid rgba(242,100,34,0.4)',
               paddingBottom: '6px',
@@ -174,7 +174,7 @@ export default function Footer({ userPlanData }: FooterProps) {
             <h3 style={{ 
               color: '#fff', 
               fontSize: '1rem', 
-              fontWeight: 800, 
+              fontWeight: 600, 
               marginBottom: '18px', 
               borderBottom: '2px solid rgba(242,100,34,0.4)',
               paddingBottom: '6px',
@@ -185,7 +185,7 @@ export default function Footer({ userPlanData }: FooterProps) {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               <button 
                 onClick={() => setShowFindMyPlan(true)} 
-                style={{ background: 'transparent', border: 'none', color: '#ff8c53', textAlign: 'left', cursor: 'pointer', fontSize: '0.88rem', fontWeight: 800, padding: 0, display: 'flex', alignItems: 'center', gap: '8px' }}
+                style={{ background: 'transparent', border: 'none', color: '#ff8c53', textAlign: 'left', cursor: 'pointer', fontSize: '0.88rem', fontWeight: 500, padding: 0, display: 'flex', alignItems: 'center', gap: '8px' }}
               >
                 <ShieldCheck size={14} /> Find My Plan &amp; Pricing
               </button>
@@ -212,7 +212,7 @@ export default function Footer({ userPlanData }: FooterProps) {
             <h3 style={{ 
               color: '#fff', 
               fontSize: '1rem', 
-              fontWeight: 800, 
+              fontWeight: 600, 
               marginBottom: '18px', 
               borderBottom: '2px solid rgba(242,100,34,0.4)',
               paddingBottom: '6px',

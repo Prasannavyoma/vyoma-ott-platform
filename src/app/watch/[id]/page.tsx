@@ -415,14 +415,14 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
 
       <div style={{ position: 'relative', zIndex: 10 }}>
         <header style={{ padding: '25px 4%', display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '20px', width: '100%' }}>
-          <Link href="/" className="back-btn" style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', padding: '10px 24px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '30px', textDecoration: 'none', color: '#fff', fontWeight: 700, fontSize: '0.9rem', letterSpacing: '1px', transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)', backdropFilter: 'blur(12px)', boxShadow: '0 10px 30px rgba(0,0,0,0.3)' }}>
+          <Link href="/" className="back-btn" style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', padding: '10px 24px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '30px', textDecoration: 'none', color: '#fff', fontWeight: 500, fontSize: '0.9rem', letterSpacing: '1px', transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)', backdropFilter: 'blur(12px)', boxShadow: '0 10px 30px rgba(0,0,0,0.3)' }}>
             <span style={{ fontSize: '1.2rem' }}>←</span> <span style={{ opacity: 0.9 }}>Back</span>
           </Link>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, minWidth: '200px' }}>
-             <span style={{ background: 'linear-gradient(135deg, rgba(242,100,34,0.2), rgba(242,100,34,0.05))', color: '#f26422', padding: '6px 12px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 900, letterSpacing: '1.5px', border: '1px solid rgba(242,100,34,0.3)', boxShadow: '0 0 15px rgba(242,100,34,0.2)' }}>
+             <span style={{ background: 'linear-gradient(135deg, rgba(242,100,34,0.2), rgba(242,100,34,0.05))', color: '#f26422', padding: '6px 12px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '1.5px', border: '1px solid rgba(242,100,34,0.3)', boxShadow: '0 0 15px rgba(242,100,34,0.2)' }}>
                NOW PLAYING
              </span>
-             <h1 style={{ fontSize: '1.3rem', fontWeight: 800, margin: 0, display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical', overflow: 'hidden', textShadow: '0 2px 10px rgba(0,0,0,0.8)' }}>
+             <h1 style={{ fontSize: '1.3rem', fontWeight: 700, margin: 0, display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical', overflow: 'hidden', textShadow: '0 2px 10px rgba(0,0,0,0.8)' }}>
                {course.title ? course.title.replace(/&amp;/g, '&') : ''}
              </h1>
           </div>
@@ -466,18 +466,18 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
                        <div style={{ 
                          position: 'absolute', bottom: '-5px', right: '-5px', 
                          background: '#f26422', color: '#fff', fontSize: '0.65rem', 
-                         fontWeight: 900, padding: '4px 8px', borderRadius: '4px', textTransform: 'uppercase' 
+                         fontWeight: 600, padding: '4px 8px', borderRadius: '4px', textTransform: 'uppercase' 
                        }}>
                          {displayRequiredLevel?.replace('_', ' ')}
                        </div>
                     </div>
 
-                    <h3 style={{ fontSize: '1.8rem', fontWeight: 900, marginBottom: '10px', color: '#fff', textShadow: '0 4px 15px rgba(0,0,0,0.9)' }}>
+                    <h3 style={{ fontSize: '1.8rem', fontWeight: 700, marginBottom: '10px', color: '#fff', textShadow: '0 4px 15px rgba(0,0,0,0.9)' }}>
                       Premium Access Required
                     </h3>
                     
-                    <p style={{ maxWidth: '450px', color: '#eee', fontSize: '0.95rem', lineHeight: '1.5', marginBottom: '25px', fontWeight: 500, textShadow: '0 2px 10px rgba(0,0,0,0.9)' }}>
-                      This content is restricted to <strong style={{ color: 'var(--primary)' }}>{displayRequiredLevel?.replace('_', ' ')}</strong> Plan Members. 
+                    <p style={{ maxWidth: '450px', color: '#eee', fontSize: '0.95rem', lineHeight: '1.6', marginBottom: '25px', fontWeight: 300, textShadow: '0 2px 10px rgba(0,0,0,0.9)' }}>
+                      This content is restricted to <strong style={{ color: 'var(--primary)', fontWeight: 600 }}>{displayRequiredLevel?.replace('_', ' ')}</strong> Plan Members. 
                       {displayRequiredLevel === 'PAID' ? ' You can purchase absolute individual lifetime access below.' : ' Upgrade your plan instantly to unlock access.'}
                     </p>
 
@@ -485,7 +485,7 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
                        <Link href="/subscribe" style={{ 
                          background: 'linear-gradient(135deg, #f26422 0%, #ff8c53 100%)', 
                          color: '#fff', textDecoration: 'none', padding: '14px 30px', 
-                         borderRadius: '30px', fontWeight: 900, fontSize: '0.9rem', 
+                         borderRadius: '30px', fontWeight: 600, fontSize: '0.9rem', 
                          letterSpacing: '1px', boxShadow: '0 10px 30px rgba(242,100,34,0.3)',
                          transition: 'transform 0.2s'
                        }}>
@@ -495,7 +495,7 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
                        <Link href={`/checkout/${courseId}`} style={{ 
                          background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)',
                          color: '#fff', textDecoration: 'none', padding: '14px 30px', 
-                         borderRadius: '30px', fontWeight: 900, fontSize: '0.9rem', 
+                         borderRadius: '30px', fontWeight: 600, fontSize: '0.9rem', 
                          letterSpacing: '1px', backdropFilter: 'blur(10px)', boxShadow: '0 10px 30px rgba(0,0,0,0.4)',
                          transition: 'transform 0.2s'
                        }}>
@@ -544,12 +544,12 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
                   alignItems: 'center', 
                   gap: '10px', 
                   fontSize: '0.95rem', 
-                  fontWeight: 700, 
+                  fontWeight: 400, 
                   color: '#aaa', 
                   marginBottom: '15px',
                   letterSpacing: '0.5px' 
                 }}>
-                   <span style={{ color: '#46d369' }}>99% Match</span>
+                   <span style={{ color: '#46d369', fontWeight: 600 }}>99% Match</span>
                    <span style={{ color: '#444', fontSize: '0.7rem' }}>●</span>
                    <span>HD</span>
                    <span style={{ color: '#444', fontSize: '0.7rem' }}>●</span>
@@ -559,7 +559,7 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
                      padding: '2px 8px', 
                      borderRadius: '4px', 
                      fontSize: '0.75rem', 
-                     fontWeight: 900,
+                     fontWeight: 600,
                      letterSpacing: '0.5px' 
                    }}>
                      {course.accessLevel?.replace('_', ' ')}
@@ -575,9 +575,9 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
                 {/* MAIN COURSE TITLE - GRADIENT WOW EFFECT */}
                 <h1 className="watch-title" style={{
                   fontSize: '3.2rem',
-                  fontWeight: 900,
-                  letterSpacing: '-1.5px',
-                  lineHeight: 1.1,
+                  fontWeight: 700,
+                  letterSpacing: '-1.2px',
+                  lineHeight: 1.15,
                   marginBottom: '15px',
                   background: 'linear-gradient(to right, #ffffff, #b0b8c7)',
                   WebkitBackgroundClip: 'text',
@@ -591,7 +591,7 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
                 {activeEpisode && activeEpisode.title !== course.title && (
                   <h3 className="active-episode-title" style={{ 
                     fontSize: '1.6rem', 
-                    fontWeight: 800, 
+                    fontWeight: 600, 
                     color: 'var(--primary)', 
                     margin: '0 0 20px 0', 
                     letterSpacing: '-0.5px',
@@ -625,7 +625,7 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
                     border: '1px solid rgba(255, 255, 255, 0.06)'
                   }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                      <div style={{ fontSize: '0.78rem', color: '#f26422', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.8px' }}>
+                      <div style={{ fontSize: '0.78rem', color: '#f26422', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.8px' }}>
                         📋 Episode Details & Timestamps
                       </div>
                       {user?.role === 'ADMIN' && activeEpisode?.id && (
@@ -640,7 +640,7 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
                     </div>
                     <InteractiveTimestampText
                       text={activeEpisode.description.replace(/&amp;/g, '&')}
-                      style={{ color: 'rgba(255,255,255,0.85)', fontSize: '1rem', lineHeight: '1.7' }}
+                      style={{ color: 'rgba(255,255,255,0.85)', fontSize: '1rem', lineHeight: '1.7', fontWeight: 300 }}
                     />
                   </div>
                 )}
@@ -657,7 +657,7 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
                     lineHeight: '1.7', 
                     maxWidth: '850px', 
                     fontSize: '1.05rem',
-                    fontWeight: 500,
+                    fontWeight: 300,
                     marginTop: '20px',
                     marginBottom: '30px',
                     wordWrap: 'break-word',
@@ -700,7 +700,7 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
                              gap: '6px', 
                              color: '#e9d5ff', 
                              fontSize: '0.82rem', 
-                             fontWeight: 800, 
+                             fontWeight: 500, 
                              letterSpacing: '0.3px' 
                            }}>
                              <span style={{ fontSize: '1rem' }}>🎮</span> Live Interactive Game (Online Play)
@@ -712,7 +712,7 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
                              padding: '2px 9px', 
                              borderRadius: '12px', 
                              fontSize: '0.73rem', 
-                             fontWeight: 600, 
+                             fontWeight: 400, 
                              letterSpacing: '0.2px' 
                            }}>
                              Cannot be downloaded (In-app download)
@@ -754,7 +754,7 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
 
                   return (
                     <div style={{ marginTop: '40px', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '30px', marginBottom: '40px' }}>
-                       <h3 style={{ fontSize: '1.6rem', fontWeight: 900, marginBottom: '25px', color: '#fff', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                       <h3 style={{ fontSize: '1.6rem', fontWeight: 600, marginBottom: '25px', color: '#fff', display: 'flex', alignItems: 'center', gap: '10px' }}>
                           <span>{isGameContent ? '🎮' : '📺'}</span> {isGameContent ? 'Game Activities' : 'Episodes'} ({course.episodes.length})
                        </h3>
                        
@@ -809,7 +809,7 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
                   alignItems: 'center', 
                   gap: '6px', 
                   fontSize: '0.78rem', 
-                  fontWeight: 800, 
+                  fontWeight: 600, 
                   textTransform: 'uppercase', 
                   letterSpacing: '0.08em', 
                   color: 'var(--primary, #f26422)',
@@ -820,7 +820,7 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
                 </div>
                 <h2 style={{ 
                   fontSize: 'clamp(1.4rem, 2vw, 1.85rem)', 
-                  fontWeight: 900, 
+                  fontWeight: 700, 
                   color: '#fff', 
                   margin: 0,
                   letterSpacing: '-0.02em',
@@ -833,7 +833,7 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
                   {course.category && (
                     <span style={{ 
                       fontSize: '0.82rem', 
-                      fontWeight: 700, 
+                      fontWeight: 400, 
                       color: '#94a3b8', 
                       background: 'rgba(255,255,255,0.06)', 
                       padding: '4px 12px', 
@@ -854,7 +854,7 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
                     alignItems: 'center',
                     gap: '6px',
                     fontSize: '0.82rem',
-                    fontWeight: 700,
+                    fontWeight: 500,
                     color: 'var(--primary, #f26422)',
                     textDecoration: 'none',
                     padding: '8px 16px',
@@ -940,7 +940,7 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
                           padding: '3px 8px', 
                           borderRadius: '6px', 
                           fontSize: '0.62rem', 
-                          fontWeight: 800, 
+                          fontWeight: 600, 
                           color: rec.accessLevel === 'FREE' ? '#4ade80' : rec.accessLevel?.includes('PLATINUM') ? '#e5e4e2' : '#fbbf24',
                           letterSpacing: '0.5px'
                         }}>
@@ -957,7 +957,7 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
                           padding: '3px 8px', 
                           borderRadius: '6px', 
                           fontSize: '0.65rem', 
-                          fontWeight: 700, 
+                          fontWeight: 500, 
                           color: '#e2e8f0',
                           border: '1px solid rgba(255,255,255,0.1)'
                         }}>
@@ -975,7 +975,7 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
                             padding: '2px 7px', 
                             borderRadius: '4px', 
                             fontSize: '0.6rem', 
-                            fontWeight: 800, 
+                            fontWeight: 600, 
                             letterSpacing: '0.3px',
                             boxShadow: '0 2px 8px rgba(242, 100, 34, 0.4)'
                           }}>
@@ -990,7 +990,7 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
                           <div style={{ 
                             fontSize: '0.68rem', 
                             color: '#38bdf8', 
-                            fontWeight: 800, 
+                            fontWeight: 500, 
                             textTransform: 'uppercase', 
                             marginBottom: '6px', 
                             letterSpacing: '0.5px',
@@ -1002,7 +1002,7 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
                           </div>
                           <h3 style={{ 
                             fontSize: '0.98rem', 
-                            fontWeight: 700, 
+                            fontWeight: 600, 
                             margin: '0 0 8px 0', 
                             color: '#fff', 
                             lineHeight: '1.4', 
@@ -1024,13 +1024,14 @@ export default async function WatchPage(props: { params: Promise<{ id: string }>
                           marginTop: '14px', 
                           fontSize: '0.75rem', 
                           color: '#94a3b8', 
+                          fontWeight: 300,
                           borderTop: '1px solid rgba(255,255,255,0.06)', 
                           paddingTop: '12px' 
                         }}>
                           <span>{unitCount} {unitCount === 1 ? 'Unit' : 'Units'}</span>
                           <span style={{ 
                             color: 'var(--primary, #f26422)', 
-                            fontWeight: 800, 
+                            fontWeight: 600, 
                             display: 'inline-flex', 
                             alignItems: 'center', 
                             gap: '4px' 

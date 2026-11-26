@@ -513,7 +513,7 @@ export default function GiftClientPage({
               padding: '4px 12px', 
               borderRadius: '20px', 
               fontSize: '0.72rem', 
-              fontWeight: 900, 
+              fontWeight: 600, 
               letterSpacing: '1px',
               textTransform: 'uppercase',
               marginBottom: '10px'
@@ -522,27 +522,27 @@ export default function GiftClientPage({
             </div>
             <h1 style={{ 
               fontSize: '2.4rem', 
-              fontWeight: 900, 
+              fontWeight: 700, 
               color: '#ffffff',
               margin: '0 0 8px 0',
               letterSpacing: '-0.8px'
             }}>
               Gift Sacred <span style={{ color: activeThemeObj.primary, textShadow: `0 0 30px ${activeThemeObj.glow}` }}>Wisdom</span>
             </h1>
-            <p style={{ color: '#94a3b8', margin: 0, fontSize: '0.96rem', lineHeight: '1.5', maxWidth: '650px' }}>
+            <p style={{ color: '#94a3b8', margin: 0, fontSize: '0.96rem', lineHeight: '1.6', maxWidth: '650px', fontWeight: 300 }}>
               Personalize a Vedic digital E-Card with 1-click unboxing ceremony, blessed shloka, and full course streaming membership for your loved ones.
             </p>
           </div>
 
           {/* TRUST BADGES */}
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
-            <span style={{ background: 'rgba(70,211,105,0.08)', border: '1px solid rgba(70,211,105,0.25)', padding: '5px 12px', borderRadius: '20px', color: '#46d369', fontSize: '0.74rem', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: '5px', whiteSpace: 'nowrap' }}>
+            <span style={{ background: 'rgba(70,211,105,0.08)', border: '1px solid rgba(70,211,105,0.25)', padding: '5px 12px', borderRadius: '20px', color: '#46d369', fontSize: '0.74rem', fontWeight: 500, display: 'inline-flex', alignItems: 'center', gap: '5px', whiteSpace: 'nowrap' }}>
               <span>✨</span> 1-Click Unboxing
             </span>
-            <span style={{ background: 'rgba(255,215,0,0.08)', border: '1px solid rgba(255,215,0,0.25)', padding: '5px 12px', borderRadius: '20px', color: '#ffd700', fontSize: '0.74rem', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: '5px', whiteSpace: 'nowrap' }}>
+            <span style={{ background: 'rgba(255,215,0,0.08)', border: '1px solid rgba(255,215,0,0.25)', padding: '5px 12px', borderRadius: '20px', color: '#ffd700', fontSize: '0.74rem', fontWeight: 500, display: 'inline-flex', alignItems: 'center', gap: '5px', whiteSpace: 'nowrap' }}>
               <span>📜</span> Certified Membership
             </span>
-            <span style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', padding: '5px 12px', borderRadius: '20px', color: '#cbd5e1', fontSize: '0.74rem', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: '5px', whiteSpace: 'nowrap' }}>
+            <span style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', padding: '5px 12px', borderRadius: '20px', color: '#cbd5e1', fontSize: '0.74rem', fontWeight: 500, display: 'inline-flex', alignItems: 'center', gap: '5px', whiteSpace: 'nowrap' }}>
               <span>🔒</span> Encrypted Checkout
             </span>
           </div>

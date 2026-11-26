@@ -63,7 +63,7 @@ export default function NavBar() {
           style={{
             color: '#fff',
             fontSize: 'clamp(0.68rem, 0.75vw, 0.75rem)',
-            fontWeight: 800,
+            fontWeight: 500,
             display: 'flex',
             alignItems: 'center',
             gap: '6px',
@@ -99,7 +99,7 @@ export default function NavBar() {
               padding: '1px 6px',
               borderRadius: '6px',
               fontSize: '0.62rem',
-              fontWeight: 900,
+              fontWeight: 600,
               lineHeight: 1,
               marginLeft: '4px',
               letterSpacing: '0.5px'
@@ -225,7 +225,7 @@ export default function NavBar() {
                 }}
                 title="Offline Library" 
                 className="nav-icon-link" 
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', textDecoration: 'none', color: '#cbd5e1', fontSize: '0.85rem', fontWeight: 600 }}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', textDecoration: 'none', color: '#cbd5e1', fontSize: '0.85rem', fontWeight: 500 }}
               >
                  <span>📥</span> <span className="profile-text">Offline</span>
               </Link>
@@ -235,7 +235,7 @@ export default function NavBar() {
               <button 
                 onClick={() => setShowLogoutModal(true)} 
                 className="logout-btn" 
-                style={{ background: 'rgba(255,100,100,0.1)', color: '#ff6b6b', border: '1px solid rgba(255,100,100,0.2)', padding: '6px 14px', borderRadius: '20px', fontSize: '0.85rem', fontWeight: 'bold', cursor: 'pointer', transition: 'all 0.3s' }}
+                style={{ background: 'rgba(255,100,100,0.1)', color: '#ff6b6b', border: '1px solid rgba(255,100,100,0.2)', padding: '6px 14px', borderRadius: '20px', fontSize: '0.85rem', fontWeight: 500, cursor: 'pointer', transition: 'all 0.3s' }}
                 onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,100,100,0.2)'}
                 onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,100,100,0.1)'}
               >
@@ -281,7 +281,7 @@ export default function NavBar() {
               <Link 
                 href="/progress" 
                 onClick={() => setMobileMenuOpen(false)}
-                style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', background: 'rgba(255,255,255,0.04)', padding: '10px', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 700, border: '1px solid rgba(255,255,255,0.08)', color: '#fff', textDecoration: 'none' }}
+                style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', background: 'rgba(255,255,255,0.04)', padding: '10px', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 500, border: '1px solid rgba(255,255,255,0.08)', color: '#fff', textDecoration: 'none' }}
               >
                 <TrendingUp size={16} /> Progress
               </Link>
@@ -295,7 +295,7 @@ export default function NavBar() {
                     window.location.href = '/offline.html';
                   }
                 }}
-                style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', background: 'rgba(242,100,34,0.1)', padding: '10px', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 700, border: '1px solid rgba(242,100,34,0.25)', color: '#ff8c53', textDecoration: 'none' }}
+                style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', background: 'rgba(242,100,34,0.1)', padding: '10px', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 500, border: '1px solid rgba(242,100,34,0.25)', color: '#ff8c53', textDecoration: 'none' }}
               >
                 <span>📥</span> Offline
               </Link>
@@ -304,7 +304,7 @@ export default function NavBar() {
                   <Link 
                     href="/profile" 
                     onClick={() => setMobileMenuOpen(false)}
-                    style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', background: 'rgba(255,255,255,0.04)', padding: '10px', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 700, border: '1px solid rgba(255,255,255,0.08)', color: '#fff', textDecoration: 'none' }}
+                    style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', background: 'rgba(255,255,255,0.04)', padding: '10px', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 500, border: '1px solid rgba(255,255,255,0.08)', color: '#fff', textDecoration: 'none' }}
                   >
                     <User size={16} /> Profile
                   </Link>
@@ -313,7 +313,7 @@ export default function NavBar() {
                       setMobileMenuOpen(false);
                       setShowLogoutModal(true);
                     }}
-                    style={{ flex: '1 1 100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', background: 'rgba(255,100,100,0.1)', padding: '10px', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 700, border: '1px solid rgba(255,100,100,0.2)', color: '#ff6b6b', cursor: 'pointer' }}
+                    style={{ flex: '1 1 100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', background: 'rgba(255,100,100,0.1)', padding: '10px', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 500, border: '1px solid rgba(255,100,100,0.2)', color: '#ff6b6b', cursor: 'pointer' }}
                   >
                     Logout
                   </button>
@@ -323,14 +323,14 @@ export default function NavBar() {
                 <Link 
                   href="/login" 
                   onClick={() => setMobileMenuOpen(false)}
-                  style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', background: 'rgba(255,255,255,0.04)', padding: '10px', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 700, border: '1px solid rgba(255,255,255,0.08)', color: '#fff', textDecoration: 'none' }}
+                  style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', background: 'rgba(255,255,255,0.04)', padding: '10px', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 500, border: '1px solid rgba(255,255,255,0.08)', color: '#fff', textDecoration: 'none' }}
                 >
                   Login
                 </Link>
                 <Link 
                   href="/register" 
                   onClick={() => setMobileMenuOpen(false)}
-                  style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', background: 'linear-gradient(135deg, #0071BE 0%, #0095ff 100%)', padding: '10px', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 700, border: 'none', color: '#fff', textDecoration: 'none', boxShadow: '0 4px 15px rgba(0, 113, 190, 0.4)' }}
+                  style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', background: 'linear-gradient(135deg, #0071BE 0%, #0095ff 100%)', padding: '10px', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 600, border: 'none', color: '#fff', textDecoration: 'none', boxShadow: '0 4px 15px rgba(0, 113, 190, 0.4)' }}
                 >
                   Register
                 </Link>
@@ -427,7 +427,7 @@ export default function NavBar() {
               padding: '12px',
               borderRadius: '10px',
               fontSize: '0.9rem',
-              fontWeight: 800,
+              fontWeight: 500,
               cursor: 'pointer',
               marginBottom: '10px',
               marginTop: '10px'
@@ -442,7 +442,7 @@ export default function NavBar() {
               href="/register" 
               onClick={() => setMobileMenuOpen(false)}
               className="btn btn-primary" 
-              style={{ width: '100%', display: 'flex', justifyContent: 'center', padding: '14px', fontSize: '0.95rem', fontWeight: 800, marginTop: '10px' }}
+              style={{ width: '100%', display: 'flex', justifyContent: 'center', padding: '14px', fontSize: '0.95rem', fontWeight: 600, marginTop: '10px' }}
             >
               Free Register
             </Link>

@@ -160,14 +160,14 @@ export default async function ProgressTrackerPage() {
         {/* HEADER SECTION */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '30px' }}>
           <div>
-            <h1 style={{ fontSize: '2.8rem', fontWeight: 800, margin: 0, background: 'linear-gradient(to right, #ffffff, #8f98a9)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', letterSpacing: '-1px' }}>
+            <h1 style={{ fontSize: '2.8rem', fontWeight: 700, margin: 0, background: 'linear-gradient(to right, #ffffff, #8f98a9)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', letterSpacing: '-1px' }}>
               Academic Progress Tracker
             </h1>
-            <p style={{ color: '#8f98a9', margin: '8px 0 0 0', fontSize: '1.1rem' }}>
+            <p style={{ color: '#8f98a9', margin: '8px 0 0 0', fontSize: '1.1rem', fontWeight: 300 }}>
               Track your educational journey, review completed courses, and unlock scholarly badges.
             </p>
           </div>
-          <Link href="/profile" style={{ background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)', padding: '12px 24px', borderRadius: '30px', fontWeight: 700, textDecoration: 'none', transition: 'all 0.3s ease', fontSize: '0.9rem' }}>
+          <Link href="/profile" style={{ background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)', padding: '12px 24px', borderRadius: '30px', fontWeight: 500, textDecoration: 'none', transition: 'all 0.3s ease', fontSize: '0.9rem' }}>
             👤 View Profile Settings
           </Link>
         </div>
@@ -215,10 +215,10 @@ export default async function ProgressTrackerPage() {
           marginBottom: '45px',
           boxShadow: '0 10px 30px rgba(0,0,0,0.2)'
         }}>
-          <h2 style={{ fontSize: '1.6rem', fontWeight: 800, color: '#fff', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <h2 style={{ fontSize: '1.6rem', fontWeight: 700, color: '#fff', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '10px' }}>
             <span>🗺️</span> Interactive Learning Path Roadmap
           </h2>
-          <p style={{ color: '#8f98a9', margin: '0 0 30px 0', fontSize: '0.9rem' }}>
+          <p style={{ color: '#8f98a9', margin: '0 0 30px 0', fontSize: '0.9rem', fontWeight: 300 }}>
             Visualize your progress across the syllabus hierarchy. Complete courses to unlock advanced units.
           </p>
 
@@ -461,7 +461,7 @@ const metricCardStyle: React.CSSProperties = {
 
 const metricValueStyle: React.CSSProperties = {
   fontSize: '1.8rem',
-  fontWeight: 900,
+  fontWeight: 500,
   color: '#fff',
   lineHeight: '1'
 };
@@ -469,7 +469,7 @@ const metricValueStyle: React.CSSProperties = {
 const metricLabelStyle: React.CSSProperties = {
   fontSize: '0.75rem',
   color: '#8f98a9',
-  fontWeight: 700,
+  fontWeight: 500,
   textTransform: 'uppercase',
   letterSpacing: '1px',
   marginTop: '5px'
@@ -493,7 +493,7 @@ const badgeFloatStyle: React.CSSProperties = {
   background: 'var(--primary, #f26422)',
   color: '#fff',
   fontSize: '0.7rem',
-  fontWeight: 900,
+  fontWeight: 500,
   padding: '3px 8px',
   borderRadius: '4px',
   boxShadow: '0 2px 8px rgba(0,0,0,0.4)'
@@ -504,7 +504,7 @@ const resumeButtonStyle: React.CSSProperties = {
   color: '#fff',
   padding: '6px 16px',
   borderRadius: '30px',
-  fontWeight: 800,
+  fontWeight: 600,
   fontSize: '0.8rem',
   textDecoration: 'none',
   display: 'inline-block',
@@ -518,7 +518,7 @@ const actionButtonStyle: React.CSSProperties = {
   color: '#fff',
   padding: '12px 30px',
   borderRadius: '30px',
-  fontWeight: 800,
+  fontWeight: 600,
   fontSize: '0.9rem',
   textDecoration: 'none',
   display: 'inline-block',

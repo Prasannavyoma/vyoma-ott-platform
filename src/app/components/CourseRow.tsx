@@ -210,7 +210,7 @@ export default function CourseRow({ title, courses, icon, viewAllHref, sectionId
                       padding: '2px 7px',
                       borderRadius: '4px',
                       fontSize: '0.62rem',
-                      fontWeight: 900,
+                      fontWeight: 600,
                       letterSpacing: '0.4px',
                       zIndex: 10,
                       boxShadow: '0 2px 8px rgba(0,0,0,0.6)',
@@ -243,7 +243,7 @@ export default function CourseRow({ title, courses, icon, viewAllHref, sectionId
                   <div className="poster-title">{course.title ? course.title.replace(/&amp;/g, '&') : ''}</div>
                   {course.subTitle && <div style={{ fontSize: '0.7rem', opacity: 0.8, marginBottom: '5px', color: 'var(--primary)' }}>{course.subTitle ? course.subTitle.replace(/&amp;/g, '&') : ''}</div>}
                   <div className="poster-meta">
-                    <span style={{color: '#46d369', fontWeight: 'bold'}}>{course.match}</span>
+                    <span style={{color: '#46d369', fontWeight: 600}}>{course.match}</span>
                     {course.durationLeftStr ? (
                        <span className="poster-tag" style={{ background: '#f26422' }}>{course.durationLeftStr}</span>
                     ) : (

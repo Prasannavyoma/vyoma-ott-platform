@@ -101,8 +101,8 @@ export default function HeroSlider({ items }: { items: SliderItem[] }) {
                   padding: '150px 4% 40px 4%', 
                   maxWidth: 'min(100%, 600px)'
                 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '12px', color: '#c4c4c4', fontSize: '0.85rem', fontWeight: 600, letterSpacing: '0.5px' }}>
-                    <span style={{ color: '#46d369', fontWeight: 800 }}>98% Match</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '12px', color: '#c4c4c4', fontSize: '0.85rem', fontWeight: 400, letterSpacing: '0.5px' }}>
+                    <span style={{ color: '#46d369', fontWeight: 700 }}>98% Match</span>
                     <span>2026</span>
                     <span>{item.contentType || 'Spiritual Series'}</span>
                     <span style={{ border: '1px solid rgba(255,255,255,0.3)', padding: '1px 6px', borderRadius: '3px', fontSize: '0.7rem', color: '#e0e0e0' }}>HD</span>
@@ -111,7 +111,7 @@ export default function HeroSlider({ items }: { items: SliderItem[] }) {
                   <h1 className="hero-title" style={{ 
                     textShadow: '0 4px 20px rgba(0,0,0,0.8)', 
                     fontSize: 'clamp(1.8rem, 3vw, 2.8rem)', 
-                    fontWeight: 800,
+                    fontWeight: 700,
                     lineHeight: '1.2',
                     marginBottom: '16px',
                     color: '#ffffff',
@@ -122,15 +122,16 @@ export default function HeroSlider({ items }: { items: SliderItem[] }) {
 
                   <p className="hero-desc" style={{ 
                     fontSize: '1rem', 
-                    lineHeight: '1.6', 
+                    lineHeight: '1.65', 
                     marginBottom: '30px',
-                    color: 'rgba(255, 255, 255, 0.75)',
+                    color: 'rgba(255, 255, 255, 0.8)',
                     textShadow: '0 2px 10px rgba(0,0,0,0.9)',
                     display: '-webkit-box',
                     WebkitLineClamp: 3,
                     WebkitBoxOrient: 'vertical',
                     overflow: 'hidden',
-                    fontWeight: 400
+                    fontWeight: 300,
+                    letterSpacing: '0.01em'
                   }}>
                     {displayDesc ? displayDesc.replace(/&amp;/g, '&') : ''}
                   </p>
@@ -139,26 +140,28 @@ export default function HeroSlider({ items }: { items: SliderItem[] }) {
                     <Link href={`/watch/${item.id}`} style={{ 
                       padding: '8px 24px', 
                       fontSize: '0.95rem', 
-                      fontWeight: 700,
+                      fontWeight: 600,
                       background: '#ffffff',
                       color: '#000000',
                       borderRadius: '6px',
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '8px'
+                      gap: '8px',
+                      letterSpacing: '0.3px'
                     }}>
                       <span style={{ fontSize: '1.2rem' }}>▶</span> Play
                     </Link>
                     <Link href={`/watch/${item.id}`} style={{ 
                       padding: '8px 24px', 
                       fontSize: '0.95rem', 
-                      fontWeight: 700,
+                      fontWeight: 600,
                       background: 'rgba(80, 80, 82, 0.65)',
                       color: '#ffffff',
                       borderRadius: '6px',
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '8px'
+                      gap: '8px',
+                      letterSpacing: '0.3px'
                     }}>
                       <span style={{ fontSize: '1.2rem', color: '#ffffff' }}>ℹ</span> More Info
                     </Link>
@@ -219,8 +222,8 @@ export default function HeroSlider({ items }: { items: SliderItem[] }) {
                 transition: 'all 1.0s cubic-bezier(0.25, 1, 0.5, 1)',
                 transitionDelay: '0.15s'
               }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', marginBottom: '8px', color: '#c4c4c4', fontSize: '0.75rem', fontWeight: 600 }}>
-                  <span style={{ color: '#46d369', fontWeight: 800 }}>98% Match</span>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', marginBottom: '8px', color: '#c4c4c4', fontSize: '0.75rem', fontWeight: 400 }}>
+                  <span style={{ color: '#46d369', fontWeight: 700 }}>98% Match</span>
                   <span>2026</span>
                   <span>{item.contentType || 'Spiritual'}</span>
                   <span style={{ border: '1px solid rgba(255,255,255,0.3)', padding: '1px 4px', borderRadius: '3px' }}>HD</span>
@@ -228,7 +231,7 @@ export default function HeroSlider({ items }: { items: SliderItem[] }) {
 
                 <h1 style={{ 
                   fontSize: '2.4rem', 
-                  fontWeight: 800,
+                  fontWeight: 700,
                   lineHeight: '1.1',
                   marginBottom: '20px',
                   color: '#ffffff',
@@ -242,14 +245,15 @@ export default function HeroSlider({ items }: { items: SliderItem[] }) {
                     flex: 1,
                     padding: '12px 0', 
                     fontSize: '1rem', 
-                    fontWeight: 700,
+                    fontWeight: 600,
                     background: '#ffffff',
                     color: '#000000',
                     borderRadius: '4px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    gap: '8px'
+                    gap: '8px',
+                    letterSpacing: '0.3px'
                   }}>
                     <span style={{ fontSize: '1.2rem' }}>▶</span> Play
                   </Link>
@@ -257,7 +261,7 @@ export default function HeroSlider({ items }: { items: SliderItem[] }) {
                     flex: 1,
                     padding: '12px 0', 
                     fontSize: '1rem', 
-                    fontWeight: 700,
+                    fontWeight: 600,
                     background: 'rgba(80, 80, 82, 0.8)',
                     color: '#ffffff',
                     borderRadius: '4px',

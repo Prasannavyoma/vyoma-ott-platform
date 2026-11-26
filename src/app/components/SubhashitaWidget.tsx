@@ -197,11 +197,11 @@ export default function SubhashitaWidget() {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <span style={{ fontSize: '1.4rem' }}>🪔</span>
-          <span style={{ fontSize: '0.82rem', textTransform: 'uppercase', letterSpacing: '2px', color: '#f26422', fontWeight: 800 }}>
+          <span style={{ fontSize: '0.82rem', textTransform: 'uppercase', letterSpacing: '2px', color: '#f26422', fontWeight: 600 }}>
             Subhashita of the Day
           </span>
         </div>
-        <span style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.4)', background: 'rgba(255,255,255,0.05)', padding: '4px 10px', borderRadius: '12px' }}>
+        <span style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.4)', background: 'rgba(255,255,255,0.05)', padding: '4px 10px', borderRadius: '12px', fontWeight: 300 }}>
           Source: {currentQuote.source}
         </span>
       </div>
@@ -236,8 +236,8 @@ export default function SubhashitaWidget() {
 
       {/* Translation */}
       <div style={{ marginBottom: '24px' }}>
-        <h4 style={{ margin: '0 0 6px 0', fontSize: '0.85rem', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '1px' }}>English Translation</h4>
-        <p style={{ margin: 0, fontSize: '0.95rem', lineHeight: '1.6', color: 'rgba(255,255,255,0.85)' }}>
+        <h4 style={{ margin: '0 0 6px 0', fontSize: '0.85rem', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 500 }}>English Translation</h4>
+        <p style={{ margin: 0, fontSize: '0.95rem', lineHeight: '1.65', color: 'rgba(255,255,255,0.85)', fontWeight: 300 }}>
           {currentQuote.translation}
         </p>
       </div>
@@ -254,7 +254,7 @@ export default function SubhashitaWidget() {
             padding: '8px 18px',
             borderRadius: '12px',
             fontSize: '0.85rem',
-            fontWeight: 700,
+            fontWeight: 500,
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',

@@ -25,11 +25,11 @@ export default async function WatchlistPage() {
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
                 <span style={{ fontSize: '2rem' }}>🔖</span>
-                <h1 style={{ fontSize: '2.5rem', fontWeight: 900, margin: 0, color: '#fff', letterSpacing: '-0.5px' }}>
+                <h1 style={{ fontSize: '2.5rem', fontWeight: 700, margin: 0, color: '#fff', letterSpacing: '-0.5px' }}>
                   My List / Favorites
                 </h1>
               </div>
-              <p style={{ color: '#94a3b8', fontSize: '1.05rem', maxWidth: '680px', lineHeight: '1.6', margin: 0 }}>
+              <p style={{ color: '#94a3b8', fontSize: '1.05rem', maxWidth: '680px', lineHeight: '1.6', margin: 0, fontWeight: 300 }}>
                 All the Sanskrit masterclasses, episodes, and sacred texts you've saved to your private watchlist.
               </p>
             </div>
@@ -42,7 +42,7 @@ export default async function WatchlistPage() {
                 padding: '8px 16px', 
                 borderRadius: '20px', 
                 fontSize: '0.9rem', 
-                fontWeight: 800 
+                fontWeight: 500 
               }}>
                 {watchlistCourses.length} {watchlistCourses.length === 1 ? 'Item' : 'Items'} Saved
               </span>
@@ -64,10 +64,10 @@ export default async function WatchlistPage() {
             margin: '40px auto'
           }}>
             <div style={{ fontSize: '3rem', marginBottom: '16px' }}>🔐</div>
-            <h3 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#fff', marginBottom: '10px' }}>
+            <h3 style={{ fontSize: '1.4rem', fontWeight: 600, color: '#fff', marginBottom: '10px' }}>
               Sign In to Access Your Favorites
             </h3>
-            <p style={{ color: '#94a3b8', fontSize: '0.95rem', lineHeight: '1.6', marginBottom: '24px' }}>
+            <p style={{ color: '#94a3b8', fontSize: '0.95rem', lineHeight: '1.6', marginBottom: '24px', fontWeight: 300 }}>
               Your watchlist is synced securely across all your devices once you log in to your DigitalSanskrit account.
             </p>
             <Link 
@@ -78,10 +78,11 @@ export default async function WatchlistPage() {
                 padding: '12px 30px', 
                 borderRadius: '30px', 
                 textDecoration: 'none', 
-                fontWeight: 800, 
+                fontWeight: 600, 
                 fontSize: '0.95rem',
                 display: 'inline-block',
-                boxShadow: '0 4px 15px rgba(242,100,34,0.4)'
+                boxShadow: '0 4px 15px rgba(242,100,34,0.4)',
+                letterSpacing: '0.3px'
               }}
             >
               Sign In Now →
@@ -99,10 +100,10 @@ export default async function WatchlistPage() {
             margin: '30px auto'
           }}>
             <div style={{ fontSize: '3.5rem', marginBottom: '16px' }}>📂</div>
-            <h3 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#cbd5e1', marginBottom: '10px' }}>
+            <h3 style={{ fontSize: '1.4rem', fontWeight: 600, color: '#cbd5e1', marginBottom: '10px' }}>
               Your Watchlist is Empty
             </h3>
-            <p style={{ color: '#64748b', fontSize: '0.95rem', lineHeight: '1.6', marginBottom: '25px' }}>
+            <p style={{ color: '#64748b', fontSize: '0.95rem', lineHeight: '1.6', marginBottom: '25px', fontWeight: 300 }}>
               You haven't bookmarked any items yet. Look for the <strong>+ My List</strong> button while browsing courses or watching trailers to save them here for quick access.
             </p>
             <Link 
@@ -113,11 +114,12 @@ export default async function WatchlistPage() {
                 padding: '12px 28px', 
                 borderRadius: '30px', 
                 textDecoration: 'none', 
-                fontWeight: 800, 
+                fontWeight: 600, 
                 fontSize: '0.9rem',
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '8px'
+                gap: '8px',
+                letterSpacing: '0.3px'
               }}
             >
               <Compass size={18} /> Explore Catalog
@@ -193,7 +195,7 @@ export default async function WatchlistPage() {
                           padding: '3px 8px', 
                           borderRadius: '6px', 
                           fontSize: '0.65rem', 
-                          fontWeight: 900,
+                          fontWeight: 600,
                           background: bg,
                           color: '#000',
                           border: border,
@@ -221,7 +223,7 @@ export default async function WatchlistPage() {
                       padding: '2px 8px',
                       borderRadius: '4px',
                       fontSize: '0.65rem',
-                      fontWeight: 800,
+                      fontWeight: 500,
                       display: 'flex',
                       alignItems: 'center',
                       gap: '4px'
@@ -233,17 +235,17 @@ export default async function WatchlistPage() {
                   {/* Body Content */}
                   <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', flex: 1 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                      <span style={{ color: 'var(--primary, #f26422)', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                      <span style={{ color: 'var(--primary, #f26422)', fontSize: '0.75rem', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                         {course.category || 'Sanskrit OTT'}
                       </span>
-                      <span style={{ color: '#46d369', fontSize: '0.75rem', fontWeight: 800 }}>
+                      <span style={{ color: '#46d369', fontSize: '0.75rem', fontWeight: 600 }}>
                         99% Match
                       </span>
                     </div>
 
                     <h3 style={{ 
                       fontSize: '1.05rem', 
-                      fontWeight: 800, 
+                      fontWeight: 600, 
                       color: '#f8fafc', 
                       margin: '0 0 8px 0', 
                       lineHeight: '1.4',
@@ -256,13 +258,13 @@ export default async function WatchlistPage() {
                     </h3>
 
                     <div style={{ marginTop: 'auto', paddingTop: '14px', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ color: '#94a3b8', fontSize: '0.75rem' }}>
+                      <span style={{ color: '#94a3b8', fontSize: '0.75rem', fontWeight: 300 }}>
                         {course.contentType || 'VIDEO'}
                       </span>
                       <span style={{ 
                         color: 'var(--primary, #f26422)', 
                         fontSize: '0.8rem', 
-                        fontWeight: 800,
+                        fontWeight: 600,
                         display: 'inline-flex',
                         alignItems: 'center',
                         gap: '4px'

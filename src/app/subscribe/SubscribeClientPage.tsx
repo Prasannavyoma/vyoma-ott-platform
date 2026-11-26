@@ -497,7 +497,7 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
             padding: '6px 18px',
             borderRadius: '20px',
             fontSize: '0.75rem',
-            fontWeight: 800,
+            fontWeight: 500,
             textTransform: 'uppercase',
             letterSpacing: '2px',
             display: 'inline-block',
@@ -509,9 +509,9 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
           
           <h1 style={{ 
             fontSize: '3.6rem', 
-            fontWeight: 900, 
+            fontWeight: 700, 
             marginBottom: '15px', 
-            letterSpacing: '-2px',
+            letterSpacing: '-1.5px',
             background: 'linear-gradient(135deg, #fff 30%, #94a3b8 100%)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
@@ -519,7 +519,7 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
           }}>
             Choose Your Learning Path
           </h1>
-          <p style={{ color: '#8f98a9', maxWidth: '680px', margin: '0 auto', lineHeight: '1.6', fontSize: '1.1rem' }}>
+          <p style={{ color: '#8f98a9', maxWidth: '680px', margin: '0 auto', lineHeight: '1.65', fontSize: '1.1rem', fontWeight: 300 }}>
             Unlock unlimited access to Sanskrit E-books, Interactive Quizzes, Podcast streams, HD Video Lectures, and immersive Educational Games.
           </p>
           
@@ -607,31 +607,31 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
             <div className="card-shimmer-overlay"></div>
             
             <div style={{ textAlign: 'left', marginBottom: '25px', zIndex: 2 }}>
-              <div style={{ fontSize: '0.8rem', fontWeight: 800, textTransform: 'uppercase', color: '#8f98a9', letterSpacing: '1.5px' }}>Starter Access</div>
-              <h3 style={{ fontSize: '1.9rem', fontWeight: 900, marginTop: '5px', color: '#fff' }}>Free Path</h3>
+              <div style={{ fontSize: '0.8rem', fontWeight: 500, textTransform: 'uppercase', color: '#8f98a9', letterSpacing: '1.5px' }}>Starter Access</div>
+              <h3 style={{ fontSize: '1.9rem', fontWeight: 700, marginTop: '5px', color: '#fff' }}>Free Path</h3>
             </div>
             
-            <div className="price-text" key={`free-${billingPeriod}`} style={{ animation: 'scalePop 0.4s ease-out', zIndex: 2 }}>
+            <div className="price-text" key={`free-${billingPeriod}`} style={{ animation: 'scalePop 0.4s ease-out', zIndex: 2, fontWeight: 700 }}>
               ₹0 / $0
             </div>
-            <div className="price-sub" style={{ zIndex: 2 }}>Free Lifetime Plan</div>
+            <div className="price-sub" style={{ zIndex: 2, fontWeight: 300 }}>Free Lifetime Plan</div>
 
             <div style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', margin: '0 0 25px 0', zIndex: 2 }}></div>
 
             <div style={{ flex: 1, marginBottom: '35px', zIndex: 2 }}>
-              <div className="feature-item">
+              <div className="feature-item" style={{ fontWeight: 300 }}>
                 <span className="feature-icon">✓</span>
                 <span>Select introductory video lectures</span>
               </div>
-              <div className="feature-item">
+              <div className="feature-item" style={{ fontWeight: 300 }}>
                 <span className="feature-icon">✓</span>
                 <span>Basic Sanskrit vocabulary games</span>
               </div>
-              <div className="feature-item">
+              <div className="feature-item" style={{ fontWeight: 300 }}>
                 <span className="feature-icon">✓</span>
                 <span>Public podcast streams</span>
               </div>
-              <div className="feature-item" style={{ opacity: 0.4 }}>
+              <div className="feature-item" style={{ opacity: 0.4, fontWeight: 300 }}>
                 <span style={{ color: '#ef4444', marginRight: '6px' }}>✗</span>
                 <span>Advanced Grammarian tracks</span>
               </div>
@@ -644,13 +644,14 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
               color: '#fff', 
               borderRadius: '12px', 
               textDecoration: 'none', 
-              fontWeight: 700,
+              fontWeight: 600,
               fontSize: '1rem',
               background: 'rgba(255,255,255,0.02)',
               transition: 'all 0.3s ease',
               textAlign: 'center',
               boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
-              zIndex: 2
+              zIndex: 2,
+              letterSpacing: '0.3px'
             }} onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.25)'; }} onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.02)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'; }}>
               Get Started Free
             </Link>
@@ -661,24 +662,24 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
             <div className="card-shimmer-overlay"></div>
             
             <div style={{ textAlign: 'left', marginBottom: '25px', zIndex: 2 }}>
-              <div style={{ fontSize: '0.8rem', fontWeight: 800, textTransform: 'uppercase', color: '#f26422', letterSpacing: '1.5px' }}>Intermediate Mastery</div>
-              <h3 style={{ fontSize: '1.9rem', fontWeight: 900, marginTop: '5px', color: '#f26422' }}>Gold Plan</h3>
+              <div style={{ fontSize: '0.8rem', fontWeight: 500, textTransform: 'uppercase', color: '#f26422', letterSpacing: '1.5px' }}>Intermediate Mastery</div>
+              <h3 style={{ fontSize: '1.9rem', fontWeight: 700, marginTop: '5px', color: '#f26422' }}>Gold Plan</h3>
             </div>
             
             <div style={{ zIndex: 2 }}>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
-                <span style={{ fontSize: '2.8rem', fontWeight: 950, color: '#fff' }}>
+                <span style={{ fontSize: '2.8rem', fontWeight: 700, color: '#fff' }}>
                   ₹{selectedGold ? getINRPrice(selectedGold) : '39'}
                 </span>
-                <span style={{ fontSize: '1.8rem', fontWeight: 800, color: '#60a5fa' }}>
+                <span style={{ fontSize: '1.8rem', fontWeight: 600, color: '#60a5fa' }}>
                   / ${selectedGold ? getUSDPrice(selectedGold) : '3'}
                 </span>
               </div>
               <div style={{ display: 'flex', gap: '8px', marginTop: '6px', flexWrap: 'wrap' }}>
-                <span style={{ background: 'rgba(242,100,34,0.15)', border: '1px solid rgba(242,100,34,0.3)', color: '#ff8c53', fontSize: '0.75rem', fontWeight: 800, padding: '2px 8px', borderRadius: '8px' }}>
+                <span style={{ background: 'rgba(242,100,34,0.15)', border: '1px solid rgba(242,100,34,0.3)', color: '#ff8c53', fontSize: '0.75rem', fontWeight: 500, padding: '2px 8px', borderRadius: '8px' }}>
                   🇮🇳 India: ₹{selectedGold ? getINRPrice(selectedGold) : '39'}
                 </span>
-                <span style={{ background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)', color: '#60a5fa', fontSize: '0.75rem', fontWeight: 800, padding: '2px 8px', borderRadius: '8px' }}>
+                <span style={{ background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)', color: '#60a5fa', fontSize: '0.75rem', fontWeight: 500, padding: '2px 8px', borderRadius: '8px' }}>
                   🌍 Abroad: ${selectedGold ? getUSDPrice(selectedGold) : '3'}
                 </span>
               </div>
@@ -795,24 +796,24 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
             </div>
             
             <div style={{ textAlign: 'left', marginBottom: '25px', zIndex: 2 }}>
-              <div style={{ fontSize: '0.8rem', fontWeight: 800, textTransform: 'uppercase', color: '#ff8c53', letterSpacing: '1.5px' }}>Unlimited Authority</div>
-              <h3 style={{ fontSize: '1.9rem', fontWeight: 900, marginTop: '5px', color: '#ff8c53' }}>Platinum Plan</h3>
+              <div style={{ fontSize: '0.8rem', fontWeight: 500, textTransform: 'uppercase', color: '#ff8c53', letterSpacing: '1.5px' }}>Unlimited Authority</div>
+              <h3 style={{ fontSize: '1.9rem', fontWeight: 700, marginTop: '5px', color: '#ff8c53' }}>Platinum Plan</h3>
             </div>
             
             <div style={{ zIndex: 2 }}>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
-                <span style={{ fontSize: '2.8rem', fontWeight: 950, color: '#fff' }}>
+                <span style={{ fontSize: '2.8rem', fontWeight: 700, color: '#fff' }}>
                   ₹{selectedPlatinum ? getINRPrice(selectedPlatinum) : '49'}
                 </span>
-                <span style={{ fontSize: '1.8rem', fontWeight: 800, color: '#60a5fa' }}>
+                <span style={{ fontSize: '1.8rem', fontWeight: 600, color: '#60a5fa' }}>
                   / ${selectedPlatinum ? getUSDPrice(selectedPlatinum) : '5'}
                 </span>
               </div>
               <div style={{ display: 'flex', gap: '8px', marginTop: '6px', flexWrap: 'wrap' }}>
-                <span style={{ background: 'rgba(242,100,34,0.15)', border: '1px solid rgba(242,100,34,0.3)', color: '#ff8c53', fontSize: '0.75rem', fontWeight: 800, padding: '2px 8px', borderRadius: '8px' }}>
+                <span style={{ background: 'rgba(242,100,34,0.15)', border: '1px solid rgba(242,100,34,0.3)', color: '#ff8c53', fontSize: '0.75rem', fontWeight: 500, padding: '2px 8px', borderRadius: '8px' }}>
                   🇮🇳 India: ₹{selectedPlatinum ? getINRPrice(selectedPlatinum) : '49'}
                 </span>
-                <span style={{ background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)', color: '#60a5fa', fontSize: '0.75rem', fontWeight: 800, padding: '2px 8px', borderRadius: '8px' }}>
+                <span style={{ background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)', color: '#60a5fa', fontSize: '0.75rem', fontWeight: 500, padding: '2px 8px', borderRadius: '8px' }}>
                   🌍 Abroad: ${selectedPlatinum ? getUSDPrice(selectedPlatinum) : '5'}
                 </span>
               </div>
@@ -994,12 +995,12 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
           textAlign: 'center',
           animation: 'fadeIn 1s ease'
         }}>
-          <h2 style={{ fontSize: '2.4rem', fontWeight: 800, marginBottom: '15px', letterSpacing: '-1px' }}>Feature Comparison</h2>
-          <p style={{ color: '#8f98a9', marginBottom: '45px', fontSize: '1.05rem' }}>Deep dive into details to pick the perfect plan tailored for your learning pace.</p>
+          <h2 style={{ fontSize: '2.4rem', fontWeight: 700, marginBottom: '15px', letterSpacing: '-1px' }}>Feature Comparison</h2>
+          <p style={{ color: '#8f98a9', marginBottom: '45px', fontSize: '1.05rem', fontWeight: 300 }}>Deep dive into details to pick the perfect plan tailored for your learning pace.</p>
           
           <div style={{ 
             background: 'rgba(10, 18, 32, 0.4)', 
-            backdropFilter: 'blur(20px)',
+            backdropFilter: 'blur(20px)', 
             border: '1px solid rgba(255,255,255,0.06)', 
             borderRadius: '20px', 
             overflowX: 'auto',
@@ -1010,46 +1011,46 @@ export default function SubscribeClientPage({ initialPlans, currentUser, paidCou
                 <tr>
                   <th>Features & Capabilities</th>
                   <th>Free Path</th>
-                  <th style={{ color: '#f26422', fontWeight: 800 }}>Gold Plan</th>
-                  <th style={{ color: '#ff8c53', fontWeight: 800 }}>Platinum Plan</th>
+                  <th style={{ color: '#f26422', fontWeight: 600 }}>Gold Plan</th>
+                  <th style={{ color: '#ff8c53', fontWeight: 600 }}>Platinum Plan</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
                   <td>Sanskrit Video Lectures</td>
-                  <td>Introductory clips only</td>
-                  <td>Standard Syllabus (Curated)</td>
-                  <td style={{ fontWeight: 'bold', color: '#fff' }}>All videos & masterclass archives</td>
+                  <td style={{ fontWeight: 300 }}>Introductory clips only</td>
+                  <td style={{ fontWeight: 300 }}>Standard Syllabus (Curated)</td>
+                  <td style={{ fontWeight: 500, color: '#fff' }}>All videos & masterclass archives</td>
                 </tr>
                 <tr>
                   <td>E-books & Chanting manuals</td>
-                  <td>✗ None</td>
-                  <td>✓ Over 50+ books</td>
-                  <td style={{ fontWeight: 'bold', color: '#fff' }}>✓ Unlimited catalog access</td>
+                  <td style={{ fontWeight: 300 }}>✗ None</td>
+                  <td style={{ fontWeight: 300 }}>✓ Over 50+ books</td>
+                  <td style={{ fontWeight: 500, color: '#fff' }}>✓ Unlimited catalog access</td>
                 </tr>
                 <tr>
                   <td>Grammar Game Engines</td>
-                  <td>Basic levels</td>
-                  <td>Standard mode</td>
-                  <td style={{ fontWeight: 'bold', color: '#fff' }}>✓ Sandbox Simulator & Arcade modes</td>
+                  <td style={{ fontWeight: 300 }}>Basic levels</td>
+                  <td style={{ fontWeight: 300 }}>Standard mode</td>
+                  <td style={{ fontWeight: 500, color: '#fff' }}>✓ Sandbox Simulator & Arcade modes</td>
                 </tr>
                 <tr>
                   <td>Graded Quizzes & Metrics</td>
-                  <td>✗ None</td>
-                  <td>✓ Standard dashboard metrics</td>
-                  <td style={{ fontWeight: 'bold', color: '#fff' }}>✓ Comprehensive Syllabus Analytics</td>
+                  <td style={{ fontWeight: 300 }}>✗ None</td>
+                  <td style={{ fontWeight: 300 }}>✓ Standard dashboard metrics</td>
+                  <td style={{ fontWeight: 500, color: '#fff' }}>✓ Comprehensive Syllabus Analytics</td>
                 </tr>
                 <tr>
                   <td>Completion Certificates</td>
-                  <td>✗ None</td>
-                  <td>✗ None</td>
-                  <td style={{ fontWeight: 'bold', color: '#22c55e' }}>✓ Verified digital credentials</td>
+                  <td style={{ fontWeight: 300 }}>✗ None</td>
+                  <td style={{ fontWeight: 300 }}>✗ None</td>
+                  <td style={{ fontWeight: 500, color: '#22c55e' }}>✓ Verified digital credentials</td>
                 </tr>
                 <tr>
                   <td>Priority Consultation</td>
-                  <td>✗ None</td>
-                  <td>✗ None</td>
-                  <td style={{ fontWeight: 'bold', color: '#fff' }}>✓ Priority Helpdesk & Tutor Chat</td>
+                  <td style={{ fontWeight: 300 }}>✗ None</td>
+                  <td style={{ fontWeight: 300 }}>✗ None</td>
+                  <td style={{ fontWeight: 500, color: '#fff' }}>✓ Priority Helpdesk & Tutor Chat</td>
                 </tr>
               </tbody>
             </table>

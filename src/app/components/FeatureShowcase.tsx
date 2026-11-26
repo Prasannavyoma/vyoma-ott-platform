@@ -57,17 +57,17 @@ export default function FeatureShowcase() {
             border: '1px solid rgba(242, 100, 34, 0.25)',
             color: 'var(--primary)',
             fontSize: '0.7rem',
-            fontWeight: 800,
+            fontWeight: 600,
             letterSpacing: '1px',
             textTransform: 'uppercase',
             marginBottom: '10px'
           }}>
             <Sparkles size={12} /> UNLIMITED ENTERTAINMENT &amp; LEARNING
           </span>
-          <h2 style={{ fontSize: '1.8rem', fontWeight: 900, color: '#fff', letterSpacing: '-0.5px', lineHeight: 1.2 }}>
+          <h2 style={{ fontSize: '1.8rem', fontWeight: 700, color: '#fff', letterSpacing: '-0.5px', lineHeight: 1.2 }}>
             Stream Anywhere, On Any Device
           </h2>
-          <p style={{ color: '#aaa', fontSize: '0.95rem', marginTop: '8px', lineHeight: '1.5' }}>
+          <p style={{ color: '#aaa', fontSize: '0.95rem', marginTop: '8px', lineHeight: '1.6', fontWeight: 300 }}>
             Experience seamless high-definition video, offline playback, and smart TV integration built for modern audiences.
           </p>
         </div>
@@ -110,7 +110,7 @@ export default function FeatureShowcase() {
                   </div>
                   <span style={{
                     fontSize: '0.65rem',
-                    fontWeight: 800,
+                    fontWeight: 500,
                     color: '#888',
                     letterSpacing: '0.8px',
                     textTransform: 'uppercase',
@@ -124,10 +124,10 @@ export default function FeatureShowcase() {
                 </div>
 
                 <div>
-                  <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#fff', letterSpacing: '-0.3px', lineHeight: 1.3, marginBottom: '8px' }}>
+                  <h3 style={{ fontSize: '1.25rem', fontWeight: 600, color: '#fff', letterSpacing: '-0.3px', lineHeight: 1.3, marginBottom: '8px' }}>
                     {item.title}
                   </h3>
-                  <p style={{ color: '#94a3b8', fontSize: '0.88rem', lineHeight: '1.5', margin: 0 }}>
+                  <p style={{ color: '#94a3b8', fontSize: '0.88rem', lineHeight: '1.6', margin: 0, fontWeight: 300 }}>
                     {item.description}
                   </p>
                 </div>
@@ -141,7 +141,7 @@ export default function FeatureShowcase() {
                 alignItems: 'center',
                 justifyContent: 'space-between'
               }}>
-                <span style={{ fontSize: '0.7rem', color: '#666', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                <span style={{ fontSize: '0.7rem', color: '#666', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                   Supported Hardware
                 </span>
                 <div style={{ display: 'flex', gap: '8px', color: '#bbb' }}>
