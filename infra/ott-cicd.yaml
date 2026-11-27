@@ -1,0 +1,150 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >-
+  Vyoma OTT deployment pipeline access - lets GitHub Actions (OIDC, no stored AWS keys) push images to
+  ECR and update the vyoma-ott-<env>-app CloudFormation stacks. Create once per account.
+  Stack name: vyoma-ott-cicd (us-east-1).
+
+Parameters:
+  GitHubOwner:
+    Type: String
+    Default: Prasannavyoma
+  GitHubRepo:
+    Type: String
+    Default: vyoma-ott-platform
+  ExistingOidcProviderArn:
+    Type: String
+    Default: ''
+    Description: >-
+      Leave empty to create the GitHub OIDC provider. If the account already has one
+      (IAM > Identity providers > token.actions.githubusercontent.com), paste its ARN here.
+
+Conditions:
+  CreateOidcProvider: !Equals [!Ref ExistingOidcProviderArn, '']
+
+Resources:
+  GitHubOidcProvider:
+    Type: AWS::IAM::OIDCProvider
+    Condition: CreateOidcProvider
+    Properties:
+      Url: https://token.actions.githubusercontent.com
+      ClientIdList: [sts.amazonaws.com]
+      ThumbprintList:
+        - 6938fd4d98bab03faadb97b34396831e3780aea1
+        - 1c58a3a8518e8759bf075b76b750d4f2df264fcd
+
+  # Role CloudFormation itself uses to change the app stack's resources. GitHub only gets to pass
+  # this role, so the GitHub role stays small.
+  CfnExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: vyoma-ott-cfn-deploy
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal: { Service: cloudformation.amazonaws.com }
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: manage-ott-app-stack
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ec2:*
+                  - elasticloadbalancing:*
+                  - ecs:*
+                  - ecr:*
+                  - rds:*
+                  - secretsmanager:*
+                  - logs:*
+                  - cloudwatch:*
+                  - sns:*
+                  - application-autoscaling:*
+                  - kms:DescribeKey
+                  - kms:CreateGrant
+                  - iam:CreateServiceLinkedRole
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - iam:GetRole
+                  - iam:CreateRole
+                  - iam:DeleteRole
+                  - iam:UpdateRole
+                  - iam:UpdateAssumeRolePolicy
+                  - iam:PutRolePolicy
+                  - iam:GetRolePolicy
+                  - iam:DeleteRolePolicy
+                  - iam:AttachRolePolicy
+                  - iam:DetachRolePolicy
+                  - iam:ListRolePolicies
+                  - iam:ListAttachedRolePolicies
+                  - iam:TagRole
+                  - iam:UntagRole
+                  - iam:PassRole
+                Resource: !Sub arn:${AWS::Partition}:iam::${AWS::AccountId}:role/vyoma-ott-*
+
+  # Role assumed by the GitHub Actions workflow. Only jobs running in the GitHub environments
+  # "dev" or "prod" of this repository can assume it (set branch rules / reviewers on those).
+  GitHubDeployRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: vyoma-ott-github-deploy
+      MaxSessionDuration: 7200
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Federated: !If [CreateOidcProvider, !Ref GitHubOidcProvider, !Ref ExistingOidcProviderArn]
+            Action: sts:AssumeRoleWithWebIdentity
+            Condition:
+              StringEquals:
+                token.actions.githubusercontent.com:aud: sts.amazonaws.com
+                token.actions.githubusercontent.com:sub:
+                  - !Sub repo:${GitHubOwner}/${GitHubRepo}:environment:dev
+                  - !Sub repo:${GitHubOwner}/${GitHubRepo}:environment:prod
+      Policies:
+        - PolicyName: deploy-ott-app
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: ecr:GetAuthorizationToken
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - ecr:BatchCheckLayerAvailability
+                  - ecr:BatchGetImage
+                  - ecr:GetDownloadUrlForLayer
+                  - ecr:InitiateLayerUpload
+                  - ecr:UploadLayerPart
+                  - ecr:CompleteLayerUpload
+                  - ecr:PutImage
+                  - ecr:DescribeImages
+                Resource: !Sub arn:${AWS::Partition}:ecr:${AWS::Region}:${AWS::AccountId}:repository/vyoma-ott-*-web
+              - Effect: Allow
+                Action:
+                  - cloudformation:DescribeStacks
+                  - cloudformation:DescribeStackEvents
+                  - cloudformation:CreateChangeSet
+                  - cloudformation:DescribeChangeSet
+                  - cloudformation:ExecuteChangeSet
+                  - cloudformation:DeleteChangeSet
+                Resource: !Sub arn:${AWS::Partition}:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/vyoma-ott-*-app/*
+              - Effect: Allow
+                Action:
+                  - cloudformation:GetTemplateSummary
+                  - cloudformation:ValidateTemplate
+                Resource: '*'
+              - Effect: Allow
+                Action: iam:PassRole
+                Resource: !GetAtt CfnExecutionRole.Arn
+                Condition:
+                  StringEquals: { iam:PassedToService: cloudformation.amazonaws.com }
+
+Outputs:
+  GitHubDeployRoleArn:
+    Value: !GetAtt GitHubDeployRole.Arn
+  CfnExecutionRoleArn:
+    Value: !GetAtt CfnExecutionRole.Arn

@@ -1,0 +1,114 @@
+# Build the Docker image, push it to ECR and roll it out to ECS by updating the
+# vyoma-ott-<env>-app CloudFormation stack (template from this commit + new ImageTag).
+#
+#   push to master        -> dev
+#   Actions > Deploy > Run workflow (choose dev or prod)
+#
+# AWS access is via OIDC (no stored keys): role vyoma-ott-github-deploy from infra/ott-cicd.yaml.
+# The app stack must already exist (first create it by hand, see infra/README.md).
+name: Deploy
+
+on:
+  push:
+    branches: [master]
+    paths-ignore:
+      - '**.md'
+      - 'loadtest/**'
+      - 'infra/*.py'
+      - 'infra/migration/**'
+      - 'infra/ott-storage.yaml'
+      - 'infra/ott-cicd.yaml'
+  workflow_dispatch:
+    inputs:
+      env:
+        description: Environment
+        type: choice
+        options: [dev, prod]
+        default: dev
+
+permissions:
+  id-token: write   # OIDC token for AWS
+  contents: read
+
+env:
+  AWS_REGION: us-east-1
+  AWS_ACCOUNT_ID: '073942724844'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    environment: ${{ inputs.env || 'dev' }}
+    concurrency:
+      group: deploy-${{ inputs.env || 'dev' }}
+      cancel-in-progress: false
+    env:
+      DEPLOY_ENV: ${{ inputs.env || 'dev' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/vyoma-ott-github-deploy
+          aws-region: ${{ env.AWS_REGION }}
+          role-session-name: github-${{ github.run_id }}
+
+      - name: Check the app stack exists
+        run: |
+          STACK=vyoma-ott-$DEPLOY_ENV-app
+          aws cloudformation describe-stacks --stack-name "$STACK" --query 'Stacks[0].StackStatus' --output text \
+            || { echo "::error::Stack $STACK not found - create it first (infra/README.md)"; exit 1; }
+          echo "STACK=$STACK" >> "$GITHUB_ENV"
+
+      - name: Image tag
+        run: |
+          TAG="$(git rev-parse --short=8 HEAD)-${{ github.run_number }}"
+          REPO="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/vyoma-ott-$DEPLOY_ENV-web"
+          echo "TAG=$TAG" >> "$GITHUB_ENV"
+          echo "IMAGE=$REPO:$TAG" >> "$GITHUB_ENV"
+
+      - uses: aws-actions/amazon-ecr-login@v2
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build and push image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64
+          push: true
+          provenance: false
+          tags: ${{ env.IMAGE }}
+          cache-from: type=gha,scope=web
+          cache-to: type=gha,scope=web,mode=max
+
+      - name: Deploy (CloudFormation update, waits for ECS rollout)
+        run: |
+          aws cloudformation deploy \
+            --stack-name "$STACK" \
+            --template-file infra/ott-app.yaml \
+            --parameter-overrides "ImageTag=$TAG" \
+            --capabilities CAPABILITY_NAMED_IAM \
+            --role-arn "arn:aws:iam::$AWS_ACCOUNT_ID:role/vyoma-ott-cfn-deploy" \
+            --no-fail-on-empty-changeset
+
+      - name: Smoke test (/api/health?deep=1)
+        run: |
+          URL=$(aws cloudformation describe-stacks --stack-name "$STACK" \
+            --query "Stacks[0].Outputs[?OutputKey=='AppUrl'].OutputValue" --output text)
+          for i in $(seq 1 10); do
+            if curl -fsS --max-time 10 "$URL/api/health?deep=1"; then
+              echo; echo "Deployed $TAG to $DEPLOY_ENV: $URL"
+              echo "Deployed \`$TAG\` to **$DEPLOY_ENV**: $URL" >> "$GITHUB_STEP_SUMMARY"
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "::error::Health check failed at $URL/api/health?deep=1"; exit 1
+
+      - name: Recent stack events (on failure)
+        if: failure()
+        run: |
+          aws cloudformation describe-stack-events --stack-name "$STACK" --max-items 25 \
+            --query 'StackEvents[].[Timestamp,LogicalResourceId,ResourceStatus,ResourceStatusReason]' --output table || true
