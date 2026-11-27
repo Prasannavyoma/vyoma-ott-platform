@@ -7,6 +7,7 @@ import { getFeaturedSlider, getTrendingNow } from './actions/analytics';
 import { getContinueWatching, getUserWatchlist } from './actions/ott';
 import { getAIRecommendedCourses } from '@/lib/recommendation-engine';
 import prisma from '@/lib/prisma';
+import { getSystemSettingsMap } from '@/lib/settings';
 import SponsorSlider from './components/SponsorSlider';
 import { cookies } from 'next/headers';
 import SubhashitaWidget from './components/SubhashitaWidget';
@@ -15,21 +16,38 @@ import Footer from './components/Footer';
 import HomeScrollRestoration from './components/HomeScrollRestoration';
 import { PlayCircle, PlusCircle, Search as SearchIcon, Sparkles, Flame, CreditCard, LayoutTemplate, Smile, Headphones, Gift, BookOpen, Star, Mic, Video, Gamepad2 } from 'lucide-react';
 
+// In-memory cache for high-frequency homepage read queries (60s TTL)
+let cachedSections: { data: any[]; expiresAt: number } | null = null;
+let cachedChannels: { data: any[]; expiresAt: number } | null = null;
+let cachedFooterMenus: { data: any[]; expiresAt: number } | null = null;
+let cachedSponsors: { data: any[]; expiresAt: number } | null = null;
+const CACHE_TTL_MS = 60 * 1000;
+
 // Direct safe SQL conduit bypassing Prisma cached TS model definition locks
 async function getSafeHomepageSections(): Promise<any[]> {
+  const now = Date.now();
+  if (cachedSections && cachedSections.expiresAt > now) {
+    return cachedSections.data;
+  }
   try {
     const raw = await prisma.homepageSection.findMany({
       where: { active: true },
       orderBy: { order: 'asc' }
     });
-    return Array.isArray(raw) ? raw : [];
+    const data = Array.isArray(raw) ? raw : [];
+    cachedSections = { data, expiresAt: now + CACHE_TTL_MS };
+    return data;
   } catch (e) {
     console.error("Failed reading layout sections via SQL:", e);
-    return [];
+    return cachedSections ? cachedSections.data : [];
   }
 }
 
 async function getSafeHomepageChannels(): Promise<any[]> {
+  const now = Date.now();
+  if (cachedChannels && cachedChannels.expiresAt > now) {
+    return cachedChannels.data;
+  }
   try {
     let raw = await prisma.homepageChannel.findMany({ 
       where: { active: true },
@@ -56,10 +74,12 @@ async function getSafeHomepageChannels(): Promise<any[]> {
         orderBy: { order: 'asc' } 
       });
     }
-    return Array.isArray(raw) ? raw : [];
+    const data = Array.isArray(raw) ? raw : [];
+    cachedChannels = { data, expiresAt: now + CACHE_TTL_MS };
+    return data;
   } catch (e) {
     console.error("Failed reading layout channels:", e);
-    return [];
+    return cachedChannels ? cachedChannels.data : [];
   }
 }
 
@@ -96,6 +116,7 @@ export default async function HomePage() {
   const lastSearchQuery = cookieStore.get('last_search_query')?.value || '';
   let dbErrorStr: string | null = null;
 
+  const now = Date.now();
   const [
     featuredCourses,
     trendingCourses,
@@ -106,21 +127,56 @@ export default async function HomePage() {
     userWatchlist,
     aiRecommended,
     sponsors,
-    hideDummySetting,
     footerMenusData,
-    hotstarChannelsSetting
+    settingsMap
   ] = await Promise.all([
     getFeaturedSlider(),
     getTrendingNow(),
-    (async () => { try { return await prisma.course.findMany({ orderBy: { createdAt: 'desc' }, take: 100 }); } catch (e: any) { dbErrorStr = e.message; return []; } })(),
+    (async () => { 
+      try { 
+        return await prisma.course.findMany({ 
+          orderBy: { createdAt: 'desc' }, 
+          take: 100,
+          select: {
+            id: true,
+            title: true,
+            thumbnailUrl: true,
+            category: true,
+            accessLevel: true,
+            contentType: true,
+            trailerUrl: true,
+            createdAt: true,
+            showRibbon: true,
+            imageAlt: true
+          }
+        }); 
+      } catch (e: any) { 
+        dbErrorStr = e.message; 
+        return []; 
+      } 
+    })(),
     getSafeHomepageSections(),
     getSafeHomepageChannels(),
     getContinueWatching(),
     getUserWatchlist(),
     getAIRecommendedCourses(),
-    (async () => { try { return await prisma.sponsor.findMany({ orderBy: { createdAt: 'desc' } }); } catch (e: any) { dbErrorStr = e.message; return []; } })(),
-    (async () => { try { return await prisma.systemSetting.findUnique({ where: { key: 'HIDE_DUMMY_SPONSORS' } }); } catch (e) { return null; } })(),
+    (async () => { 
+      if (cachedSponsors && cachedSponsors.expiresAt > now) {
+        return cachedSponsors.data;
+      }
+      try { 
+        const raw = await prisma.sponsor.findMany({ orderBy: { createdAt: 'desc' } }); 
+        cachedSponsors = { data: raw, expiresAt: now + CACHE_TTL_MS };
+        return raw;
+      } catch (e: any) { 
+        dbErrorStr = e.message; 
+        return cachedSponsors ? cachedSponsors.data : []; 
+      } 
+    })(),
     (async () => {
+      if (cachedFooterMenus && cachedFooterMenus.expiresAt > now) {
+        return cachedFooterMenus.data;
+      }
       try {
         let menus = await prisma.navigationMenu.findMany({
           where: { parentId: null, isFooter: true },
@@ -166,19 +222,20 @@ export default async function HomePage() {
             orderBy: { order: 'asc' }
           });
         }
+        cachedFooterMenus = { data: menus, expiresAt: now + CACHE_TTL_MS };
         return menus;
       } catch (e) {
         console.error("Footer fetch failed:", e);
-        return [];
+        return cachedFooterMenus ? cachedFooterMenus.data : [];
       }
     })(),
-    (async () => { try { return await prisma.systemSetting.findUnique({ where: { key: 'FEATURE_HOTSTAR_CHANNELS' } }); } catch (e) { return null; } })()
+    getSystemSettingsMap()
   ]);
 
   let dynamicSections = dynamicSectionsRaw;
-  let hideDummy = hideDummySetting?.value === 'true';
+  let hideDummy = settingsMap.get('HIDE_DUMMY_SPONSORS') === 'true';
   let footerMenus = footerMenusData;
-  let hotstarChannelsEnabled = hotstarChannelsSetting ? hotstarChannelsSetting.value === 'true' : true;
+  let hotstarChannelsEnabled = settingsMap.get('FEATURE_HOTSTAR_CHANNELS') !== 'false';
 
   // Personalized Hero Slider: Boost courses matching the last search query
   let personalizedFeatured = [...featuredCourses];
@@ -222,7 +279,17 @@ export default async function HomePage() {
             { description: { contains: queryWithAmp } }
           ]
         },
-        take: 8
+        take: 8,
+        select: {
+          id: true,
+          title: true,
+          thumbnailUrl: true,
+          accessLevel: true,
+          createdAt: true,
+          showRibbon: true,
+          imageAlt: true,
+          trailerUrl: true
+        }
       });
     } catch (e: any) {
       dbErrorStr = e.message;

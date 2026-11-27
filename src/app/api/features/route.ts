@@ -1,24 +1,9 @@
 import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import { getSystemSettingsMap } from '@/lib/settings';
 
 export async function GET() {
   try {
-    const rawSettings = await prisma.systemSetting.findMany({
-      where: {
-        key: {
-          in: [
-            'FEATURE_SHORTS', 
-            'FEATURE_BLOG',
-            'FEATURE_SCRIPT_SWITCHER',
-            'FEATURE_GAMIFICATION_STREAKS',
-            'FEATURE_AI_PRONUNCIATION',
-            'FEATURE_KNOWLEDGE_ROADMAP'
-          ]
-        }
-      }
-    });
-    
-    const settingsMap = new Map(rawSettings.map(s => [s.key, s.value]));
+    const settingsMap = await getSystemSettingsMap();
     
     const shortsEnabled = settingsMap.has('FEATURE_SHORTS') ? settingsMap.get('FEATURE_SHORTS') === 'true' : true;
     const blogEnabled = settingsMap.has('FEATURE_BLOG') ? settingsMap.get('FEATURE_BLOG') === 'true' : true;
@@ -34,6 +19,10 @@ export async function GET() {
       streaksEnabled,
       aiPronunciationEnabled,
       roadmapEnabled
+    }, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300'
+      }
     });
   } catch (e) {
     return NextResponse.json({ 

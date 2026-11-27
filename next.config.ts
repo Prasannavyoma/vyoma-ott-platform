@@ -3,6 +3,8 @@ import type { NextConfig } from "next";
 import path from 'path';
 
 const nextConfig: NextConfig = {
+  compress: true,
+  poweredByHeader: false,
   allowedDevOrigins: [
     'localhost:3000',
     '*.loca.lt',
@@ -30,14 +32,23 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        source: '/api/(.*)',
+        source: '/fonts/(.*)',
         headers: [
           {
             key: 'Cache-Control',
-            value: 'no-store, max-age=0',
+            value: 'public, max-age=31536000, immutable',
           },
         ],
-      }
+      },
+      {
+        source: '/assets/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=86400, stale-while-revalidate=604800',
+          },
+        ],
+      },
     ];
   },
 };

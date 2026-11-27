@@ -223,7 +223,20 @@ export async function getTrendingNow() {
   try {
     return await prisma.course.findMany({
       orderBy: { views: 'desc' },
-      take: 10
+      take: 10,
+      select: {
+        id: true,
+        title: true,
+        thumbnailUrl: true,
+        accessLevel: true,
+        views: true,
+        createdAt: true,
+        showRibbon: true,
+        imageAlt: true,
+        trailerUrl: true,
+        category: true,
+        contentType: true
+      }
     });
   } catch (error) {
     console.error("Database connection error in getTrendingNow:", error);
@@ -236,7 +249,16 @@ export async function getFeaturedSlider() {
     const featured = await prisma.course.findMany({
       where: { featuredInSlider: true },
       orderBy: { createdAt: 'desc' },
-      take: 8
+      take: 8,
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        thumbnailUrl: true,
+        accessLevel: true,
+        category: true,
+        contentType: true
+      }
     });
     
     if (featured.length > 0) return featured;
@@ -244,7 +266,16 @@ export async function getFeaturedSlider() {
     // Resilient fallback if no explicit flags set yet
     return await prisma.course.findMany({
       orderBy: { views: 'desc' },
-      take: 5
+      take: 5,
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        thumbnailUrl: true,
+        accessLevel: true,
+        category: true,
+        contentType: true
+      }
     });
   } catch (error) {
     console.error("Database connection error in getFeaturedSlider:", error);

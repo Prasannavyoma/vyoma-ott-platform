@@ -1,6 +1,7 @@
 import { cookies, headers } from 'next/headers';
 import prisma from '@/lib/prisma';
 import crypto from 'crypto';
+import { cache } from 'react';
 
 const AUTH_SECRET = process.env.AUTH_SECRET || process.env.SESSION_SECRET || 'vyoma_secure_auth_session_hmac_2026_key';
 
@@ -66,7 +67,7 @@ export function verifySignedCookie(cookieValue: string): string | null {
   return null;
 }
 
-export async function getCurrentUser() {
+export const getCurrentUser = cache(async () => {
   const cookieStore = await cookies();
   const rawCookie = cookieStore.get('user_email')?.value;
 
@@ -126,7 +127,7 @@ export async function getCurrentUser() {
   } catch (e) {
     return null;
   }
-}
+});
 
 export async function setSessionUser(email: string, rememberMe: boolean = false) {
   const normalizedEmail = email.toLowerCase().trim();

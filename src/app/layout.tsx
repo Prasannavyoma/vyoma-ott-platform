@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic';
 
 import Script from 'next/script';
 import prisma from "@/lib/prisma";
+import { getSystemSettingsMap } from "@/lib/settings";
 import OneSignalRegistry from "./components/OneSignalRegistry";
 import { headers } from "next/headers";
 import { getCurrentUser } from "@/lib/auth";
@@ -86,11 +87,8 @@ export default async function RootLayout({
   let themeButtonRadius = '8px';
 
   try {
-    const res = await prisma.systemSetting.findUnique({ where: { key: 'ONESIGNAL_APP_ID' } });
-    oneSignalAppId = res?.value || "";
-
-    const rawSettings = await prisma.systemSetting.findMany();
-    const settingsMap = new Map(rawSettings.map(s => [s.key, s.value]));
+    const settingsMap = await getSystemSettingsMap();
+    oneSignalAppId = settingsMap.get('ONESIGNAL_APP_ID') || "";
 
     // AI Settings
     if (settingsMap.has('CHATBOT_ENABLED')) {
@@ -145,7 +143,7 @@ export default async function RootLayout({
   const fontUrl = themeFontFamily === 'Shobhika' 
     ? null 
     : themeFontFamily === 'Futura'
-    ? 'https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700;800;900&display=swap'
+    ? 'https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800&display=swap'
     : `https://fonts.googleapis.com/css2?family=${themeFontFamily.replace(/ /g, '+')}:wght@300;400;500;600;700;800&display=swap`;
 
   const dynamicFontFamilyCSS = themeFontFamily === 'Futura'
@@ -159,6 +157,7 @@ export default async function RootLayout({
         <meta name="theme-color" content={themePrimary} />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="preload" href="/fonts/Shobhika-Regular.otf" as="font" type="font/otf" crossOrigin="anonymous" />
         {fontUrl && <link href={fontUrl} rel="stylesheet" />}
         <style dangerouslySetInnerHTML={{ __html: `
           :root {
