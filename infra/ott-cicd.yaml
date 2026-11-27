@@ -7,7 +7,7 @@ Description: >-
 Parameters:
   GitHubOwner:
     Type: String
-    Default: Prasannavyoma
+    Default: Vyoma-Linguistic-Labs-Foundation
   GitHubRepo:
     Type: String
     Default: vyoma-ott-platform
