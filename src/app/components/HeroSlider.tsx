@@ -26,8 +26,8 @@ export default function HeroSlider({ items }: { items: SliderItem[] }) {
 
   if (!items || items.length === 0) {
     return (
-      <section className="hero" style={{ backgroundImage: `url('/assets/Bala-new.jpg')` }}>
-        <div className="hero-content">
+      <section className="hero" style={{ backgroundImage: `url('/assets/Bala-new.jpg')`, padding: '0 5%' }}>
+        <div className="hero-content" style={{ padding: '105px 0 25px 0' }}>
           <h1 className="hero-title" style={{ fontFamily: "'Jost', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif", fontWeight: 600 }}>Srimad Valmiki Ramayana</h1>
           <p className="hero-desc" style={{ fontFamily: "'Jost', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif", fontWeight: 400 }}>Embark on the eternal epic narrative of standard values and righteous living.</p>
         </div>
@@ -62,7 +62,7 @@ export default function HeroSlider({ items }: { items: SliderItem[] }) {
             <div className="desktop-only" style={{ height: '100%', width: '100%', position: 'relative', overflow: 'hidden' }}>
               <section className="hero" style={{ 
                 position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, height: '100%', minHeight: '100%',
-                display: 'flex', alignItems: 'center'
+                display: 'flex', alignItems: 'center', padding: '0 5%'
               }}>
                 {/* Full-width Cover Image, pushed to the right */}
                 <div style={{
@@ -75,17 +75,12 @@ export default function HeroSlider({ items }: { items: SliderItem[] }) {
                   zIndex: 0
                 }} />
 
-                {/* Massive Netflix-style Solid Gradient Overlay */}
-                {/* 
-                  - Solid #030b17 from 0% to 45% completely ERASES any text built into the left side of the image.
-                  - Fades beautifully from 45% to 75% to reveal the artwork on the right.
-                  - Bottom gradient to blend smoothly into the page below.
-                */}
+                {/* Subtle cinematic gradient: protects text on left while keeping artwork completely visible */}
                 <div style={{
                   position: 'absolute',
                   top: 0, left: 0, right: 0, bottom: 0,
                   background: `
-                    linear-gradient(90deg, #030b17 0%, #030b17 45%, rgba(3,11,23,0.8) 60%, transparent 85%),
+                    linear-gradient(90deg, rgba(3,11,23,0.96) 0%, rgba(3,11,23,0.85) 30%, rgba(3,11,23,0.45) 55%, rgba(3,11,23,0.05) 75%, transparent 100%),
                     linear-gradient(0deg, #030b17 0%, rgba(3,11,23,0) 25%)
                   `,
                   zIndex: 1
@@ -94,12 +89,12 @@ export default function HeroSlider({ items }: { items: SliderItem[] }) {
                 <div className="hero-content" style={{
                   position: 'relative',
                   zIndex: 2,
-                  transform: isActive ? 'translateY(0)' : 'translateY(20px)',
+                  transform: isActive ? 'translateY(0)' : 'translateY(16px)',
                   opacity: isActive ? 1 : 0,
-                  transition: 'all 1.0s cubic-bezier(0.25, 1, 0.5, 1)',
-                  transitionDelay: '0.15s',
-                  padding: '150px 4% 40px 4%', 
-                  maxWidth: 'min(100%, 600px)'
+                  transition: 'all 0.8s cubic-bezier(0.25, 1, 0.5, 1)',
+                  transitionDelay: '0.1s',
+                  padding: '95px 0 25px 0', 
+                  maxWidth: 'min(100%, 620px)'
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '12px', color: '#c4c4c4', fontSize: '0.85rem', fontWeight: 400, letterSpacing: '0.5px' }}>
                     <span style={{ color: '#46d369', fontWeight: 700 }}>98% Match</span>
@@ -124,7 +119,7 @@ export default function HeroSlider({ items }: { items: SliderItem[] }) {
                   <p className="hero-desc" style={{ 
                     fontSize: '0.95rem', 
                     lineHeight: '1.65', 
-                    marginBottom: '30px',
+                    marginBottom: '20px',
                     color: 'rgba(255, 255, 255, 0.88)',
                     textShadow: '0 2px 10px rgba(0,0,0,0.9)',
                     display: '-webkit-box',
@@ -286,25 +281,25 @@ export default function HeroSlider({ items }: { items: SliderItem[] }) {
       {items.length > 1 && (
         <div style={{
           position: 'absolute',
-          bottom: '8%',
-          right: '6%',
+          bottom: '22px',
+          right: '5%',
           zIndex: 20,
           display: 'flex',
-          gap: '10px'
+          gap: '8px'
         }}>
           {items.map((_, i) => (
             <button
               key={i}
               onClick={() => setIndex(i)}
               style={{
-                width: i === index ? '35px' : '12px',
-                height: '12px',
-                borderRadius: '6px',
+                width: i === index ? '28px' : '9px',
+                height: '8px',
+                borderRadius: '4px',
                 background: i === index ? 'var(--primary)' : 'rgba(255,255,255,0.3)',
                 border: 'none',
                 cursor: 'pointer',
                 transition: 'all 0.3s ease',
-                boxShadow: '0 2px 10px rgba(0,0,0,0.5)'
+                boxShadow: '0 2px 8px rgba(0,0,0,0.5)'
               }}
               aria-label={`Go to slide ${i + 1}`}
             />

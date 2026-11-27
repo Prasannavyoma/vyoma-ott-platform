@@ -718,38 +718,34 @@ footer h3 {
   transform: scale(1.05);
 }
 
-/* Improved Hero Styling for WOW Factor */
+/* Hero Banner Height Calibration - Compact, Accurate Fit */
 .hero-slider-wrapper {
-  height: calc(85vh + 60px);
-  min-height: 700px;
+  height: clamp(460px, 58vh, 530px);
+  min-height: 460px;
+  max-height: 530px;
 }
 
 .hero {
   position: relative;
   height: 100%;
-  min-height: 700px;
+  min-height: 100%;
   background-size: cover;
-  background-position: center top; /* Critical fix for better face/art visibility */
+  background-position: center top; /* Pin to top so heads are never cropped */
   background-repeat: no-repeat;
   display: flex;
   align-items: center;
-  padding: 140px 6% 60px 6%;
+  padding: 0;
 }
 
 .hero::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  /* Heavy cinematic vignette anchoring to pure black left where text sits, preventing background collisions */
-  background: linear-gradient(90deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0.9) 35%, rgba(0,0,0,0.5) 60%, rgba(0,0,0,0.1) 100%),
-              linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 20%, rgba(0,0,0,0) 70%, var(--background) 100%);
+  display: none;
 }
 
 .hero-content {
   position: relative;
   z-index: 10;
-  max-width: 650px; /* Tightened container ensuring text doesn't bleed into right-hand subject art */
-  padding: 140px 0 40px 0;
+  max-width: 620px;
+  padding: 0;
   margin-left: 0;
   display: flex;
   flex-direction: column;
@@ -942,11 +938,11 @@ footer h3 {
 
 /* Rows Section - Completely solved overlapping collision */
 .row-container {
-  padding: 40px 5% 80px 5%; /* Added distinct padding for visual rest */
-  margin-top: -30px; /* Drastically reduced to only a subtle cinematic overlap */
+  padding: 24px 5% 80px 5%; /* Tight, balanced padding for visual rest */
+  margin-top: -15px; /* Subtle cinematic overlap into hero slider */
   position: relative;
   z-index: 20;
-  background: linear-gradient(to bottom, transparent 0%, var(--background) 50px);
+  background: linear-gradient(to bottom, transparent 0%, var(--background) 40px);
 }
 
 .row {
