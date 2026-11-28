@@ -1,0 +1,446 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >-
+  Vyoma OTT storage and CDN for one environment - S3 buckets (media-source, media-delivery,
+  user-uploads, backups), a CloudFront distribution reading S3 through Origin Access Control,
+  and the ECS task role used by the app containers. Deploy once per environment (stack names vyoma-ott-dev-storage and
+  vyoma-ott-prod-storage) in us-east-1.
+
+Parameters:
+  Env:
+    Type: String
+    AllowedValues: [prod, dev]
+    Description: Environment name; used in resource names and tags.
+  Owner:
+    Type: String
+    Default: ott-team
+    Description: Value for the owner tag.
+  AppOrigins:
+    Type: CommaDelimitedList
+    Default: 'http://localhost:3000,http://localhost:3001'
+    Description: >-
+      Site origins allowed by CORS (browser uploads to user-uploads, hls.js / offline downloads
+      from CloudFront). Use the real site URL(s) for prod.
+  TrustedKeyGroupId:
+    Type: String
+    Default: ''
+    Description: >-
+      CloudFront key group ID used to verify signed cookies/URLs. When set, everything except
+      /public/* and /u/* requires a signature. Required for prod.
+
+Rules:
+  ProdRequiresSignedContent:
+    RuleCondition: !Equals [!Ref Env, prod]
+    Assertions:
+      - Assert: !Not [!Equals [!Ref TrustedKeyGroupId, '']]
+        AssertDescription: TrustedKeyGroupId is required for prod so paid media is not public.
+
+Conditions:
+  IsProd: !Equals [!Ref Env, prod]
+  HasKeyGroup: !Not [!Equals [!Ref TrustedKeyGroupId, '']]
+
+Resources:
+  # ---------------------------------------------------------------------------------------
+  # Master media: original uploads (video/audio masters). Never served to users;
+  # MediaConvert reads from here and writes playable renditions to media-delivery.
+  # ---------------------------------------------------------------------------------------
+  MediaSourceBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      BucketName: !Sub vyoma-ott-${Env}-media-source
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault: { SSEAlgorithm: AES256 }
+            BucketKeyEnabled: true
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      OwnershipControls:
+        Rules: [{ ObjectOwnership: BucketOwnerEnforced }]
+      VersioningConfiguration:
+        Status: !If [IsProd, Enabled, Suspended]
+      CorsConfiguration:
+        CorsRules:
+          - AllowedMethods: [PUT, HEAD]
+            AllowedOrigins: !Ref AppOrigins
+            AllowedHeaders: ['*']
+            ExposedHeaders: [ETag]
+            MaxAge: 3000
+      LifecycleConfiguration:
+        Rules:
+          - Id: abort-incomplete-multipart
+            Status: Enabled
+            AbortIncompleteMultipartUpload: { DaysAfterInitiation: 7 }
+          # dev keeps a real copy of the media for testing, so media is never auto-expired
+          - Id: intelligent-tiering
+            Status: Enabled
+            Transitions:
+              - { StorageClass: INTELLIGENT_TIERING, TransitionInDays: 0 }
+            NoncurrentVersionExpiration: { NoncurrentDays: 30 }
+      Tags:
+        - { Key: project, Value: ott }
+        - { Key: env, Value: !Ref Env }
+        - { Key: owner, Value: !Ref Owner }
+        - { Key: purpose, Value: media-source }
+
+  # ---------------------------------------------------------------------------------------
+  # Delivery: everything CloudFront serves - HLS + MP4 renditions, posters, thumbnails,
+  # subtitles, ebooks. Layout: public/... (free, unsigned) and courses/... (signed).
+  # ---------------------------------------------------------------------------------------
+  MediaDeliveryBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      BucketName: !Sub vyoma-ott-${Env}-media-delivery
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault: { SSEAlgorithm: AES256 }
+            BucketKeyEnabled: true
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      OwnershipControls:
+        Rules: [{ ObjectOwnership: BucketOwnerEnforced }]
+      LifecycleConfiguration:
+        Rules:
+          - Id: abort-incomplete-multipart
+            Status: Enabled
+            AbortIncompleteMultipartUpload: { DaysAfterInitiation: 7 }
+          - Id: intelligent-tiering
+            Status: Enabled
+            Transitions:
+              - { StorageClass: INTELLIGENT_TIERING, TransitionInDays: 0 }
+      Tags:
+        - { Key: project, Value: ott }
+        - { Key: env, Value: !Ref Env }
+        - { Key: owner, Value: !Ref Owner }
+        - { Key: purpose, Value: media-delivery }
+
+  # ---------------------------------------------------------------------------------------
+  # User uploads: avatars and admin CMS uploads, written via presigned PUT from the browser.
+  # Objects live under u/... so CloudFront can serve them at /u/*.
+  # ---------------------------------------------------------------------------------------
+  UserUploadsBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      BucketName: !Sub vyoma-ott-${Env}-user-uploads
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault: { SSEAlgorithm: AES256 }
+            BucketKeyEnabled: true
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      OwnershipControls:
+        Rules: [{ ObjectOwnership: BucketOwnerEnforced }]
+      CorsConfiguration:
+        CorsRules:
+          - AllowedMethods: [PUT, HEAD]
+            AllowedOrigins: !Ref AppOrigins
+            AllowedHeaders: ['*']
+            ExposedHeaders: [ETag]
+            MaxAge: 3000
+      LifecycleConfiguration:
+        Rules:
+          - Id: abort-incomplete-multipart
+            Status: Enabled
+            AbortIncompleteMultipartUpload: { DaysAfterInitiation: 7 }
+          - !If
+            - IsProd
+            - !Ref AWS::NoValue
+            - Id: dev-expire
+              Status: Enabled
+              ExpirationInDays: 14
+      Tags:
+        - { Key: project, Value: ott }
+        - { Key: env, Value: !Ref Env }
+        - { Key: owner, Value: !Ref Owner }
+        - { Key: purpose, Value: user-uploads }
+
+  # ---------------------------------------------------------------------------------------
+  # Backups: WordPress archive and manual DB exports (routine DB backups = RDS snapshots).
+  # ---------------------------------------------------------------------------------------
+  BackupsBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      BucketName: !Sub vyoma-ott-${Env}-backups
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault: { SSEAlgorithm: AES256 }
+            BucketKeyEnabled: true
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      OwnershipControls:
+        Rules: [{ ObjectOwnership: BucketOwnerEnforced }]
+      VersioningConfiguration:
+        Status: !If [IsProd, Enabled, Suspended]
+      LifecycleConfiguration:
+        Rules:
+          - Id: abort-incomplete-multipart
+            Status: Enabled
+            AbortIncompleteMultipartUpload: { DaysAfterInitiation: 7 }
+          - !If
+            - IsProd
+            - Id: archive-then-expire
+              Status: Enabled
+              Transitions:
+                - { StorageClass: DEEP_ARCHIVE, TransitionInDays: 30 }
+              ExpirationInDays: 365
+              NoncurrentVersionExpiration: { NoncurrentDays: 30 }
+            - Id: dev-expire
+              Status: Enabled
+              ExpirationInDays: 30
+      Tags:
+        - { Key: project, Value: ott }
+        - { Key: env, Value: !Ref Env }
+        - { Key: owner, Value: !Ref Owner }
+        - { Key: purpose, Value: backups }
+
+  # ---------------------------------------------------------------------------------------
+  # CloudFront: private S3 origins via Origin Access Control.
+  #   /u/*       -> user-uploads    (unsigned)
+  #   /public/*  -> media-delivery  (unsigned: posters, trailers, free previews)
+  #   default    -> media-delivery  (signed cookies/URLs when a key group is configured)
+  # ---------------------------------------------------------------------------------------
+  OriginAccessControl:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name: !Sub vyoma-ott-${Env}-s3-oac
+        Description: CloudFront access to the Vyoma OTT S3 buckets.
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+
+  CorsHeadersPolicy:
+    Type: AWS::CloudFront::ResponseHeadersPolicy
+    Properties:
+      ResponseHeadersPolicyConfig:
+        Name: !Sub vyoma-ott-${Env}-cors
+        Comment: CORS for hls.js playback and offline downloads from the site origins.
+        CorsConfig:
+          AccessControlAllowCredentials: true # signed cookies are sent with hls.js / fetch requests
+          # '*' is not allowed together with AllowCredentials: list the headers players actually send
+          AccessControlAllowHeaders: { Items: [Range, Origin, Accept, Content-Type, If-None-Match, If-Modified-Since] }
+          AccessControlAllowMethods: { Items: [GET, HEAD, OPTIONS] }
+          AccessControlAllowOrigins: { Items: !Ref AppOrigins }
+          AccessControlExposeHeaders: { Items: [Content-Length, Content-Range, Accept-Ranges, ETag] }
+          AccessControlMaxAgeSec: 3000
+          OriginOverride: true
+
+  Distribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Comment: !Sub Vyoma OTT media (${Env})
+        Enabled: true
+        HttpVersion: http2and3
+        IPV6Enabled: true
+        PriceClass: PriceClass_200 # includes India; PriceClass_100 is North America/Europe only
+        Origins:
+          - Id: media-delivery
+            DomainName: !GetAtt MediaDeliveryBucket.RegionalDomainName
+            OriginAccessControlId: !GetAtt OriginAccessControl.Id
+            S3OriginConfig: { OriginAccessIdentity: '' }
+          - Id: user-uploads
+            DomainName: !GetAtt UserUploadsBucket.RegionalDomainName
+            OriginAccessControlId: !GetAtt OriginAccessControl.Id
+            S3OriginConfig: { OriginAccessIdentity: '' }
+        DefaultCacheBehavior:
+          TargetOriginId: media-delivery
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods: [GET, HEAD, OPTIONS]
+          CachedMethods: [GET, HEAD, OPTIONS]
+          Compress: true
+          CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6          # Managed-CachingOptimized
+          OriginRequestPolicyId: 88a5eaf4-2fd4-4709-b370-b4c650ea3fcf  # Managed-CORS-S3Origin
+          ResponseHeadersPolicyId: !Ref CorsHeadersPolicy
+          TrustedKeyGroups: !If [HasKeyGroup, [!Ref TrustedKeyGroupId], !Ref AWS::NoValue]
+        CacheBehaviors:
+          - PathPattern: public/*
+            TargetOriginId: media-delivery
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods: [GET, HEAD, OPTIONS]
+            CachedMethods: [GET, HEAD, OPTIONS]
+            Compress: true
+            CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6
+            OriginRequestPolicyId: 88a5eaf4-2fd4-4709-b370-b4c650ea3fcf
+            ResponseHeadersPolicyId: !Ref CorsHeadersPolicy
+          - PathPattern: u/*
+            TargetOriginId: user-uploads
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods: [GET, HEAD, OPTIONS]
+            CachedMethods: [GET, HEAD, OPTIONS]
+            Compress: true
+            CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6
+            OriginRequestPolicyId: 88a5eaf4-2fd4-4709-b370-b4c650ea3fcf
+            ResponseHeadersPolicyId: !Ref CorsHeadersPolicy
+      Tags:
+        - { Key: project, Value: ott }
+        - { Key: env, Value: !Ref Env }
+        - { Key: owner, Value: !Ref Owner }
+
+  # ---------------------------------------------------------------------------------------
+  # Bucket policies: HTTPS only, and CloudFront (this distribution only) may read.
+  # ---------------------------------------------------------------------------------------
+  MediaSourceBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref MediaSourceBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: DenyInsecureTransport
+            Effect: Deny
+            Principal: '*'
+            Action: 's3:*'
+            Resource: [!GetAtt MediaSourceBucket.Arn, !Sub '${MediaSourceBucket.Arn}/*']
+            Condition: { Bool: { 'aws:SecureTransport': 'false' } }
+
+  MediaDeliveryBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref MediaDeliveryBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: DenyInsecureTransport
+            Effect: Deny
+            Principal: '*'
+            Action: 's3:*'
+            Resource: [!GetAtt MediaDeliveryBucket.Arn, !Sub '${MediaDeliveryBucket.Arn}/*']
+            Condition: { Bool: { 'aws:SecureTransport': 'false' } }
+          - Sid: AllowCloudFrontRead
+            Effect: Allow
+            Principal: { Service: cloudfront.amazonaws.com }
+            Action: s3:GetObject
+            Resource: !Sub '${MediaDeliveryBucket.Arn}/*'
+            Condition:
+              StringEquals:
+                'AWS:SourceArn': !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${Distribution}'
+
+  UserUploadsBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref UserUploadsBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: DenyInsecureTransport
+            Effect: Deny
+            Principal: '*'
+            Action: 's3:*'
+            Resource: [!GetAtt UserUploadsBucket.Arn, !Sub '${UserUploadsBucket.Arn}/*']
+            Condition: { Bool: { 'aws:SecureTransport': 'false' } }
+          - Sid: AllowCloudFrontRead
+            Effect: Allow
+            Principal: { Service: cloudfront.amazonaws.com }
+            Action: s3:GetObject
+            Resource: !Sub '${UserUploadsBucket.Arn}/u/*'
+            Condition:
+              StringEquals:
+                'AWS:SourceArn': !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${Distribution}'
+
+  BackupsBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref BackupsBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: DenyInsecureTransport
+            Effect: Deny
+            Principal: '*'
+            Action: 's3:*'
+            Resource: [!GetAtt BackupsBucket.Arn, !Sub '${BackupsBucket.Arn}/*']
+            Condition: { Bool: { 'aws:SecureTransport': 'false' } }
+
+  # ---------------------------------------------------------------------------------------
+  # IAM. No access keys are created here.
+  # ---------------------------------------------------------------------------------------
+  AppPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: !Sub vyoma-ott-${Env}-app-s3
+      Description: Next.js app - presign uploads, manage media objects. Attach to the EC2 role (or a local dev IAM user).
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: ListBuckets
+            Effect: Allow
+            Action: s3:ListBucket
+            Resource:
+              - !GetAtt MediaSourceBucket.Arn
+              - !GetAtt MediaDeliveryBucket.Arn
+              - !GetAtt UserUploadsBucket.Arn
+          - Sid: ReadWriteMedia
+            Effect: Allow
+            Action: [s3:GetObject, s3:PutObject, s3:DeleteObject, s3:AbortMultipartUpload]
+            Resource:
+              - !Sub '${MediaSourceBucket.Arn}/*'
+              - !Sub '${MediaDeliveryBucket.Arn}/*'
+              - !Sub '${UserUploadsBucket.Arn}/*'
+
+  BackupWriterPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: !Sub vyoma-ott-${Env}-backup-writer
+      Description: Backup jobs - write-only to the backups bucket.
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: WriteBackups
+            Effect: Allow
+            Action: [s3:PutObject, s3:AbortMultipartUpload]
+            Resource: !Sub '${BackupsBucket.Arn}/*'
+
+  # Both environments run on ECS Fargate: task role assumed by the app containers for S3 access.
+  # The task execution role (ECR pull, logs, secrets) lives in the app stack (ott-app.yaml).
+  EcsTaskRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub vyoma-ott-${Env}-ecs-task
+      Description: ECS task role for the Vyoma OTT Next.js containers.
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal: { Service: ecs-tasks.amazonaws.com }
+            Action: sts:AssumeRole
+            Condition:
+              ArnLike:
+                'aws:SourceArn': !Sub 'arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:*'
+      ManagedPolicyArns:
+        - !Ref AppPolicy
+      Tags:
+        - { Key: project, Value: ott }
+        - { Key: env, Value: !Ref Env }
+        - { Key: owner, Value: !Ref Owner }
+
+Outputs:
+  MediaSourceBucketName: { Value: !Ref MediaSourceBucket }
+  MediaDeliveryBucketName: { Value: !Ref MediaDeliveryBucket }
+  UserUploadsBucketName: { Value: !Ref UserUploadsBucket }
+  BackupsBucketName: { Value: !Ref BackupsBucket }
+  CloudFrontDistributionId: { Value: !Ref Distribution }
+  CloudFrontDomain: { Value: !GetAtt Distribution.DomainName }
+  AppPolicyArn: { Value: !Ref AppPolicy }
+  BackupWriterPolicyArn: { Value: !Ref BackupWriterPolicy }
+  EcsTaskRoleArn:
+    Value: !GetAtt EcsTaskRole.Arn
+    Export: { Name: !Sub 'vyoma-ott-${Env}-ecs-task-role-arn' }

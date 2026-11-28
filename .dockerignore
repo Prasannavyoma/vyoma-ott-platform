@@ -10,3 +10,10 @@ yarn-debug.log*
 yarn-error.log*
 .vercel
 README.md
+
+# not part of the app image
+infra
+loadtest
+scratch
+scripts
+*.md

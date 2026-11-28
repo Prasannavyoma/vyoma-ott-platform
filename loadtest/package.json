@@ -1,0 +1,15 @@
+{
+  "name": "vyoma-ott-loadtest",
+  "private": true,
+  "type": "module",
+  "description": "Gatling load tests for the Vyoma OTT platform",
+  "scripts": {
+    "smoke": "gatling run --simulation browse rate=2 rampSeconds=10 holdSeconds=20",
+    "load": "gatling run --simulation browse"
+  },
+  "devDependencies": {
+    "@gatling.io/cli": "3.16.4",
+    "@gatling.io/core": "3.16.4",
+    "@gatling.io/http": "3.16.4"
+  }
+}

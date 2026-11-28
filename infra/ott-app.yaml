@@ -1,0 +1,770 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >-
+  Vyoma OTT application on ECS Fargate for one environment - VPC, Application Load Balancer, ECR,
+  ECS service with auto scaling, RDS PostgreSQL (dev), Secrets Manager, CloudWatch logs, dashboard
+  and alarms. Requires the storage stack (vyoma-ott-<env>-storage) first, for the ECS task role.
+  Stack names: vyoma-ott-dev-app / vyoma-ott-prod-app (us-east-1).
+
+Parameters:
+  Env:
+    Type: String
+    AllowedValues: [prod, dev]
+  Owner:
+    Type: String
+    Default: ott-team
+  ImageTag:
+    Type: String
+    Default: ''
+    Description: >-
+      Image tag in this stack's ECR repository. Leave empty on the first deploy (service starts with
+      0 tasks); push the image, then update the stack with the tag to start the service.
+  VpcCidr:
+    Type: String
+    Default: 10.40.0.0/16
+    Description: Address range for the new VPC (two public /20 subnets are carved from it).
+  TaskCpu:
+    Type: String
+    Default: '1024'
+    AllowedValues: ['512', '1024', '2048', '4096']
+  TaskMemory:
+    Type: String
+    Default: '2048'
+    Description: MiB; must be valid for TaskCpu (1024 CPU -> 2048-8192).
+  MinTasks:
+    Type: Number
+    Default: 2
+  MaxTasks:
+    Type: Number
+    Default: 10
+  RequestsPerTaskPerMinute:
+    Type: Number
+    Default: 3000
+    Description: Auto scaling target for ALB requests per task per minute (3000 = 50 req/s per task).
+  DbConnectionLimit:
+    Type: Number
+    Default: 10
+    Description: Prisma connection pool size per task. Keep MaxTasks x this below the DB max_connections.
+  DatabaseUrlSecretArn:
+    Type: String
+    Default: ''
+    Description: >-
+      Leave empty to create an RDS PostgreSQL instance in this stack (dev). For an existing database
+      (prod), give the ARN of a Secrets Manager secret whose value is the full DATABASE_URL.
+  DbInstanceClass:
+    Type: String
+    Default: db.t4g.small
+  DbAdminCidr:
+    Type: String
+    Default: ''
+    Description: >-
+      Optional IP range (e.g. 203.0.113.10/32) allowed to reach the created database directly, for
+      schema setup and data import. Leave empty to keep the database reachable only from the app.
+  AppBaseUrl:
+    Type: String
+    Default: ''
+    Description: Public site URL (e.g. https://ott.example.org). Empty = the load balancer URL.
+  CertificateArn:
+    Type: String
+    Default: ''
+    Description: ACM certificate ARN (us-east-1) for HTTPS. Empty = HTTP only on the load balancer.
+  AlarmEmail:
+    Type: String
+    Default: ''
+    Description: Email address that receives CloudWatch alarm notifications (confirm the subscription email).
+  FailureRatePercent:
+    Type: Number
+    Default: 5
+    Description: Alarm when more than this percent of requests fail with 5xx.
+  LatencyP95Seconds:
+    Type: Number
+    Default: 2
+    Description: Alarm when p95 response time exceeds this many seconds.
+
+Conditions:
+  IsProd: !Equals [!Ref Env, prod]
+  HasImage: !Not [!Equals [!Ref ImageTag, '']]
+  CreateDb: !Equals [!Ref DatabaseUrlSecretArn, '']
+  HasDbAdminCidr: !And [!Condition CreateDb, !Not [!Equals [!Ref DbAdminCidr, '']]]
+  HasCert: !Not [!Equals [!Ref CertificateArn, '']]
+  HasBaseUrl: !Not [!Equals [!Ref AppBaseUrl, '']]
+  HasAlarmEmail: !Not [!Equals [!Ref AlarmEmail, '']]
+
+Resources:
+  # ---------------------------------------------------------------------------------------
+  # Network: one VPC, two public subnets in different AZs. Tasks get public IPs (for ECR,
+  # Secrets Manager, S3 and third-party APIs) but only accept traffic from the load balancer,
+  # which avoids the cost of a NAT gateway.
+  # ---------------------------------------------------------------------------------------
+  Vpc:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref VpcCidr
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - { Key: Name, Value: !Sub 'vyoma-ott-${Env}' }
+        - { Key: project, Value: ott }
+        - { Key: env, Value: !Ref Env }
+
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags: [{ Key: Name, Value: !Sub 'vyoma-ott-${Env}' }]
+
+  GatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref Vpc
+      InternetGatewayId: !Ref InternetGateway
+
+  PublicSubnetA:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref Vpc
+      AvailabilityZone: !Select [0, !GetAZs '']
+      CidrBlock: !Select [0, !Cidr [!Ref VpcCidr, 2, 12]]
+      MapPublicIpOnLaunch: true
+      Tags: [{ Key: Name, Value: !Sub 'vyoma-ott-${Env}-public-a' }]
+
+  PublicSubnetB:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref Vpc
+      AvailabilityZone: !Select [1, !GetAZs '']
+      CidrBlock: !Select [1, !Cidr [!Ref VpcCidr, 2, 12]]
+      MapPublicIpOnLaunch: true
+      Tags: [{ Key: Name, Value: !Sub 'vyoma-ott-${Env}-public-b' }]
+
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref Vpc
+      Tags: [{ Key: Name, Value: !Sub 'vyoma-ott-${Env}-public' }]
+
+  DefaultRoute:
+    Type: AWS::EC2::Route
+    DependsOn: GatewayAttachment
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+
+  SubnetARoutes:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PublicSubnetA
+      RouteTableId: !Ref PublicRouteTable
+
+  SubnetBRoutes:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PublicSubnetB
+      RouteTableId: !Ref PublicRouteTable
+
+  AlbSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Vyoma OTT load balancer - HTTP/HTTPS from the internet
+      VpcId: !Ref Vpc
+      SecurityGroupIngress:
+        - { IpProtocol: tcp, FromPort: 80, ToPort: 80, CidrIp: 0.0.0.0/0 }
+        - { IpProtocol: tcp, FromPort: 443, ToPort: 443, CidrIp: 0.0.0.0/0 }
+      Tags: [{ Key: Name, Value: !Sub 'vyoma-ott-${Env}-alb' }]
+
+  AppSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Vyoma OTT app tasks - only from the load balancer
+      VpcId: !Ref Vpc
+      SecurityGroupIngress:
+        - { IpProtocol: tcp, FromPort: 3000, ToPort: 3000, SourceSecurityGroupId: !Ref AlbSecurityGroup }
+      Tags: [{ Key: Name, Value: !Sub 'vyoma-ott-${Env}-app' }]
+
+  # ---------------------------------------------------------------------------------------
+  # Secrets (generated by Secrets Manager; never in the template or the image)
+  # ---------------------------------------------------------------------------------------
+  AuthSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Sub vyoma-ott/${Env}/auth-secret
+      Description: HMAC key for signing the session cookie (AUTH_SECRET)
+      GenerateSecretString: { PasswordLength: 64, ExcludePunctuation: true }
+
+  CronSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Sub vyoma-ott/${Env}/cron-secret
+      Description: Bearer token for cron endpoints (CRON_SECRET)
+      GenerateSecretString: { PasswordLength: 48, ExcludePunctuation: true }
+
+  AdminMasterKey:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Sub vyoma-ott/${Env}/admin-master-key
+      Description: Admin login master key (ADMIN_MASTER_KEY)
+      GenerateSecretString: { PasswordLength: 40, ExcludePunctuation: true }
+
+  # ---------------------------------------------------------------------------------------
+  # Database (created only when DatabaseUrlSecretArn is empty)
+  # ---------------------------------------------------------------------------------------
+  DbPasswordSecret:
+    Type: AWS::SecretsManager::Secret
+    Condition: CreateDb
+    Properties:
+      Name: !Sub vyoma-ott/${Env}/db-master
+      Description: RDS master credentials for the Vyoma OTT database
+      GenerateSecretString:
+        SecretStringTemplate: '{"username": "vyoma"}'
+        GenerateStringKey: password
+        PasswordLength: 32
+        ExcludePunctuation: true
+
+  DbSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Condition: CreateDb
+    Properties:
+      GroupDescription: Vyoma OTT database - only from the app tasks (and the optional admin range)
+      VpcId: !Ref Vpc
+      SecurityGroupIngress:
+        - { IpProtocol: tcp, FromPort: 5432, ToPort: 5432, SourceSecurityGroupId: !Ref AppSecurityGroup }
+      Tags: [{ Key: Name, Value: !Sub 'vyoma-ott-${Env}-db' }]
+
+  DbAdminIngress:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: HasDbAdminCidr
+    Properties:
+      GroupId: !Ref DbSecurityGroup
+      IpProtocol: tcp
+      FromPort: 5432
+      ToPort: 5432
+      CidrIp: !Ref DbAdminCidr
+      Description: Admin access for schema setup and data import
+
+  DbSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Condition: CreateDb
+    Properties:
+      DBSubnetGroupDescription: Vyoma OTT database subnets
+      SubnetIds: [!Ref PublicSubnetA, !Ref PublicSubnetB]
+
+  Database:
+    Type: AWS::RDS::DBInstance
+    Condition: CreateDb
+    DeletionPolicy: Snapshot
+    UpdateReplacePolicy: Snapshot
+    Properties:
+      DBInstanceIdentifier: !Sub vyoma-ott-${Env}-db
+      Engine: postgres
+      EngineVersion: '17.11'
+      DBInstanceClass: !Ref DbInstanceClass
+      AllocatedStorage: '20'
+      MaxAllocatedStorage: 100
+      StorageType: gp3
+      StorageEncrypted: true
+      DBName: vyoma_ott
+      MasterUsername: !Sub '{{resolve:secretsmanager:${DbPasswordSecret}:SecretString:username}}'
+      MasterUserPassword: !Sub '{{resolve:secretsmanager:${DbPasswordSecret}:SecretString:password}}'
+      DBSubnetGroupName: !Ref DbSubnetGroup
+      VPCSecurityGroups: [!Ref DbSecurityGroup]
+      PubliclyAccessible: !If [HasDbAdminCidr, true, false]
+      MultiAZ: !If [IsProd, true, false]
+      BackupRetentionPeriod: !If [IsProd, 14, 3]
+      DeletionProtection: !If [IsProd, true, false]
+      AutoMinorVersionUpgrade: true
+      Tags:
+        - { Key: project, Value: ott }
+        - { Key: env, Value: !Ref Env }
+        - { Key: owner, Value: !Ref Owner }
+
+  # ---------------------------------------------------------------------------------------
+  # Load balancer
+  # ---------------------------------------------------------------------------------------
+  LoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: !Sub vyoma-ott-${Env}
+      Scheme: internet-facing
+      Type: application
+      Subnets: [!Ref PublicSubnetA, !Ref PublicSubnetB]
+      SecurityGroups: [!Ref AlbSecurityGroup]
+      LoadBalancerAttributes:
+        - { Key: idle_timeout.timeout_seconds, Value: '60' }
+      Tags:
+        - { Key: project, Value: ott }
+        - { Key: env, Value: !Ref Env }
+
+  TargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: !Sub vyoma-ott-${Env}-web
+      VpcId: !Ref Vpc
+      TargetType: ip
+      Protocol: HTTP
+      Port: 3000
+      HealthCheckPath: /api/health
+      HealthCheckIntervalSeconds: 15
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 2
+      UnhealthyThresholdCount: 3
+      Matcher: { HttpCode: '200' }
+      TargetGroupAttributes:
+        - { Key: deregistration_delay.timeout_seconds, Value: '30' }
+
+  HttpListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref LoadBalancer
+      Port: 80
+      Protocol: HTTP
+      DefaultActions:
+        - !If
+          - HasCert
+          - Type: redirect
+            RedirectConfig: { Protocol: HTTPS, Port: '443', StatusCode: HTTP_301 }
+          - Type: forward
+            TargetGroupArn: !Ref TargetGroup
+
+  HttpsListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Condition: HasCert
+    Properties:
+      LoadBalancerArn: !Ref LoadBalancer
+      Port: 443
+      Protocol: HTTPS
+      SslPolicy: ELBSecurityPolicy-TLS13-1-2-2021-06
+      Certificates: [{ CertificateArn: !Ref CertificateArn }]
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref TargetGroup
+
+  # ---------------------------------------------------------------------------------------
+  # Container image registry, cluster, task and service
+  # ---------------------------------------------------------------------------------------
+  Repository:
+    Type: AWS::ECR::Repository
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      RepositoryName: !Sub vyoma-ott-${Env}-web
+      ImageScanningConfiguration: { ScanOnPush: true }
+      LifecyclePolicy:
+        LifecyclePolicyText: |
+          {"rules": [{"rulePriority": 1, "description": "keep the last 30 images",
+            "selection": {"tagStatus": "any", "countType": "imageCountMoreThan", "countNumber": 30},
+            "action": {"type": "expire"}}]}
+
+  Cluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: !Sub vyoma-ott-${Env}
+      ClusterSettings:
+        - { Name: containerInsights, Value: enabled }
+      Tags:
+        - { Key: project, Value: ott }
+        - { Key: env, Value: !Ref Env }
+
+  LogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /ecs/vyoma-ott-${Env}-web
+      RetentionInDays: !If [IsProd, 90, 14]
+
+  ExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub vyoma-ott-${Env}-ecs-execution
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal: { Service: ecs-tasks.amazonaws.com }
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+      Policies:
+        - PolicyName: read-app-secrets
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: secretsmanager:GetSecretValue
+                Resource:
+                  - !Ref AuthSecret
+                  - !Ref CronSecret
+                  - !Ref AdminMasterKey
+                  - !If [CreateDb, !Ref DbPasswordSecret, !Ref DatabaseUrlSecretArn]
+
+  TaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: !Sub vyoma-ott-${Env}-web
+      Cpu: !Ref TaskCpu
+      Memory: !Ref TaskMemory
+      NetworkMode: awsvpc
+      RequiresCompatibilities: [FARGATE]
+      RuntimePlatform: { CpuArchitecture: X86_64, OperatingSystemFamily: LINUX }
+      ExecutionRoleArn: !GetAtt ExecutionRole.Arn
+      TaskRoleArn: { 'Fn::ImportValue': !Sub 'vyoma-ott-${Env}-ecs-task-role-arn' }
+      ContainerDefinitions:
+        - Name: web
+          Image: !Sub
+            - '${Repo}:${Tag}'
+            - Repo: !GetAtt Repository.RepositoryUri
+              Tag: !If [HasImage, !Ref ImageTag, bootstrap]
+          Essential: true
+          PortMappings: [{ ContainerPort: 3000, Protocol: tcp }]
+          StopTimeout: 30
+          Environment:
+            - { Name: NODE_ENV, Value: production }
+            - { Name: APP_ENV, Value: !Ref Env }
+            - { Name: DB_CONNECTION_LIMIT, Value: !Ref DbConnectionLimit }
+            - Name: NEXT_PUBLIC_BASE_URL
+              Value: !If [HasBaseUrl, !Ref AppBaseUrl, !Sub 'http://${LoadBalancer.DNSName}']
+            - !If [CreateDb, { Name: DB_HOST, Value: !GetAtt Database.Endpoint.Address }, !Ref AWS::NoValue]
+            - !If [CreateDb, { Name: DB_PORT, Value: !GetAtt Database.Endpoint.Port }, !Ref AWS::NoValue]
+            - !If [CreateDb, { Name: DB_NAME, Value: vyoma_ott }, !Ref AWS::NoValue]
+          Secrets:
+            - { Name: AUTH_SECRET, ValueFrom: !Ref AuthSecret }
+            - { Name: CRON_SECRET, ValueFrom: !Ref CronSecret }
+            - { Name: ADMIN_MASTER_KEY, ValueFrom: !Ref AdminMasterKey }
+            - !If [CreateDb, { Name: DB_USERNAME, ValueFrom: !Sub '${DbPasswordSecret}:username::' }, !Ref AWS::NoValue]
+            - !If [CreateDb, { Name: DB_PASSWORD, ValueFrom: !Sub '${DbPasswordSecret}:password::' }, !Ref AWS::NoValue]
+            - !If [CreateDb, !Ref AWS::NoValue, { Name: DATABASE_URL, ValueFrom: !Ref DatabaseUrlSecretArn }]
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Ref LogGroup
+              awslogs-region: !Ref AWS::Region
+              awslogs-stream-prefix: web
+
+  Service:
+    Type: AWS::ECS::Service
+    DependsOn: HttpListener
+    Properties:
+      ServiceName: !Sub vyoma-ott-${Env}-web
+      Cluster: !Ref Cluster
+      LaunchType: FARGATE
+      TaskDefinition: !Ref TaskDefinition
+      DesiredCount: !If [HasImage, !Ref MinTasks, 0]
+      HealthCheckGracePeriodSeconds: 90
+      DeploymentConfiguration:
+        MaximumPercent: 200
+        MinimumHealthyPercent: 100
+        DeploymentCircuitBreaker: { Enable: true, Rollback: true }
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: ENABLED
+          SecurityGroups: [!Ref AppSecurityGroup]
+          Subnets: [!Ref PublicSubnetA, !Ref PublicSubnetB]
+      LoadBalancers:
+        - { ContainerName: web, ContainerPort: 3000, TargetGroupArn: !Ref TargetGroup }
+      PropagateTags: SERVICE
+      Tags:
+        - { Key: project, Value: ott }
+        - { Key: env, Value: !Ref Env }
+
+  # ---------------------------------------------------------------------------------------
+  # Auto scaling (only once an image is deployed): CPU and requests per task
+  # ---------------------------------------------------------------------------------------
+  ScalableTarget:
+    Type: AWS::ApplicationAutoScaling::ScalableTarget
+    Condition: HasImage
+    Properties:
+      ServiceNamespace: ecs
+      ScalableDimension: ecs:service:DesiredCount
+      ResourceId: !Sub service/${Cluster}/${Service.Name}
+      MinCapacity: !Ref MinTasks
+      MaxCapacity: !Ref MaxTasks
+
+  CpuScaling:
+    Type: AWS::ApplicationAutoScaling::ScalingPolicy
+    Condition: HasImage
+    Properties:
+      PolicyName: !Sub vyoma-ott-${Env}-cpu
+      PolicyType: TargetTrackingScaling
+      ScalingTargetId: !Ref ScalableTarget
+      TargetTrackingScalingPolicyConfiguration:
+        PredefinedMetricSpecification: { PredefinedMetricType: ECSServiceAverageCPUUtilization }
+        TargetValue: 60
+        ScaleOutCooldown: 60
+        ScaleInCooldown: 300
+
+  RequestScaling:
+    Type: AWS::ApplicationAutoScaling::ScalingPolicy
+    Condition: HasImage
+    Properties:
+      PolicyName: !Sub vyoma-ott-${Env}-requests
+      PolicyType: TargetTrackingScaling
+      ScalingTargetId: !Ref ScalableTarget
+      TargetTrackingScalingPolicyConfiguration:
+        PredefinedMetricSpecification:
+          PredefinedMetricType: ALBRequestCountPerTarget
+          ResourceLabel: !Sub '${LoadBalancer.LoadBalancerFullName}/${TargetGroup.TargetGroupFullName}'
+        TargetValue: !Ref RequestsPerTaskPerMinute
+        ScaleOutCooldown: 60
+        ScaleInCooldown: 300
+
+  # ---------------------------------------------------------------------------------------
+  # Monitoring: SNS topic for alarm notifications, alarms, dashboard
+  # ---------------------------------------------------------------------------------------
+  AlarmTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Sub vyoma-ott-${Env}-alarms
+      DisplayName: !Sub Vyoma OTT ${Env} alarms
+
+  AlarmEmailSubscription:
+    Type: AWS::SNS::Subscription
+    Condition: HasAlarmEmail
+    Properties:
+      TopicArn: !Ref AlarmTopic
+      Protocol: email
+      Endpoint: !Ref AlarmEmail
+
+  # 5xx failure rate = (target 5xx + load balancer 5xx) / requests, ignoring minutes with < 20 requests
+  FailureRateAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub vyoma-ott-${Env}-failure-rate
+      AlarmDescription: !Sub More than ${FailureRatePercent}% of requests are failing with 5xx errors
+      ComparisonOperator: GreaterThanThreshold
+      Threshold: !Ref FailureRatePercent
+      EvaluationPeriods: 3
+      DatapointsToAlarm: 2
+      TreatMissingData: notBreaching
+      AlarmActions: [!Ref AlarmTopic]
+      OKActions: [!Ref AlarmTopic]
+      Metrics:
+        - Id: rate
+          Label: Failure rate (%)
+          Expression: IF(FILL(requests, 0) >= 20, 100 * (FILL(target5xx, 0) + FILL(elb5xx, 0)) / requests, 0)
+          ReturnData: true
+        - Id: target5xx
+          ReturnData: false
+          MetricStat:
+            Metric:
+              Namespace: AWS/ApplicationELB
+              MetricName: HTTPCode_Target_5XX_Count
+              Dimensions: [{ Name: LoadBalancer, Value: !GetAtt LoadBalancer.LoadBalancerFullName }]
+            Period: 60
+            Stat: Sum
+        - Id: elb5xx
+          ReturnData: false
+          MetricStat:
+            Metric:
+              Namespace: AWS/ApplicationELB
+              MetricName: HTTPCode_ELB_5XX_Count
+              Dimensions: [{ Name: LoadBalancer, Value: !GetAtt LoadBalancer.LoadBalancerFullName }]
+            Period: 60
+            Stat: Sum
+        - Id: requests
+          ReturnData: false
+          MetricStat:
+            Metric:
+              Namespace: AWS/ApplicationELB
+              MetricName: RequestCount
+              Dimensions: [{ Name: LoadBalancer, Value: !GetAtt LoadBalancer.LoadBalancerFullName }]
+            Period: 60
+            Stat: Sum
+
+  NoHealthyTasksAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Condition: HasImage
+    Properties:
+      AlarmName: !Sub vyoma-ott-${Env}-no-healthy-tasks
+      AlarmDescription: No healthy app tasks behind the load balancer - the site is down
+      Namespace: AWS/ApplicationELB
+      MetricName: HealthyHostCount
+      Dimensions:
+        - { Name: LoadBalancer, Value: !GetAtt LoadBalancer.LoadBalancerFullName }
+        - { Name: TargetGroup, Value: !GetAtt TargetGroup.TargetGroupFullName }
+      Statistic: Minimum
+      Period: 60
+      EvaluationPeriods: 2
+      Threshold: 1
+      ComparisonOperator: LessThanThreshold
+      TreatMissingData: breaching
+      AlarmActions: [!Ref AlarmTopic]
+      OKActions: [!Ref AlarmTopic]
+
+  UnhealthyTasksAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub vyoma-ott-${Env}-unhealthy-tasks
+      AlarmDescription: One or more app tasks are failing load balancer health checks
+      Namespace: AWS/ApplicationELB
+      MetricName: UnHealthyHostCount
+      Dimensions:
+        - { Name: LoadBalancer, Value: !GetAtt LoadBalancer.LoadBalancerFullName }
+        - { Name: TargetGroup, Value: !GetAtt TargetGroup.TargetGroupFullName }
+      Statistic: Maximum
+      Period: 60
+      EvaluationPeriods: 3
+      Threshold: 0
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+      AlarmActions: [!Ref AlarmTopic]
+      OKActions: [!Ref AlarmTopic]
+
+  LatencyAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub vyoma-ott-${Env}-latency-p95
+      AlarmDescription: !Sub p95 response time above ${LatencyP95Seconds}s
+      Namespace: AWS/ApplicationELB
+      MetricName: TargetResponseTime
+      Dimensions: [{ Name: LoadBalancer, Value: !GetAtt LoadBalancer.LoadBalancerFullName }]
+      ExtendedStatistic: p95
+      Period: 60
+      EvaluationPeriods: 5
+      DatapointsToAlarm: 3
+      Threshold: !Ref LatencyP95Seconds
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+      AlarmActions: [!Ref AlarmTopic]
+      OKActions: [!Ref AlarmTopic]
+
+  CpuAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub vyoma-ott-${Env}-cpu-high
+      AlarmDescription: App tasks average CPU above 85% (auto scaling at max or not keeping up)
+      Namespace: AWS/ECS
+      MetricName: CPUUtilization
+      Dimensions:
+        - { Name: ClusterName, Value: !Ref Cluster }
+        - { Name: ServiceName, Value: !GetAtt Service.Name }
+      Statistic: Average
+      Period: 60
+      EvaluationPeriods: 5
+      Threshold: 85
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+      AlarmActions: [!Ref AlarmTopic]
+      OKActions: [!Ref AlarmTopic]
+
+  MemoryAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub vyoma-ott-${Env}-memory-high
+      AlarmDescription: App tasks average memory above 85%
+      Namespace: AWS/ECS
+      MetricName: MemoryUtilization
+      Dimensions:
+        - { Name: ClusterName, Value: !Ref Cluster }
+        - { Name: ServiceName, Value: !GetAtt Service.Name }
+      Statistic: Average
+      Period: 60
+      EvaluationPeriods: 5
+      Threshold: 85
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+      AlarmActions: [!Ref AlarmTopic]
+      OKActions: [!Ref AlarmTopic]
+
+  DbCpuAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Condition: CreateDb
+    Properties:
+      AlarmName: !Sub vyoma-ott-${Env}-db-cpu-high
+      AlarmDescription: Database CPU above 80% for 10 minutes
+      Namespace: AWS/RDS
+      MetricName: CPUUtilization
+      Dimensions: [{ Name: DBInstanceIdentifier, Value: !Ref Database }]
+      Statistic: Average
+      Period: 60
+      EvaluationPeriods: 10
+      Threshold: 80
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+      AlarmActions: [!Ref AlarmTopic]
+      OKActions: [!Ref AlarmTopic]
+
+  DbStorageAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Condition: CreateDb
+    Properties:
+      AlarmName: !Sub vyoma-ott-${Env}-db-storage-low
+      AlarmDescription: Database free storage below 2 GB
+      Namespace: AWS/RDS
+      MetricName: FreeStorageSpace
+      Dimensions: [{ Name: DBInstanceIdentifier, Value: !Ref Database }]
+      Statistic: Minimum
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 2000000000
+      ComparisonOperator: LessThanThreshold
+      TreatMissingData: notBreaching
+      AlarmActions: [!Ref AlarmTopic]
+      OKActions: [!Ref AlarmTopic]
+
+  Dashboard:
+    Type: AWS::CloudWatch::Dashboard
+    Properties:
+      DashboardName: !Sub vyoma-ott-${Env}
+      DashboardBody: !Sub
+        - |
+          {
+            "widgets": [
+              {"type": "metric", "x": 0, "y": 0, "width": 8, "height": 6, "properties": {
+                "title": "Requests per second", "region": "${AWS::Region}", "view": "timeSeries", "stat": "Sum", "period": 60,
+                "metrics": [[{"expression": "m1/60", "label": "req/s", "id": "e1"}],
+                            ["AWS/ApplicationELB", "RequestCount", "LoadBalancer", "${LbName}", {"id": "m1", "visible": false}]]}},
+              {"type": "metric", "x": 8, "y": 0, "width": 8, "height": 6, "properties": {
+                "title": "Failure rate % (5xx)", "region": "${AWS::Region}", "view": "timeSeries", "period": 60,
+                "metrics": [[{"expression": "IF(FILL(r,0) > 0, 100*(FILL(t,0)+FILL(l,0))/r, 0)", "label": "failure %", "id": "e1"}],
+                            ["AWS/ApplicationELB", "HTTPCode_Target_5XX_Count", "LoadBalancer", "${LbName}", {"id": "t", "stat": "Sum", "visible": false}],
+                            ["AWS/ApplicationELB", "HTTPCode_ELB_5XX_Count", "LoadBalancer", "${LbName}", {"id": "l", "stat": "Sum", "visible": false}],
+                            ["AWS/ApplicationELB", "RequestCount", "LoadBalancer", "${LbName}", {"id": "r", "stat": "Sum", "visible": false}]],
+                "annotations": {"horizontal": [{"label": "alarm", "value": ${FailureRatePercent}}]}}},
+              {"type": "metric", "x": 16, "y": 0, "width": 8, "height": 6, "properties": {
+                "title": "Response time (s)", "region": "${AWS::Region}", "view": "timeSeries", "period": 60,
+                "metrics": [["AWS/ApplicationELB", "TargetResponseTime", "LoadBalancer", "${LbName}", {"stat": "p50", "label": "p50"}],
+                            ["...", {"stat": "p95", "label": "p95"}],
+                            ["...", {"stat": "p99", "label": "p99"}]]}},
+              {"type": "metric", "x": 0, "y": 6, "width": 8, "height": 6, "properties": {
+                "title": "HTTP responses", "region": "${AWS::Region}", "view": "timeSeries", "stat": "Sum", "period": 60,
+                "metrics": [["AWS/ApplicationELB", "HTTPCode_Target_2XX_Count", "LoadBalancer", "${LbName}", {"label": "2xx"}],
+                            [".", "HTTPCode_Target_3XX_Count", ".", ".", {"label": "3xx"}],
+                            [".", "HTTPCode_Target_4XX_Count", ".", ".", {"label": "4xx"}],
+                            [".", "HTTPCode_Target_5XX_Count", ".", ".", {"label": "5xx (app)"}],
+                            [".", "HTTPCode_ELB_5XX_Count", ".", ".", {"label": "5xx (load balancer)"}]]}},
+              {"type": "metric", "x": 8, "y": 6, "width": 8, "height": 6, "properties": {
+                "title": "Tasks", "region": "${AWS::Region}", "view": "timeSeries", "period": 60,
+                "metrics": [["AWS/ApplicationELB", "HealthyHostCount", "TargetGroup", "${TgName}", "LoadBalancer", "${LbName}", {"stat": "Minimum", "label": "healthy"}],
+                            [".", "UnHealthyHostCount", ".", ".", ".", ".", {"stat": "Maximum", "label": "unhealthy"}],
+                            ["ECS/ContainerInsights", "RunningTaskCount", "ClusterName", "${Cluster}", "ServiceName", "${ServiceName}", {"stat": "Average", "label": "running"}]]}},
+              {"type": "metric", "x": 16, "y": 6, "width": 8, "height": 6, "properties": {
+                "title": "App CPU / memory %", "region": "${AWS::Region}", "view": "timeSeries", "stat": "Average", "period": 60,
+                "metrics": [["AWS/ECS", "CPUUtilization", "ClusterName", "${Cluster}", "ServiceName", "${ServiceName}", {"label": "CPU"}],
+                            [".", "MemoryUtilization", ".", ".", ".", ".", {"label": "memory"}]]}},
+              {"type": "metric", "x": 0, "y": 12, "width": 12, "height": 6, "properties": {
+                "title": "Database", "region": "${AWS::Region}", "view": "timeSeries", "stat": "Average", "period": 60,
+                "metrics": [["AWS/RDS", "CPUUtilization", "DBInstanceIdentifier", "vyoma-ott-${Env}-db", {"label": "CPU %"}],
+                            [".", "DatabaseConnections", ".", ".", {"label": "connections", "yAxis": "right"}]]}},
+              {"type": "log", "x": 12, "y": 12, "width": 12, "height": 6, "properties": {
+                "title": "Recent errors in app logs", "region": "${AWS::Region}", "view": "table",
+                "query": "SOURCE '${LogGroup}' | fields @timestamp, @message | filter @message like /(?i)(error|exception|unhandled)/ | sort @timestamp desc | limit 50"}}
+            ]
+          }
+        - LbName: !GetAtt LoadBalancer.LoadBalancerFullName
+          TgName: !GetAtt TargetGroup.TargetGroupFullName
+          ServiceName: !GetAtt Service.Name
+
+Outputs:
+  AppUrl:
+    Value: !If [HasCert, !Sub 'https://${LoadBalancer.DNSName}', !Sub 'http://${LoadBalancer.DNSName}']
+  LoadBalancerDns: { Value: !GetAtt LoadBalancer.DNSName }
+  EcrRepositoryUri: { Value: !GetAtt Repository.RepositoryUri }
+  ClusterName: { Value: !Ref Cluster }
+  ServiceName: { Value: !GetAtt Service.Name }
+  LogGroupName: { Value: !Ref LogGroup }
+  DashboardUrl:
+    Value: !Sub 'https://${AWS::Region}.console.aws.amazon.com/cloudwatch/home?region=${AWS::Region}#dashboards/dashboard/vyoma-ott-${Env}'
+  AlarmTopicArn: { Value: !Ref AlarmTopic }
+  DatabaseEndpoint:
+    Condition: CreateDb
+    Value: !GetAtt Database.Endpoint.Address
+  DatabaseSecretName:
+    Condition: CreateDb
+    Value: !Sub vyoma-ott/${Env}/db-master

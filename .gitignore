@@ -58,3 +58,6 @@ migrate-data.js
 test-ssl.js
 *.xml
 OLD_wordpress.sql
+
+# Python
+__pycache__/
